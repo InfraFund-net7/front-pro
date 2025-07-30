@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileUpload } from "./file-upload";
+import { FileUpload } from "./ui/file-upload";
 import { X, FileText, ImageIcon } from "lucide-react";
 
 interface FileUploadWithPreviewProps {
