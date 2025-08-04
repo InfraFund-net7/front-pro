@@ -22,7 +22,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <AppSidebar />
         </div>
         <div className="flex-1">
-          <div className="flex flex-col h-screen px-12 gap-12">
+          <div className="flex flex-col h-fit px-12 gap-12">
             <Header />
             <main className="flex-1 backdrop-blur-sm rounded-lg">
               {children}
