@@ -1,5 +1,6 @@
-import React from "react";
-import CardView from "./ui/card-view";
+"use client";
+import React, { useState } from "react";
+import CardView from "../ui/card-view";
 import {
   Check,
   SquarePen,
@@ -10,7 +11,9 @@ import {
   MapPinHouse,
   History,
 } from "lucide-react";
-import { CustomButton } from "./ui/custom-button";
+import { CustomButton } from "../ui/custom-button";
+import BasicSection from "./basic-section-kyc";
+import AdvanceSection from "./advance-section-kyc";
 
 const features = [
   { label: "Create Project", basic: false, advanced: true },
@@ -46,13 +49,17 @@ type KycCardProps = {
   details: DetailItem[];
   accessLevel: "basic" | "advanced";
   buttonClassName?: string;
+  onButtonClick?: () => void;
+  isVerified?: boolean;
 };
 
 const KycCard: React.FC<KycCardProps> = ({
   title,
   details,
   accessLevel,
+  onButtonClick,
   buttonClassName,
+  isVerified = false,
 }) => {
   return (
     <CardView
@@ -61,7 +68,10 @@ const KycCard: React.FC<KycCardProps> = ({
       padding="p-8"
       font="ibm-plex-mono"
     >
-      <h2 className="chakra-petch font-semibold text-2xl text-white">
+      <h2
+        style={{ fontFamily: '"Chakra Petch", sans-serif' }}
+        className="font-semibold text-2xl text-white"
+      >
         {title}
       </h2>
 
@@ -78,14 +88,32 @@ const KycCard: React.FC<KycCardProps> = ({
           );
         })}
       </div>
-
-      <CustomButton
-        variant="filled"
-        type="submit"
-        className={`w-full text-xl font-semibold ${buttonClassName || ""}`}
-      >
-        Verify Now
-      </CustomButton>
+      {accessLevel === "advanced" ? (
+        isVerified ? (
+          <CustomButton
+            variant="filled"
+            type="submit"
+            onClick={onButtonClick}
+            className={`w-full text-xl font-semibold ${buttonClassName || ""}`}
+          >
+            Verify Now
+          </CustomButton>
+        ) : (
+          <button className="bg-gray-300 flex justify-center items-center px-8 py-4 w-full rounded-lg text-gray-600 text-[18px] font-semibold">
+            After Basic
+          </button>
+        )
+      ) : (
+        <CustomButton
+          variant="filled"
+          type="submit"
+          disabled={isVerified}
+          onClick={onButtonClick}
+          className={`w-full text-xl font-semibold ${buttonClassName || ""}`}
+        >
+          {isVerified ? "Verified" : "Verify Now"}
+        </CustomButton>
+      )}
 
       <div className="flex flex-col gap-4 mt-6">
         {features.map((item) => {
@@ -108,15 +136,48 @@ const KycCard: React.FC<KycCardProps> = ({
 };
 
 export default function Kyc() {
+  const [showBasicSection, setShowBasicSection] = useState(false);
+  const [showAdvanceSection, setShowAdvanceSection] = useState(false);
+  const [isBasicVerified, setIsBasicVerified] = useState(false);
+
+  const handleBasicCompletion = () => {
+    setIsBasicVerified(true);
+    setShowBasicSection(false);
+  };
+
+  const handleUpgradeToAdvance = () => {
+    setShowBasicSection(false);
+    setShowAdvanceSection(true);
+  };
+
   return (
     <div className="w-full h-full flex justify-center items-center gap-12">
-      <KycCard title="Basic" details={basicDetails} accessLevel="basic" />
-      <KycCard
-        title="Advance"
-        details={advancedDetails}
-        accessLevel="advanced"
-        buttonClassName="bg-gray-300"
-      />
+      {showBasicSection ? (
+        <BasicSection
+          onComplete={handleBasicCompletion}
+          onUpgrade={handleUpgradeToAdvance}
+        />
+      ) : showAdvanceSection ? (
+        <AdvanceSection />
+      ) : (
+        <>
+          <KycCard
+            title="Basic"
+            details={basicDetails}
+            accessLevel="basic"
+            onButtonClick={() => setShowBasicSection(true)}
+            isVerified={isBasicVerified}
+          />
+          <KycCard
+            title="Advance"
+            details={advancedDetails}
+            accessLevel="advanced"
+            buttonClassName="bg-gray-300"
+            onButtonClick={() => setShowAdvanceSection(true)}
+            isVerified={isBasicVerified}
+          />
+        </>
+      )}
     </div>
   );
 }

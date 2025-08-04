@@ -1,4 +1,4 @@
-import Kyc from "@/components/kyc-page";
+import Kyc from "@/components/kyc/kyc-page";
 import React from "react";
 
 export default function page() {

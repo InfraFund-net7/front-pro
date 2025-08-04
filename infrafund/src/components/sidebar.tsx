@@ -46,6 +46,17 @@ const Lock = dynamic(() => import("lucide-react").then((mod) => mod.Lock), {
 const Rocket = dynamic(() => import("lucide-react").then((mod) => mod.Rocket), {
   ssr: false,
 });
+const Magnet = dynamic(() => import("lucide-react").then((mod) => mod.Magnet), {
+  ssr: false,
+});
+const Landmark = dynamic(
+  () => import("lucide-react").then((mod) => mod.Landmark),
+  { ssr: false }
+);
+const IdCard = dynamic(
+  () => import("lucide-react").then((mod) => mod.IdCard),
+  { ssr: false }
+);
 
 import infrafund from "@/../public/assets/svg/infrafund.svg";
 
@@ -59,10 +70,13 @@ interface NavigationItem {
 interface AppSidebarProps {
   className?: string;
   navigationItems?: NavigationItem[];
+  model?: "client" | "full";
 }
 
-async function fetchNavigationItems(): Promise<NavigationItem[]> {
-  return [
+async function fetchNavigationItems(
+  model: "client" | "full" = "client"
+): Promise<NavigationItem[]> {
+  const fullItems: NavigationItem[] = [
     { title: "Home", url: "/", icon: Home },
     { title: "Create Project", url: "/create-project", icon: Rocket },
     { title: "Tokenization", url: "/tokenization", icon: Layers },
@@ -89,6 +103,18 @@ async function fetchNavigationItems(): Promise<NavigationItem[]> {
     { title: "Swap", url: "/swap", icon: ArrowUpDown },
     { title: "KYC", url: "/kyc", icon: FileText },
   ];
+
+  const clientItems: NavigationItem[] = [
+    { title: "Home", url: "/", icon: Home },
+    { title: "Explore Projects", url: "/explore-projects", icon: Magnet },
+    { title: "KYC", url: "/kyc", icon: IdCard },
+    { title: "Swap", url: "/swap", icon: ArrowUpDown, isDisabled: true },
+    { title: "Create Project", url: "/create-project", icon: Rocket, isDisabled: true },
+    { title: "Tokenization", url: "/tokenization", icon: Layers, isDisabled: true },
+    { title: "Investment Portal", url: "/investment-portal", icon: Landmark, isDisabled: true },
+  ];
+
+  return model === "client" ? clientItems : fullItems;
 }
 
 function Navigation({ items }: { items: NavigationItem[] }) {
@@ -130,10 +156,7 @@ function Navigation({ items }: { items: NavigationItem[] }) {
               <IconComponent className="w-5 h-5 flex-shrink-0" />
               <span className="text-sm font-medium truncate">{item.title}</span>
               {item.isDisabled && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-slate-900/80 rounded-lg" />
-                  <Lock className="w-5 h-5 text-yellow-500 z-10" />
-                </div>
+                  <Lock className="w-5 h-5 text-yellow-500" />
               )}
             </Link>
           </div>
@@ -143,8 +166,11 @@ function Navigation({ items }: { items: NavigationItem[] }) {
   );
 }
 
-export default async function AppSidebar({ className = "" }: AppSidebarProps) {
-  const navigationItems = await fetchNavigationItems();
+export default async function AppSidebar({
+  className = "",
+  model = "client",
+}: AppSidebarProps) {
+  const navigationItems = await fetchNavigationItems(model);
 
   return (
     <div
