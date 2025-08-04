@@ -4,7 +4,7 @@ import { CustomButton } from "./ui/custom-button";
 
 export default function Header() {
   return (
-    <div className="flex h-16 shrink-0 justify-between items-end  sticky top-0 z-20 rounded-lg mb-4 ">
+    <div className="flex h-16 shrink-0 justify-between items-center  sticky top-0 z-20 rounded-lg mb-4 ">
       <div className="flex flex-col gap-2\">
         <span className="text-sm font-normal text-white">Hi sherv</span>
         <span className="text-[40px] font-bold text-white">KYC</span>

@@ -1,19 +1,18 @@
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
-
+import UK from "@/../public/assets/public/uk.png";
 interface NationalitySelectProps {
   label: string;
 }
 
 export function NationalitySelect({ label }: NationalitySelectProps) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full">
       <label className="text-white text-sm font-medium">{label}</label>
-      <div className="relative w-full px-4 py-3 rounded-lg bg-input-background text-white flex items-center justify-between cursor-pointer">
+      <div className="relative w-full px-4 py-3 rounded-lg bg-[#131C2F] text-white flex items-center justify-between cursor-pointer">
         <div className="flex items-center gap-3">
-          {/* Mocked UK Flag */}
           <Image
-            src="/placeholder.svg?height=24&width=24"
+            src={UK}
             alt="United Kingdom flag"
             width={24}
             height={24}
