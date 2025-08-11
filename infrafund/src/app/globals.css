@@ -48,6 +48,26 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@layer utilities {
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slide-in {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out forwards;
+  }
+}
+
 /* @font-face {
   font-family: "IBM Plex Mono";
   src: url("/infrafund/public/assets/fonts/mono/IBMPlexMono-Regular.ttf")
