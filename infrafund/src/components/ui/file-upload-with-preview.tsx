@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, FileText, ImageIcon } from "lucide-react";
 import { FileUpload } from "./file-upload";
+import Image from "next/image";
 
 interface FileUploadWithPreviewProps {
   type: "image" | "pdf";
@@ -52,7 +53,7 @@ export function FileUploadWithPreview({
         <div className="border-2 border-dashed border-primary-300 rounded-lg p-6 bg-">
           <div className="flex items-start gap-4">
             {type === "image" && previewUrl ? (
-              <img
+              <Image
                 src={previewUrl || "/placeholder.svg"}
                 alt="Preview"
                 className="w-16 h-16 object-cover rounded-lg"

@@ -81,7 +81,6 @@ const steps = [
           </span>
           <SelectTypeButton
             icon={<IdCard />}
-            isActive={true}
             onClick={() => console.log("Button clicked!")}
           >
             <span className="text-gray-50 text-[14px] font-medium">
