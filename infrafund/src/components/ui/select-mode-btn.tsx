@@ -2,38 +2,45 @@
 
 import * as React from "react";
 
-interface SelectTypeButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: React.ReactNode;
+interface SelectTypeButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: React.ReactElement<React.SVGProps<SVGSVGElement>>;
   children: React.ReactNode;
-  isActive?: boolean;
 }
 
 export function SelectTypeButton({
   icon,
   children,
-  isActive = false,
   className,
   ...props
 }: SelectTypeButtonProps) {
+  const [isActive, setIsActive] = React.useState(false);
+
   return (
     <button
-      className={
-        `flex items-center gap-3 px-6 py-4 rounded-xl text-lg font-mono transition-colors duration-200 ease-in-out ${
+      onClick={() => setIsActive(!isActive)}
+      className={`
+        flex items-center gap-3 px-6 py-4 rounded-xl text-lg font-mono 
+        transition-colors duration-200 ease-in-out
+        ${
           isActive
-            ? "bg-[#1A3A1A] text-[#00FF00] border border-[#00FF00]"
+            ? "bg-[#132F21] text-primary border border-primary"
             : "bg-[#1A1E28] text-[#E0E0E0] border border-transparent"
-        } ${
-          !isActive ? "hover:bg-[#2A2E38] hover:border-[#4A4E58] hover:text-[#F0F0F0]" : ""
-        } cursor-pointer ${className || ""}`
-      }
+        }
+        ${
+          !isActive
+            ? "hover:bg-[#2A2E38] hover:border-[#4A4E58] hover:text-[#F0F0F0]"
+            : ""
+        }
+        cursor-pointer ${className || ""}
+      `}
       {...props}
     >
-      {React.cloneElement(
-        icon as React.ReactElement<React.HTMLAttributes<HTMLElement>>,
-        {
-          className: `w-6 h-6 ${isActive ? "text-[#00FF00]" : "text-[#E0E0E0]"}`,
-        }
-      )}
+      {React.cloneElement(icon, {
+        className: `w-6 h-6 ${
+          isActive ? "text-primary" : "text-[#E0E0E0]"
+        }`,
+      })}
       {children}
     </button>
   );
