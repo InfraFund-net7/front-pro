@@ -1,9 +1,10 @@
 "use client";
 
 import { Bell, Headset, Wallet } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { CustomButton } from "./ui/custom-button";
+import { ConnectWallet } from "./connectwallet/connect-wallet-modal";
 
 const routeTitles: Record<string, string> = {
   "/": "Dashboard",
@@ -15,7 +16,7 @@ const routeTitles: Record<string, string> = {
 
 export default function Header() {
   const pathname = usePathname();
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const pageTitle = routeTitles[pathname] || "Page";
 
   return (
@@ -34,6 +35,7 @@ export default function Header() {
         <CustomButton
           variant="outlined"
           className="w-fit h-[40px] flex justify-center items-center gap-2 text-primary"
+          onClick={() => setIsModalOpen(true)}
         >
           <Wallet size={24} />
           <span className="text-sm font-semibold">Connect Wallet</span>
@@ -42,6 +44,10 @@ export default function Header() {
           S
         </div>
       </div>
+      <ConnectWallet
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
