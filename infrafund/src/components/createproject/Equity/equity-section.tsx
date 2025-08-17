@@ -4,14 +4,14 @@ import CardView from "@/components/ui/card-view";
 import { FormInput } from "@/components/ui/form-input";
 import { CustomButton } from "@/components/ui/custom-button";
 import PersonalModal from "../personal-modal";
-import CharityCrowdfunding from "./charity-crowdfunding";
 import ApplicationForm from "../ApplicationForm";
+import EquityProject from "./equity-project";
 
-export default function Charity() {
+export default function EquitySection() {
   const [symbol, setSymbol] = useState("");
   const [status, setStatus] = useState<null | "available" | "taken">(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showCharityForm, setShowCharityForm] = useState(false);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
 
   useEffect(() => {
     if (!symbol.startsWith("$")) {
@@ -37,8 +37,8 @@ export default function Charity() {
       padding="p-12"
       className="gap-80 flex flex-col justify-between"
     >
-      {showCharityForm ? (
-        <ApplicationForm CrowdfundingComponent={CharityCrowdfunding} />
+      {showApplicationForm ? (
+        <ApplicationForm CrowdfundingComponent={EquityProject} />
       ) : (
         <>
           <div className="flex flex-col gap-10">
@@ -103,7 +103,7 @@ export default function Charity() {
             onClose={() => setIsModalOpen(false)}
             onContinue={() => {
               setIsModalOpen(false);
-              setShowCharityForm(true);
+              setShowApplicationForm(true);
             }}
           />
         </>

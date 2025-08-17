@@ -29,7 +29,7 @@ export function SelectTypeButton({
         }
         ${
           !isActive
-            ? "hover:bg-[#2A2E38] hover:border-[#4A4E58] hover:text-[#F0F0F0]"
+            ? "hover:bg-[#2A2E38] hover:border-primary hover:text-[#F0F0F0]"
             : ""
         }
         cursor-pointer ${className || ""}

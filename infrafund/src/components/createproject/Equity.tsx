@@ -1,7 +1,5 @@
-import React from 'react'
-
+import React from "react";
+import EquitySection from "./Equity/equity-section";
 export default function Equity() {
-  return (
-    <div>Equity</div>
-  )
+  return <EquitySection />;
 }
