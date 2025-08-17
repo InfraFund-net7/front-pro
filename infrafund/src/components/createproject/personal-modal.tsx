@@ -3,16 +3,16 @@ import { FormInput } from "@/components/ui/form-input";
 import { Modal } from "@/components/ui/modal";
 import { ArrowLeft } from "lucide-react";
 import React from "react";
-interface CharityModalProps {
+interface PersonalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onContinue: () => void;
 }
-export default function CharityModal({
+export default function PersonalModal({
   isOpen,
   onClose,
   onContinue,
-}: CharityModalProps) {
+}: PersonalModalProps) {
   const Inputs = [
     {
       label: "First Name",
