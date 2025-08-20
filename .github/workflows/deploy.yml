@@ -27,7 +27,7 @@ jobs:
       - name: Run docker compose
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
-            cd ~/apps/front-pro/front-pro &&
+            cd ~/apps/front-pro/infrafund &&
             docker compose pull &&
             docker compose up -d --build
           "
