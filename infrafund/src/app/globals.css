@@ -34,6 +34,7 @@
   --color-card-border: #ffffff1a;
   --color-card-selected-bg: #1f2a40;
   --color-card-cancel: #1C2332;
+  --color-border-card: #424242;
 }
 @media (prefers-color-scheme: dark) {
   :root {

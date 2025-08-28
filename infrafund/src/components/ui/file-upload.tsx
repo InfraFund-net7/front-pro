@@ -122,7 +122,7 @@ export function FileUpload({
   }, [disabled]);
 
   return (
-    <div className={`w-[628px] ${className}`}>
+    <div className={`w-full ${className}`}>
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

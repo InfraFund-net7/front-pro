@@ -4,14 +4,14 @@ import { FormInput } from "@/components/ui/form-input";
 import { Plus, Trash } from "lucide-react";
 import React, { useState } from "react";
 
-interface HighlightData {
+interface TechnologyData {
   id: string;
   itemTitle: string;
   itemDescription: string;
 }
 
-export function HighlightForm() {
-  const [highlights, setHighlights] = useState<HighlightData[]>([
+export function TechnologyForm() {
+  const [technologies, setTechnologies] = useState<TechnologyData[]>([
     {
       id: "1",
       itemTitle: "",
@@ -21,47 +21,49 @@ export function HighlightForm() {
 
   const [removingId, setRemovingId] = useState<string | null>(null);
 
-  const addHighlight = () => {
+  const addTechnology = () => {
     const lastId =
-      highlights.length > 0
-        ? parseInt(highlights[highlights.length - 1].id, 10)
+      technologies.length > 0
+        ? parseInt(technologies[technologies.length - 1].id, 10)
         : 0;
-    const newHighlight: HighlightData = {
+    const newTechnology: TechnologyData = {
       id: (lastId + 1).toString(),
       itemTitle: "",
       itemDescription: "",
     };
-    setHighlights([...highlights, newHighlight]);
+    setTechnologies([...technologies, newTechnology]);
   };
 
-  const removeHighlight = (id: string) => {
+  const removeTechnology = (id: string) => {
     setRemovingId(id);
     setTimeout(() => {
-      setHighlights((prev) => prev.filter((highlight) => highlight.id !== id));
+      setTechnologies((prev) =>
+        prev.filter((technology) => technology.id !== id)
+      );
       setRemovingId(null);
     }, 300);
   };
 
-  const updateHighlight = (
+  const updateTechnology = (
     id: string,
-    field: keyof HighlightData,
+    field: keyof TechnologyData,
     value: string
   ) => {
-    setHighlights(
-      highlights.map((highlight) =>
-        highlight.id === id ? { ...highlight, [field]: value } : highlight
+    setTechnologies(
+      technologies.map((technology) =>
+        technology.id === id ? { ...technology, [field]: value } : technology
       )
     );
   };
 
   return (
     <div className="w-full space-y-6">
-      {highlights.map((highlight, index) => (
+      {technologies.map((technology, index) => (
         <div
-          key={highlight.id}
+          key={technology.id}
           className={`w-full relative rounded-2xl border border-border-card p-6 transition-all duration-300 ease-in-out
           ${
-            removingId === highlight.id ? "animate-fadeOut" : "animate-fadeIn"
+            removingId === technology.id ? "animate-fadeOut" : "animate-fadeIn"
           }`}
           style={{
             animationDelay: `${index * 0.05}s`,
@@ -69,22 +71,22 @@ export function HighlightForm() {
         >
           <div className="flex items-center justify-between mb-8 absolute top-3 right-4">
             <button
-              onClick={() => removeHighlight(highlight.id)}
+              onClick={() => removeTechnology(technology.id)}
               className="text-gray-400 hover:text-white transition-colors duration-200"
             >
               <Trash size={24} />
             </button>
           </div>
 
-          <HighlightFormSection
-            highlight={highlight}
-            onUpdate={updateHighlight}
+          <TechnologyFormSection
+            technology={technology}
+            onUpdate={updateTechnology}
           />
         </div>
       ))}
 
       <button
-        onClick={addHighlight}
+        onClick={addTechnology}
         className="flex items-center gap-2 mt-4 text-green-400 hover:text-green-300 transition-colors duration-200 group"
       >
         <Plus size={20} />
@@ -126,54 +128,54 @@ export function HighlightForm() {
   );
 }
 
-interface HighlightFormSectionProps {
-  highlight: HighlightData;
-  onUpdate: (id: string, field: keyof HighlightData, value: string) => void;
+interface TechnologyFormSectionProps {
+  technology: TechnologyData;
+  onUpdate: (id: string, field: keyof TechnologyData, value: string) => void;
 }
 
-function HighlightFormSection({
-  highlight,
+function TechnologyFormSection({
+  technology,
   onUpdate,
-}: HighlightFormSectionProps) {
+}: TechnologyFormSectionProps) {
   return (
     <div className="flex flex-col gap-6 w-full">
       <FormInput
-        label={`Item ${highlight.id} title`}
-        value={highlight.itemTitle}
-        placeholder={`Item ${highlight.id} title`}
-        onChange={(e) => onUpdate(highlight.id, "itemTitle", e.target.value)}
+        label={`Item ${technology.id} title`}
+        value={technology.itemTitle}
+        placeholder={`Item ${technology.id} title`}
+        onChange={(e) => onUpdate(technology.id, "itemTitle", e.target.value)}
       />
       <FormInput
-        label={`Item ${highlight.id} description`}
-        value={highlight.itemDescription}
-        placeholder={`Item ${highlight.id} description`}
+        label={`Item ${technology.id} description`}
+        value={technology.itemDescription}
+        placeholder={`Item ${technology.id} description`}
         onChange={(e) =>
-          onUpdate(highlight.id, "itemDescription", e.target.value)
+          onUpdate(technology.id, "itemDescription", e.target.value)
         }
       />
       <div className="w-full flex flex-col gap-3">
-        <span className="text-sm font-normal">{`Item ${highlight.id}  icon`}</span>
+        <span className="text-sm font-normal">{`Item ${technology.id}  icon`}</span>
         <FileUploadWithPreview type="image" onFileChange={() => null} />
       </div>
     </div>
   );
 }
 
-export default function Highlights() {
+export default function Technologies() {
   return (
     <div className="flex flex-col w-full gap-6">
-      <span className="text-3xl text-white font-normal">Highlights</span>
+      <span className="text-3xl text-white font-normal">Technologies</span>
       <FormInput
-        label="Main heading"
-        placeholder="Main heading"
+        label="Main Technology"
+        placeholder="Main Technology"
         className="w-full"
       />
       <FormInput
-        label="Main heading description"
-        placeholder="Main heading description"
+        label="Main Technology description"
+        placeholder="Main Technology description"
         className="w-full"
       />
-      <HighlightForm />
+      <TechnologyForm />
     </div>
   );
 }
