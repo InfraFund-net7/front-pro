@@ -50,7 +50,7 @@ export function FileUploadWithPreview({
       {!selectedFile ? (
         <FileUpload type={type} onFileSelect={handleFileSelect} />
       ) : (
-        <div className="border-2 border-dashed border-primary-300 rounded-lg p-6 bg-">
+        <div className="border-2 border-dashed border-primary-300 rounded-lg p-6">
           <div className="flex items-start gap-4">
             {type === "image" && previewUrl ? (
               <Image

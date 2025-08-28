@@ -14,6 +14,8 @@ import Faq from "./create-sections/faq";
 import Highlights from "./create-sections/highlights";
 import Media from "./create-sections/Media";
 import CardView from "@/components/ui/card-view";
+import PressSection from "./create-sections/press-section";
+import Technologies from "./create-sections/technology";
 
 export default function MainCreate() {
   const createsection = [
@@ -27,6 +29,8 @@ export default function MainCreate() {
     { title: "Transfer", component: Transfer },
     { title: "FAQs", component: Faq },
     { title: "Highlights", component: Highlights },
+    { title: "Press Section", component: PressSection },
+    { title: "Technology", component: Technologies },
   ];
 
   const [selected, setSelected] = useState("Media");
