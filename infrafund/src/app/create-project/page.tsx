@@ -1,7 +1,6 @@
-import React from 'react'
+import CreateProject from "@/components/createproject/CreateProject";
+import React from "react";
 
 export default function page() {
-  return (
-    <div>page</div>
-  )
+  return <CreateProject />;
 }
