@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import * as pbi from 'powerbi-client-react';
+import { PowerBIEmbed as PowerBIEmbedComponent } from 'powerbi-client-react';  // درست: PowerBIEmbed (named export)
 import * as pbijs from 'powerbi-client';
 import { Line, Bar } from 'react-chartjs-2';
 import {
@@ -28,45 +28,30 @@ interface KPI {
     color: string;
 }
 
-const PowerBIEmbed: React.FC<PowerBIEmbedProps> = ({ reportId, workspaceId }) => {
+const PowerBIEmbedContainer: React.FC<PowerBIEmbedProps> = ({ reportId, workspaceId }) => {
     const [embedConfig, setEmbedConfig] = useState<pbijs.IEmbedConfiguration | null>(null);
-    const [token, setToken] = useState<string | null>(null);
     const [useFallback, setUseFallback] = useState<boolean>(false);
 
     useEffect(() => {
-        const fetchToken = async () => {
-            try {
-                const res = await fetch(`/api/embed-token?reportId=${reportId}`);
-                if (res.ok) {
-                    const { embedToken } = await res.json();
-                    setToken(embedToken);
-                } else {
-                    setUseFallback(true);
-                }
-            } catch (err) {
-                setUseFallback(true);
-            }
-        };
-        fetchToken();
-    }, [reportId]);
+        // Sample Token از Microsoft Docs (برای تست – fake اما demo-ready)
+        const sampleToken = 'H4sI....AAA='; // از مثال REST API
 
-    useEffect(() => {
-        if (token) {
-            setEmbedConfig({
-                type: 'report',
-                id: reportId,
-                groupId: workspaceId,
-                embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${reportId}&groupId=${workspaceId}`,
-                accessToken: token,
-                tokenType: pbijs.models.TokenType.Embed,
-                settings: {
-                    panes: { filters: { expanded: false, visible: true } }, 
-                    background: pbijs.models.BackgroundType.Transparent,
-                },
-            });
-        }
-    }, [token, reportId, workspaceId]);
+        // مستقیم config ست کن (بدون API route)
+        setEmbedConfig({
+            type: 'report',
+            id: reportId,
+            groupId: workspaceId,
+            embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${reportId}&groupId=${workspaceId}`,
+            accessToken: sampleToken,
+            tokenType: pbijs.models.TokenType.Embed,
+            settings: {
+                panes: { filters: { expanded: false, visible: true } },
+                background: pbijs.models.BackgroundType.Transparent,
+            },
+        });
+    }, [reportId, workspaceId]);
 
+    // Fallback Data (شبیه BEXEL Sample)
     const sCurveData = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         datasets: [
@@ -122,14 +107,14 @@ const PowerBIEmbed: React.FC<PowerBIEmbedProps> = ({ reportId, workspaceId }) =>
     if (useFallback || !embedConfig) {
         return (
             <div style={{ padding: '20px', backgroundColor: '#f8f9fa', fontFamily: 'Arial' }}>
-                <h1 style={{ textAlign: 'center', color: '#007bff' }}>Earned Value Analysis - BEXEL Replica</h1>
+                <h1 style={{ textAlign: 'center', color: '#007bff' }}>Earned Value Analysis - BEXEL Replica (Fallback)</h1>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
                     {kpis.map((kpi, i) => (
                         <div
                             key={i}
                             style={{
                                 backgroundColor: kpi.color,
-                                color: 'white',
+                                color: 'transparent',
                                 padding: '10px',
                                 textAlign: 'center',
                                 borderRadius: '5px',
@@ -144,10 +129,32 @@ const PowerBIEmbed: React.FC<PowerBIEmbedProps> = ({ reportId, workspaceId }) =>
                     <div style={{ height: '400px' }}>
                         <Line data={sCurveData} options={sCurveOptions} />
                     </div>
-                    <div>
+                    <div style={{ height: '400px' }}>
                         <Bar data={varianceData} options={varianceOptions} />
                     </div>
                 </div>
             </div>
         );
-    }}
+    }
+
+    return (
+        <div style={{ height: '80vh', width: '100%' }}>
+            <PowerBIEmbedComponent 
+                embedConfig={embedConfig}
+                cssClassName="EVAReport"
+                eventHandlers={new Map([
+                    ['error', () => {
+                        console.log('Power BI Error - Switching to Fallback');
+                        setUseFallback(true);
+                    }],
+                    ['loaded', () => console.log('Power BI Loaded Successfully')],
+                ])}
+                getEmbeddedComponent={(report: any) => {
+                    console.log('Report Instance:', report);
+                }}
+            />
+        </div>
+    );
+};
+
+export default PowerBIEmbedContainer;

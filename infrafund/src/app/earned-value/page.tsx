@@ -1,7 +1,5 @@
-
 'use client';
-
-import { PowerBIEmbed } from "powerbi-client-react";
+import PowerBIEmbed from '../../components/PowerBIEmbed';
 
 export default function EarnedValuePage() {
     const reportId = '2bfcg54d-e11e-44a9-8c14-1374af9530ba';
@@ -9,18 +7,8 @@ export default function EarnedValuePage() {
 
     return (
         <main style={{ padding: '20px' }}>
-            <h1 style={{ textAlign: 'center', color: '#007bff' }}>Earned Value Analysis</h1>
-            <PowerBIEmbed
-                embedConfig={{
-                    type: 'report',
-                    id: reportId,
-                    embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${reportId}&groupId=${workspaceId}`,
-                    accessToken: '',
-                    tokenType: 1,
-                }}
-                eventHandlers={new Map()}
-                cssClassName="report-style-class"
-            />
+            <h1 style={{ textAlign: 'center', color: '#007bff' }}>Earned Value Analysis - Test with Sample Token</h1>
+            <PowerBIEmbed reportId={reportId} workspaceId={workspaceId} />
         </main>
     );
 }
