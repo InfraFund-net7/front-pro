@@ -26,7 +26,7 @@ export default function Header() {
   const pageTitle = routeTitles[pathname] || "Page";
 
   const { address, isConnected } = useAppKitAccount();
-  const { connections } = useAppKitConnections();
+  // const { connections } = useAppKitConnections();
   const userIdentifier =
     isConnected && address ? shortenAddress(address).slice(0, 6) : "Guest";
 
