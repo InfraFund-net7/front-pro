@@ -24,7 +24,7 @@ function AutoWalletRegisterContent({ surveyData }: AutoWalletRegisterProps) {
     const { address, isConnected } = useAccount();
     const wallets = useWallets();
     const { disconnect } = useDisconnect();
-    const { setOpen } = useModal(); // ✅ هوک برای کنترل مودال
+    const { setOpen } = useModal();
 
     const [registerLoading, setRegisterLoading] = useState(false);
     const [registerSuccess, setRegisterSuccess] = useState(false);
@@ -105,7 +105,6 @@ function AutoWalletRegisterContent({ surveyData }: AutoWalletRegisterProps) {
 
             const errorMsg = err.response?.data?.message || err.message || "Unknown error";
             alert(`❌ Registration failed:\n${errorMsg}`);
-
             setRegisterLoading(false);
         }
     };
@@ -114,7 +113,7 @@ function AutoWalletRegisterContent({ surveyData }: AutoWalletRegisterProps) {
         disconnect();
         setRegisterLoading(false);
         setRegisterSuccess(false);
-        setOpen(false); // ✅ بستن مودال اگر باز باشه
+        setOpen(false);
         alert("Wallet disconnected. You can reconnect anytime.");
     };
 
@@ -122,7 +121,6 @@ function AutoWalletRegisterContent({ surveyData }: AutoWalletRegisterProps) {
         <div className="w-full h-full px-4 py-8 bg-gray-900 sm:px-6 sm:py-12 md:w-auto md:max-w-lg md:mx-auto md:my-auto md:p-8 md:h-auto md:rounded-lg md:shadow-xl">
             <div className="flex flex-col h-full justify-between md:h-auto">
                 <div className="text-center">
-                    <Image priority src={infafund} alt="infafund" width={172} height={42} className="mx-auto mb-4" />
                     <span className="text-2xl text-white font-semibold mb-2 block">🔐 Connect Your Wallet</span>
                     <p className="text-white text-sm mb-4">
                         Please connect your wallet using Particle. Registration will start automatically.

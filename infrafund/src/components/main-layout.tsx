@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
-  const isAuthPage = pathname?.startsWith("/auth");
+  const isAuthPage = pathname?.startsWith("/login");
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">
