@@ -73,7 +73,6 @@ function AutoWalletRegisterContent({ surveyData }: AutoWalletRegisterProps) {
             const payload = {
                 wallet_address: address,
                 signature,
-                message,
                 country: "uk",
                 ...(surveyData && {
                     role: surveyData.role === "Raise Funds (Project Developer)"
