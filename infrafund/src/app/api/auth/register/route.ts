@@ -8,7 +8,6 @@ const RegisterSchema = z.object({
     type: z.string().optional(),
     wallet_address: z.string().min(1),
     signature: z.string().min(1),
-    message: z.string().min(1),
     confirm_tos: z.boolean().optional(),
     first_name: z.string().optional(),
     last_name: z.string().optional(),
@@ -22,10 +21,8 @@ export async function POST(request: NextRequest) {
     try {
         const payload = await request.json();
         const headers = request.headers;
-
         const parsed = RegisterSchema.parse(payload);
-
-        const { data } = await axios.post(
+        const { data, status } = await axios.post(
             getServerUrl(`auth/register`),
             parsed,
             {
@@ -35,13 +32,13 @@ export async function POST(request: NextRequest) {
             }
         );
 
-        return NextResponse.json(data);
+        return NextResponse.json(data, { status: status || 200 });
     } catch (err: any) {
         if (err?.name === "ZodError") {
             return NextResponse.json({ message: err.errors }, { status: 400 });
         }
 
-        console.error("Register error:", err);
+        console.error("Challenge error:", err);
 
         return NextResponse.json(
             { message: err.response?.data?.message || err.message || "Server Error" },
