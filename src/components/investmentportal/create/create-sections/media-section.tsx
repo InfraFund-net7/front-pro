@@ -12,7 +12,7 @@ type MediaItem = {
   file: File | null;
 };
 
-export default function Media({ onAnyFileChange }: MediaProps) {
+export default function MediaSection({ onAnyFileChange }: MediaProps) {
   const [uploads, setUploads] = useState<MediaItem[]>([
     { title: "Brand logotype light mode", file: null },
     { title: "Brand logotype dark mode", file: null },
