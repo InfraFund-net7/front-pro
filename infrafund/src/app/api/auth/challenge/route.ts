@@ -5,6 +5,7 @@ import { z } from "zod";
 
 const BodySchema = z.object({
     wallet_address: z.string().min(1),
+    challenge_type: z.string().min(1),
 });
 
 export async function POST(request: NextRequest) {
