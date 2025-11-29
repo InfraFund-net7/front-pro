@@ -4,7 +4,6 @@ import { verifyMessage } from "ethers"; // ✅ ethers v6 — دقیقاً همی
 
 const LoginSchema = z.object({
     wallet_address: z.string().startsWith("0x").length(42, "آدرس والیت نامعتبر است"),
-    message: z.string().min(1, "پیام چالش الزامی است"),
     signature: z.string().startsWith("0x").min(130, "امضای نامعتبر است"), // حداقل طول یک امضای معتبر
 });
 
@@ -13,7 +12,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         const parsed = LoginSchema.parse(body);
 
-        const { wallet_address, message, signature } = parsed;
+        const { wallet_address, signature } = parsed;
 
         let recoveredAddress: string;
         try {
