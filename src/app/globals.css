@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+@theme {
+  --color-primary: #24ff8e;
+  --color-primary-50: #edfff5;
+  --color-primary-100: #d5ffea;
+  --color-primary-200: #aeffd6;
+  --color-primary-300: #6fffb7;
+  --color-primary-hover: #1ad87a;
+  --color-primary-pressed: #11b367;
+  --color-primary-disabled: #a2f4cc;
+  --color-primary-selected: #132F21;
+  --color-success: #22c55e;
+  --color-warning: #facc15;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-gray-50: #f5f6f8;
+  --color-gray-100: #edeef2;
+  --color-gray-200: #dee0e7;
+  --color-gray-300: #c7cad5;
+  --color-gray-400: #b3b6c6;
+  --color-gray-500: #9fa1b5;
+  --color-gray-600: #8a89a2;
+  --color-gray-700: #77768c;
+  --color-gray-800: #616172;
+  --color-gray-900: #51515e;
+  --color-card-bg: #151e2f80;
+  --color-card-bg-border: #152133;
+  --color-card-border: #ffffff1a;
+  --color-card-selected-bg: #1f2a40;
+  --color-card-cancel: #1C2332;
+  --color-border-card: #424242;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: #0c0c0d;
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slide-in {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out forwards;
+  }
+}
+
+/* @font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/infrafund/public/assets/fonts/mono/IBMPlexMono-Regular.ttf")
+    format("ttf");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/infrafund/public/assets/fonts/mono/IBMPlexMono-Medium.ttf")
+    format("ttf");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/infrafund/public/assets/fonts/mono/IBMPlexMono-SemiBold.ttf")
+    format("ttf");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/infrafund/public/assets/fonts/mono/IBMPlexMono-Bold.ttf")
+    format("ttf");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("/infrafund/public/assets/fonts/checkra/ChakraPetch-Regular.ttf")
+    format("ttf");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("/infrafund/public/assets/fonts/checkra/ChakraPetch-Medium.ttf")
+    format("ttf");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("/infrafund/public/assets/fonts/checkra/ChakraPetch-SemiBold.ttf")
+    format("ttf");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("/infrafund/public/assets/fonts/checkra/ChakraPetch-Bold.ttf")
+    format("ttf");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+} */
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/assets/fonts/mono/IBMPlexMono-Regular.ttf") format("ttf");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("/assets/fonts/checkra/ChakraPetch-Regular.ttf") format("ttf");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.ibm-plex-mono {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.chakra-petch {
+  font-family: "Chakra Petch", sans-serif;
+}
+
+body {
+  font-family: "IBM Plex Mono", monospace;
+}
