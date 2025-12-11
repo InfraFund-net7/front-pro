@@ -1,0 +1,35 @@
+name: Deploy to Dev Environment
+on:
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+    name: Build docker image
+    runs-on: develop-runner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Build Docker image
+        run: |
+                  docker build \
+                    -f ./deployment/Dockerfile \
+                    --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.DEV_API_BASE_URL }} \
+                    -t infra-dashboard:dev .
+
+  deploy:
+    name: Deploy to Development Server
+    runs-on: develop-runner
+    needs: build
+    steps:
+      - name: Deploy with Docker Compose
+        run: docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }} up -d dashboard --force-recreate
+      - name: Wait for container readiness
+        run: |
+          echo "Waiting for container to be ready..."
+          sleep 5
+          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }} ps
+
+      - name: Verify deployment
+        run: |
+          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }} logs --tail=20 dashboard
