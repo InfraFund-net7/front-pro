@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useRef, useEffect, useCallback } from "react";
 
 interface ColorWheelProps {
@@ -15,6 +14,8 @@ interface HSV {
   s: number; // 0-100
   v: number; // 0-100
 }
+
+type AnyMouseEvent = MouseEvent | React.MouseEvent<HTMLCanvasElement>;
 
 export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -55,31 +56,13 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
     let r = 0,
       g = 0,
       b = 0;
-    if (h >= 0 && h < 60) {
-      r = c;
-      g = x;
-      b = 0;
-    } else if (h >= 60 && h < 120) {
-      r = x;
-      g = c;
-      b = 0;
-    } else if (h >= 120 && h < 180) {
-      r = 0;
-      g = c;
-      b = x;
-    } else if (h >= 180 && h < 240) {
-      r = 0;
-      g = x;
-      b = c;
-    } else if (h >= 240 && h < 300) {
-      r = x;
-      g = 0;
-      b = c;
-    } else if (h >= 300 && h < 360) {
-      r = c;
-      g = 0;
-      b = x;
-    }
+
+    if (h < 60) [r, g, b] = [c, x, 0];
+    else if (h < 120) [r, g, b] = [x, c, 0];
+    else if (h < 180) [r, g, b] = [0, c, x];
+    else if (h < 240) [r, g, b] = [0, x, c];
+    else if (h < 300) [r, g, b] = [x, 0, c];
+    else[r, g, b] = [c, 0, x];
 
     r = Math.round((r + m) * 255);
     g = Math.round((g + m) * 255);
@@ -104,14 +87,14 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
 
     ctx.clearRect(0, 0, size, size);
 
-    // Draw color wheel
-    for (let angle = 0; angle < 360; angle += 1) {
-      const startAngle = ((angle - 1) * Math.PI) / 180;
-      const endAngle = (angle * Math.PI) / 180;
+    // Outer hue ring
+    for (let angle = 0; angle < 360; angle++) {
+      const start = ((angle - 1) * Math.PI) / 180;
+      const end = (angle * Math.PI) / 180;
 
       ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.arc(centerX, centerY, radius * 0.6, endAngle, startAngle, true);
+      ctx.arc(centerX, centerY, radius, start, end);
+      ctx.arc(centerX, centerY, radius * 0.6, end, start, true);
       ctx.closePath();
 
       const gradient = ctx.createRadialGradient(
@@ -124,38 +107,43 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
       );
       gradient.addColorStop(0, `hsl(${angle}, 0%, 100%)`);
       gradient.addColorStop(1, `hsl(${angle}, 100%, 50%)`);
+
       ctx.fillStyle = gradient;
       ctx.fill();
     }
 
-    // Draw inner saturation/brightness area
+    // Inner saturation / brightness
     const innerRadius = radius * 0.6;
-    for (let r = 0; r < innerRadius; r += 1) {
+    for (let r = 0; r < innerRadius; r++) {
       for (let angle = 0; angle < 360; angle += 2) {
         const x = centerX + r * Math.cos((angle * Math.PI) / 180);
         const y = centerY + r * Math.sin((angle * Math.PI) / 180);
 
-        const saturation = (r / innerRadius) * 100;
-        const brightness = 100 - (Math.abs(centerY - y) / innerRadius) * 50;
+        const s = (r / innerRadius) * 100;
+        const v = Math.max(
+          50,
+          100 - (Math.abs(centerY - y) / innerRadius) * 50
+        );
 
-        ctx.fillStyle = `hsl(${hsv.h}, ${saturation}%, ${brightness}%)`;
+        ctx.fillStyle = `hsl(${hsv.h}, ${s}%, ${v}%)`;
         ctx.fillRect(x, y, 2, 2);
       }
     }
 
-    // Draw selector indicator
+    // Selector
     const selectorRadius = (hsv.s / 100) * innerRadius;
     const selectorAngle = (hsv.h * Math.PI) / 180;
     const selectorX = centerX + selectorRadius * Math.cos(selectorAngle);
     const selectorY = centerY + selectorRadius * Math.sin(selectorAngle);
 
     ctx.beginPath();
-    ctx.arc(selectorX, selectorY, 8, 0, 2 * Math.PI);
+    ctx.arc(selectorX, selectorY, 8, 0, Math.PI * 2);
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 3;
     ctx.stroke();
+
     ctx.beginPath();
-    ctx.arc(selectorX, selectorY, 8, 0, 2 * Math.PI);
+    ctx.arc(selectorX, selectorY, 8, 0, Math.PI * 2);
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 1;
     ctx.stroke();
@@ -165,9 +153,49 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
     drawColorWheel();
   }, [drawColorWheel]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleColorChange = useCallback(
+    (e: AnyMouseEvent) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const centerX = size / 2;
+      const centerY = size / 2;
+      const dx = x - centerX;
+      const dy = y - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const radius = size / 2 - 10;
+      const innerRadius = radius * 0.6;
+
+      if (distance <= radius && distance >= innerRadius) {
+        let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        if (angle < 0) angle += 360;
+
+        const newHsv = { ...hsv, h: Math.round(angle) };
+        setHsv(newHsv);
+        onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v));
+      } else if (distance < innerRadius) {
+        const s = Math.min(100, (distance / innerRadius) * 100);
+        const v = Math.max(50, 100 - (Math.abs(dy) / innerRadius) * 50);
+
+        const newHsv = {
+          ...hsv,
+          s: Math.round(s),
+          v: Math.round(v),
+        };
+
+        setHsv(newHsv);
+        onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v));
+      }
+    },
+    [hsv, size, onChange]
+  );
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(true);
     handleColorChange(e);
   };
@@ -175,65 +203,25 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!isDragging) return;
-      e.preventDefault();
-      handleColorChange(e as any);
+      handleColorChange(e);
     },
-    [isDragging]
+    [isDragging, handleColorChange]
   );
 
-  const handleMouseUp = useCallback((e: MouseEvent) => {
-    e.preventDefault();
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
   }, []);
 
-  const handleColorChange = (e: React.MouseEvent | MouseEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = size / 2;
-    const centerY = size / 2;
-    const dx = x - centerX;
-    const dy = y - centerY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const radius = size / 2 - 10;
-    const innerRadius = radius * 0.6;
-
-    if (distance <= radius && distance >= innerRadius) {
-      // Hue selection (outer ring)
-      let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-      if (angle < 0) angle += 360;
-
-      const newHsv = { ...hsv, h: Math.round(angle) };
-      setHsv(newHsv);
-      onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v));
-    } else if (distance < innerRadius) {
-      // Saturation/brightness selection (inner area)
-      const saturation = Math.min(100, (distance / innerRadius) * 100);
-      const brightness = Math.max(50, 100 - (Math.abs(dy) / innerRadius) * 50);
-
-      const newHsv = {
-        ...hsv,
-        s: Math.round(saturation),
-        v: Math.round(brightness),
-      };
-      setHsv(newHsv);
-      onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v));
-    }
-  };
-
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    }
+    if (!isDragging) return;
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   return (
