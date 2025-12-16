@@ -82,10 +82,10 @@ export default function Login() {
         </div>
 
         <main className="w-full max-w-3xl mx-auto space-y-10 overflow-y-auto">
-          {surveyData ? (
+          {/* {surveyData ? ( */}
             <AutoWalletRegister surveyData={surveyData} />
-          ) : (
-            <div className="text-white rounded-xl p-6 text-center">
+          {/* ) : ( */}
+            {/* <div className="text-white rounded-xl p-6 text-center">
               <h2 className="ibm-plex-mono text-xl font-semibold mb-3">
                 Access Denied — Survey Required
               </h2>
@@ -106,8 +106,8 @@ export default function Login() {
               <p className="mt-4 text-xs chakra-petch">
                 After submission, you’ll be moved back here automatically.
               </p>
-            </div>
-          )}
+            </div> */}
+          {/* )} */}
         </main>
       </CardView>
     </div>
