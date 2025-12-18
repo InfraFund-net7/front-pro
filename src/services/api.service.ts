@@ -1,12 +1,12 @@
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosRequestConfig } from "axios";
 import _axios from "../utils/axios.utils";
 import { getAccessToken } from "@/utils/get-access-token.util";
 
 interface ApiService {
-    get: <T>(url: string, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
-    post: <T>(url: string, data?: object, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
-    put: <T>(url: string, data: object, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
-    patch: <T>(url: string, data: object, config?: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
+    get: <T>(url: string, params?: AxiosRequestConfig) => Promise<T>;
+    post: <T>(url: string, data?: object) => Promise<T>;
+    put: <T>(url: string, data: object) => Promise<T>;
+    patch: <T>(url: string, data: object) => Promise<T>;
 }
 
 function reWriteUrl(url: string): string {
@@ -19,29 +19,46 @@ async function getAxiosRequestConfig(): Promise<AxiosRequestConfig> {
         headers: {
             Authorization: token ? `Bearer ${token}` : "",
             Accept: "application/json",
+            Expires: "0",
         },
     };
 }
 
 const apiService: ApiService = {
-    get: async <T>(url: string, config = {}): Promise<AxiosResponse<T>> => {
-        const finalConfig = { ...(await getAxiosRequestConfig()), ...config };
-        return _axios.get<T>(reWriteUrl(url), finalConfig);
+    get: async <T>(url: string, params = {}): Promise<T> => {
+        try {
+            const response = await _axios.get<T>(reWriteUrl(url), params);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
 
-    post: async <T>(url: string, data?: object, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> => {
-        const finalConfig = await getAxiosRequestConfig();
-        return _axios.post<T>(reWriteUrl(url), data, { ...finalConfig, ...config });
+    post: async <T>(url: string, data?: object): Promise<T> => {
+        try {
+            const response = await _axios.post<T>(reWriteUrl(url), data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
 
-    put: async <T>(url: string, data: object, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> => {
-        const finalConfig = await getAxiosRequestConfig();
-        return _axios.put<T>(reWriteUrl(url), data, { ...finalConfig, ...config });
+    put: async <T>(url: string, data: object): Promise<T> => {
+        try {
+            const response = await _axios.put<T>(reWriteUrl(url), data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
 
-    patch: async <T>(url: string, data: object, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> => {
-        const finalConfig = await getAxiosRequestConfig();
-        return _axios.patch<T>(reWriteUrl(url), data, { ...finalConfig, ...config });
+    patch: async <T>(url: string, data: object): Promise<T> => {
+        try {
+            const response = await _axios.patch<T>(reWriteUrl(url), data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
 };
 

@@ -12,14 +12,14 @@ import Seo from "./create-sections/seo";
 import Transfer from "./create-sections/transfer";
 import Faq from "./create-sections/faq";
 import Highlights from "./create-sections/highlights";
-import Media from "./create-sections/Media";
 import CardView from "@/components/ui/card-view";
 import PressSection from "./create-sections/press-section";
 import Technologies from "./create-sections/technology";
+import MediaSection from "./create-sections/media-section";
 
 export default function MainCreate() {
   const createsection = [
-    { title: "Media", component: Media },
+    { title: "Media", component: MediaSection },
     { title: "Sections", component: Sections },
     { title: "Team", component: Team },
     { title: "Colors", component: Colors },
