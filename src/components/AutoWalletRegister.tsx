@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState, Suspense } from "react";
 import {
@@ -9,6 +9,12 @@ import {
     useWallets
 } from "@particle-network/connectkit";
 
+interface UserInfo {
+    uuid: string;
+    token?: string;
+    [key: string]: unknown;
+}
+
 function ParticleViewerContent() {
     const { address, isConnected } = useAccount();
     const { disconnect } = useDisconnect();
@@ -16,10 +22,8 @@ function ParticleViewerContent() {
     const { getUserInfo } = useParticleAuth();
     const [primaryWallet] = useWallets();
 
-    const [userInfo, setUserInfo] = useState<any>(null);
+    const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [loading, setLoading] = useState(false);
-
-    // Auto-open modal if not connected
     useEffect(() => {
         if (!isConnected) {
             const timer = setTimeout(() => setOpen(true), 300);
@@ -27,14 +31,13 @@ function ParticleViewerContent() {
         }
     }, [isConnected, setOpen]);
 
-    // Fetch user info after connection
     useEffect(() => {
         const fetchUserInfo = async () => {
             if (primaryWallet?.connector?.walletConnectorType === 'particleAuth') {
                 setLoading(true);
                 try {
                     const info = await getUserInfo();
-                    setUserInfo(info);
+                    setUserInfo(info as unknown as UserInfo);
                 } catch (error) {
                     console.error("Error fetching user info:", error);
                 }
@@ -53,8 +56,6 @@ function ParticleViewerContent() {
     };
 
     return (
-        <div className="w-full h-screen flex items-center justify-center bg-gray-900 px-4">
-            <div className="w-full max-w-lg mx-auto bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-700">
                 <div className="text-center">
                     <h1 className="text-3xl font-bold text-white mb-4">Particle Social Login Tester</h1>
 
@@ -115,8 +116,6 @@ function ParticleViewerContent() {
                         )}
                     </div>
                 </div>
-            </div>
-        </div>
     );
 }
 

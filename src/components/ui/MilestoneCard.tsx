@@ -14,13 +14,13 @@ export default function MilestoneCard() {
     ]);
   };
 
-  const updateMilestone = (id: number, field: string, value: string) => {
-    setMilestones(
-      milestones.map((milestone) =>
-        milestone.id === id ? { ...milestone, [field]: value } : milestone
-      )
-    );
-  };
+  // const updateMilestone = (id: number, field: string, value: string) => {
+  //   setMilestones(
+  //     milestones.map((milestone) =>
+  //       milestone.id === id ? { ...milestone, [field]: value } : milestone
+  //     )
+  //   );
+  // };
 
   return (
     <div className="space-y-4">
