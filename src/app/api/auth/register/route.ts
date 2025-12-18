@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
         const headers = request.headers;
 
         const { data, status } = await axios.post(
-            getServerUrl(`auth/register`),
+            getServerUrl("auth/register"),
             payload,
             {
                 headers: {
@@ -18,17 +18,24 @@ export async function POST(request: NextRequest) {
         );
 
         return NextResponse.json(data, { status: status || 200 });
-    } catch (err: any) {
-        console.error("Register error:", err);
+    } catch (error: unknown) {
+        console.error("Register error:", error);
+
+        if (axios.isAxiosError(error)) {
+            return NextResponse.json(
+                {
+                    message:
+                        error.response?.data?.message ||
+                        error.message ||
+                        "Request failed",
+                },
+                { status: error.response?.status || 500 }
+            );
+        }
 
         return NextResponse.json(
-            {
-                message:
-                    err.response?.data?.message ||
-                    err.message ||
-                    "Server Error",
-            },
-            { status: err.response?.status || 500 }
+            { message: "Internal server error" },
+            { status: 500 }
         );
     }
 }

@@ -24,16 +24,26 @@ export async function POST(request: NextRequest) {
         );
 
         return NextResponse.json(data, { status: status || 200 });
-    } catch (err: any) {
-        if (err?.name === "ZodError") {
-            return NextResponse.json({ message: err.errors }, { status: 400 });
+    } catch (err: unknown) {
+        if (err instanceof z.ZodError) {
+            return NextResponse.json(
+                { message: err.issues },
+                { status: 400 }
+            );
+        }
+
+        if (axios.isAxiosError(err)) {
+            return NextResponse.json(
+                { message: err.response?.data?.message || err.message },
+                { status: err.response?.status || 500 }
+            );
         }
 
         console.error("Challenge error:", err);
 
         return NextResponse.json(
-            { message: err.response?.data?.message || err.message || "Server Error" },
-            { status: err.response?.status || 500 }
+            { message: "Server Error" },
+            { status: 500 }
         );
     }
 }

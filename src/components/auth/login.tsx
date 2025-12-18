@@ -5,20 +5,35 @@ import React, { useEffect, useState } from 'react';
 import CardView from '../ui/card-view';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 import Image from 'next/image';
-const getDomainCookie = (name: string): any | null => {
+
+interface SurveyData {
+  role: string;
+  type: string;
+  confirm_tos: boolean;
+  first_name?: string;
+  last_name?: string;
+  phone_number: string;
+  email: string;
+  contact_fullname?: string;
+  company_name?: string;
+}
+
+const getDomainCookie = (name: string): SurveyData | null => {
   if (typeof document === 'undefined') return null;
 
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
+
   if (parts.length === 2) {
     try {
       const raw = parts[1].split(';')[0];
       const decoded = decodeURIComponent(raw);
-      return JSON.parse(decoded);
+      return JSON.parse(decoded) as SurveyData;
     } catch (e) {
       console.warn(`⚠️ Failed to parse cookie "${name}"`, e);
     }
   }
+
   return null;
 };
 
@@ -27,7 +42,7 @@ const clearDomainCookie = (name: string) => {
 };
 
 export default function Login() {
-  const [surveyData, setSurveyData] = useState<any>(null);
+  const [surveyData, setSurveyData] = useState<SurveyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,16 +50,16 @@ export default function Login() {
     const rawData = getDomainCookie('survey_data');
 
     if (rawData) {
-      const payload = {
+      const payload: SurveyData = {
         role: rawData.role || "",
         type: rawData.type || "individual",
         confirm_tos: rawData.confirm_tos || false,
-        first_name: rawData.type === "individual" ? rawData.first_name || "" : "",
-        last_name: rawData.type === "individual" ? rawData.last_name || "" : "",
+        first_name: rawData.type === "individual" ? rawData.first_name || "" : undefined,
+        last_name: rawData.type === "individual" ? rawData.last_name || "" : undefined,
         phone_number: rawData.phone_number || "",
         email: rawData.email || "",
-        contact_fullname: rawData.type === "organization" ? rawData.contact_fullname || "" : "",
-        company_name: rawData.type === "organization" ? rawData.company_name || "" : "",
+        contact_fullname: rawData.type === "organization" ? rawData.contact_fullname || "" : undefined,
+        company_name: rawData.type === "organization" ? rawData.company_name || "" : undefined,
       };
 
       console.log('✅ Standardized payload:', payload);
@@ -83,9 +98,9 @@ export default function Login() {
 
         <main className="w-full max-w-3xl mx-auto space-y-10 overflow-y-auto">
           {/* {surveyData ? ( */}
-            <AutoWalletRegister surveyData={surveyData} />
+          <AutoWalletRegister />
           {/* ) : ( */}
-            {/* <div className="text-white rounded-xl p-6 text-center">
+          {/* <div className="text-white rounded-xl p-6 text-center">
               <h2 className="ibm-plex-mono text-xl font-semibold mb-3">
                 Access Denied — Survey Required
               </h2>
