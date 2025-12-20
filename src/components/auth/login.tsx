@@ -46,7 +46,6 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔍 Reading survey_data cookie from .infrafund.test...');
     const rawData = getDomainCookie('survey_data');
 
     if (rawData) {
@@ -62,7 +61,6 @@ export default function Login() {
         company_name: rawData.type === "organization" ? rawData.company_name || "" : undefined,
       };
 
-      console.log('✅ Standardized payload:', payload);
       setSurveyData(payload);
       clearDomainCookie('survey_data');
     } else {
