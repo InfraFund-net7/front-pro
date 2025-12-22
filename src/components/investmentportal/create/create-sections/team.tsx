@@ -1,5 +1,4 @@
 "use client";
-import { FileUploadWithPreview } from "@/components/ui/file-upload-with-preview";
 import { FormInput } from "@/components/ui/form-input";
 import { Plus, X } from "lucide-react";
 import React, { useState } from "react";
