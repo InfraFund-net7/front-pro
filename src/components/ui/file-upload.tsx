@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState, useRef, useCallback } from "react";
-import { Upload } from "lucide-react";
+import { useState, useRef, useCallback } from 'react';
+import { Upload } from 'lucide-react';
 
 interface FileUploadProps {
-  type: "image" | "pdf";
+  type: 'image' | 'pdf';
   onFileSelect: (file: File) => void;
   className?: string;
   disabled?: boolean;
@@ -15,7 +15,7 @@ interface FileUploadProps {
 export function FileUpload({
   type,
   onFileSelect,
-  className = "",
+  className = '',
   disabled = false,
 }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -24,20 +24,20 @@ export function FileUpload({
 
   const config = {
     image: {
-      text: "Drag your image or",
-      browseText: "Browse",
-      maxSize: "4MB Max",
-      accept: "image/*",
+      text: 'Drag your image or',
+      browseText: 'Browse',
+      maxSize: '4MB Max',
+      accept: 'image/*',
       maxSizeBytes: 4 * 1024 * 1024,
-      allowedTypes: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+      allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
     },
     pdf: {
-      text: "Drag your document or",
-      browseText: "Browse",
-      maxSize: ".PDF",
-      accept: ".pdf",
+      text: 'Drag your document or',
+      browseText: 'Browse',
+      maxSize: '.PDF',
+      accept: '.pdf',
       maxSizeBytes: 10 * 1024 * 1024,
-      allowedTypes: ["application/pdf"],
+      allowedTypes: ['application/pdf'],
     },
   };
 
@@ -46,9 +46,9 @@ export function FileUpload({
   const validateFile = useCallback(
     (file: File): string | null => {
       if (!currentConfig.allowedTypes.includes(file.type)) {
-        return type === "image"
-          ? "Please select a valid image file"
-          : "Please select a valid PDF file";
+        return type === 'image'
+          ? 'Please select a valid image file'
+          : 'Please select a valid PDF file';
       }
 
       if (file.size > currentConfig.maxSizeBytes) {
@@ -131,13 +131,13 @@ export function FileUpload({
           relative border-2 border-dashed rounded-lg h-[56px] flex justify-center items-center text-center transition-all duration-300 ease-in-out
           ${
             isDragOver
-              ? "border-primary-300 bg-green-400/10"
-              : "border-[#48546A] bg-[#131C2F]"
+              ? 'border-primary-300 bg-green-400/10'
+              : 'border-[#48546A] bg-[#131C2F]'
           }
           ${
             disabled
-              ? "opacity-50 cursor-not-allowed"
-              : "cursor-pointer hover:border-primary-hover hover:bg-green-400/5"
+              ? 'opacity-50 cursor-not-allowed'
+              : 'cursor-pointer hover:border-primary-hover hover:bg-green-400/5'
           }
         `}
         onClick={handleBrowseClick}

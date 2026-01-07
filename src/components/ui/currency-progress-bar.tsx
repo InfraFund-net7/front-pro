@@ -1,11 +1,15 @@
 interface ProgressBarProps {
-  currentAmount: number
-  totalAmount: number
-  currency: string
+  currentAmount: number;
+  totalAmount: number;
+  currency: string;
 }
 
-export default function CurrencyProgressBar({ currentAmount, totalAmount, currency }: ProgressBarProps) {
-  const progressPercentage = (currentAmount / totalAmount) * 100
+export default function CurrencyProgressBar({
+  currentAmount,
+  totalAmount,
+  currency,
+}: ProgressBarProps) {
+  const progressPercentage = (currentAmount / totalAmount) * 100;
 
   return (
     <div className="flex flex-col items-start justify-center gap-3 h-fit w-full">
@@ -22,5 +26,5 @@ export default function CurrencyProgressBar({ currentAmount, totalAmount, curren
         ></div>
       </div>
     </div>
-  )
+  );
 }

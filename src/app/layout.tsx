@@ -1,6 +1,6 @@
-import type React from "react";
-import { MainLayout } from "@/components/main-layout";
-import "./globals.css";
+import type React from 'react';
+import { MainLayout } from '@/components/main-layout';
+import './globals.css';
 
 export default function RootLayout({
   children,
@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-          <MainLayout>{children}</MainLayout>
+        <MainLayout>{children}</MainLayout>
       </body>
     </html>
   );

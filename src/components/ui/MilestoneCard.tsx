@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { FormInput } from "./form-input";
+import { useState } from 'react';
+import { FormInput } from './form-input';
 
 export default function MilestoneCard() {
   const [milestones, setMilestones] = useState([
-    { id: 1, name: "", cost: "", endDate: "" },
+    { id: 1, name: '', cost: '', endDate: '' },
   ]);
 
   const addMilestone = () => {
     const newId = milestones.length + 1;
     setMilestones([
       ...milestones,
-      { id: newId, name: "", cost: "", endDate: "" },
+      { id: newId, name: '', cost: '', endDate: '' },
     ]);
   };
 

@@ -1,7 +1,7 @@
 FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json package-lock.json* ./
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm ci --include=dev --ignore-scripts
 COPY . .
 RUN npm run build
 
@@ -18,8 +18,9 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 # Copy only necessary files
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
