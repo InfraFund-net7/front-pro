@@ -1,92 +1,88 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import {
+  useUser,
+  useOAuth,
+  useEmailOtpAuth,
+  useSignOut,
+  OAuthProvider,
+} from '@openfort/react';
+import { useRouter } from 'next/navigation';
 import CardView from '../ui/card-view';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 import Image from 'next/image';
-
-interface SurveyData {
-  role: string;
-  type: string;
-  confirm_tos: boolean;
-  first_name?: string;
-  last_name?: string;
-  phone_number: string;
-  email: string;
-  contact_fullname?: string;
-  company_name?: string;
-}
-
-const getDomainCookie = (name: string): SurveyData | null => {
-  if (typeof document === 'undefined') return null;
-
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-
-  if (parts.length === 2) {
-    try {
-      const raw = parts[1].split(';')[0];
-      const decoded = decodeURIComponent(raw);
-      return JSON.parse(decoded) as SurveyData;
-    } catch (e) {
-      console.warn(`Failed to parse cookie "${name}"`, e);
-    }
-  }
-
-  return null;
-};
-
-const clearDomainCookie = (name: string) => {
-  document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax`;
-};
+import { CustomButton } from '../ui/custom-button';
 
 export default function Login() {
-  const [, setSurveyData] = useState<SurveyData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { user, isAuthenticated } = useUser();
+  const { initOAuth, isLoading: oauthLoading } = useOAuth();
+  const {
+    requestEmailOtp,
+    signInEmailOtp,
+    isLoading: otpLoading,
+  } = useEmailOtpAuth();
+  const { signOut } = useSignOut();
+
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const rawData = getDomainCookie('survey_data');
-
-    if (rawData) {
-      const payload: SurveyData = {
-        role: rawData.role || '',
-        type: rawData.type || 'individual',
-        confirm_tos: rawData.confirm_tos || false,
-        first_name:
-          rawData.type === 'individual' ? rawData.first_name || '' : undefined,
-        last_name:
-          rawData.type === 'individual' ? rawData.last_name || '' : undefined,
-        phone_number: rawData.phone_number || '',
-        email: rawData.email || '',
-        contact_fullname:
-          rawData.type === 'organization'
-            ? rawData.contact_fullname || ''
-            : undefined,
-        company_name:
-          rawData.type === 'organization'
-            ? rawData.company_name || ''
-            : undefined,
-      };
-
-      setSurveyData(payload);
-      clearDomainCookie('survey_data');
+    if (isAuthenticated && user) {
+      router.push('/home');
     }
+  }, [isAuthenticated, user, router]);
 
-    setIsLoading(false);
-  }, []);
+  const handleGoogleLogin = async () => {
+    setError('');
+    try {
+      await initOAuth({ provider: OAuthProvider.GOOGLE });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Google login failed');
+    }
+  };
 
-  if (isLoading) {
+  const handleSendOtp = async () => {
+    setError('');
+    if (!email) {
+      setError('Please enter your email');
+      return;
+    }
+    try {
+      await requestEmailOtp({ email });
+      setOtpSent(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to send OTP');
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setError('');
+    try {
+      await signInEmailOtp({ email, otp });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Invalid OTP');
+    }
+  };
+
+  if (isAuthenticated && user) {
     return (
       <div className="w-full flex justify-center items-center">
         <CardView
           width="547px"
           height="500px"
-          className="flex flex-col items-center justify-center"
+          className="p-6 text-white flex flex-col justify-center items-center md:p-8"
         >
-          <div className="w-full h-fit flex justify-center items-center">
-            <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
-          </div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-400">Redirecting to dashboard...</p>
+          <button
+            onClick={() => signOut()}
+            className="mt-4 text-sm text-red-400 hover:text-red-300"
+          >
+            Sign out instead
+          </button>
         </CardView>
       </div>
     );
@@ -96,19 +92,93 @@ export default function Login() {
     <div className="w-full flex justify-center items-center">
       <CardView
         width="547px"
-        height="500px"
-        className="p-6 text-white flex flex-col justify-center items-center md:p-8"
+        className="p-6 text-white flex flex-col justify-center items-center md:p-8 gap-6"
       >
-        <div className="w-full h-full flex justify-center items-center">
+        <div className="w-full flex justify-center items-center py-4">
           <Image src={infrafund} alt="InfraFund" />
         </div>
 
-        <main className="w-full max-w-3xl mx-auto space-y-10 overflow-y-auto">
-          {/* TODO: Openfort auth will be integrated here */}
-          <p className="text-center text-gray-400">
-            Wallet connection coming soon
-          </p>
-        </main>
+        <div className="w-full max-w-sm space-y-4">
+          {/* Google Login */}
+          <CustomButton
+            variant="filled"
+            className="w-full flex items-center justify-center gap-2"
+            onClick={handleGoogleLogin}
+            disabled={oauthLoading}
+          >
+            <span className="text-sm font-semibold text-black">
+              {oauthLoading ? 'Connecting...' : 'Continue with Google'}
+            </span>
+          </CustomButton>
+
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-1 h-px bg-gray-700" />
+            <span className="text-xs text-gray-500">or</span>
+            <div className="flex-1 h-px bg-gray-700" />
+          </div>
+
+          {/* Email OTP Login */}
+          {!otpSent ? (
+            <div className="space-y-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 rounded-lg bg-[#131C2F] border border-gray-700 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                onKeyDown={(e) => e.key === 'Enter' && handleSendOtp()}
+              />
+              <CustomButton
+                variant="filled"
+                className="w-full"
+                onClick={handleSendOtp}
+                disabled={otpLoading}
+              >
+                <span className="text-sm font-semibold text-black">
+                  {otpLoading ? 'Sending...' : 'Send verification code'}
+                </span>
+              </CustomButton>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-gray-400 text-center">
+                Code sent to <span className="text-white">{email}</span>
+              </p>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6-digit code"
+                maxLength={6}
+                className="w-full px-4 py-3 rounded-lg bg-[#131C2F] border border-gray-700 text-white text-center text-lg tracking-widest placeholder-gray-500 focus:border-primary focus:outline-none"
+                onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp()}
+              />
+              <CustomButton
+                variant="filled"
+                className="w-full"
+                onClick={handleVerifyOtp}
+                disabled={otpLoading}
+              >
+                <span className="text-sm font-semibold text-black">
+                  {otpLoading ? 'Verifying...' : 'Verify & Sign In'}
+                </span>
+              </CustomButton>
+              <button
+                onClick={() => {
+                  setOtpSent(false);
+                  setOtp('');
+                }}
+                className="w-full text-sm text-gray-500 hover:text-gray-300"
+              >
+                Use a different email
+              </button>
+            </div>
+          )}
+
+          {error && (
+            <p className="text-sm text-red-400 text-center mt-2">{error}</p>
+          )}
+        </div>
       </CardView>
     </div>
   );
