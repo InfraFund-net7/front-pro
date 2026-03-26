@@ -1,6 +1,5 @@
 'use client';
 
-import AutoWalletRegister from '@/components/AutoWalletRegister';
 import React, { useEffect, useState } from 'react';
 import CardView from '../ui/card-view';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
@@ -30,7 +29,7 @@ const getDomainCookie = (name: string): SurveyData | null => {
       const decoded = decodeURIComponent(raw);
       return JSON.parse(decoded) as SurveyData;
     } catch (e) {
-      console.warn(`⚠️ Failed to parse cookie "${name}"`, e);
+      console.warn(`Failed to parse cookie "${name}"`, e);
     }
   }
 
@@ -38,11 +37,11 @@ const getDomainCookie = (name: string): SurveyData | null => {
 };
 
 const clearDomainCookie = (name: string) => {
-  document.cookie = `${name}=; Path=/; Domain=.infrafund.test; Max-Age=0; SameSite=Lax`;
+  document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax`;
 };
 
 export default function Login() {
-  const [surveyData, setSurveyData] = useState<SurveyData | null>(null);
+  const [, setSurveyData] = useState<SurveyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -71,8 +70,6 @@ export default function Login() {
 
       setSurveyData(payload);
       clearDomainCookie('survey_data');
-    } else {
-      console.log('❌ No survey_data found in cookies.');
     }
 
     setIsLoading(false);
@@ -89,7 +86,7 @@ export default function Login() {
           <div className="w-full h-fit flex justify-center items-center">
             <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
           </div>
-          <p className="text-gray-600">load survey datas</p>
+          <p className="text-gray-600">Loading...</p>
         </CardView>
       </div>
     );
@@ -107,32 +104,10 @@ export default function Login() {
         </div>
 
         <main className="w-full max-w-3xl mx-auto space-y-10 overflow-y-auto">
-          {/* {surveyData ? ( */}
-          <AutoWalletRegister />
-          {/* ) : ( */}
-          {/* <div className="text-white rounded-xl p-6 text-center">
-              <h2 className="ibm-plex-mono text-xl font-semibold mb-3">
-                Access Denied — Survey Required
-              </h2>
-              <p className="chakra-petch mb-4 leading-relaxed">
-                To personalize your experience and grant secure access to the InfraFund dashboard, ...
-              </p>
-              <p className="chakra-petch font-medium mb-6">
-                You must complete the survey <strong>and log in</strong> to unlock full dashboard access.
-              </p>
-              <a
-                href="http://infrafund.test:3000"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-lg chakra-petch shadow-md hover:shadow-lg transition"
-              >
-                Go to Survey & Sign In
-              </a>
-              <p className="mt-4 text-xs chakra-petch">
-                After submission, you’ll be moved back here automatically.
-              </p>
-            </div> */}
-          {/* )} */}
+          {/* TODO: Openfort auth will be integrated here */}
+          <p className="text-center text-gray-400">
+            Wallet connection coming soon
+          </p>
         </main>
       </CardView>
     </div>
