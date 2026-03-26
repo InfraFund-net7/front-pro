@@ -1,11 +1,23 @@
 'use client';
 
 import { OpenfortProvider, AuthProvider } from '@openfort/react';
+import { getDefaultConfig, OpenfortWagmiBridge } from '@openfort/react/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { baseSepolia, base } from 'viem/chains';
+import { createConfig, WagmiProvider } from 'wagmi';
 import type { ReactNode } from 'react';
 
 const publishableKey = process.env.NEXT_PUBLIC_OPENFORT_PUBLIC_KEY;
 const shieldPublishableKey = process.env.NEXT_PUBLIC_SHIELD_API_KEY;
+
+const wagmiConfig = createConfig(
+  getDefaultConfig({
+    appName: 'InfraFund',
+    chains: [baseSepolia, base],
+    walletConnectProjectId:
+      process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '',
+  })
+);
 
 const queryClient = new QueryClient();
 
@@ -33,23 +45,33 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <OpenfortProvider
-        publishableKey={publishableKey}
-        walletConfig={{
-          shieldPublishableKey,
-          ethereum: {
-            ethereumFeeSponsorshipId:
-              process.env.NEXT_PUBLIC_POLICY_ID || undefined,
-          },
-          connectOnLogin: true,
-          createEncryptedSessionEndpoint: '/api/auth/encryption-session',
-        }}
-        uiConfig={{
-          authProviders: [AuthProvider.GOOGLE, AuthProvider.EMAIL_OTP],
-        }}
-      >
-        {children}
-      </OpenfortProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <OpenfortWagmiBridge>
+          <OpenfortProvider
+            publishableKey={publishableKey}
+            walletConfig={{
+              shieldPublishableKey,
+              ethereum: {
+                ethereumFeeSponsorshipId:
+                  process.env.NEXT_PUBLIC_POLICY_ID || undefined,
+              },
+              connectOnLogin: true,
+              createEncryptedSessionEndpoint: '/api/auth/encryption-session',
+            }}
+            uiConfig={{
+              theme: 'midnight',
+              mode: 'dark',
+              authProviders: [
+                AuthProvider.GOOGLE,
+                AuthProvider.EMAIL_OTP,
+                AuthProvider.WALLET,
+              ],
+            }}
+          >
+            {children}
+          </OpenfortProvider>
+        </OpenfortWagmiBridge>
+      </WagmiProvider>
     </QueryClientProvider>
   );
 }
