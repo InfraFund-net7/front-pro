@@ -23,6 +23,13 @@
 # misc
 .DS_Store
 *.pem
+.claude/
+.cursor/
+.entire/
+.factory/
+.gemini/
+.github/hooks/
+.opencode/
 
 # debug
 npm-debug.log*
