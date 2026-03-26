@@ -1,0 +1,36 @@
+look at the git / githun history of this repo , I started fixing particle integration, but only later found out that i may have started based on the wrong or outdated branch, that somebody else had been working on it (but i have no idea about the status).
+Also, I saw quite a few other branches and i have no idea what they are about, if the fixed a problem,  had been abondoned, should/could be merged into main - or not.
+Can you do a thorough investigation.
+
+---
+
+you can ignore all branches starting with 'entire' as they are just tracking our conversation and storing it in a separate branch
+
+---
+
+1) `feat/particle-connect` with 106 files changes sounds a LOT ! I can't imagine that it should make such impact, can you check rouchly what was touched, maybe he just used a different code formatting and all files in the repo were just reformatted ?
+
+2) what are they using with particle , ethers or viem , or anything else ?
+
+3) I fixed some thing already in the current branch and my commits which at least brought the website back to live to a point where it rendered at all and I was able to go through a few steps, but so far i did not try to connect a wallet.
+
+what would be the best way moving formward to get particle working ?
+
+---
+
+i had implemented thirdweb in another project and it was maybe 20 LOC + some API KEY config, just telling it how the modal popup should look like , what social login and wallet options i want , connect, and then moving forward use the thirdweb style to call functions of a smart contract.
+I can not imagine that particle needs so much more boilerplate and additional coding to get it to work or am i wrong ?
+I also had a look at openfort as an alternative and compiled 2 documents in this folder `/home/sum/1_DATA/BLOCKCHAIN/ETHEREUM/wallet-Account-Abstraction/Openfort/` Maybe just doing it with openfort + viem would be a better option anyway ?
+
+---
+
+- tag the last state before i added commits as v0.1.0 
+- create a directory `docs-dev/release-notes` and create a file `v0.1.0-alpha-status-report.md` with your finding you just reported , the status, the abononded efforts in the other branches
+- commit and push it , to `develop` branch ?
+- rip out ether and particle
+- have a thorough read of https://www.openfort.io/docs/overview so we know how the latest version works, we can use their latest code examples
+- do a fresh implementation with openfort + viem
+
+---
+
+actually i wanted to tag it v0.1.0 and document the state of the repo before I made any changes so that we have a status report, snapshort, and can pin point the commit state where the project was before i joined , then move on from there
