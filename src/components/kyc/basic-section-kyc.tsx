@@ -1,12 +1,12 @@
-"use client";
-import React, { useState } from "react";
-import CardView from "../ui/card-view";
-import { FormInput } from "../ui/form-input";
-import { NationalitySelect } from "../ui/nationality-select";
-import { StepIndicator } from "../ui/step-indicator";
-import { CustomButton } from "../ui/custom-button";
-import bigtik from "@/../public/assets/svg/big-tik.svg";
-import Image from "next/image";
+'use client';
+import React, { useState } from 'react';
+import CardView from '../ui/card-view';
+import { FormInput } from '../ui/form-input';
+import { NationalitySelect } from '../ui/nationality-select';
+import { StepIndicator } from '../ui/step-indicator';
+import { CustomButton } from '../ui/custom-button';
+import bigtik from '@/../public/assets/svg/big-tik.svg';
+import Image from 'next/image';
 
 type BasicSectionProps = {
   onComplete?: () => void;
@@ -20,8 +20,8 @@ export default function BasicSection({
   const [currentStep, setCurrentStep] = useState(1);
   const [isFinished, setIsFinished] = useState(false);
 
-  const steps = ["Step 1", "Step 2"];
-  const stepSubtitles = ["Basic Verification", "Additional Information"];
+  const steps = ['Step 1', 'Step 2'];
+  const stepSubtitles = ['Basic Verification', 'Additional Information'];
 
   function renderStepContent(step: number) {
     switch (step) {

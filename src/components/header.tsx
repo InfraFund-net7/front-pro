@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { Bell, Headset, Wallet } from "lucide-react";
-import React, { useState } from "react";
-import { usePathname } from "next/navigation";
-import { CustomButton } from "./ui/custom-button";
-import { ConnectWallet } from "./connectwallet/connect-wallet-modal";
+import { Bell, Headset, Wallet } from 'lucide-react';
+import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { CustomButton } from './ui/custom-button';
+import { ConnectWallet } from './connectwallet/connect-wallet-modal';
 
 const routeTitles: Record<string, string> = {
-  "/": "Dashboard",
-  "/kyc": "KYC",
-  "/explore-projects": "Explore Projects",
-  "/projects": "Projects",
-  "/settings": "Settings",
+  '/': 'Dashboard',
+  '/kyc': 'KYC',
+  '/explore-projects': 'Explore Projects',
+  '/projects': 'Projects',
+  '/settings': 'Settings',
 };
 
 export default function Header() {
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const pageTitle = routeTitles[pathname] || "Page";
+  const pageTitle = routeTitles[pathname] || 'Page';
 
   return (
     <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">

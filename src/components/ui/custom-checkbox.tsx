@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes } from 'react';
 
 interface CustomCheckboxProps extends HTMLAttributes<HTMLDivElement> {
   checked: boolean;
@@ -20,7 +20,7 @@ export function CustomCheckbox({
       tabIndex={0}
       onClick={onToggle}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onToggle();
         }
@@ -28,14 +28,14 @@ export function CustomCheckbox({
       className={`w-8 h-8 rounded-lg border-2 cursor-pointer flex items-center justify-center
         ${
           checked
-            ? "bg-primary border-primary"
-            : "bg-transparent border-gray-500"
+            ? 'bg-primary border-primary'
+            : 'bg-transparent border-gray-500'
         }
         transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-900
-        ${className || ""}`}
+        ${className || ''}`}
       {...props}
     >
-      <span className="sr-only">{checked ? "Checked" : "Unchecked"}</span>
+      <span className="sr-only">{checked ? 'Checked' : 'Unchecked'}</span>
 
       {checked && (
         <svg

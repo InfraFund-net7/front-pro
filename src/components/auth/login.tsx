@@ -50,15 +50,23 @@ export default function Login() {
 
     if (rawData) {
       const payload: SurveyData = {
-        role: rawData.role || "",
-        type: rawData.type || "individual",
+        role: rawData.role || '',
+        type: rawData.type || 'individual',
         confirm_tos: rawData.confirm_tos || false,
-        first_name: rawData.type === "individual" ? rawData.first_name || "" : undefined,
-        last_name: rawData.type === "individual" ? rawData.last_name || "" : undefined,
-        phone_number: rawData.phone_number || "",
-        email: rawData.email || "",
-        contact_fullname: rawData.type === "organization" ? rawData.contact_fullname || "" : undefined,
-        company_name: rawData.type === "organization" ? rawData.company_name || "" : undefined,
+        first_name:
+          rawData.type === 'individual' ? rawData.first_name || '' : undefined,
+        last_name:
+          rawData.type === 'individual' ? rawData.last_name || '' : undefined,
+        phone_number: rawData.phone_number || '',
+        email: rawData.email || '',
+        contact_fullname:
+          rawData.type === 'organization'
+            ? rawData.contact_fullname || ''
+            : undefined,
+        company_name:
+          rawData.type === 'organization'
+            ? rawData.company_name || ''
+            : undefined,
       };
 
       setSurveyData(payload);
@@ -73,8 +81,12 @@ export default function Login() {
   if (isLoading) {
     return (
       <div className="w-full flex justify-center items-center">
-        <CardView width="547px" height='500px' className="flex flex-col items-center justify-center">
-          <div className='w-full h-fit flex justify-center items-center'>
+        <CardView
+          width="547px"
+          height="500px"
+          className="flex flex-col items-center justify-center"
+        >
+          <div className="w-full h-fit flex justify-center items-center">
             <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
           </div>
           <p className="text-gray-600">load survey datas</p>
@@ -124,6 +136,5 @@ export default function Login() {
         </main>
       </CardView>
     </div>
-
   );
 }

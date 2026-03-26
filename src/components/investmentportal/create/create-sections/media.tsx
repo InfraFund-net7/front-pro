@@ -1,7 +1,7 @@
-"use client";
-import React, { useCallback, useState } from "react";
-import { FileUploadWithPreview } from "@/components/ui/file-upload-with-preview";
-import { Plus } from "lucide-react";
+'use client';
+import React, { useCallback, useState } from 'react';
+import { FileUploadWithPreview } from '@/components/ui/file-upload-with-preview';
+import { Plus } from 'lucide-react';
 
 type MediaProps = {
   onAnyFileChange?: (title: string, file: File | null) => void;
@@ -14,22 +14,22 @@ type MediaItem = {
 
 export default function Media({ onAnyFileChange }: MediaProps) {
   const [uploads, setUploads] = useState<MediaItem[]>([
-    { title: "Brand logotype light mode", file: null },
-    { title: "Brand logotype dark mode", file: null },
-    { title: "Favicon", file: null },
-    { title: "Hero section image", file: null },
-    { title: "Mobile logotype", file: null },
-    { title: "Upload your Whitepaper", file: null },
+    { title: 'Brand logotype light mode', file: null },
+    { title: 'Brand logotype dark mode', file: null },
+    { title: 'Favicon', file: null },
+    { title: 'Hero section image', file: null },
+    { title: 'Mobile logotype', file: null },
+    { title: 'Upload your Whitepaper', file: null },
   ]);
 
   // Partners state
   const [partners, setPartners] = useState<MediaItem[]>([
-    { title: "Partner 1", file: null },
+    { title: 'Partner 1', file: null },
   ]);
 
   // Image Gallery state
   const [gallery, setGallery] = useState<MediaItem[]>([
-    { title: "Image 1", file: null },
+    { title: 'Image 1', file: null },
   ]);
 
   const handleFileChange = useCallback(
@@ -131,7 +131,9 @@ export default function Media({ onAnyFileChange }: MediaProps) {
               </span>
               <FileUploadWithPreview
                 type="image"
-                onFileChange={(file) => handleFileChange("Whitepaper section image", file)}
+                onFileChange={(file) =>
+                  handleFileChange('Whitepaper section image', file)
+                }
                 className="w-[458px]"
               />
             </div>

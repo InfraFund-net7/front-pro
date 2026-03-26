@@ -1,9 +1,9 @@
-import axios from "axios";
-import { setupInterceptors } from "./interceptors.utils";
+import axios from 'axios';
+import { setupInterceptors } from './interceptors.utils';
 
 const _axios = axios.create({
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
