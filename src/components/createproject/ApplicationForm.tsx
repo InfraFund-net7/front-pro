@@ -1,30 +1,30 @@
-"use client";
-import { CustomButton } from "@/components/ui/custom-button";
-import { Dropdown } from "@/components/ui/dropdown";
-import { FileUploadWithPreview } from "@/components/ui/file-upload-with-preview";
-import { FormInput } from "@/components/ui/form-input";
-import { ArrowLeft } from "lucide-react";
-import React, { useState } from "react";
+'use client';
+import { CustomButton } from '@/components/ui/custom-button';
+import { Dropdown } from '@/components/ui/dropdown';
+import { FileUploadWithPreview } from '@/components/ui/file-upload-with-preview';
+import { FormInput } from '@/components/ui/form-input';
+import { ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
 
 const infrastructureTypes = [
-  { key: "wind", value: "wind-energy", label: "Wind Energy" },
-  { key: "solar", value: "solar-power", label: "Solar Power" },
-  { key: "hydro", value: "hydroelectric", label: "Hydroelectric" },
-  { key: "nuclear", value: "nuclear", label: "Nuclear" },
-  { key: "geo", value: "geothermal", label: "Geothermal" },
+  { key: 'wind', value: 'wind-energy', label: 'Wind Energy' },
+  { key: 'solar', value: 'solar-power', label: 'Solar Power' },
+  { key: 'hydro', value: 'hydroelectric', label: 'Hydroelectric' },
+  { key: 'nuclear', value: 'nuclear', label: 'Nuclear' },
+  { key: 'geo', value: 'geothermal', label: 'Geothermal' },
 ];
 
 const projectStatuses = [
-  { key: "ready", value: "ready-to-launch", label: "Ready to launch" },
-  { key: "dev", value: "in-development", label: "In Development" },
-  { key: "plan", value: "planning", label: "Planning" },
-  { key: "hold", value: "on-hold", label: "On Hold" },
-  { key: "done", value: "completed", label: "Completed" },
+  { key: 'ready', value: 'ready-to-launch', label: 'Ready to launch' },
+  { key: 'dev', value: 'in-development', label: 'In Development' },
+  { key: 'plan', value: 'planning', label: 'Planning' },
+  { key: 'hold', value: 'on-hold', label: 'On Hold' },
+  { key: 'done', value: 'completed', label: 'Completed' },
 ];
 
 const raisedOptions = [
-  { key: "yes", value: "yes", label: "Yes" },
-  { key: "no", value: "no", label: "No" },
+  { key: 'yes', value: 'yes', label: 'Yes' },
+  { key: 'no', value: 'no', label: 'No' },
 ];
 
 interface ApplicationFormProps {
@@ -35,24 +35,24 @@ export default function ApplicationForm({
   CrowdfundingComponent,
 }: ApplicationFormProps) {
   const [infrastructureType, setInfrastructureType] =
-    React.useState("wind-energy");
-  const [projectStatus, setProjectStatus] = useState("ready-to-launch");
-  const [raisedBefore, setRaisedBefore] = useState("no");
+    React.useState('wind-energy');
+  const [projectStatus, setProjectStatus] = useState('ready-to-launch');
+  const [raisedBefore, setRaisedBefore] = useState('no');
   const [showPaymentInput, setShowPaymentInput] = useState(false);
 
   const handleInfrastructureChange = (value: string, key: string) => {
     setInfrastructureType(value);
-    console.log("Infrastructure changed:", { value, key });
+    console.log('Infrastructure changed:', { value, key });
   };
 
   const handleProjectStatusChange = (value: string, key: string) => {
     setProjectStatus(value);
-    console.log("Project status changed:", { value, key });
+    console.log('Project status changed:', { value, key });
   };
 
   const handleRaisedBeforeChange = (value: string, key: string) => {
     setRaisedBefore(value);
-    console.log("Raised before changed:", { value, key });
+    console.log('Raised before changed:', { value, key });
   };
 
   return (
@@ -148,7 +148,7 @@ export default function ApplicationForm({
           className="w-fit h-11 flex justify-center items-center"
           onClick={() => setShowPaymentInput(true)}
         >
-          {showPaymentInput ? "Continue" : "Continue to Payment"}
+          {showPaymentInput ? 'Continue' : 'Continue to Payment'}
         </CustomButton>
       </div>
     </div>

@@ -1,8 +1,8 @@
-"use client";
-import type React from "react";
-import AppSidebar from "./sidebar";
-import Header from "./header";
-import { usePathname } from "next/navigation";
+'use client';
+import type React from 'react';
+import AppSidebar from './sidebar';
+import Header from './header';
+import { usePathname } from 'next/navigation';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
-  const isAuthPage = pathname?.startsWith("/login");
+  const isAuthPage = pathname?.startsWith('/login');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">

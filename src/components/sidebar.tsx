@@ -1,64 +1,63 @@
-import type React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import Image from "next/image";
-import dynamic from "next/dynamic";
+import type React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
 
-const Home = dynamic(() => import("lucide-react").then((mod) => mod.Home), {
+const Home = dynamic(() => import('lucide-react').then((mod) => mod.Home), {
   ssr: false,
 });
-const Layers = dynamic(() => import("lucide-react").then((mod) => mod.Layers), {
+const Layers = dynamic(() => import('lucide-react').then((mod) => mod.Layers), {
   ssr: false,
 });
 const Building = dynamic(
-  () => import("lucide-react").then((mod) => mod.Building),
+  () => import('lucide-react').then((mod) => mod.Building),
   { ssr: false }
 );
 const Grid3X3 = dynamic(
-  () => import("lucide-react").then((mod) => mod.Grid3X3),
+  () => import('lucide-react').then((mod) => mod.Grid3X3),
   { ssr: false }
 );
-const Users = dynamic(() => import("lucide-react").then((mod) => mod.Users), {
+const Users = dynamic(() => import('lucide-react').then((mod) => mod.Users), {
   ssr: false,
 });
 const TrendingUp = dynamic(
-  () => import("lucide-react").then((mod) => mod.TrendingUp),
+  () => import('lucide-react').then((mod) => mod.TrendingUp),
   { ssr: false }
 );
-const Folder = dynamic(() => import("lucide-react").then((mod) => mod.Folder), {
+const Folder = dynamic(() => import('lucide-react').then((mod) => mod.Folder), {
   ssr: false,
 });
 const Compass = dynamic(
-  () => import("lucide-react").then((mod) => mod.Compass),
+  () => import('lucide-react').then((mod) => mod.Compass),
   { ssr: false }
 );
 const ArrowUpDown = dynamic(
-  () => import("lucide-react").then((mod) => mod.ArrowUpDown),
+  () => import('lucide-react').then((mod) => mod.ArrowUpDown),
   { ssr: false }
 );
 const FileText = dynamic(
-  () => import("lucide-react").then((mod) => mod.FileText),
+  () => import('lucide-react').then((mod) => mod.FileText),
   { ssr: false }
 );
-const Lock = dynamic(() => import("lucide-react").then((mod) => mod.Lock), {
+const Lock = dynamic(() => import('lucide-react').then((mod) => mod.Lock), {
   ssr: false,
 });
-const Rocket = dynamic(() => import("lucide-react").then((mod) => mod.Rocket), {
+const Rocket = dynamic(() => import('lucide-react').then((mod) => mod.Rocket), {
   ssr: false,
 });
-const Magnet = dynamic(() => import("lucide-react").then((mod) => mod.Magnet), {
+const Magnet = dynamic(() => import('lucide-react').then((mod) => mod.Magnet), {
   ssr: false,
 });
 const Landmark = dynamic(
-  () => import("lucide-react").then((mod) => mod.Landmark),
+  () => import('lucide-react').then((mod) => mod.Landmark),
   { ssr: false }
 );
-const IdCard = dynamic(
-  () => import("lucide-react").then((mod) => mod.IdCard),
-  { ssr: false }
-);
+const IdCard = dynamic(() => import('lucide-react').then((mod) => mod.IdCard), {
+  ssr: false,
+});
 
-import infrafund from "@/../public/assets/svg/infrafund.svg";
+import infrafund from '@/../public/assets/svg/infrafund.svg';
 
 interface NavigationItem {
   title: string;
@@ -70,51 +69,66 @@ interface NavigationItem {
 interface AppSidebarProps {
   className?: string;
   navigationItems?: NavigationItem[];
-  model?: "client" | "full";
+  model?: 'client' | 'full';
 }
 
 async function fetchNavigationItems(
-  model: "client" | "full" = "client"
+  model: 'client' | 'full' = 'client'
 ): Promise<NavigationItem[]> {
   const fullItems: NavigationItem[] = [
-    { title: "Home", url: "/", icon: Home },
-    { title: "Create Project", url: "/create-project", icon: Rocket },
-    { title: "Tokenization", url: "/tokenization", icon: Layers },
-    { title: "Investment Portal", url: "/investment-portal", icon: Building },
+    { title: 'Home', url: '/', icon: Home },
+    { title: 'Create Project', url: '/create-project', icon: Rocket },
+    { title: 'Tokenization', url: '/tokenization', icon: Layers },
+    { title: 'Investment Portal', url: '/investment-portal', icon: Building },
     {
-      title: "My Digital Asset Offering",
-      url: "/digital-assets",
+      title: 'My Digital Asset Offering',
+      url: '/digital-assets',
       icon: Grid3X3,
       isDisabled: true,
     },
     {
       title: "Investor's Management",
-      url: "/investor-management",
+      url: '/investor-management',
       icon: Users,
     },
     {
-      title: "Investment Requests",
-      url: "/investment-requests",
+      title: 'Investment Requests',
+      url: '/investment-requests',
       icon: TrendingUp,
       isDisabled: true,
     },
-    { title: "Asset Management", url: "/asset-management", icon: Folder },
-    { title: "Explore Projects", url: "/explore-projects", icon: Compass },
-    { title: "Swap", url: "/swap", icon: ArrowUpDown },
-    { title: "KYC", url: "/kyc", icon: FileText },
+    { title: 'Asset Management', url: '/asset-management', icon: Folder },
+    { title: 'Explore Projects', url: '/explore-projects', icon: Compass },
+    { title: 'Swap', url: '/swap', icon: ArrowUpDown },
+    { title: 'KYC', url: '/kyc', icon: FileText },
   ];
 
   const clientItems: NavigationItem[] = [
-    { title: "Home", url: "/", icon: Home },
-    { title: "Explore Projects", url: "/explore-projects", icon: Magnet },
-    { title: "KYC", url: "/kyc", icon: IdCard },
-    { title: "Swap", url: "/swap", icon: ArrowUpDown, isDisabled: true },
-    { title: "Create Project", url: "/create-project", icon: Rocket, isDisabled: true },
-    { title: "Tokenization", url: "/tokenization", icon: Layers, isDisabled: true },
-    { title: "Investment Portal", url: "/investment-portal", icon: Landmark, isDisabled: true },
+    { title: 'Home', url: '/', icon: Home },
+    { title: 'Explore Projects', url: '/explore-projects', icon: Magnet },
+    { title: 'KYC', url: '/kyc', icon: IdCard },
+    { title: 'Swap', url: '/swap', icon: ArrowUpDown, isDisabled: true },
+    {
+      title: 'Create Project',
+      url: '/create-project',
+      icon: Rocket,
+      isDisabled: true,
+    },
+    {
+      title: 'Tokenization',
+      url: '/tokenization',
+      icon: Layers,
+      isDisabled: true,
+    },
+    {
+      title: 'Investment Portal',
+      url: '/investment-portal',
+      icon: Landmark,
+      isDisabled: true,
+    },
   ];
 
-  return model === "client" ? clientItems : fullItems;
+  return model === 'client' ? clientItems : fullItems;
 }
 
 function Navigation({ items }: { items: NavigationItem[] }) {
@@ -137,7 +151,7 @@ function Navigation({ items }: { items: NavigationItem[] }) {
         return (
           <div key={index} className="relative chakra-petch">
             <Link
-              href={item.isDisabled ? "#" : item.url}
+              href={item.isDisabled ? '#' : item.url}
               onClick={(e) => handleItemClick(item, e)}
               aria-disabled={item.isDisabled}
               tabIndex={item.isDisabled ? -1 : 0}
@@ -146,18 +160,16 @@ function Navigation({ items }: { items: NavigationItem[] }) {
                 flex items-center gap-3 group relative
                 ${
                   item.isDisabled
-                    ? "text-gray-600 cursor-not-allowed opacity-60"
+                    ? 'text-gray-600 cursor-not-allowed opacity-60'
                     : isActive
-                    ? "bg-card-selected-bg text-primary"
-                    : "text-gray-400 hover:text-gray-200 hover:bg-slate-800/50"
+                      ? 'bg-card-selected-bg text-primary'
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/50'
                 }
               `}
             >
               <IconComponent className="w-5 h-5 flex-shrink-0" />
               <span className="text-sm font-medium truncate">{item.title}</span>
-              {item.isDisabled && (
-                  <Lock className="w-5 h-5 text-yellow-500" />
-              )}
+              {item.isDisabled && <Lock className="w-5 h-5 text-yellow-500" />}
             </Link>
           </div>
         );
@@ -167,8 +179,8 @@ function Navigation({ items }: { items: NavigationItem[] }) {
 }
 
 export default async function AppSidebar({
-  className = "",
-  model = "client",
+  className = '',
+  model = 'client',
 }: AppSidebarProps) {
   const navigationItems = await fetchNavigationItems(model);
 
