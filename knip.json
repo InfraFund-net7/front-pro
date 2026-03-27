@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "ignoreFiles": [
+    "src/atoms/kyc/kycAtoms.ts",
+    "src/atoms/kyc/kycLevel.ts",
+    "src/components/developer/developer-home.tsx",
+    "src/components/investmentportal/create/create-sections/media.tsx",
+    "src/components/investmentportal/empty/emptyinvestment.tsx",
+    "src/components/ui/custom-checkbox.tsx",
+    "src/components/ui/date-picker.tsx",
+    "src/components/ui/horizontal-progress-bar.tsx",
+    "src/components/ui/kyc-card.tsx",
+    "src/components/ui/pagination-dots.tsx",
+    "src/components/ui/toggle-switch.tsx",
+    "src/services/api.service.ts",
+    "src/utils/axios.utils.ts",
+    "src/utils/get-access-token.util.ts",
+    "src/utils/interceptors.utils.ts",
+    "src/utils/is-development.util.ts",
+    "src/utils/is-production.util.ts"
+  ],
+  "ignoreDependencies": [
+    "@openfort/openfort-js",
+    "jotai",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint-config-next"
+  ]
+}
