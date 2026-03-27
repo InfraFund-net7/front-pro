@@ -1,0 +1,30 @@
+- can you implement @docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md 
+- all files in directory `docs-dev/openfort` and our last (pre) release notes may also have some valuable information @docs-dev/release-notes/v0.2.0-openfort-integration.md
+
+---
+
+what can we do about : backpro full-module validation is still blocked by the pre-existing github.com/bytedance/sonic@v1.14.2 / Go 1.25 issue (undefined: GoMapIterator)
+
+---
+
+yes, lets go the standard way, we are not in the position that speed optimization is a priority
+
+---
+
+review @docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md , have we done everything we wanted ?
+
+---
+
+make a plan how to close the open gaps
+
+---
+
+continue
+
+---
+
+continue
+
+---
+
+all the env vars and api keys haven't been setup , so that's what i need to do first before we can do real app testing
