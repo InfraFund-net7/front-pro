@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "9e233b9f2acd",
+  "session_id": "a615bc76-3f53-4336-9b5d-17f729c89faa",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-27T07:01:12.539941636Z",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md",
+    "docs-dev/tasks/v0.2.1-openfort-inplementation-part-2.md"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4---xhigh-(OpenAI-API)-4",
+  "turn_id": "7fd95e146e54",
+  "checkpoint_transcript_start": 290,
+  "transcript_lines_at_start": 290,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-27T07:01:11.839632777Z",
+    "agent_lines": 263,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 263,
+    "agent_percentage": 100
+  }
+}
