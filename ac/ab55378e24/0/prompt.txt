@@ -1,26 +1,3 @@
-- commit and push the review
-- can you create a plan `v0.2.1-openfort-inplementation-part-2.md` in `docs-dev/tasks`
-- do you have everything to create the plan and then implement it or is there anything to decide on or to discuss ?
-
----
-
-1) Is there any need for the backend session/token exchange like protecting database access? What was the intention of the developers previously?
-2) apparently openfort deliver a default button and wallet select / login modal , that's what we want to use. All custome code for these parts and functionality can go
-3) what do we need that for ?
-4) can you decide on your own if the web pages look like they are part of the app which should require login or if it is just a public page ?
-
----
-
-- i am not aware what pages already exist  and what there purpose is, but i think we will need some pages and backend api protected by the login as every should have a personal account page, status of kyc, ... and some other default/usual stuff
-- the corresponding backend is likely `backpro` which i have just cloned into a directory parallel to this, so from here `../backpro`
-- the organization has a few more repos `https://github.com/InfraFund-net7` , also `back-pro` but that one was last updated Aug 31, 2025, while `backpro` latest update was 3 weeks ago, so i assume that is the releavnt one, but you may want to look for yourself
-
----
-
-i have the impression that the guy who developed the back did a good job, although i think he is not maintining it any more. So far i thought i could just implement openfort and would not need to touch the backend as I was also not aware what had been implemented on the backend side already, but it looks quite some stuff has been already implemented. What's the effort to migrate the backend to openfort as well ? Also there are a few pull requests on the backpro repo which seem to touch at least , possibly the login, auth, kyc (not sure if we need to take care of that as well). PR #18 and PR #22 look on the Branches page of github as if the implemented something which came out with a green status. Can you have a look at that as well.
-
----
-
 i am not sure i we need to revert to particle , so I would propose to go with Option B but use our own branch `openfort`
 for backend that should be easy , but for the `front-pro` repo we might need to create something like :
 - rename the current branch `develop` to `openfort` , create a `develop` branch going off commit `0dd88faefa2aa875f73d26fd0dba55c7e145adff` so that should we need to jump back to the particle implementation we would go back to the `develop` branch and pick that up after the 2 commits we made to document the status and do the prettier reformatting.
