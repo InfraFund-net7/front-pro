@@ -12,15 +12,10 @@
     "src/components/ui/kyc-card.tsx",
     "src/components/ui/pagination-dots.tsx",
     "src/components/ui/toggle-switch.tsx",
-    "src/services/api.service.ts",
-    "src/utils/axios.utils.ts",
-    "src/utils/get-access-token.util.ts",
-    "src/utils/interceptors.utils.ts",
     "src/utils/is-development.util.ts",
     "src/utils/is-production.util.ts"
   ],
   "ignoreDependencies": [
-    "@openfort/openfort-js",
     "jotai",
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",

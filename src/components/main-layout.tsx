@@ -2,7 +2,10 @@
 import type React from 'react';
 import AppSidebar from './sidebar';
 import Header from './header';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { AuthErrorState, AuthLoadingState } from './auth/auth-state';
+import { useAuthSession } from './auth/auth-session-provider';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -10,7 +13,41 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const isAuthPage = pathname?.startsWith('/login');
+  const { status, error, retry, isOpenfortAuthenticated, isOpenfortLoading } =
+    useAuthSession();
+
+  useEffect(() => {
+    if (isOpenfortLoading || !pathname) {
+      return;
+    }
+
+    if (isAuthPage) {
+      if (status === 'authenticated') {
+        router.replace('/home');
+      }
+
+      return;
+    }
+
+    if (!isOpenfortAuthenticated) {
+      router.replace('/login');
+    }
+  }, [
+    isAuthPage,
+    isOpenfortAuthenticated,
+    isOpenfortLoading,
+    pathname,
+    router,
+    status,
+  ]);
+
+  const showAuthLoading =
+    isOpenfortLoading ||
+    (isAuthPage
+      ? isOpenfortAuthenticated && status !== 'error'
+      : !isOpenfortAuthenticated || status === 'loading' || status === 'idle');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">
@@ -23,21 +60,41 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Main content */}
       {isAuthPage ? (
         <div className="relative z-[999] flex items-center justify-center min-h-screen p-4">
-          {children}
+          {showAuthLoading ? (
+            <AuthLoadingState message="Checking your Openfort session..." />
+          ) : status === 'error' ? (
+            <AuthErrorState
+              message={error || 'Unable to continue.'}
+              onRetry={retry}
+            />
+          ) : (
+            children
+          )}
         </div>
       ) : (
-        <div className="relative z-[999] flex p-4 md:p-8 lg:p-12 gap-4 md:gap-8 lg:gap-12 min-h-screen">
-          <div className="h-full -mt-3.5">
-            <AppSidebar />
-          </div>
-          <div className="flex-1">
-            <div className="flex flex-col h-fit px-12 gap-12">
-              <Header />
-              <main className="flex-1 backdrop-blur-sm rounded-lg">
-                {children}
-              </main>
+        <div className="relative z-[999] flex min-h-screen items-center justify-center p-4 md:p-8 lg:p-12">
+          {showAuthLoading ? (
+            <AuthLoadingState message="Restoring your InfraFund session..." />
+          ) : status === 'error' ? (
+            <AuthErrorState
+              message={error || 'Unable to continue.'}
+              onRetry={retry}
+            />
+          ) : (
+            <div className="relative z-[999] flex p-4 md:p-8 lg:p-12 gap-4 md:gap-8 lg:gap-12 min-h-screen w-full">
+              <div className="h-full -mt-3.5">
+                <AppSidebar />
+              </div>
+              <div className="flex-1">
+                <div className="flex flex-col h-fit px-12 gap-12">
+                  <Header />
+                  <main className="flex-1 backdrop-blur-sm rounded-lg">
+                    {children}
+                  </main>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

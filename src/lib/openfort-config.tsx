@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { baseSepolia, base } from 'viem/chains';
 import { createConfig, WagmiProvider } from 'wagmi';
 import type { ReactNode } from 'react';
+import { AuthSessionProvider } from '@/components/auth/auth-session-provider';
 
 const publishableKey = process.env.NEXT_PUBLIC_OPENFORT_PUBLIC_KEY;
 const shieldPublishableKey = process.env.NEXT_PUBLIC_SHIELD_API_KEY;
@@ -61,14 +62,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
             uiConfig={{
               theme: 'midnight',
               mode: 'dark',
-              authProviders: [
-                AuthProvider.GOOGLE,
-                AuthProvider.EMAIL_OTP,
-                AuthProvider.WALLET,
-              ],
+              authProviders: [AuthProvider.GOOGLE, AuthProvider.EMAIL_OTP],
             }}
           >
-            {children}
+            <AuthSessionProvider>{children}</AuthSessionProvider>
           </OpenfortProvider>
         </OpenfortWagmiBridge>
       </WagmiProvider>

@@ -1,27 +1,21 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useUser } from '@openfort/react';
 import { OpenfortButton } from '@openfort/react';
-import { useRouter } from 'next/navigation';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 import Image from 'next/image';
 
 export default function Login() {
-  const router = useRouter();
-  const { user, isAuthenticated } = useUser();
-
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      router.push('/home');
-    }
-  }, [isAuthenticated, user, router]);
-
   return (
-    <div className="w-full flex justify-center items-center">
-      <div className="flex flex-col items-center gap-8 p-8">
+    <div className="flex w-full justify-center items-center">
+      <div className="flex max-w-md flex-col items-center gap-8 rounded-[32px] border border-[#263247] bg-[#111827]/70 p-10">
         <Image src={infrafund} alt="InfraFund" />
-        <OpenfortButton />
+        <div className="space-y-3 text-center text-white">
+          <h1 className="text-3xl font-bold">Sign in to InfraFund</h1>
+          <p className="text-sm text-[#C7CAD5]">
+            Continue with your Openfort account to access the app.
+          </p>
+        </div>
+        <OpenfortButton label="Continue" showAvatar />
       </div>
     </div>
   );
