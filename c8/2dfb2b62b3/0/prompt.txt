@@ -1,0 +1,27 @@
+review @docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md 
+read all files in `docs-dev/openfort` which gives you additional reference to useful resources
+
+---
+
+fix the document
+1) ok with your suggestion
+2) lets keep the support for walletconnect and metamask, maybe put it into a separate phase if complex enough on its own
+3) ok, fix it
+4) suggest a fix
+5) ok, fix it
+6) keep walletconnect
+7) fix it
+
+---
+
+commit and push
+
+---
+
+there are 2 location where deliberately a misspelled word is mentioned, how can we silence cspell for them ?
+`docs-dev/openfort/openfort-resources.md:42:22 - Unknown word (openfront)`
+'ritir' 2x in `docs-dev/openfort/Developer-Guide-Viem+Openfort.md`
+
+---
+
+can you add that
