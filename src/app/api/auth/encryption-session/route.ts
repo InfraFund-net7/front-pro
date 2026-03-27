@@ -6,7 +6,11 @@ const SHIELD_SECRET_KEY = process.env.SHIELD_SECRET_KEY;
 const SHIELD_ENCRYPTION_SHARE = process.env.SHIELD_ENCRYPTION_SHARE;
 
 export async function POST(request: NextRequest) {
-  if (!SHIELD_PUBLISHABLE_KEY || !SHIELD_SECRET_KEY || !SHIELD_ENCRYPTION_SHARE) {
+  if (
+    !SHIELD_PUBLISHABLE_KEY ||
+    !SHIELD_SECRET_KEY ||
+    !SHIELD_ENCRYPTION_SHARE
+  ) {
     return NextResponse.json(
       { message: 'Shield credentials not configured on server' },
       { status: 500 }

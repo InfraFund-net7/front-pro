@@ -10,7 +10,7 @@ interface TechnologyData {
   itemDescription: string;
 }
 
-export function TechnologyForm() {
+function TechnologyForm() {
   const [technologies, setTechnologies] = useState<TechnologyData[]>([
     {
       id: '1',
