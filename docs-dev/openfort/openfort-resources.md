@@ -36,3 +36,5 @@ https://www.openfort.io/docs/overview/building-with-ai#mcp-server
 
 `docs-dev/openfront/Developer-Guide-Viem+Openfort.md`
 
+If you find an error in these 2 files or official latest openfort documentation says different then update these files 
+
