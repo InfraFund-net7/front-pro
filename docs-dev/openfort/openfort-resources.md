@@ -1,4 +1,4 @@
-# openfort resources
+# openfront resources
 
 website : https://www.openfort.io
 
@@ -10,7 +10,7 @@ documentation : https://www.openfort.io/docs/overview
 https://www.openfort.io/docs/overview/building-with-ai
 
 
-## openfort CLI
+## openfront CLI
 
 openfort has a CLI which is installed and authenticated
 Should authentication fail, stop and ask user to fix authentication before moving on.
@@ -32,12 +32,7 @@ https://www.openfort.io/docs/overview/building-with-ai#mcp-server
 
 ## additional resources (local files relativ to project root)
 
-`docs-dev/openfort/openfort-embedded-wallet-setup.md`
+`docs-dev/openfront/openfort-embedded-wallet-setup.md`
 
-`docs-dev/openfort/Developer-Guide-Viem+Openfort.md`
-
-
-## Notes and additional instructions
-
-- Whenever you read 'openfront' assume it is a typo and change it to 'openfort'
+`docs-dev/openfront/Developer-Guide-Viem+Openfort.md`
 
