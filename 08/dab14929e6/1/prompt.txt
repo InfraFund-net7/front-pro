@@ -1,24 +1,3 @@
-we have a frontend here which had been abondoned and we took it over.
-  have a look at docs-dev/release-notes/v0.1.0-alpha-status-report.md
- 
-  then we cleaned up formatting (touched ~100 files, but just prettier re-formatting), pulled out all particle code
-  and implemenetd openfront
- 
-  docs-dev/release-notes/v0.2.0-openfort-integration.md
- 
-  Review what has been done and committed in the past 24h since we started working on it , first commit was
-  `7917a85d0efc3657ab736d174a60b7e17fab8aeb`
-
-I found great additional support from openfort                                                                     
-- openfort has a CLI which I installed and authenticated                                                             
-https://www.openfort.io/docs/overview/building-with-cli#installation                                                 
-- this page has a lot of information for you : https://www.openfort.io/docs/overview/building-with-ai                
-- while i created a openfort account, it was also suggested that i install the openfort skill, what i did `npx       
-skills add openfort-xyz/agent-skills --skill openfort`                                                               
-- they also provided this file                                                                                       
-@/home/sum/1_DATA/BLOCKCHAIN/ETHEREUM/wallet-Account-Abstraction/Openfort/openfort-embedded-wallet-setup.md          
-                                                                                                                     
-- can you review all these resouces                                                                                  
-- check if we have implemented it the right way
-
-create a dir `audit-review` in `docs-dev` , write your assessment into a new file `v0.2.0-openfort-integration-review-1.md`
+- commit and push the review
+- can you create a plan `v0.2.1-openfort-inplementation-part-2.md` in `docs-dev/tasks`
+- do you have everything to create the plan and then implement it or is there anything to decide on or to discuss ?
