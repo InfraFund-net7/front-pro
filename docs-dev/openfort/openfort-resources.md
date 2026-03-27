@@ -9,6 +9,14 @@ documentation : https://www.openfort.io/docs/overview
 
 https://www.openfort.io/docs/overview/building-with-ai
 
+Server-side token validation / backend session exchange:
+
+https://www.openfort.io/docs/products/server/access-token
+
+User session behavior:
+
+https://www.openfort.io/docs/configuration/user-sessions
+
 
 ## openfort CLI
 
