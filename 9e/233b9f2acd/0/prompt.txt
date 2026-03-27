@@ -1,0 +1,6 @@
+- make sure the task files contain all context needed should we just stop here and we or somebody else would pick up the migration
+- when done , push everything
+
+---
+
+wait ... i make sometime spelling mistakes like 'inplementation` and i expect that you understand what the intention was, fix the spelling before moving formward. Having said that , do not add 'inplementation' to `<!-- cspell:words Openfort wagmi viem connectwallet backpro Sumsub ParticleID inplementation -->` but just assume that the right spelling would have been 'implementation' and use that moving forward !
