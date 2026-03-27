@@ -3,8 +3,9 @@
   "checkpoint_id": "08dab14929e6",
   "strategy": "manual-commit",
   "branch": "develop",
-  "checkpoints_count": 2,
+  "checkpoints_count": 3,
   "files_touched": [
+    "docs-dev/audit-review/v0.2.0-openfort-integration-review-1.md",
     "eslint.config.mjs",
     "src/app/api/auth/encryption-session/route.ts"
   ],
@@ -14,6 +15,12 @@
       "transcript": "/08/dab14929e6/0/full.jsonl",
       "content_hash": "/08/dab14929e6/0/content_hash.txt",
       "prompt": "/08/dab14929e6/0/prompt.txt"
+    },
+    {
+      "metadata": "/08/dab14929e6/1/metadata.json",
+      "transcript": "/08/dab14929e6/1/full.jsonl",
+      "content_hash": "/08/dab14929e6/1/content_hash.txt",
+      "prompt": "/08/dab14929e6/1/prompt.txt"
     }
   ],
   "token_usage": {
