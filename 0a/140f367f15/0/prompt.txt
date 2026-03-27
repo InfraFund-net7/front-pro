@@ -1,0 +1,36 @@
+can you review what has been done , document here @docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md and @docs-dev/release-notes/v0.2.1-release-notes-openfort-implementation-part-2.md
+
+---
+
+yes, fix it
+
+---
+
+yes
+
+---
+
+can we switch directory to `..backend` and do the same there ?
+
+---
+
+yes
+
+---
+
+did you make sure to choose the `openfort` branch in the `backpro` repo ?
+
+---
+
+does it also clearly state the gaps and what needs to be done before it makes sense to really test it together with the frontend on a real server ?
+
+---
+
+for local testing we should do this 
+   Frontend note for next step
+
+   In ../front-pro, use:
+
+   •  NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/v1
+   •  the same Openfort publishable key as INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY
+   •  one host consistently across both repos (localhost everywhere, not mixed with 127.0.0.1)
