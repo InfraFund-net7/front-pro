@@ -1,10 +1,6 @@
-i am not sure i we need to revert to particle , so I would propose to go with Option B but use our own branch `openfort`
-for backend that should be easy , but for the `front-pro` repo we might need to create something like :
-- rename the current branch `develop` to `openfort` , create a `develop` branch going off commit `0dd88faefa2aa875f73d26fd0dba55c7e145adff` so that should we need to jump back to the particle implementation we would go back to the `develop` branch and pick that up after the 2 commits we made to document the status and do the prettier reformatting.
-can we do that ?
-if yes, then reanrrage the branches as described, then update the plan in @docs-dev/tasks/v0.2.1-openfort-inplementation-part-2.md , maybe we should have a similar docs-dev structure in backpro as well , and have the backend part also documented there as well, maybe we just put a copy of @docs-dev/tasks/v0.2.1-openfort-inplementation-part-2.md there for full context ?
+- make sure the task files contain all context needed should we just stop here and we or somebody else would pick up the migration
+- when done , push everything
 
 ---
 
-- make sure the task files contain all context needed should we just stop here and we or somebody else would pick up the migration
-- when done , push everything
+wait ... i make sometime spelling mistakes like 'inplementation` and i expect that you understand what the intention was, fix the spelling before moving formward. Having said that , do not add 'inplementation' to `<!-- cspell:words Openfort wagmi viem connectwallet backpro Sumsub ParticleID inplementation -->` but just assume that the right spelling would have been 'implementation' and use that moving forward !
