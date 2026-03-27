@@ -1,0 +1,18 @@
+- make sure the task files contain all context needed should we just stop here and we or somebody else would pick up the migration
+- when done , push everything
+
+---
+
+wait ... i make sometime spelling mistakes like 'inplementation` and i expect that you understand what the intention was, fix the spelling before moving formward. Having said that , do not add 'inplementation' to `<!-- cspell:words Openfort wagmi viem connectwallet backpro Sumsub ParticleID inplementation -->` but just assume that the right spelling would have been 'implementation' and use that moving forward !
+
+---
+
+I have made some updates to @docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md after a review, also add @docs-dev/openfort/openfort-resources.md  to provide additional docs and context to help with the implementation.
+can you do a final review if we now have a correct and fully specified plan
+
+---
+
+1) Is it maybe in the plan at the same location in the repo `../backpro` ? Otherwise what would you suggest ?
+2) No users to migrate, working still on initial version
+3) I would follow your recommendation to clean it up
+Please investigate to get these points resolved.
