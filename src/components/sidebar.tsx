@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -72,9 +74,9 @@ interface AppSidebarProps {
   model?: 'client' | 'full';
 }
 
-async function fetchNavigationItems(
+function fetchNavigationItems(
   model: 'client' | 'full' = 'client'
-): Promise<NavigationItem[]> {
+): NavigationItem[] {
   const fullItems: NavigationItem[] = [
     { title: 'Home', url: '/', icon: Home },
     { title: 'Create Project', url: '/create-project', icon: Rocket },
@@ -178,11 +180,11 @@ function Navigation({ items }: { items: NavigationItem[] }) {
   );
 }
 
-export default async function AppSidebar({
+export default function AppSidebar({
   className = '',
   model = 'client',
 }: AppSidebarProps) {
-  const navigationItems = await fetchNavigationItems(model);
+  const navigationItems = fetchNavigationItems(model);
 
   return (
     <div
