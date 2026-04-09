@@ -1,8 +1,8 @@
-import { CustomButton } from "@/components/ui/custom-button";
-import { FormInput } from "@/components/ui/form-input";
-import { Modal } from "@/components/ui/modal";
-import { ArrowLeft } from "lucide-react";
-import React from "react";
+import { CustomButton } from '@/components/ui/custom-button';
+import { FormInput } from '@/components/ui/form-input';
+import { Modal } from '@/components/ui/modal';
+import { ArrowLeft } from 'lucide-react';
+import React from 'react';
 interface PersonalModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,24 +15,24 @@ export default function PersonalModal({
 }: PersonalModalProps) {
   const Inputs = [
     {
-      label: "First Name",
-      placeholder: "First Name",
+      label: 'First Name',
+      placeholder: 'First Name',
     },
     {
-      label: "Last Name",
-      placeholder: "Last Name",
+      label: 'Last Name',
+      placeholder: 'Last Name',
     },
     {
-      label: "Email",
-      placeholder: "Email",
+      label: 'Email',
+      placeholder: 'Email',
     },
     {
-      label: "Title",
-      placeholder: "Title",
+      label: 'Title',
+      placeholder: 'Title',
     },
     {
-      label: "Phone Number(optional)",
-      placeholder: "Phone Number",
+      label: 'Phone Number(optional)',
+      placeholder: 'Phone Number',
     },
   ];
   return (

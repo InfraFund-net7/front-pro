@@ -1,7 +1,7 @@
-import React from "react";
-import CardView from "../ui/card-view";
-import { FormInput } from "../ui/form-input";
-import { CustomButton } from "../ui/custom-button";
+import React from 'react';
+import CardView from '../ui/card-view';
+import { FormInput } from '../ui/form-input';
+import { CustomButton } from '../ui/custom-button';
 
 export default function NewWallet() {
   return (

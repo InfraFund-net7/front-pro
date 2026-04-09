@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { X } from "lucide-react";
-import React from "react";
+import { X } from 'lucide-react';
+import React from 'react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -17,8 +17,8 @@ export function Modal({
   onClose,
   children,
   ModalTitle,
-  width = "32rem",
-  height = "auto",
+  width = '32rem',
+  height = 'auto',
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -34,7 +34,11 @@ export function Modal({
       >
         <div className="w-full h-fit flex justify-between items-center hover:text-white transition-colors">
           <h2 className="text-2xl font-bold text-white">{ModalTitle}</h2>
-          <button onClick={onClose} aria-label="Close modal" className="cursor-pointer">
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="cursor-pointer"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>

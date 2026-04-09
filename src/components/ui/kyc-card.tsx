@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
-import { CalendarDays } from "lucide-react";
+import React, { ReactNode } from 'react';
+import { CalendarDays } from 'lucide-react';
 
 // Type for CardView props
 interface CardViewProps {
@@ -10,7 +10,9 @@ interface CardViewProps {
 }
 
 const CardView = ({ width, height, padding, children }: CardViewProps) => (
-  <div className={`${width} ${height} ${padding} bg-white rounded-lg shadow-lg`}>
+  <div
+    className={`${width} ${height} ${padding} bg-white rounded-lg shadow-lg`}
+  >
     {children}
   </div>
 );
@@ -64,7 +66,7 @@ const PaginationDots = ({ totalDots, activeIndex }: PaginationDotsProps) => (
       <div
         key={index}
         className={`w-2 h-2 rounded-full ${
-          index === activeIndex ? "bg-blue-500" : "bg-gray-300"
+          index === activeIndex ? 'bg-blue-500' : 'bg-gray-300'
         }`}
       />
     ))}
@@ -72,17 +74,21 @@ const PaginationDots = ({ totalDots, activeIndex }: PaginationDotsProps) => (
 );
 
 interface CustomButtonProps {
-  variant: "filled" | "outlined";
+  variant: 'filled' | 'outlined';
   className?: string;
   children: ReactNode;
 }
 
-const CustomButton = ({ variant, className = "", children }: CustomButtonProps) => (
+const CustomButton = ({
+  variant,
+  className = '',
+  children,
+}: CustomButtonProps) => (
   <button
     className={`${className} py-2 px-4 rounded-md ${
-      variant === "filled"
-        ? "bg-blue-500 text-white"
-        : "bg-transparent border border-blue-500 text-blue-500"
+      variant === 'filled'
+        ? 'bg-blue-500 text-white'
+        : 'bg-transparent border border-blue-500 text-blue-500'
     } hover:bg-blue-600 hover:text-white transition-colors`}
   >
     {children}
@@ -101,13 +107,13 @@ interface KycCardProps {
 }
 
 const KycCard = ({
-  title = "Basic Verification",
-  subtitle = "Basic Verification",
-  nationalityLabel = "Nationality",
-  firstNameLabel = "First Name",
-  lastNameLabel = "Last Name",
-  middleNameLabel = "Middle Name",
-  dateOfBirthLabel = "Date Of Birth",
+  title = 'Basic Verification',
+  subtitle = 'Basic Verification',
+  nationalityLabel = 'Nationality',
+  firstNameLabel = 'First Name',
+  lastNameLabel = 'Last Name',
+  middleNameLabel = 'Middle Name',
+  dateOfBirthLabel = 'Date Of Birth',
 }: KycCardProps) => {
   return (
     <CardView width="w-[584px]" height="h-[763px]" padding="p-8">

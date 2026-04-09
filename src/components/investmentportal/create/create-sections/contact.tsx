@@ -1,24 +1,24 @@
-import React from "react";
-import { Slack, Mail } from "lucide-react";
-import discord from "@/../public/assets/svg/Discord.svg";
-import facebook from "@/../public/assets/svg/facebook.svg";
-import Telegram from "@/../public/assets/svg/Telegram.svg";
-import X from "@/../public/assets/svg/X.svg";
-import instagram from "@/../public/assets/svg/instagram.svg";
-import linkedin from "@/../public/assets/svg/linkedin.svg";
-import { FormInput } from "@/components/ui/form-input";
-import Image from "next/image";
+import React from 'react';
+import { Slack, Mail } from 'lucide-react';
+import discord from '@/../public/assets/svg/Discord.svg';
+import facebook from '@/../public/assets/svg/facebook.svg';
+import Telegram from '@/../public/assets/svg/Telegram.svg';
+import X from '@/../public/assets/svg/X.svg';
+import instagram from '@/../public/assets/svg/instagram.svg';
+import linkedin from '@/../public/assets/svg/linkedin.svg';
+import { FormInput } from '@/components/ui/form-input';
+import Image from 'next/image';
 
 export default function Contact() {
   const socials = [
-    { icon: discord, title: "Discord", link: "", type: "image" },
-    { icon: Telegram, title: "Telegram", link: "", type: "image" },
-    { icon: X, title: "X(Twitter)", link: "", type: "image" },
-    { icon: instagram, title: "Instagram", link: "", type: "image" },
-    { icon: facebook, title: "Facebook", link: "", type: "image" },
-    { icon: Slack, title: "Slack", link: "", type: "component" },
-    { icon: linkedin, title: "Linkedin", link: "", type: "image" },
-    { icon: Mail, title: "Email", link: "", type: "component" },
+    { icon: discord, title: 'Discord', link: '', type: 'image' },
+    { icon: Telegram, title: 'Telegram', link: '', type: 'image' },
+    { icon: X, title: 'X(Twitter)', link: '', type: 'image' },
+    { icon: instagram, title: 'Instagram', link: '', type: 'image' },
+    { icon: facebook, title: 'Facebook', link: '', type: 'image' },
+    { icon: Slack, title: 'Slack', link: '', type: 'component' },
+    { icon: linkedin, title: 'Linkedin', link: '', type: 'image' },
+    { icon: Mail, title: 'Email', link: '', type: 'component' },
   ];
 
   return (
@@ -35,7 +35,7 @@ export default function Contact() {
             {socials.map((item, index) => (
               <div className="flex flex-col gap-2" key={index}>
                 <div className="flex gap-2 justify-start items-center">
-                  {item.type === "image" ? (
+                  {item.type === 'image' ? (
                     <Image
                       src={item.icon}
                       width={24}

@@ -11,14 +11,14 @@ interface FormInputProps {
 export function FormInput({
   label,
   placeholder,
-  type = "text",
+  type = 'text',
   icon,
   value,
   onChange,
   className,
 }: FormInputProps) {
   return (
-    <div className={`flex flex-col gap-2 ${className || ""}`}>
+    <div className={`flex flex-col gap-2 ${className || ''}`}>
       <label className="text-white text-sm font-medium">{label}</label>
       <div className="relative">
         <input

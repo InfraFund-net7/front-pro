@@ -1,7 +1,7 @@
 name: Deploy to Production Environment
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   build:
@@ -12,13 +12,13 @@ jobs:
         uses: actions/checkout@v6
       - name: Build Docker image
         run: |
-                  docker build \
-                    -f ./deployment/Dockerfile \
-                    --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.PROD_API_BASE_URL }} \
-                    --build-arg NEXT_PUBLIC_PROJECT_ID=${{ secrets.PARTICLE_PROJECT_ID }} \
-                    --build-arg NEXT_PUBLIC_CLIENT_KEY=${{ secrets.PARTICLE_CLIENT_KEY }} \
-                    --build-arg NEXT_PUBLIC_APP_ID=${{ secrets.PARTICLE_APP_ID }} \
-                    -t infra-dashboard:prod .
+          docker build \
+            -f ./deployment/Dockerfile \
+            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.PROD_API_BASE_URL }} \
+            --build-arg NEXT_PUBLIC_PROJECT_ID=${{ secrets.PARTICLE_PROJECT_ID }} \
+            --build-arg NEXT_PUBLIC_CLIENT_KEY=${{ secrets.PARTICLE_CLIENT_KEY }} \
+            --build-arg NEXT_PUBLIC_APP_ID=${{ secrets.PARTICLE_APP_ID }} \
+            -t infra-dashboard:prod .
 
   deploy:
     name: Deploy to Production Server

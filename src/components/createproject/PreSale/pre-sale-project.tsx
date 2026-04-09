@@ -1,26 +1,26 @@
-import { FormInput } from "@/components/ui/form-input";
-import MilestoneCard from "@/components/ui/MilestoneCard";
-import React from "react";
+import { FormInput } from '@/components/ui/form-input';
+import MilestoneCard from '@/components/ui/MilestoneCard';
+import React from 'react';
 
 const formFields = [
-  { label: "Token Name", placeholder: "Token Name" },
-  { label: "Digital Asset Symbol", placeholder: "e.g. $INF" },
-  { label: "Digital Asset Supply", placeholder: "Total supply" },
-  { label: "Price", placeholder: "Price" },
-  { label: "Min Raise", placeholder: "Min Raise" },
-  { label: "Max Raise", placeholder: "Max Raise" },
-  { label: "Min Donation", placeholder: "Min Donation" },
-  { label: "Max Donation", placeholder: "Max Donation" },
-  { label: "Start Date", placeholder: "Start Date" },
-  { label: "End Date", placeholder: "End Date" },
+  { label: 'Token Name', placeholder: 'Token Name' },
+  { label: 'Digital Asset Symbol', placeholder: 'e.g. $INF' },
+  { label: 'Digital Asset Supply', placeholder: 'Total supply' },
+  { label: 'Price', placeholder: 'Price' },
+  { label: 'Min Raise', placeholder: 'Min Raise' },
+  { label: 'Max Raise', placeholder: 'Max Raise' },
+  { label: 'Min Donation', placeholder: 'Min Donation' },
+  { label: 'Max Donation', placeholder: 'Max Donation' },
+  { label: 'Start Date', placeholder: 'Start Date' },
+  { label: 'End Date', placeholder: 'End Date' },
 ];
 
 const extraFields = [
   {
-    label: "General Contractor (GC) Wallet Address",
-    placeholder: "Wallet Address",
+    label: 'General Contractor (GC) Wallet Address',
+    placeholder: 'Wallet Address',
   },
-  { label: "Pledge Address", placeholder: "Pledge Address" },
+  { label: 'Pledge Address', placeholder: 'Pledge Address' },
 ];
 
 export default function PreSaleProject() {

@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import CardView from "../ui/card-view";
-import { NationalitySelect } from "../ui/nationality-select";
-import { SelectTypeButton } from "../ui/select-mode-btn";
-import { BookUser, Gem, IdCard } from "lucide-react";
-import { CustomButton } from "../ui/custom-button";
-import BoxUpload from "../ui/box-upload";
-import Image from "next/image";
-import finish from "@/../public/assets/svg/advance-section-finish.svg";
+import React, { useState } from 'react';
+import CardView from '../ui/card-view';
+import { NationalitySelect } from '../ui/nationality-select';
+import { SelectTypeButton } from '../ui/select-mode-btn';
+import { BookUser, Gem, IdCard } from 'lucide-react';
+import { CustomButton } from '../ui/custom-button';
+import BoxUpload from '../ui/box-upload';
+import Image from 'next/image';
+import finish from '@/../public/assets/svg/advance-section-finish.svg';
 
 const portatialdata = [
-  { name: "Don’t use beauty photos" },
-  { name: "Don’t make up" },
-  { name: "Don’t wear hats" },
-  { name: "Don’t take screenshots" },
+  { name: 'Don’t use beauty photos' },
+  { name: 'Don’t make up' },
+  { name: 'Don’t wear hats' },
+  { name: 'Don’t take screenshots' },
 ];
 
 const UploadPortartial = () => (
@@ -71,7 +71,7 @@ const Finish = () => (
 
 const steps = [
   {
-    title: "Advance Verification",
+    title: 'Advance Verification',
     content: (
       <>
         <NationalitySelect label="Document Issuing Country" />
@@ -81,7 +81,7 @@ const steps = [
           </span>
           <SelectTypeButton
             icon={<IdCard />}
-            onClick={() => console.log("Button clicked!")}
+            onClick={() => console.log('Button clicked!')}
           >
             <span className="text-gray-50 text-[14px] font-medium">
               ID Card
@@ -95,22 +95,22 @@ const steps = [
         </div>
       </>
     ),
-    nextButton: "Begin Verification",
+    nextButton: 'Begin Verification',
   },
   {
-    title: "Upload Documents",
+    title: 'Upload Documents',
     content: <Upload />,
-    nextButton: "Continue",
+    nextButton: 'Continue',
   },
   {
-    title: "Upload Portrait Photo",
+    title: 'Upload Portrait Photo',
     content: <UploadPortartial />,
-    nextButton: "Continue",
+    nextButton: 'Continue',
   },
   {
-    title: "Finish",
+    title: 'Finish',
     content: <Finish />,
-    nextButton: "Done",
+    nextButton: 'Done',
   },
 ];
 

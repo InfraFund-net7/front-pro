@@ -1,7 +1,7 @@
-"use client";
-import { FormInput } from "@/components/ui/form-input";
-import { Plus, Trash } from "lucide-react";
-import React, { useState } from "react";
+'use client';
+import { FormInput } from '@/components/ui/form-input';
+import { Plus, Trash } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface Question {
   id: string;
@@ -12,9 +12,9 @@ interface Question {
 export function FAQForm() {
   const [faqs, setFaqs] = useState<Question[]>([
     {
-      id: "1",
-      question: "",
-      answer: "",
+      id: '1',
+      question: '',
+      answer: '',
     },
   ]);
 
@@ -24,8 +24,8 @@ export function FAQForm() {
     const lastId = faqs.length > 0 ? parseInt(faqs[faqs.length - 1].id, 10) : 0;
     const newFaq: Question = {
       id: (lastId + 1).toString(),
-      question: "",
-      answer: "",
+      question: '',
+      answer: '',
     };
     setFaqs([...faqs, newFaq]);
   };
@@ -50,7 +50,7 @@ export function FAQForm() {
         <div
           key={faq.id}
           className={`w-full relative rounded-2xl border border-border-card p-6 transition-all duration-300 ease-in-out
-          ${removingId === faq.id ? "animate-fadeOut" : "animate-fadeIn"}`}
+          ${removingId === faq.id ? 'animate-fadeOut' : 'animate-fadeIn'}`}
           style={{
             animationDelay: `${index * 0.05}s`,
           }}
@@ -124,13 +124,13 @@ function FAQFormSection({ faq, onUpdate }: FAQFormSectionProps) {
         label={`Question ${faq.id}`}
         value={faq.question}
         placeholder={`Question ${faq.id}`}
-        onChange={(e) => onUpdate(faq.id, "question", e.target.value)}
+        onChange={(e) => onUpdate(faq.id, 'question', e.target.value)}
       />
       <FormInput
         label={`Answer ${faq.id}`}
         value={faq.answer}
         placeholder={`Answer ${faq.id}`}
-        onChange={(e) => onUpdate(faq.id, "answer", e.target.value)}
+        onChange={(e) => onUpdate(faq.id, 'answer', e.target.value)}
       />
     </div>
   );
