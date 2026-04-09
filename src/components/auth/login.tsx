@@ -1,9 +1,15 @@
 'use client';
 
 import AutoWalletRegister from '@/components/AutoWalletRegister';
+import { useParticleAccountVerified } from '@/hooks/use-particle-account-verified';
+import { useParticleSessionGate } from '@/hooks/use-particle-session-gate';
+import {
+  isRecentParticleAuthOk,
+  PARTICLE_RECENT_AUTH_DISCONNECT_HOLD_MS,
+} from '@/lib/particle-session-memory';
 import { useAccount } from '@particle-network/connectkit';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import React, { useEffect, useMemo, useState } from 'react';
 import CardView from '../ui/card-view';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 import Image from 'next/image';
@@ -45,13 +51,54 @@ const clearDomainCookie = (name: string) => {
 
 export default function Login() {
   const router = useRouter();
+  const pathname = usePathname();
   const account = useAccount();
-  const isParticleSessionReady =
-    account.status === 'connected' &&
-    account.connector.walletConnectorType === 'particleAuth' &&
-    Boolean(account.address);
+  const { verifyState, isFullyVerified } = useParticleAccountVerified();
+  const { waitingForReconnectOrHydration } = useParticleSessionGate();
   const [, setSurveyData] = useState<SurveyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [recentAuthDisconnectHold, setRecentAuthDisconnectHold] =
+    useState(false);
+
+  useEffect(() => {
+    if (!isRecentParticleAuthOk()) {
+      setRecentAuthDisconnectHold(false);
+      return;
+    }
+    if (account.status !== 'disconnected') {
+      setRecentAuthDisconnectHold(false);
+      return;
+    }
+    setRecentAuthDisconnectHold(true);
+    const id = window.setTimeout(
+      () => setRecentAuthDisconnectHold(false),
+      PARTICLE_RECENT_AUTH_DISCONNECT_HOLD_MS,
+    );
+    return () => window.clearTimeout(id);
+  }, [account.status]);
+
+  const { restoringSession, waitingOnParticleVerify } = useMemo(() => {
+    const status = account.status;
+    const restoring =
+      status === 'reconnecting' || status === 'connecting';
+    const connectorType =
+      status === 'connected'
+        ? account.connector.walletConnectorType
+        : undefined;
+    const address =
+      status === 'connected' ? account.address : undefined;
+    const particleConnected =
+      status === 'connected' &&
+      connectorType === 'particleAuth' &&
+      Boolean(address);
+    const waitingVerify =
+      particleConnected &&
+      (verifyState === 'idle' || verifyState === 'pending');
+    return {
+      restoringSession: restoring,
+      waitingOnParticleVerify: waitingVerify,
+    };
+  }, [account, verifyState]);
 
   useEffect(() => {
     const rawData = getDomainCookie('survey_data');
@@ -87,11 +134,17 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
-    if (isLoading || !isParticleSessionReady) {
+    if (isLoading || !isFullyVerified) {
       return;
     }
     router.replace('/');
-  }, [isLoading, isParticleSessionReady, router]);
+    const fallback = window.setTimeout(() => {
+      if (pathname?.includes('/login')) {
+        window.location.assign('/');
+      }
+    }, 2500);
+    return () => window.clearTimeout(fallback);
+  }, [isFullyVerified, isLoading, pathname, router]);
 
   if (isLoading) {
     return (
@@ -110,7 +163,19 @@ export default function Login() {
     );
   }
 
-  if (isParticleSessionReady) {
+  if (
+    waitingForReconnectOrHydration ||
+    restoringSession ||
+    waitingOnParticleVerify ||
+    isFullyVerified ||
+    recentAuthDisconnectHold
+  ) {
+    const statusLabel =
+      restoringSession ||
+      waitingForReconnectOrHydration ||
+      recentAuthDisconnectHold
+        ? 'Restoring your session…'
+        : 'Opening dashboard…';
     return (
       <div className="w-full flex justify-center items-center">
         <CardView
@@ -121,7 +186,7 @@ export default function Login() {
           <div className="w-full h-fit flex justify-center items-center">
             <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
           </div>
-          <p className="text-gray-600">Opening dashboard…</p>
+          <p className="text-gray-600">{statusLabel}</p>
         </CardView>
       </div>
     );
@@ -140,7 +205,7 @@ export default function Login() {
 
         <main className="w-full max-w-3xl mx-auto space-y-10 overflow-y-auto">
           {/* {surveyData ? ( */}
-          <AutoWalletRegister />
+          <AutoWalletRegister verifyState={verifyState} />
           {/* ) : ( */}
           {/* <div className="text-white rounded-xl p-6 text-center">
               <h2 className="ibm-plex-mono text-xl font-semibold mb-3">

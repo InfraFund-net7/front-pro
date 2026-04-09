@@ -12,6 +12,7 @@ const routeTitles: Record<string, string> = {
   '/explore-projects': 'Explore Projects',
   '/projects': 'Projects',
   '/settings': 'Settings',
+  '/sign-out': 'Sign out',
 };
 
 export default function Header() {

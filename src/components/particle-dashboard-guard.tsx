@@ -1,18 +1,22 @@
 'use client';
 
-import { useAccount, useParticleAuth } from '@particle-network/connectkit';
-import { useRouter } from 'next/navigation';
+import { useAccount } from '@particle-network/connectkit';
+import { useParticleAccountVerified } from '@/hooks/use-particle-account-verified';
+import { useParticleSessionGate } from '@/hooks/use-particle-session-gate';
+import { usePathname, useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 
-function DashboardAuthLoading() {
+function DashboardAuthLoading({
+  message = 'Checking your Particle session…',
+}: {
+  message?: string;
+}) {
   return (
     <div className="relative z-[999] flex min-h-screen flex-1 items-center justify-center p-4">
       <div className="flex flex-col items-center gap-4 text-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-sm text-gray-400 chakra-petch">
-          Checking your Particle session…
-        </p>
+        <p className="text-sm text-gray-400 chakra-petch">{message}</p>
       </div>
     </div>
   );
@@ -20,53 +24,29 @@ function DashboardAuthLoading() {
 
 export function ParticleDashboardGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const account = useAccount();
-  const { getUserInfo } = useParticleAuth();
-  const getUserInfoRef = useRef(getUserInfo);
-  getUserInfoRef.current = getUserInfo;
-
-  const [particleUserOk, setParticleUserOk] = useState<boolean | null>(null);
+  const { verifyState, isFullyVerified } = useParticleAccountVerified();
+  const { waitingForReconnectOrHydration } = useParticleSessionGate();
 
   const status = account.status;
   const connectorType =
     account.status === 'connected'
       ? account.connector.walletConnectorType
       : undefined;
-  const address = account.status === 'connected' ? account.address : undefined;
+  const address =
+    account.status === 'connected' ? account.address : undefined;
 
   useEffect(() => {
-    if (status !== 'connected') {
-      setParticleUserOk(null);
-      return;
-    }
-
-    if (connectorType !== 'particleAuth' || !address) {
-      setParticleUserOk(null);
-      return;
-    }
-
-    let cancelled = false;
-    setParticleUserOk(null);
-
-    void (async () => {
-      try {
-        const info = await getUserInfoRef.current();
-        const ok =
-          info != null && typeof info.uuid === 'string' && info.uuid.length > 0;
-        if (!cancelled) {
-          setParticleUserOk(ok);
-        }
-      } catch {
-        if (!cancelled) {
-          setParticleUserOk(false);
-        }
+    if (pathname?.startsWith('/sign-out')) {
+      if (status === 'connecting' || status === 'reconnecting') {
+        const id = window.setTimeout(() => {
+          window.location.assign('/login');
+        }, 7_000);
+        return () => window.clearTimeout(id);
       }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [address, connectorType, status]);
+    }
+  }, [pathname, status]);
 
   useEffect(() => {
     if (status === 'connecting' || status === 'reconnecting') {
@@ -74,6 +54,9 @@ export function ParticleDashboardGuard({ children }: { children: ReactNode }) {
     }
 
     if (status === 'disconnected') {
+      if (waitingForReconnectOrHydration) {
+        return;
+      }
       router.replace('/login');
       return;
     }
@@ -87,17 +70,40 @@ export function ParticleDashboardGuard({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (particleUserOk === false) {
+    if (verifyState === 'fail') {
       router.replace('/login');
     }
-  }, [address, connectorType, particleUserOk, router, status]);
+  }, [
+    address,
+    connectorType,
+    router,
+    status,
+    verifyState,
+    waitingForReconnectOrHydration,
+  ]);
 
   if (status === 'connecting' || status === 'reconnecting') {
-    return <DashboardAuthLoading />;
+    return (
+      <DashboardAuthLoading
+        message={
+          pathname?.startsWith('/sign-out')
+            ? 'Signing you out…'
+            : undefined
+        }
+      />
+    );
   }
 
   if (status === 'disconnected') {
-    return <DashboardAuthLoading />;
+    return (
+      <DashboardAuthLoading
+        message={
+          waitingForReconnectOrHydration
+            ? 'Restoring your session…'
+            : undefined
+        }
+      />
+    );
   }
 
   if (status !== 'connected') {
@@ -108,7 +114,7 @@ export function ParticleDashboardGuard({ children }: { children: ReactNode }) {
     return <DashboardAuthLoading />;
   }
 
-  if (particleUserOk !== true) {
+  if (!isFullyVerified) {
     return <DashboardAuthLoading />;
   }
 

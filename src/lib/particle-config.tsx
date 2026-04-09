@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Suspense } from 'react';
 import { ConnectKitProvider, createConfig } from '@particle-network/connectkit';
 import { mainnet, polygon, base } from '@particle-network/connectkit/chains';
 
@@ -28,9 +27,5 @@ export function ParticleConnectProvider({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <Suspense fallback={<div>Loading Particle Connect...</div>}>
-      <ConnectKitProvider config={config}>{children}</ConnectKitProvider>
-    </Suspense>
-  );
+  return <ConnectKitProvider config={config}>{children}</ConnectKitProvider>;
 }

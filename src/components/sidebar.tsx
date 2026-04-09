@@ -58,6 +58,9 @@ const Landmark = dynamic(
 const IdCard = dynamic(() => import('lucide-react').then((mod) => mod.IdCard), {
   ssr: false,
 });
+const LogOut = dynamic(() => import('lucide-react').then((mod) => mod.LogOut), {
+  ssr: false,
+});
 
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 
@@ -66,6 +69,9 @@ interface NavigationItem {
   url: string;
   icon: React.ComponentType<{ className?: string }>;
   isDisabled?: boolean;
+  /** Separated from main nav (e.g. sign out). */
+  sectionBreak?: boolean;
+  variant?: 'default' | 'muted';
 }
 
 interface AppSidebarProps {
@@ -103,6 +109,13 @@ function fetchNavigationItems(
     { title: 'Explore Projects', url: '/explore-projects', icon: Compass },
     { title: 'Swap', url: '/swap', icon: ArrowUpDown },
     { title: 'KYC', url: '/kyc', icon: FileText },
+    {
+      title: 'Sign out',
+      url: '/sign-out',
+      icon: LogOut,
+      sectionBreak: true,
+      variant: 'muted',
+    },
   ];
 
   const clientItems: NavigationItem[] = [
@@ -128,6 +141,13 @@ function fetchNavigationItems(
       icon: Landmark,
       isDisabled: true,
     },
+    {
+      title: 'Sign out',
+      url: '/sign-out',
+      icon: LogOut,
+      sectionBreak: true,
+      variant: 'muted',
+    },
   ];
 
   return model === 'client' ? clientItems : fullItems;
@@ -150,8 +170,24 @@ function Navigation({ items }: { items: NavigationItem[] }) {
         const IconComponent = item.icon;
         const isActive = pathname === item.url;
 
+        const mutedActive =
+          item.variant === 'muted' && isActive && !item.isDisabled;
+        const linkTone =
+          item.isDisabled
+            ? 'text-gray-600 cursor-not-allowed opacity-60'
+            : mutedActive
+              ? 'bg-red-950/35 text-red-300 border border-red-500/25'
+              : item.variant === 'muted' && !isActive
+                ? 'text-gray-500 hover:text-red-300/90 hover:bg-red-950/20'
+                : isActive
+                  ? 'bg-card-selected-bg text-primary'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/50';
+
         return (
           <div key={index} className="relative chakra-petch">
+            {item.sectionBreak ? (
+              <div className="border-t border-white/10 my-3 pt-1" aria-hidden />
+            ) : null}
             <Link
               href={item.isDisabled ? '#' : item.url}
               onClick={(e) => handleItemClick(item, e)}
@@ -160,13 +196,7 @@ function Navigation({ items }: { items: NavigationItem[] }) {
               className={`
                 w-full h-12 px-4 rounded-lg transition-all duration-200 ease-in-out
                 flex items-center gap-3 group relative
-                ${
-                  item.isDisabled
-                    ? 'text-gray-600 cursor-not-allowed opacity-60'
-                    : isActive
-                      ? 'bg-card-selected-bg text-primary'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/50'
-                }
+                ${linkTone}
               `}
             >
               <IconComponent className="w-5 h-5 flex-shrink-0" />
