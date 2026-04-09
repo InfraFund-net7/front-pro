@@ -1,6 +1,8 @@
 'use client';
 
 import AutoWalletRegister from '@/components/AutoWalletRegister';
+import { useAccount } from '@particle-network/connectkit';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import CardView from '../ui/card-view';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
@@ -42,7 +44,13 @@ const clearDomainCookie = (name: string) => {
 };
 
 export default function Login() {
-  const [surveyData, setSurveyData] = useState<SurveyData | null>(null);
+  const router = useRouter();
+  const account = useAccount();
+  const isParticleSessionReady =
+    account.status === 'connected' &&
+    account.connector.walletConnectorType === 'particleAuth' &&
+    Boolean(account.address);
+  const [, setSurveyData] = useState<SurveyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -78,6 +86,13 @@ export default function Login() {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (isLoading || !isParticleSessionReady) {
+      return;
+    }
+    router.replace('/');
+  }, [isLoading, isParticleSessionReady, router]);
+
   if (isLoading) {
     return (
       <div className="w-full flex justify-center items-center">
@@ -90,6 +105,23 @@ export default function Login() {
             <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
           </div>
           <p className="text-gray-600">load survey datas</p>
+        </CardView>
+      </div>
+    );
+  }
+
+  if (isParticleSessionReady) {
+    return (
+      <div className="w-full flex justify-center items-center">
+        <CardView
+          width="547px"
+          height="500px"
+          className="flex flex-col items-center justify-center"
+        >
+          <div className="w-full h-fit flex justify-center items-center">
+            <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
+          </div>
+          <p className="text-gray-600">Opening dashboard…</p>
         </CardView>
       </div>
     );

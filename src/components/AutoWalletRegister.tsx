@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense, useRef } from 'react';
 import {
   useAccount,
   useDisconnect,
@@ -24,31 +24,51 @@ function ParticleViewerContent() {
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    if (!isConnected) {
-      const timer = setTimeout(() => setOpen(true), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isConnected, setOpen]);
+
+  const setOpenRef = useRef(setOpen);
+  setOpenRef.current = setOpen;
+
+  const getUserInfoRef = useRef(getUserInfo);
+  getUserInfoRef.current = getUserInfo;
+
+  const walletConnectorType = primaryWallet?.connector?.walletConnectorType;
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (primaryWallet?.connector?.walletConnectorType === 'particleAuth') {
-        setLoading(true);
-        try {
-          const info = await getUserInfo();
+    if (!isConnected) {
+      const timer = setTimeout(() => setOpenRef.current(true), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isConnected]);
+
+  useEffect(() => {
+    if (!isConnected || walletConnectorType !== 'particleAuth') {
+      return;
+    }
+
+    let cancelled = false;
+
+    const run = async () => {
+      setLoading(true);
+      try {
+        const info = await getUserInfoRef.current();
+        if (!cancelled) {
           setUserInfo(info as unknown as UserInfo);
-        } catch (error) {
-          console.error('Error fetching user info:', error);
         }
-        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    if (isConnected) {
-      fetchUserInfo();
-    }
-  }, [isConnected, getUserInfo, primaryWallet]);
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isConnected, walletConnectorType]);
 
   const handleDisconnect = () => {
     disconnect();
