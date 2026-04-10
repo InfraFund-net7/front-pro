@@ -40,7 +40,11 @@ export function useParticleSessionGate(): {
   const [allowDisconnectedUi, setAllowDisconnectedUi] = useState(false);
 
   useEffect(() => {
-    if (status === 'connecting' || status === 'reconnecting' || status === 'connected') {
+    if (
+      status === 'connecting' ||
+      status === 'reconnecting' ||
+      status === 'connected'
+    ) {
       setAllowDisconnectedUi(false);
       return;
     }
@@ -52,7 +56,7 @@ export function useParticleSessionGate(): {
 
     const id = window.setTimeout(
       () => setAllowDisconnectedUi(true),
-      HYDRATION_GRACE_MS,
+      HYDRATION_GRACE_MS
     );
     return () => window.clearTimeout(id);
   }, [status]);
@@ -63,7 +67,7 @@ export function useParticleSessionGate(): {
     }
     const id = window.setTimeout(
       () => setAllowDisconnectedUi(true),
-      HYDRATION_FAILSAFE_MS,
+      HYDRATION_FAILSAFE_MS
     );
     return () => window.clearTimeout(id);
   }, [status, allowDisconnectedUi]);

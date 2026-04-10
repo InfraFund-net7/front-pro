@@ -23,8 +23,7 @@ function ParticleLoginContent({
   setOpenRef.current = setOpen;
 
   const status = account.status;
-  const address =
-    account.status === 'connected' ? account.address : undefined;
+  const address = account.status === 'connected' ? account.address : undefined;
   const connectorType =
     account.status === 'connected'
       ? account.connector.walletConnectorType
@@ -69,13 +68,13 @@ function ParticleLoginContent({
       {!isConnected ? (
         <div className="bg-[#1a2332] border border-white/10 rounded-lg p-4 text-left space-y-3">
           <p className="text-gray-300 text-sm">
-            Use the button below to open Particle’s log-in or sign-up window (email
-            or social).
+            Use the button below to open Particle’s log-in or sign-up window
+            (email or social).
           </p>
           <p className="text-gray-500 text-xs">
-            If you were signed in recently, your session is restored automatically
-            when possible — this screen only appears when there is no active wallet
-            session.
+            If you were signed in recently, your session is restored
+            automatically when possible — this screen only appears when there is
+            no active wallet session.
           </p>
         </div>
       ) : isOtherWallet ? (
@@ -93,8 +92,8 @@ function ParticleLoginContent({
             Particle could not verify your session
           </p>
           <p className="text-gray-400 text-xs">
-            Try signing in again below. If it keeps failing, disconnect and start
-            over.
+            Try signing in again below. If it keeps failing, disconnect and
+            start over.
           </p>
           {needRestoreWallet() ? (
             <p className="text-amber-200/90 text-xs pt-1">

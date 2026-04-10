@@ -34,8 +34,7 @@ export function ParticleDashboardGuard({ children }: { children: ReactNode }) {
     account.status === 'connected'
       ? account.connector.walletConnectorType
       : undefined;
-  const address =
-    account.status === 'connected' ? account.address : undefined;
+  const address = account.status === 'connected' ? account.address : undefined;
 
   useEffect(() => {
     if (pathname?.startsWith('/sign-out')) {
@@ -86,9 +85,7 @@ export function ParticleDashboardGuard({ children }: { children: ReactNode }) {
     return (
       <DashboardAuthLoading
         message={
-          pathname?.startsWith('/sign-out')
-            ? 'Signing you out…'
-            : undefined
+          pathname?.startsWith('/sign-out') ? 'Signing you out…' : undefined
         }
       />
     );
@@ -98,9 +95,7 @@ export function ParticleDashboardGuard({ children }: { children: ReactNode }) {
     return (
       <DashboardAuthLoading
         message={
-          waitingForReconnectOrHydration
-            ? 'Restoring your session…'
-            : undefined
+          waitingForReconnectOrHydration ? 'Restoring your session…' : undefined
         }
       />
     );

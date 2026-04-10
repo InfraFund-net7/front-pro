@@ -72,21 +72,19 @@ export default function Login() {
     setRecentAuthDisconnectHold(true);
     const id = window.setTimeout(
       () => setRecentAuthDisconnectHold(false),
-      PARTICLE_RECENT_AUTH_DISCONNECT_HOLD_MS,
+      PARTICLE_RECENT_AUTH_DISCONNECT_HOLD_MS
     );
     return () => window.clearTimeout(id);
   }, [account.status]);
 
   const { restoringSession, waitingOnParticleVerify } = useMemo(() => {
     const status = account.status;
-    const restoring =
-      status === 'reconnecting' || status === 'connecting';
+    const restoring = status === 'reconnecting' || status === 'connecting';
     const connectorType =
       status === 'connected'
         ? account.connector.walletConnectorType
         : undefined;
-    const address =
-      status === 'connected' ? account.address : undefined;
+    const address = status === 'connected' ? account.address : undefined;
     const particleConnected =
       status === 'connected' &&
       connectorType === 'particleAuth' &&
