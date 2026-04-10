@@ -37,16 +37,17 @@ function walletRowMatches(row: unknown, connectedAddress: string): boolean {
   const w = row as Record<string, unknown>;
   const candidates = [w.public_address, w.address, w.publicAddress];
   const want = normAddr(connectedAddress);
-  return candidates.some(
-    (c) => typeof c === 'string' && normAddr(c) === want,
-  );
+  return candidates.some((c) => typeof c === 'string' && normAddr(c) === want);
 }
 
 /**
  * Particle’s `getUserInfo()` return shape varies by SDK / auth path. Accept clear
  * signals of a live session.
  */
-function isValidParticleUserInfo(info: unknown, connectedAddress: string): boolean {
+function isValidParticleUserInfo(
+  info: unknown,
+  connectedAddress: string
+): boolean {
   if (info == null || typeof info !== 'object') {
     return false;
   }
@@ -131,7 +132,11 @@ function looksLikeParticleUserBlob(info: unknown): boolean {
     return true;
   }
   const user = o.user;
-  if (user != null && typeof user === 'object' && Object.keys(user).length > 0) {
+  if (
+    user != null &&
+    typeof user === 'object' &&
+    Object.keys(user).length > 0
+  ) {
     return true;
   }
   return keys.length >= 6;
@@ -146,13 +151,13 @@ function getParticleInternal(): unknown {
 }
 
 async function fetchUserInfoWithFallback(
-  getUserInfo: () => unknown,
+  getUserInfo: () => unknown
 ): Promise<unknown> {
   try {
     const raw = getUserInfo();
     return await withTimeout(
       toPromise(raw as Promise<unknown> | unknown),
-      PER_CALL_TIMEOUT_MS,
+      PER_CALL_TIMEOUT_MS
     );
   } catch {
     try {
@@ -165,7 +170,7 @@ async function fetchUserInfoWithFallback(
       const raw = internal.getUserInfo();
       return await withTimeout(
         toPromise(raw as Promise<unknown> | unknown),
-        PER_CALL_TIMEOUT_MS,
+        PER_CALL_TIMEOUT_MS
       );
     } catch {
       throw new Error('getUserInfo_failed');
@@ -175,7 +180,10 @@ async function fetchUserInfoWithFallback(
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
-    const id = window.setTimeout(() => reject(new Error('particle_get_user_info_timeout')), ms);
+    const id = window.setTimeout(
+      () => reject(new Error('particle_get_user_info_timeout')),
+      ms
+    );
     promise.then(
       (v) => {
         window.clearTimeout(id);
@@ -184,7 +192,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
       (e) => {
         window.clearTimeout(id);
         reject(e);
-      },
+      }
     );
   });
 }
@@ -197,7 +205,11 @@ type ParticleVerificationContextValue = {
 const ParticleVerificationContext =
   createContext<ParticleVerificationContextValue | null>(null);
 
-export function ParticleVerificationProvider({ children }: { children: ReactNode }) {
+export function ParticleVerificationProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const account = useAccount();
   const { getUserInfo } = useParticleAuth();
   const getUserInfoRef = useRef(getUserInfo);
@@ -208,13 +220,16 @@ export function ParticleVerificationProvider({ children }: { children: ReactNode
     account.status === 'connected'
       ? account.connector.walletConnectorType
       : undefined;
-  const address =
-    account.status === 'connected' ? account.address : undefined;
+  const address = account.status === 'connected' ? account.address : undefined;
 
   const [verifyState, setVerifyState] = useState<ParticleVerifyState>('idle');
 
   useEffect(() => {
-    if (status !== 'connected' || connectorType !== 'particleAuth' || !address) {
+    if (
+      status !== 'connected' ||
+      connectorType !== 'particleAuth' ||
+      !address
+    ) {
       setVerifyState('idle');
       return;
     }
@@ -292,7 +307,7 @@ export function useParticleAccountVerified(): ParticleVerificationContextValue {
   const ctx = useContext(ParticleVerificationContext);
   if (!ctx) {
     throw new Error(
-      'useParticleAccountVerified must be used within ParticleVerificationProvider',
+      'useParticleAccountVerified must be used within ParticleVerificationProvider'
     );
   }
   return ctx;

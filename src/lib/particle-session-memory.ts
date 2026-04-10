@@ -28,7 +28,7 @@ export function clearParticleAuthOk(): void {
 }
 
 export function isRecentParticleAuthOk(
-  maxAgeMs: number = PARTICLE_RECENT_AUTH_MAX_MS,
+  maxAgeMs: number = PARTICLE_RECENT_AUTH_MAX_MS
 ): boolean {
   if (typeof window === 'undefined') {
     return false;

@@ -70,7 +70,6 @@ export default function SignOutPage() {
           Cancel
         </button>
       </div>
-
     </div>
   );
 }
