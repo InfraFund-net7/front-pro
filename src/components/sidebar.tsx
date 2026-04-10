@@ -172,16 +172,15 @@ function Navigation({ items }: { items: NavigationItem[] }) {
 
         const mutedActive =
           item.variant === 'muted' && isActive && !item.isDisabled;
-        const linkTone =
-          item.isDisabled
-            ? 'text-gray-600 cursor-not-allowed opacity-60'
-            : mutedActive
-              ? 'bg-red-950/35 text-red-300 border border-red-500/25'
-              : item.variant === 'muted' && !isActive
-                ? 'text-gray-500 hover:text-red-300/90 hover:bg-red-950/20'
-                : isActive
-                  ? 'bg-card-selected-bg text-primary'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/50';
+        const linkTone = item.isDisabled
+          ? 'text-gray-600 cursor-not-allowed opacity-60'
+          : mutedActive
+            ? 'bg-red-950/35 text-red-300 border border-red-500/25'
+            : item.variant === 'muted' && !isActive
+              ? 'text-gray-500 hover:text-red-300/90 hover:bg-red-950/20'
+              : isActive
+                ? 'bg-card-selected-bg text-primary'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/50';
 
         return (
           <div key={index} className="relative chakra-petch">
