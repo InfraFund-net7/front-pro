@@ -1,6 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
 import _axios from '../utils/axios.utils';
-import { getAccessToken } from '@/utils/get-access-token.util';
 
 interface ApiService {
   get: <T>(url: string, params?: AxiosRequestConfig) => Promise<T>;
@@ -11,17 +10,6 @@ interface ApiService {
 
 function reWriteUrl(url: string): string {
   return `api${url}`;
-}
-
-async function getAxiosRequestConfig(): Promise<AxiosRequestConfig> {
-  const token = getAccessToken();
-  return {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-      Accept: 'application/json',
-      Expires: '0',
-    },
-  };
 }
 
 const apiService: ApiService = {

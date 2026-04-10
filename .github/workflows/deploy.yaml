@@ -18,6 +18,7 @@ jobs:
             --build-arg NEXT_PUBLIC_PROJECT_ID=${{ secrets.PARTICLE_PROJECT_ID }} \
             --build-arg NEXT_PUBLIC_CLIENT_KEY=${{ secrets.PARTICLE_CLIENT_KEY }} \
             --build-arg NEXT_PUBLIC_APP_ID=${{ secrets.PARTICLE_APP_ID }} \
+            --build-arg NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=${{ secrets.PARTICLE_WALLETCONNECT_PROJECT_ID }} \
             -t infra-dashboard:prod .
 
   deploy:
