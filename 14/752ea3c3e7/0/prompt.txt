@@ -1,2 +1,1 @@
-this repo has some problems with particl login , there are a few branches where other devs have tried , but all of them left and the branches got abondoned. 
-you can start reading docs here : https://developers.particle.network/intro/introduction.md
+can you create a file `docs-dev/tasks/task-010-particl-integration/task-010-particl-integration.md` and write what you have already implemented, what still needs to be implemented, and what needs to be configured to make it work, then commit and push
