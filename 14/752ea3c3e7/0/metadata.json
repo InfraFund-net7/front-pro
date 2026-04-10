@@ -1,0 +1,48 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "14752ea3c3e7",
+  "session_id": "e16d9470-e888-4e75-ada1-10f7b34b3894",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-10T13:25:05.313427923Z",
+  "branch": "particle",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/deploy-dev.yaml",
+    ".github/workflows/deploy.yaml",
+    "deployment/Dockerfile",
+    "eslint.config.mjs",
+    "package-lock.json",
+    "package.json",
+    "src/components/AutoWalletRegister.tsx",
+    "src/components/auth/login.tsx",
+    "src/components/header.tsx",
+    "src/components/investmentportal/create/create-sections/press-section.tsx",
+    "src/lib/particle-config.tsx",
+    "src/services/api.service.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4---xhigh-(OpenAI-API)-4",
+  "turn_id": "d33684764a63",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-10T13:25:04.375572015Z",
+    "agent_lines": 593,
+    "agent_removed": 193,
+    "human_added": 104,
+    "human_modified": 18,
+    "human_removed": 0,
+    "total_committed": 715,
+    "total_lines_changed": 908,
+    "agent_percentage": 86.56387665198237,
+    "metric_version": 2
+  }
+}

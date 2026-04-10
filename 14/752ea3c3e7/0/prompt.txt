@@ -1,0 +1,2 @@
+this repo has some problems with particl login , there are a few branches where other devs have tried , but all of them left and the branches got abondoned. 
+you can start reading docs here : https://developers.particle.network/intro/introduction.md
