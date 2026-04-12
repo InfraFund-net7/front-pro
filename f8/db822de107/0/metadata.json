@@ -1,0 +1,171 @@
+{
+  "cli_version": "0.5.4",
+  "checkpoint_id": "f8db822de107",
+  "session_id": "59f3268f-f9da-499c-93bd-7fabc0bcb2ec",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-12T14:46:50.454412319Z",
+  "branch": "openfort",
+  "checkpoints_count": 9,
+  "files_touched": [
+    ".env.example",
+    ".github/workflows/deploy-dev.yaml",
+    ".github/workflows/deploy.yaml",
+    "deployment/Dockerfile",
+    "package-lock.json",
+    "package.json",
+    "src/app/home/page.tsx",
+    "src/app/layout.tsx",
+    "src/app/login/page.tsx",
+    "src/app/page.tsx",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/components/auth/login.tsx",
+    "src/components/auth/non-resident-form.tsx",
+    "src/components/auth/qualification-questionnaire.tsx",
+    "src/components/main-layout.tsx",
+    "src/components/sidebar.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/lib/openfort-config.tsx",
+    "src/utils/recaptcha.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4---xhigh-(OpenAI-API)-4",
+  "turn_id": "52255838cb30",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 9
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-12T14:46:47.85866073Z",
+    "agent_lines": 1289,
+    "agent_removed": 300,
+    "human_added": 116,
+    "human_modified": 88,
+    "human_removed": 0,
+    "total_committed": 1493,
+    "total_lines_changed": 1793,
+    "agent_percentage": 88.62242052426102,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1221,
+      "agent_lines_removed": 58
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 14,
+      "user_lines_removed": 2,
+      "agent_lines_added": 1221,
+      "agent_lines_removed": 58,
+      "user_added_per_file": {
+        "src/components/auth/non-resident-form.tsx": 14
+      },
+      "user_removed_per_file": {
+        "src/components/auth/non-resident-form.tsx": 2
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 14,
+      "user_lines_removed": 2,
+      "agent_lines_added": 1227,
+      "agent_lines_removed": 59,
+      "user_added_per_file": {
+        "src/components/auth/non-resident-form.tsx": 14
+      },
+      "user_removed_per_file": {
+        "src/components/auth/non-resident-form.tsx": 2
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 44,
+      "user_lines_removed": 21,
+      "agent_lines_added": 1246,
+      "agent_lines_removed": 77,
+      "user_added_per_file": {
+        "src/components/auth/non-resident-form.tsx": 33,
+        "src/components/auth/qualification-questionnaire.tsx": 11
+      },
+      "user_removed_per_file": {
+        "src/components/auth/non-resident-form.tsx": 17,
+        "src/components/auth/qualification-questionnaire.tsx": 4
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 44,
+      "user_lines_removed": 21,
+      "agent_lines_added": 1246,
+      "agent_lines_removed": 77,
+      "user_added_per_file": {
+        "src/components/auth/non-resident-form.tsx": 33,
+        "src/components/auth/qualification-questionnaire.tsx": 11
+      },
+      "user_removed_per_file": {
+        "src/components/auth/non-resident-form.tsx": 17,
+        "src/components/auth/qualification-questionnaire.tsx": 4
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 44,
+      "user_lines_removed": 21,
+      "agent_lines_added": 1246,
+      "agent_lines_removed": 77,
+      "user_added_per_file": {
+        "src/components/auth/non-resident-form.tsx": 33,
+        "src/components/auth/qualification-questionnaire.tsx": 11
+      },
+      "user_removed_per_file": {
+        "src/components/auth/non-resident-form.tsx": 17,
+        "src/components/auth/qualification-questionnaire.tsx": 4
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 44,
+      "user_lines_removed": 21,
+      "agent_lines_added": 1557,
+      "agent_lines_removed": 388,
+      "user_added_per_file": {
+        "src/components/auth/non-resident-form.tsx": 33,
+        "src/components/auth/qualification-questionnaire.tsx": 11
+      },
+      "user_removed_per_file": {
+        "src/components/auth/non-resident-form.tsx": 17,
+        "src/components/auth/qualification-questionnaire.tsx": 4
+      }
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1581,
+      "agent_lines_removed": 388
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1581,
+      "agent_lines_removed": 388
+    }
+  ]
+}
