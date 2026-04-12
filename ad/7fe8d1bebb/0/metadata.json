@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.5.4",
+  "checkpoint_id": "ad7fe8d1bebb",
+  "session_id": "94a5316a-cffe-4da7-9404-f65f7a4e6a74",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-12T15:07:41.775059479Z",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "deployment/Dockerfile",
+    "docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding-review.md",
+    "src/components/main-layout.tsx",
+    "src/components/sidebar.tsx"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "",
+  "turn_id": "e9df7333c7bd",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-12T15:07:41.737277795Z",
+    "agent_lines": 92,
+    "agent_removed": 14,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 92,
+    "total_lines_changed": 106,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
