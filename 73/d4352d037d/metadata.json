@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.4",
+  "checkpoint_id": "73d4352d037d",
+  "strategy": "manual-commit",
+  "branch": "particle",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/task-010-particl-integration/task-010-particl-integration.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/73/d4352d037d/0/metadata.json",
+      "transcript": "/73/d4352d037d/0/full.jsonl",
+      "content_hash": "/73/d4352d037d/0/content_hash.txt",
+      "prompt": "/73/d4352d037d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 40284,
+    "api_call_count": 25
+  }
+}

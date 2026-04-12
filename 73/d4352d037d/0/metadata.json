@@ -1,0 +1,51 @@
+{
+  "cli_version": "0.5.4",
+  "checkpoint_id": "73d4352d037d",
+  "session_id": "5ebc6a2c-f1f2-4097-9898-ebc23b54238f",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-12T09:47:36.428459825Z",
+  "branch": "particle",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/task-010-particl-integration/task-010-particl-integration.md"
+  ],
+  "agent": "Copilot CLI",
+  "model": "",
+  "turn_id": "104e0b076eda",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 40284,
+    "api_call_count": 25
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-12T09:47:34.441601632Z",
+    "agent_lines": 322,
+    "agent_removed": 71,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 322,
+    "total_lines_changed": 393,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 233,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".agents/skills/Particle-Network/SKILL.md": 6,
+        ".agents/skills/openfort/SKILL.md": 62,
+        ".agents/skills/openfort/mcp.json": 11,
+        "docs-dev/resources/Particle-Network/Developer-Guide_Viem-Particle.md": 137,
+        "docs-dev/tasks/task-010-particl-integration/task-010-particl-integration.md": 7,
+        "skills-lock.json": 10
+      }
+    }
+  ]
+}
