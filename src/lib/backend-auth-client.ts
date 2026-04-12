@@ -6,6 +6,63 @@ interface BackendLoginResponse {
   expires_at: string;
 }
 
+interface BackendCheckResponse {
+  exists: boolean;
+}
+
+interface BackendCountriesResponse {
+  items: BackendCountryRecord[];
+}
+
+interface BackendCountryRecord {
+  ID?: number;
+  id?: number;
+  Name?: string;
+  name?: string;
+  Iso?: string;
+  iso?: string;
+  Iso3?: string;
+  iso3?: string;
+  Code?: number;
+  code?: number;
+  PhoneCode?: number;
+  phone_code?: number;
+}
+
+export interface CountryOption {
+  id: number;
+  name: string;
+  iso?: string;
+  iso3?: string;
+  code?: number;
+  phoneCode?: number;
+}
+
+interface OpenfortExchangePayload {
+  first_name?: string;
+  last_name?: string;
+  organization_name?: string;
+  phone_number?: string;
+  email?: string;
+  type?: 'individual' | 'organization';
+  role?: string;
+}
+
+interface NonResidentIndividualPayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  country_id: number;
+}
+
+interface NonResidentCompanyPayload {
+  first_name: string;
+  last_name: string;
+  company_name: string;
+  email: string;
+  country_id: number;
+}
+
 export interface BackendMeResponse {
   user_id: string;
   openfort_user_id: string;
@@ -28,6 +85,7 @@ interface SuccessResponse<T> {
 
 interface ErrorResponse {
   message?: string;
+  detail?: string;
 }
 
 function getApiBaseUrl() {
@@ -70,7 +128,7 @@ async function request<T>(
 
     try {
       const errorBody = (await response.json()) as ErrorResponse;
-      message = errorBody.message || message;
+      message = errorBody.message || errorBody.detail || message;
     } catch {}
 
     throw new Error(message);
@@ -84,10 +142,52 @@ async function request<T>(
   return body.data;
 }
 
-export async function exchangeOpenfortSession(openfortAccessToken: string) {
+function normalizeCountry(country: BackendCountryRecord): CountryOption {
+  return {
+    id: Number(country.ID ?? country.id ?? 0),
+    name: String(country.Name ?? country.name ?? ''),
+    iso:
+      typeof country.Iso === 'string'
+        ? country.Iso
+        : typeof country.iso === 'string'
+          ? country.iso
+          : undefined,
+    iso3:
+      typeof country.Iso3 === 'string'
+        ? country.Iso3
+        : typeof country.iso3 === 'string'
+          ? country.iso3
+          : undefined,
+    code:
+      typeof country.Code === 'number'
+        ? country.Code
+        : typeof country.code === 'number'
+          ? country.code
+          : undefined,
+    phoneCode:
+      typeof country.PhoneCode === 'number'
+        ? country.PhoneCode
+        : typeof country.phone_code === 'number'
+          ? country.phone_code
+          : undefined,
+  };
+}
+
+export async function checkOpenfortUser(openfortAccessToken: string) {
+  return request<BackendCheckResponse>('auth/openfort/check', {
+    method: 'GET',
+    accessToken: openfortAccessToken,
+  });
+}
+
+export async function exchangeOpenfortSession(
+  openfortAccessToken: string,
+  body: OpenfortExchangePayload = {}
+) {
   return request<BackendLoginResponse>('auth/openfort/exchange', {
     method: 'POST',
     accessToken: openfortAccessToken,
+    body: JSON.stringify(body),
   });
 }
 
@@ -101,6 +201,45 @@ export async function getBackendMe(accessToken: string) {
   return request<BackendMeResponse>('me', {
     method: 'GET',
     accessToken,
+  });
+}
+
+export async function getCountries() {
+  const response = await request<BackendCountriesResponse>(
+    'locations/countries',
+    {
+      method: 'GET',
+    }
+  );
+
+  return response.items
+    .map(normalizeCountry)
+    .filter((country) => country.id > 0 && country.name);
+}
+
+export async function submitNonResidentIndividual(
+  payload: NonResidentIndividualPayload,
+  captchaToken: string
+) {
+  await request<null>('non-resident-waitlist/individual', {
+    method: 'POST',
+    headers: {
+      'X-Captcha-Token': captchaToken,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function submitNonResidentCompany(
+  payload: NonResidentCompanyPayload,
+  captchaToken: string
+) {
+  await request<null>('non-resident-waitlist/company', {
+    method: 'POST',
+    headers: {
+      'X-Captcha-Token': captchaToken,
+    },
+    body: JSON.stringify(payload),
   });
 }
 

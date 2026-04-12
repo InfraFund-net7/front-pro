@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -72,11 +74,9 @@ interface AppSidebarProps {
   model?: 'client' | 'full';
 }
 
-async function fetchNavigationItems(
-  model: 'client' | 'full' = 'client'
-): Promise<NavigationItem[]> {
+function getNavigationItems(model: 'client' | 'full' = 'client') {
   const fullItems: NavigationItem[] = [
-    { title: 'Home', url: '/', icon: Home },
+    { title: 'Home', url: '/home', icon: Home },
     { title: 'Create Project', url: '/create-project', icon: Rocket },
     { title: 'Tokenization', url: '/tokenization', icon: Layers },
     { title: 'Investment Portal', url: '/investment-portal', icon: Building },
@@ -104,7 +104,7 @@ async function fetchNavigationItems(
   ];
 
   const clientItems: NavigationItem[] = [
-    { title: 'Home', url: '/', icon: Home },
+    { title: 'Home', url: '/home', icon: Home },
     { title: 'Explore Projects', url: '/explore-projects', icon: Magnet },
     { title: 'KYC', url: '/kyc', icon: IdCard },
     { title: 'Swap', url: '/swap', icon: ArrowUpDown, isDisabled: true },
@@ -178,11 +178,11 @@ function Navigation({ items }: { items: NavigationItem[] }) {
   );
 }
 
-export default async function AppSidebar({
+export default function AppSidebar({
   className = '',
   model = 'client',
 }: AppSidebarProps) {
-  const navigationItems = await fetchNavigationItems(model);
+  const navigationItems = getNavigationItems(model);
 
   return (
     <div
