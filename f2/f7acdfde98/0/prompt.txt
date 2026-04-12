@@ -1,0 +1,1 @@
+actually we can delete everything related to particle network from this branch like `docs-dev/resources/Particle-Network/Developer-Guide_Viem-Particle.md`
