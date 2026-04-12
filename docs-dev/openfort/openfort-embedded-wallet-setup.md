@@ -1,4 +1,4 @@
-<!-- cspell:words Solana solana OFSDK myapp SIWE Supabase -->
+<!-- cspell:words Solana solana OFSDK myapp SIWE Supabase signup -->
 
 # Openfort Embedded Wallet Setup
 
