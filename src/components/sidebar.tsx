@@ -137,9 +137,7 @@ function Navigation({ items }: { items: NavigationItem[] }) {
   const handleItemClick = (item: NavigationItem, e: React.MouseEvent) => {
     if (item.isDisabled) {
       e.preventDefault();
-      return;
     }
-    console.log(`Navigating to: ${item.url}`);
   };
 
   return (

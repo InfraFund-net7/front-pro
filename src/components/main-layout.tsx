@@ -36,17 +36,12 @@ export function MainLayout({ children }: MainLayoutProps) {
     }
   }, [isOpenfortLoading, isPublicRoute, pathname, router, status]);
 
+  const isCreatingWallet = status === 'creating_wallet';
   const showPublicAuthLoading =
     isOpenfortLoading ||
-    (isOpenfortAuthenticated &&
-      (status === 'idle' ||
-        status === 'loading' ||
-        status === 'creating_wallet'));
+    (isOpenfortAuthenticated && (status === 'idle' || status === 'loading'));
   const showPrivateAuthLoading =
-    isOpenfortLoading ||
-    status === 'idle' ||
-    status === 'loading' ||
-    status === 'creating_wallet';
+    isOpenfortLoading || status === 'idle' || status === 'loading';
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">
@@ -57,7 +52,9 @@ export function MainLayout({ children }: MainLayoutProps) {
 
       {isPublicRoute ? (
         <div className="relative z-[999] flex items-center justify-center min-h-screen p-4">
-          {showPublicAuthLoading ? (
+          {isCreatingWallet ? (
+            <AuthLoadingState message="Setting up your wallet..." />
+          ) : showPublicAuthLoading ? (
             <AuthLoadingState message="Checking your Openfort session..." />
           ) : status === 'error' ? (
             <AuthErrorState
@@ -70,7 +67,9 @@ export function MainLayout({ children }: MainLayoutProps) {
         </div>
       ) : (
         <div className="relative z-[999] flex min-h-screen items-center justify-center p-4 md:p-8 lg:p-12">
-          {showPrivateAuthLoading ? (
+          {isCreatingWallet ? (
+            <AuthLoadingState message="Setting up your wallet..." />
+          ) : showPrivateAuthLoading ? (
             <AuthLoadingState message="Restoring your InfraFund session..." />
           ) : status === 'error' ? (
             <AuthErrorState
