@@ -1,14 +1,20 @@
 'use client';
 
 import type { User } from '@openfort/openfort-js';
-import { useUser } from '@openfort/react';
+import { RecoveryMethod, useSignOut, useUser } from '@openfort/react';
+import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
 import {
+  checkOpenfortUser,
   exchangeOpenfortSession,
   getBackendMe,
   logoutBackendSession,
   refreshBackendSession,
   type BackendMeResponse,
 } from '@/lib/backend-auth-client';
+import {
+  QualificationQuestionnaire,
+  type QualificationSubmission,
+} from './qualification-questionnaire';
 import {
   createContext,
   useCallback,
@@ -23,6 +29,8 @@ import {
 type AppSessionStatus =
   | 'idle'
   | 'loading'
+  | 'needs_onboarding'
+  | 'creating_wallet'
   | 'authenticated'
   | 'unauthenticated'
   | 'error';
@@ -39,6 +47,7 @@ interface AuthSessionContextValue {
 }
 
 const AuthSessionContext = createContext<AuthSessionContextValue | null>(null);
+const ONBOARDING_STORAGE_KEY = 'infrafund:onboarding-draft';
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
@@ -48,8 +57,28 @@ function getErrorMessage(error: unknown) {
   return 'Failed to initialize your session.';
 }
 
+function clearOnboardingDraft() {
+  if (typeof window !== 'undefined') {
+    window.sessionStorage.removeItem(ONBOARDING_STORAGE_KEY);
+  }
+}
+
+function normalizeRole(role: QualificationSubmission['role']) {
+  if (role === 'client') {
+    return 'project_owner';
+  }
+
+  if (role === 'dao') {
+    return 'governance';
+  }
+
+  return role;
+}
+
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
+  const { signOut } = useSignOut();
+  const { create, wallets } = useEthereumEmbeddedWallet();
   const openfortUserId = user?.id ?? null;
   const [status, setStatus] = useState<AppSessionStatus>('idle');
   const [backendAccessToken, setBackendAccessToken] = useState<string | null>(
@@ -60,13 +89,61 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   );
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [pendingOnboardingAccessToken, setPendingOnboardingAccessToken] =
+    useState<string | null>(null);
+  const [pendingWalletCreation, setPendingWalletCreation] = useState<{
+    accessToken: string;
+    user: BackendMeResponse;
+  } | null>(null);
   const previousAuthState = useRef(false);
 
   const clearSession = useCallback(() => {
     setBackendAccessToken(null);
     setBackendUser(null);
+    setPendingOnboardingAccessToken(null);
+    setPendingWalletCreation(null);
     setError(null);
+    clearOnboardingDraft();
   }, []);
+
+  const finalizeAuthenticatedSession = useCallback(
+    (accessToken: string, currentUser: BackendMeResponse) => {
+      setBackendAccessToken(accessToken);
+      setBackendUser(currentUser);
+      setPendingOnboardingAccessToken(null);
+      setPendingWalletCreation(null);
+      setError(null);
+      clearOnboardingDraft();
+      setStatus('authenticated');
+    },
+    []
+  );
+
+  const createWalletIfNeeded = useCallback(
+    async (accessToken: string, currentUser: BackendMeResponse) => {
+      setBackendAccessToken(accessToken);
+      setBackendUser(currentUser);
+      setPendingWalletCreation({ accessToken, user: currentUser });
+
+      if (wallets.length > 0) {
+        finalizeAuthenticatedSession(accessToken, currentUser);
+        return;
+      }
+
+      setStatus('creating_wallet');
+
+      try {
+        await create({
+          recoveryMethod: RecoveryMethod.AUTOMATIC,
+        });
+        finalizeAuthenticatedSession(accessToken, currentUser);
+      } catch (walletError) {
+        setError(getErrorMessage(walletError));
+        setStatus('error');
+      }
+    },
+    [create, finalizeAuthenticatedSession, wallets.length]
+  );
 
   const bootstrapSession = useCallback(async () => {
     if (!openfortUserId) {
@@ -79,34 +156,108 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const loginResponse =
-        (await refreshBackendSession().catch(() => null)) ??
-        (await (async () => {
-          const openfortAccessToken = await getAccessToken();
+      const refreshedSession = await refreshBackendSession().catch(() => null);
 
-          if (!openfortAccessToken) {
-            throw new Error('Openfort access token is unavailable.');
-          }
+      if (refreshedSession) {
+        const me = await getBackendMe(refreshedSession.access_token);
+        finalizeAuthenticatedSession(refreshedSession.access_token, me);
+        return;
+      }
 
-          return exchangeOpenfortSession(openfortAccessToken);
-        })());
+      const openfortAccessToken = await getAccessToken();
 
+      if (!openfortAccessToken) {
+        throw new Error('Openfort access token is unavailable.');
+      }
+
+      const checkResponse = await checkOpenfortUser(openfortAccessToken);
+
+      if (!checkResponse.exists) {
+        setPendingOnboardingAccessToken(openfortAccessToken);
+        setStatus('needs_onboarding');
+        return;
+      }
+
+      const loginResponse = await exchangeOpenfortSession(openfortAccessToken);
       const me = await getBackendMe(loginResponse.access_token);
 
-      setBackendAccessToken(loginResponse.access_token);
-      setBackendUser(me);
-      setStatus('authenticated');
+      finalizeAuthenticatedSession(loginResponse.access_token, me);
     } catch (sessionError) {
       clearSession();
       setError(getErrorMessage(sessionError));
       setStatus('error');
     }
-  }, [clearSession, getAccessToken, openfortUserId]);
+  }, [
+    clearSession,
+    finalizeAuthenticatedSession,
+    getAccessToken,
+    openfortUserId,
+  ]);
+
+  const completeOnboarding = useCallback(
+    async ({ role, type, organizationName }: QualificationSubmission) => {
+      if (!pendingOnboardingAccessToken) {
+        setError('Openfort access token is unavailable.');
+        setStatus('error');
+        return;
+      }
+
+      setStatus('loading');
+      setError(null);
+
+      try {
+        const loginResponse = await exchangeOpenfortSession(
+          pendingOnboardingAccessToken,
+          {
+            role: normalizeRole(role),
+            type,
+            organization_name:
+              type === 'organization' ? organizationName?.trim() : undefined,
+          }
+        );
+        const me = await getBackendMe(loginResponse.access_token);
+
+        await createWalletIfNeeded(loginResponse.access_token, me);
+      } catch (sessionError) {
+        setError(getErrorMessage(sessionError));
+        setStatus('needs_onboarding');
+      }
+    },
+    [createWalletIfNeeded, pendingOnboardingAccessToken]
+  );
+
+  const abandonOnboarding = useCallback(async () => {
+    clearSession();
+    setStatus('loading');
+
+    await Promise.allSettled([
+      logoutBackendSession(),
+      signOut().catch(() => undefined),
+    ]);
+
+    clearSession();
+    setStatus('unauthenticated');
+  }, [clearSession, signOut]);
+
+  const retry = useCallback(() => {
+    if (pendingWalletCreation) {
+      void createWalletIfNeeded(
+        pendingWalletCreation.accessToken,
+        pendingWalletCreation.user
+      );
+      return;
+    }
+
+    setRetryCount((count) => count + 1);
+  }, [createWalletIfNeeded, pendingWalletCreation]);
 
   useEffect(() => {
     if (isLoading) {
       setStatus((currentStatus) =>
-        currentStatus === 'authenticated' ? currentStatus : 'loading'
+        currentStatus === 'authenticated' ||
+        currentStatus === 'needs_onboarding'
+          ? currentStatus
+          : 'loading'
       );
       return;
     }
@@ -151,7 +302,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isOpenfortLoading: isLoading,
       isOpenfortAuthenticated: isAuthenticated,
       error,
-      retry: () => setRetryCount((count) => count + 1),
+      retry,
     }),
     [
       status,
@@ -161,12 +312,24 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isLoading,
       isAuthenticated,
       error,
+      retry,
     ]
   );
 
   return (
     <AuthSessionContext.Provider value={value}>
       {children}
+      <QualificationQuestionnaire
+        isOpen={status === 'needs_onboarding'}
+        openfortUser={user}
+        submitError={error}
+        isSubmitting={status === 'loading'}
+        onClose={() => {
+          void abandonOnboarding();
+        }}
+        onSubmit={completeOnboarding}
+        onDisqualifiedSuccess={abandonOnboarding}
+      />
     </AuthSessionContext.Provider>
   );
 }

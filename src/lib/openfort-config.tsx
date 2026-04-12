@@ -56,7 +56,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
                 ethereumFeeSponsorshipId:
                   process.env.NEXT_PUBLIC_POLICY_ID || undefined,
               },
-              connectOnLogin: true,
+              connectOnLogin: false,
               createEncryptedSessionEndpoint: '/api/auth/encryption-session',
             }}
             uiConfig={{
