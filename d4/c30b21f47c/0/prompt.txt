@@ -1,0 +1,52 @@
+we have migrated the current directory from `particle` web3 account abstraction wallet to `openfort`. check documents in `docs-dev/release-notes`
+we also have a task file @docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md 
+- please review the implementation , we actually want to have it as clean and lean as possible, go with the defaults whenever possible
+- review the frontend code as well as the backend code , explain to me what the purpose of the backend is , what role it has regarding the wallet , account setup
+- we also want to change the login/register flow :
+1) on the homepage we just have the openfort button, user can choose between login and register
+2) login should be straight forward
+3) when user click on `register` (or whatever the default naming is to sign up) , we first want the user to answer some questions. Currently that flow is already implemented and started with the [Create Account] button. This button may have been removed already, so you would need to ckeck a previous commit or the `develop` branch how to get to that user flow. On popup #3 , user has 3 checkboxes to confirm, if he unchecks at least one he does not qualify for registration but can leave his contact details to stay up to date.
+4) if the user qualifies, we skip the last (4th) popup where the user currently can enter name,email, and phone number - instead we go straight back to openfort where he can register.
+
+- review what is currently implemented
+- make a plan to make the changes to the resgistration flow as described. 
+- we also need an update of the task file with a description on the changed user flow , the tasks to be done to complete the implementation , and an extended section what configuration need to be changed or added to make it all work with a clear description which env vars are (likely) already set from the previous version , which need verification, and which env vars definitely need to be added (at least everything related to openfort)
+
+- first we want to run it locally , then we need to deploy on a live server (it shall all be setup to happen automatically once we merge into `develop` branch , beside the config vor openfort)
+
+---
+
+can you research this to complete the specs :
+
+all good, I was hoping we could reduce the previously 2 buttons [Login] and [Create 
+ Account] to just the openfort button which would bring up a popup where the user would 
+ then choose between login or register (ideally that would not be necessary, especially 
+ with gmail and apple the user would just choose their account and we should be able to 
+ check if the user is already registered - actually that should be possible with any login 
+ crednetial type - only if we do not find the user in the existing/registered accounts 
+ list, only then we send him to the onbaording questionaire - i have been told that 
+ something like this should be possible. 
+
+```
+Openfort is built for "Invisible Wallets." Its modular nature allows you to treat the wallet as a resource you grant to a user only after they satisfy your backend conditions.
+
+Phase 1 (Login): User clicks "Login with Google." Use Openfort's Headless Auth or your own OIDC provider. At this point, you have their email/ID, but no wallet exists.
+
+Phase 2 (Qualify): Redirect the user through your survey pages. Store their answers in your database, linked to their email/ID.
+
+Phase 3 (Decision): * If Disqualified: Show a "Thank You" page and terminate the session. No on-chain account was ever created.
+
+If Qualified: Call the Openfort API to createPlayer and deployWallet.
+
+Result: The user is now "Web3-enabled" and can proceed to sign transactions.
+```
+
+---
+
+you should be able to use `gh`
+
+---
+
+can you write the plan to `docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding.md` and mark `docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md` as superseeded
+
+then commit and push it all
