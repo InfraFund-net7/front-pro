@@ -1,0 +1,1119 @@
+I have given the floowing instructions to another developer and got a plan to implement it in @docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding.md 
+please review it for completness, correctness, clean and lean appraoch
+---
+
+we have migrated the current directory from particle web3 account abstraction wallet to openfort. check documents in docs-dev/release-notes we also have a task file @docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md
+
+please review the implementation , we actually want to have it as clean and lean as possible, go with the defaults whenever possible
+review the frontend code as well as the backend code , explain to me what the purpose of the backend is , what role it has regarding the wallet , account setup
+we also want to change the login/register flow :
+on the homepage we just have the openfort button, user can choose between login and register
+login should be straight forward
+when user click on register (or whatever the default naming is to sign up) , we first want the user to answer some questions. Currently that flow is already implemented and started with the [Create Account] button. This button may have been removed already, so you would need to ckeck a previous commit or the develop branch how to get to that user flow. On popup #3 , user has 3 checkboxes to confirm, if he unchecks at least one he does not qualify for registration but can leave his contact details to stay up to date.
+if the user qualifies, we skip the last (4th) popup where the user currently can enter name,email, and phone number - instead we go straight back to openfort where he can register.
+review what is currently implemented
+
+make a plan to make the changes to the resgistration flow as described.
+
+we also need an update of the task file with a description on the changed user flow , the tasks to be done to complete the implementation , and an extended section what configuration need to be changed or added to make it all work with a clear description which env vars are (likely) already set from the previous version , which need verification, and which env vars definitely need to be added (at least everything related to openfort)
+
+first we want to run it locally , then we need to deploy on a live server (it shall all be setup to happen automatically once we merge into develop branch , beside the config vor openfort)
+
+---
+
+<task-notification>
+<task-id>abb7eae85a12a7ea3</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-sum-DEV-ETH-InfraFund-front-pro/0776022b-2287-4111-93d4-2bc481c72ca4/tasks/abb7eae85a12a7ea3.output</output-file>
+<status>completed</status>
+<summary>Agent "Review frontend codebase state" completed</summary>
+<result>Now I have a comprehensive understanding. Let me create the final report:
+
+## FRONTEND IMPLEMENTATION STATE SUMMARY
+
+### Current Branch Context
+- **Current Branch:** `openfort` 
+- **Latest Commit:** `264ddeb` - "docs: expand Openfort onboarding task context"
+- **Status:** Clean working tree (untracked docs-dev/resources/ only)
+- **Dependencies:** Openfort auth (v1.3.0), React 18.3.1, Next.js 15.4.4, Wagmi 2.19.5, Viem 2.43.1
+
+---
+
+## 1. KEY FILES SUMMARY
+
+### **src/lib/openfort-config.tsx** - Openfort Provider Configuration
+Establishes the root provider hierarchy for the application. This is the central configuration point for Openfort authentication:
+- Initializes Wagmi with Base Sepolia and Base networks
+- Configures OpenfortProvider with Shield encryption support
+- Sets auth providers to Google and Email OTP
+- Configures encrypted session endpoint at `/api/auth/encryption-session`
+- Wraps AuthSessionProvider for session management
+- Shows configuration error state if env vars missing
+
+### **src/components/auth/auth-session-provider.tsx** - Session Orchestration (Core Auth)
+Orchestrates the dual-layer authentication system (Openfort + Backend):
+- Manages Openfort user state via `useUser()` hook
+- Handles backend session exchange and refresh
+- Implements session bootstrap flow: 
+  - Tries to refresh existing backend session first
+  - Falls back to exchanging Openfort token for backend session
+  - Fetches backend user profile (`/me` endpoint)
+- Tracks auth states: idle → loading → authenticated/unauthenticated/error
+- Provides context hook `useAuthSession()` with combined auth data
+- **Key Properties in Context:**
+  - `status` (AppSessionStatus)
+  - `backendAccessToken` (JWT for API calls)
+  - `backendUser` (BackendMeResponse with kyc_verified, kyb_verified flags)
+  - `openfortUser` (Openfort User object)
+  - `isOpenfortLoading`, `isOpenfortAuthenticated`
+
+### **src/components/auth/login.tsx** - Login UI Component
+Minimal login page that delegates to Openfort:
+- Displays InfraFund branding and descriptive text
+- Renders single `&lt;OpenfortButton&gt;` with avatar display
+- Pure UI, no state management - all auth logic in session provider
+
+### **src/components/auth/auth-state.tsx** - Auth State UI Components
+Two reusable UI components for auth status display:
+- **AuthLoadingState:** Animated spinner with status message (used during session bootstrap)
+- **AuthErrorState:** Error display with retry button, red accent styling
+
+### **src/components/main-layout.tsx** - Layout with Auth Guard (Router Guard)
+Application shell with route protection logic:
+- Checks `isOpenfortAuthenticated` and redirects to `/login` if needed
+- Redirects authenticated users from `/login` to `/home`
+- Shows loading/error states during auth initialization
+- Conditionally renders sidebar + header for authenticated routes
+- Uses `usePathname` to differentiate auth vs app pages
+
+### **src/app/page.tsx** - Homepage (Root)
+Placeholder page showing empty `&lt;div&gt;page&lt;/div&gt;` - appears to be a redirect target
+
+### **src/app/login/page.tsx** - Login Page Route
+Simple wrapper that renders the `&lt;Login /&gt;` component
+
+### **src/lib/backend-auth-client.ts** - Backend Auth Client
+HTTP client for backend authentication endpoints:
+- **Models:**
+  - `BackendMeResponse`: Includes `kyc_verified`, `kyb_verified`, `role`, `status`, user details
+  - Wraps standard API success/error response formats
+- **Functions:**
+  - `exchangeOpenfortSession(openfortAccessToken)` → POST `/auth/openfort/exchange`
+  - `refreshBackendSession()` → POST `/auth/refresh` (with credentials)
+  - `getBackendMe(accessToken)` → GET `/me` with Bearer token
+  - `logoutBackendSession()` → POST `/auth/logout` with credentials
+- Handles headers, authorization, and base URL routing intelligently
+
+### **src/components/header.tsx** - Header Component
+Authenticated app header showing user context:
+- Dynamic page title from `routeTitles` mapping
+- Displays greeting with user name (from backend or Openfort)
+- Shows secondary label (email, role, or Openfort ID)
+- Support icons (Headset, Bell) for notifications
+- OpenfortButton for wallet management
+- User avatar initial in circular badge
+
+---
+
+## 2. CURRENT AUTH FLOW
+
+```
+Login Flow:
+┌─────────────────────┐
+│   User visits /     │
+└──────────┬──────────┘
+           │
+           v
+┌──────────────────────────────┐
+│ MainLayout checks auth state │
+│ (useAuthSession)             │
+└──────────┬───────────────────┘
+           │ Not authenticated?
+           v
+    ┌──────────────┐
+    │ Redirect to  │
+    │   /login     │
+    └──────┬───────┘
+           │
+           v
+    ┌────────────────────┐
+    │ Show Login UI      │
+    │ (OpenfortButton)   │
+    └────────┬───────────┘
+             │ User clicks "Continue"
+             v
+    ┌────────────────────────┐
+    │ Openfort SDK handles   │
+    │ Google/Email OTP auth  │
+    └────────┬───────────────┘
+             │ Success
+             v
+    ┌─────────────────────────────────────┐
+    │ useUser() hook gets openfort token  │
+    └────────┬────────────────────────────┘
+             │
+             v
+    ┌──────────────────────────────────────────┐
+    │ AuthSessionProvider bootstrap:           │
+    │ 1. Try refreshBackendSession() first     │
+    │ 2. Fall back to exchange token           │
+    │ 3. getBackendMe() to fetch user profile  │
+    └────────┬─────────────────────────────────┘
+             │ Success
+             v
+    ┌────────────────────────────────┐
+    │ Set status: "authenticated"    │
+    │ Store backendAccessToken + user│
+    └────────┬───────────────────────┘
+             │
+             v
+    ┌────────────────────────────────┐
+    │ MainLayout sees authenticated  │
+    │ Redirects to /home             │
+    └────────┬───────────────────────┘
+             │
+             v
+    ┌────────────────────────────────┐
+    │ Render app shell with:         │
+    │ • Sidebar (navigation)         │
+    │ • Header (user context)        │
+    │ • Children (page content)      │
+    └────────────────────────────────┘
+```
+
+**Current Auth Architecture:**
+- **Openfort Layer:** OAuth-like social/email authentication (Google, Email OTP)
+- **Backend Layer:** Session exchange + JWT tokens + user profile + KYC status tracking
+- **Session Storage:** Backend access token + user metadata in React context
+- **Session Persistence:** Refresh token via credentials-included fetch (cookies)
+
+---
+
+## 3. QUALIFICATION/QUESTIONNAIRE COMPONENTS
+
+### Current Branch (`openfort`)
+**NO questionnaire/qualification/onboarding/registration components found on current branch.**
+
+Search results:
+- ❌ No `*questionnaire*` files
+- ❌ No `*qualification*` files  
+- ❌ No `*onboarding*` files
+- ❌ No `*register*` files (on frontend)
+- ❌ No `*signup*` files
+- ❌ No `*waitlist*` files
+
+**auth-state.tsx EXISTS** - Located at `/home/sum/DEV/ETH/InfraFund/front-pro/src/components/auth/auth-state.tsx` with two UI helpers.
+
+### Develop Branch
+The `develop` branch contains additional components that are NOT on `openfort`:
+- `src/components/AutoWalletRegister.tsx` - Particle network integration for wallet registration (old auth method)
+- Multiple API routes: `/api/auth/register`, `/api/login`, `/api/auth/challenge`, etc.
+- Different auth approach using Particle network instead of Openfort
+
+### Git History
+- **No qualification/questionnaire commits found** in git log searching all branches
+- **Only onboarding-related commits** (documentation only):
+  - `264ddeb`: "docs: expand Openfort onboarding task context"
+  - `ae6234f`: "docs: add Openfort onboarding implementation plan"
+
+---
+
+## 4. KYC VERIFICATION COMPONENTS (Existing)
+
+While no questionnaire exists, there IS a full KYC verification flow:
+
+### Files
+- `/src/app/kyc/page.tsx` - Route wrapper
+- `/src/components/kyc/kyc-page.tsx` - Main KYC component (184 lines)
+  - Displays two KYC tiers: Basic and Advanced
+  - Shows feature access matrix for each tier
+  - Manages state transitions between tiers
+- `/src/components/kyc/basic-section-kyc.tsx` - Basic verification form (126 lines)
+  - Two-step form: Personal info + Address
+  - Captures: Nationality, First/Last/Middle names, DOB, Address, Postal Code, City
+  - Mocked as non-functional UI (no API integration)
+- `/src/components/kyc/advance-section-kyc.tsx` - Advanced verification (166 lines)
+  - Four-step process: Document selection → Upload docs → Portrait photo → Review
+  - Document types: ID Card, Passport
+  - Mocked UI with no backend integration
+- `/src/atoms/kyc/` - Jotai state atoms for KYC level management
+
+### Integration Status
+- **UI:** Fully implemented
+- **Backend Integration:** ❌ NOT INTEGRATED (mocked flows, no API calls)
+- **Tracked in BackendMeResponse:** ✅ `kyc_verified` and `kyb_verified` boolean flags exist
+
+---
+
+## 5. NAVIGATION &amp; ROUTING
+
+Navigation items in sidebar (from `sidebar.tsx`):
+- **Disabled on Client Model:** Create Project, Tokenization, Investment Portal, Digital Asset Offering, Investment Requests, Swap
+- **Enabled on Client Model:** Home, Explore Projects, KYC, Swap (also disabled)
+- **Full Model Navigation:** All features available to institutional users
+
+---
+
+## 6. KEY ARCHITECTURAL DECISIONS
+
+1. **Dual-Layer Auth:** Openfort handles authentication, backend handles authorization + profile management
+2. **Session Persistence:** HTTP-only cookies for refresh tokens, context storage for active session
+3. **Lazy User Data:** Backend `/me` call only after token exchange (not in initial auth)
+4. **Route Protection:** MainLayout enforces auth at all protected routes
+5. **UI State Management:** Jotai atoms for KYC state, React Context for auth state
+6. **No API Integration:** KYC forms exist but don't connect to backend (ready for implementation)
+
+---
+
+## 7. BRANCH DIVERGENCE
+
+**Files changed between `develop` and `openfort` branches:** ~30 files
+- Complete replacement of auth system (Particle → Openfort)
+- New API route structure (`/api/auth/encryption-session` added)
+- Addition of `AppProviders` wrapper in openfort-config.tsx
+- Removal of wallet connection components (particle-specific)
+- No qualification/questionnaire components added in either branch</result>
+<usage><total_tokens>51924</total_tokens><tool_uses>50</tool_uses><duration_ms>79106</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aad1f08070fa1af43</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-sum-DEV-ETH-InfraFund-front-pro/0776022b-2287-4111-93d4-2bc481c72ca4/tasks/aad1f08070fa1af43.output</output-file>
+<status>completed</status>
+<summary>Agent "Find qualification flow on develop" completed</summary>
+<result>Based on my comprehensive search, let me generate a final summary report.
+
+## Summary: Qualification/Onboarding Questionnaire Flow Investigation
+
+Based on my thorough analysis of the InfraFund frontend repository, here's what I found:
+
+### Current State
+
+**Qualification/Questionnaire Components Found:**
+The qualification/onboarding questionnaire flow referenced in the registration process exists but **is not currently in the source code repository**. Evidence shows:
+
+1. **SurveyData Interface** is defined in `/home/sum/DEV/ETH/InfraFund/front-pro/.next/standalone/src/components/AutoWalletRegister.tsx` (lines 18-28) with this structure:
+   - `role`: string
+   - `type`: "individual" | "organization"
+   - `confirm_tos`: boolean
+   - `first_name`, `last_name` (individual)
+   - `phone_number`, `email`
+   - `contact_fullname`, `company_name` (organization)
+
+2. **Historical Evidence** (from commit `ad90437`): Old `page.tsx` referenced reading `survey_data` from cookies at domain `.infrafund.test:3000`, indicating a separate survey/qualification form application was hosted elsewhere. The code included cookie parsing logic for domain cookies.
+
+3. **No Current Implementation**: No survey component, popup screens, or checkbox-based questionnaire exists in the current codebase on any active branch (develop, openfort, particle).
+
+### Git History Analysis
+
+**Commit Timeline:**
+- **3b18e6d** - "finish the registeration" (Nov 29, 2025): Registration flow implementation
+- **ad90437** - "add the api connections and particle wallet connect" (Nov 14, 2025): References external survey at `infrafund.test:3000`
+- **f904997** - "refactor: move all project files from infrafund/ to root" (Dec 18, 2025): Major restructure
+- **264ddeb** - Latest (docs: expand Openfort onboarding task context): Currently on openfort branch
+
+**Branches Checked:**
+- `develop`, `openfort`, `particle` - No questionnaire components
+- `remotes/origin/auth-section`, `remotes/origin/INFP-*` - No deleted components found
+- No stashed changes (`git stash list` returned empty)
+
+### Deployment Configuration
+
+**Docker Pipeline:**
+- Location: `/home/sum/DEV/ETH/InfraFund/front-pro/deployment/Dockerfile`
+- Build args: `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_PROJECT_ID`, `NEXT_PUBLIC_CLIENT_KEY`, `NEXT_PUBLIC_APP_ID`, `NEXT_PUBLIC_ENVIRONMENT`
+- Uses multi-stage build (builder + runner), runs on port 3000
+
+**GitHub Workflows:**
+- `/home/sum/DEV/ETH/InfraFund/front-pro/.github/workflows/deploy-dev.yaml` - Triggers on develop branch push
+- `/home/sum/DEV/ETH/InfraFund/front-pro/.github/workflows/deploy.yaml` - Triggers on main branch push
+- Both use secrets for Openfort keys (post-migration from Particle)
+
+**Environment Variables Configured:**
+Development (`.env.example` &amp; `.env.local`):
+- `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` (Openfort public key)
+- `NEXT_PUBLIC_SHIELD_API_KEY` (Openfort Shield API)
+- `NEXT_PUBLIC_POLICY_ID` (Gas sponsorship, optional)
+- `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` (External wallets, optional)
+- `SHIELD_SECRET_KEY` (Server-side only)
+- `SHIELD_ENCRYPTION_SHARE` (Server-side only)
+- `NEXT_PUBLIC_BASE_URL` (Backend API)
+
+**Production Deployment**: Uses GitHub Actions runners with environment secrets for Particle/Openfort credentials.
+
+### Key Finding
+
+The qualification questionnaire with popup screens and checkboxes mentioned was likely a **separate front-end application** (possible Next.js app on `infrafund.test:3000`) that:
+1. Collected user qualification data
+2. Stored it in browser cookies as `survey_data`
+3. Redirected to the main dashboard after survey completion
+4. **Has been removed or decoupled** from this repository structure
+
+This questionnaire component is **not recoverable from git history** in the current front-pro repository, suggesting it was either:
+- Developed in a different repository/project
+- Deleted completely before recent commits
+- Never actually committed to source control</result>
+<usage><total_tokens>61087</total_tokens><tool_uses>56</tool_uses><duration_ms>141673</duration_ms></usage>
+</task-notification>
+
+---
+
+I saw midway in your reply that you said that the questionaire is nowhere in any branch.
+I have not reviewed the code itself, but have been told that the last online version https://beta.infrafund.net/` is based on the `develop` branch  and if you click on [Create account] popup show up with the questinaire mentioned (4 popups). Can you find them in the `develop` branch ?
+Maybe it is even in a separate repo of Infrafund, so the `beta` website contains the questionaire which then at the end redirects to the app from the repo we are currently looking at. I think that was the reason why they used a cookie to handover questionaire state or user response - it could be `https://github.com/InfraFund-net7/landing-pro`
+
+I may have given some instructions mid-way , new clarifiying comments, ..
+
+### 1) B) 
+                                                                                                     
+  ▎ user clicks single Openfort button → authenticates first → backend checks if new → then shows      
+  ▎ questionnaire   
+
+yes, that is actually how i ideally want it:
+```
+I was hoping we could reduce the previously 2 buttons [Login] and [Create Account] to just the openfort button which would bring up a popup where the user would then choose between login or register (ideally that would not be necessary, especially with gmail and apple the user would just choose their account and we should be able to check if the user is already registered - actually that should be possible with any login crednetial type - only if we do not find the user in the existing/registered accounts list, only then we send him to the onbaording questionaire - i have been told that something like this should be possible.
+```
+
+### D. 
+likely on the other app from the other repo currentl live on `beta.infrafund.net`
+
+###  E. Missing: how login vs register intent is distinguished
+i have been told that this is possible :
+
+Openfort is built for "Invisible Wallets." Its modular nature allows you to treat the wallet as a resource you grant to a user only after they satisfy your backend conditions.
+
+Phase 1 (Login): User clicks "Login with Google." Use Openfort's Headless Auth or your own OIDC provider. At this point, you have their email/ID, but no wallet exists.
+
+Phase 2 (Qualify): Redirect the user through your survey pages. Store their answers in your database, linked to their email/ID.
+
+Phase 3 (Decision): * If Disqualified: Show a "Thank You" page and terminate the session. No on-chain account was ever created.
+
+If Qualified: Call the Openfort API to createPlayer and deployWallet.
+
+Result: The user is now "Web3-enabled" and can proceed to sign transactions.
+
+## 3.
+
+### scope creep - Profile verification page is scope creep.
+I wanted to avoid the 4th popup questionaire ideally , going straight into the openfort registration hoping that it will gather all information necessary for the registration (which is actually its whole purpose), but have been told that it may not get some information along the way, like name , if user chooses to just login with email (?) I am not sure about the openfort registration flow, but happy to start with a basic one , try it out myself, and then do another round to add more if needed.
+
+---
+
+Update and fix the task plan where needed , if you need additional information about openfort , there should be an openfort SKILL.md which directs and gives instructions how to use the `openfort-docs` MCP - let me know if you have trouble to access it.
+
+---
+
+<task-notification>
+<task-id>a1591657054efcfa3</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-sum-DEV-ETH-InfraFund-front-pro/0776022b-2287-4111-93d4-2bc481c72ca4/tasks/a1591657054efcfa3.output</output-file>
+<status>completed</status>
+<summary>Agent "Find questionnaire in landing-pro" completed</summary>
+<result>Based on my thorough search, I can now provide you with a comprehensive report:
+
+## Summary
+
+**The questionnaire does NOT currently exist in the codebase.** However, I've identified the exact integration points and backend infrastructure that's ready to receive questionnaire data.
+
+## What Currently Exists
+
+### Backend Infrastructure Ready for Questionnaire
+The backend (`/home/sum/DEV/ETH/InfraFund/backpro`) is fully prepared to handle questionnaire-derived role and type assignments:
+
+**Auth Exchange Endpoint** (`/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/input/auth.go`):
+- Accepts `type` (enum: `individual` or `organization`)
+- Accepts `role` (enum: `project_owner`, `investor`, `contractor`, `governance`)
+- Handler location: `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/handler/auth.go:44-74`
+
+**User Entity** (`/home/sum/DEV/ETH/InfraFund/backpro/internal/domain/user/entity/user.go`):
+- Stores `Type` as `UserType` enum (individual/organization)
+- Stores `Role` as `UserRole` enum (project_owner/investor/contractor/governance)
+
+**Waitlist Endpoints** (for unqualified users):
+- `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/handler/waitlist.go`
+- `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/input/non_resident_waitlist.go` - accepts first_name, last_name, email, country_id
+
+### Frontend Auth Integration
+**Backend Auth Client** (`/home/sum/DEV/ETH/InfraFund/front-pro/src/lib/backend-auth-client.ts`):
+- `exchangeOpenfortSession()` - POSTs Openfort access token to backend
+- Backend returns `access_token`, `user_id`, `expires_at`
+- User data fetched via `getBackendMe()` which returns user profile including `type`, `role`, `status`, KYC/KYB verification flags
+
+**Auth Session Provider** (`/home/sum/DEV/ETH/InfraFund/front-pro/src/components/auth/auth-session-provider.tsx`):
+- Orchestrates Openfort auth → backend exchange → session establishment
+- No questionnaire logic currently present
+
+### Implementation Plan (from docs)
+File: `/home/sum/DEV/ETH/InfraFund/front-pro/docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding.md`
+
+The planned flow is:
+1. User clicks single Openfort button on `/`
+2. Openfort auth succeeds
+3. Backend check: is user new or existing?
+4. **Existing users**: skip to home
+5. **New users**: show qualification questionnaire (to be built)
+6. **Qualified users**: backend exchange with `role`/`type` → profile verification page → app
+7. **Unqualified users**: submit to waitlist endpoint
+
+## What's Missing: The Questionnaire Component
+
+Based on the architecture, the questionnaire should:
+
+1. **4 Popup Screens** (mentioned in metadata):
+   - Popup #1: Basic info (name, email selection?)
+   - Popup #2: User type (individual vs organization)
+   - Popup #3: Role selection with **3 qualification checkboxes**
+   - Popup #4: Summary/confirmation
+
+2. **Popup #3 Checkboxes** (to determine qualification):
+   - Currently unknown (not in code)
+   - Based on role enums, likely: accredited investor status, institutional investor status, entity type, regulatory compliance, etc.
+
+3. **Data Collection Fields**:
+   - First name, last name (prefilled from Openfort if available)
+   - Email (from Openfort)
+   - User type: individual / organization
+   - Organization name (if organization selected)
+   - Role: project_owner / investor / contractor / governance
+   - 3 qualification checkboxes (content TBD)
+
+4. **Implementation Location Should Be**:
+   - `src/components/auth/` - new components:
+     - `qualification-questionnaire.tsx` (main multi-step component)
+     - `questionnaire-step-1.tsx` (basic info)
+     - `questionnaire-step-2.tsx` (type selection)
+     - `questionnaire-step-3.tsx` (role + qualification checkboxes)
+     - `questionnaire-step-4.tsx` (review/summary)
+
+5. **Data Passing Mechanism**:
+   - Store questionnaire answers in `sessionStorage` during onboarding (before exchange)
+   - On submit, pass to backend exchange endpoint in the request body:
+   ```json
+   {
+     "first_name": "...",
+     "last_name": "...",
+     "email": "...",
+     "type": "individual|organization",
+     "role": "project_owner|investor|contractor|governance"
+   }
+   ```
+
+6. **Qualification Logic**:
+   - If user checks all 3 checkboxes = qualified → proceed to exchange
+   - If unchecked = unqualified → redirect to waitlist submission with captcha
+
+## Files to Reference for Implementation
+
+**Frontend template (multi-step pattern)**:
+- `/home/sum/DEV/ETH/InfraFund/front-pro/src/components/kyc/basic-section-kyc.tsx` - shows how to structure multi-step flows
+- `/home/sum/DEV/ETH/InfraFund/front-pro/src/components/ui/step-indicator.tsx` - step progress indicator
+- `/home/sum/DEV/ETH/InfraFund/front-pro/src/components/ui/custom-checkbox.tsx` - checkbox component
+
+**Backend integration**:
+- Auth exchange: `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/handler/auth.go`
+- User role enums: `/home/sum/DEV/ETH/InfraFund/backpro/internal/domain/user/object/user_role.go`
+- Waitlist endpoint: `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/handler/non_resident_waitlist.go`
+
+The questionnaire is **designed but not coded yet**. It's a planned feature for the v0.2.2 implementation phase.</result>
+<usage><total_tokens>65745</total_tokens><tool_uses>45</tool_uses><duration_ms>156227</duration_ms></usage>
+</task-notification>
+
+---
+
+what is currently on `landing-pro` , jusy the homepage and the questionaire. Would it make sense to merge the code as it into the current repo ? ... and then modify as needed ?
+
+does the github ci/cd say on what domain this repo ends when deployed ?
+
+can the backend implementation happen separately , just based on the task plan ?
+
+###   3 open questions flagged                                                                             
+                                               
+  1. Captcha keys — reuse landing-pro's or new ones for front-pro domain?                              
+  2. Non-resident endpoints — are they in backpro or only in landing-pro's backend?                  
+  3. Name collection — defer to a later phase or add a minimal step?   
+
+1. reuse existing keys
+2. i have no idea, can you find out ?
+3. my idea was that depending on sign-up method used (google, appple, email) we may already have the name , so we could ask for the name only if needed, potentially after the registration by showing the user what data we already have on his account page and ask him to fill in the blanks. he should not easily be able to change the signup email/account, i assume that should be a process to be handled and to go through openfort , and i assume they already have that ready in place.
+
+---
+
+<task-notification>
+<task-id>aad8c5d12beb2acd2</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-sum-DEV-ETH-InfraFund-front-pro/0776022b-2287-4111-93d4-2bc481c72ca4/tasks/aad8c5d12beb2acd2.output</output-file>
+<status>completed</status>
+<summary>Agent "Check non-resident endpoints in backpro" completed</summary>
+<result>Perfect! Now I have all the information needed. Let me create a comprehensive report:
+
+## Report: Non-Resident and Waitlist Endpoints Architecture
+
+### Endpoint Existence in backpro
+**YES - The non-resident and waitlist endpoints exist directly in the backpro backend.** They are not proxies from landing-pro; instead, landing-pro acts as a proxy layer.
+
+### Backend Endpoints (backpro)
+
+The endpoints are registered in `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/router/` and expose:
+
+1. **Waitlist Endpoint**
+   - Route: `POST /v1/waitlists`
+   - Handler: `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/handler/waitlist.go`
+   - Request fields: `email` (required, email format, 5-255 chars)
+   - Requires: `X-Captcha-Token` header
+   - Middleware: reCaptcha validation
+
+2. **Non-Resident Waitlist - Individual Form**
+   - Route: `POST /v1/non-resident-waitlist/individual`
+   - Handler: `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/handler/non_resident_waitlist.go`
+   - Request fields:
+     - `first_name` (required, 1-100 chars)
+     - `last_name` (required, 1-100 chars)
+     - `email` (required, email format, 5-255 chars)
+     - `country_id` (required, int32)
+   - Requires: `X-Captcha-Token` header
+   - Middleware: reCaptcha validation
+
+3. **Non-Resident Waitlist - Company Form**
+   - Route: `POST /v1/non-resident-waitlist/company`
+   - Handler: Same as above
+   - Request fields:
+     - `first_name` (required, 1-100 chars)
+     - `last_name` (required, 1-100 chars)
+     - `email` (required, email format, 5-255 chars)
+     - `company_name` (required, 1-255 chars)
+     - `country_id` (required, int32)
+   - Requires: `X-Captcha-Token` header
+   - Middleware: reCaptcha validation
+
+4. **Locations/Countries Endpoint** (for dropdowns)
+   - Route: `GET /v1/locations/countries`
+   - Handler: `/home/sum/DEV/ETH/InfraFund/backpro/internal/interfaces/rest/handler/location.go`
+   - No request body required
+   - No captcha required
+
+### Proxy Architecture in landing-pro
+
+**landing-pro proxies to backpro** via its own Next.js API routes:
+
+- `landing-pro/src/app/api/waitlists/route.ts` → `backpro/v1/waitlists`
+- `landing-pro/src/app/api/non-resident/individual/route.ts` → `backpro/v1/non-resident-waitlist/individual`
+- `landing-pro/src/app/api/non-resident/company/route.ts` → `backpro/v1/non-resident-waitlist/company`
+- `landing-pro/src/app/api/locations/route.ts` → `backpro/v1/locations/countries`
+
+### Backend URL Configuration
+
+- **Environment Variable**: `NEXT_PUBLIC_API_BASE_URL` (in landing-pro)
+- **Default Value**: `http://localhost:8080/v1` (from `.env.local`)
+- **Usage**: `getServerUrl()` utility function constructs full URLs as `${NEXT_PUBLIC_API_BASE_URL}/${endpoint}`
+
+### Architecture Summary
+
+```
+Frontend Form → landing-pro API route → axios → backpro backend endpoint
+                (proxies &amp; passes headers)        (validates, stores in DB)
+```
+
+The captcha token and authorization headers are passed through from the frontend, and backpro handles all validation, database operations, and error responses.</result>
+<usage><total_tokens>40894</total_tokens><tool_uses>29</tool_uses><duration_ms>58609</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ad2913c96fe729b21</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-sum-DEV-ETH-InfraFund-front-pro/0776022b-2287-4111-93d4-2bc481c72ca4/tasks/ad2913c96fe729b21.output</output-file>
+<status>completed</status>
+<summary>Agent "Check CI/CD deploy domains" completed</summary>
+<result>Based on my analysis of the code, here's a comprehensive report on the deployment domains and infrastructure:
+
+## Deployment Report: front-pro vs landing-pro
+
+### **front-pro Repository**
+
+**Deployment Infrastructure:**
+- **Platform:** Docker + VPS (custom self-hosted)
+- **Service Name:** `infra-dashboard`
+- **Hosting:** Runs on custom runners (`develop-runner` for dev, `prod-runner` for production)
+- **Container:** Docker image `infra-dashboard:dev` and `infra-dashboard:prod`
+- **Port:** 3000 (containerized Next.js)
+- **Orchestration:** Docker Compose (via external compose files stored in runner variables)
+
+**Environments:**
+- **Development:** Triggered on pushes to `develop` branch
+  - Docker image tag: `infra-dashboard:dev`
+  - Docker compose file: `${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}`
+  - Service name: `dashboard`
+  
+- **Production:** Triggered on pushes to `main` branch
+  - Docker image tag: `infra-dashboard:prod`
+  - Docker compose file: `${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }}`
+  - Service name: `dashboard`
+
+**Actual Domains:** Not specified in repository files. Domains are configured via:
+- `${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}` and `${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }}` (GitHub Actions variables)
+- Reverse proxy/load balancer configuration (not in this repo)
+- External nginx/Caddy/Traefik setup on the VPS
+
+---
+
+### **landing-pro Repository**
+
+**Deployment Infrastructure:**
+- **Platform:** Docker + VPS (custom self-hosted)
+- **Service Name:** `infra-landing`
+- **Hosting:** Runs on custom runners (`develop-runner` for dev, `prod-runner` for production)
+- **Container:** Docker image `infra-landing:dev` and `infra-landing:prod`
+- **Port:** 3000 (containerized Next.js)
+- **Orchestration:** Docker Compose (via external compose files stored in runner variables)
+
+**Environments:** GitHub API shows 2 environments:
+- **Preview** (Development)
+- **Production**
+
+**Deployment Details:**
+- **Development:** Triggered on pushes to `develop` branch
+  - Docker image tag: `infra-landing:dev`
+  - Docker compose file: `${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}`
+  - Service name: `landing`
+  
+- **Production:** Triggered on pushes to `main` branch
+  - Docker image tag: `infra-landing:prod`
+  - Docker compose file: `${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }}`
+  - Service name: `landing`
+
+**Actual Domains:** Not specified in repository files. Configured via:
+- `${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}` and `${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }}`
+- External reverse proxy configuration on the VPS
+
+---
+
+### **Conflict Analysis: Would merging conflict?**
+
+**NO DIRECT CONFLICT at the application level**, but there are important considerations:
+
+1. **Container Port Conflict:** Both services expose port 3000 internally, which could cause issues if they're deployed to the same physical server without proper networking isolation. The Docker compose files (stored as GitHub variables) must handle this with:
+   - Different published ports (e.g., 3000 for dashboard, 3001 for landing)
+   - Different services in the same compose file
+   - Network namespacing
+
+2. **Docker Image Naming:** 
+   - `infra-dashboard:dev/prod` (front-pro)
+   - `infra-landing:dev/prod` (landing-pro)
+   - These are distinct and won't conflict
+
+3. **Service Names in Compose:**
+   - `dashboard` (front-pro)
+   - `landing` (landing-pro)
+   - These are distinct and won't conflict
+
+4. **Actual Merge Risk:** The real conflict would depend on:
+   - How the Docker Compose files are structured on the runners
+   - Whether they're in a separate infrastructure repo
+   - Port mapping configuration for the reverse proxy
+   - Whether they share the same database (they shouldn't based on the config)
+
+**Recommendation:** Before merging, verify that the `DOCKER_COMPOSE_PATH_DEVELOP` and `DOCKER_COMPOSE_PATH_PRODUCTION` files on the runners are properly configured to:
+- Deploy `dashboard` and `landing` services to different ports or hosts
+- Use distinct environment variable files
+- Don't share overlapping storage volumes</result>
+<usage><total_tokens>39903</total_tokens><tool_uses>35</tool_uses><duration_ms>69885</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a1ec354029b55259e</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-sum-DEV-ETH-InfraFund-front-pro/0776022b-2287-4111-93d4-2bc481c72ca4/tasks/a1ec354029b55259e.output</output-file>
+<status>completed</status>
+<summary>Agent "Analyze landing-pro contents" completed</summary>
+<result>Now I have all the information I need. Let me create the comprehensive analysis:
+
+## Thorough Analysis of landing-pro Repository
+
+---
+
+### 1. **Framework &amp; Dependency Comparison**
+
+**Landing-Pro Dependencies:**
+- **Next.js**: 15.5.7 (app router, React 19.1.2)
+- **React**: 19.1.2
+- **Styling**: Tailwind CSS 4 (PostCSS 4)
+- **UI Components**: Custom UI components (no shadcn/ui)
+- **Animations**: GSAP 3.13.0, Recharts 3.3.0
+- **Forms/Validation**: Zod 4.1.12
+- **State**: Zustand 5.0.11
+- **HTTP**: Axios 1.13.2
+- **Calendar**: FullCalendar 6.1.19
+- **Responsive**: react-responsive 10.0.1
+- **Icons**: Lucide-react 0.542.0
+- **Date**: date-fns 4.1.0, date-fns-tz 3.2.0
+
+**Front-Pro Dependencies:**
+- **Next.js**: 15.4.4 (app router, React 18.3.1)
+- **React**: 18.3.1
+- **Web3**: Openfort (@openfort/openfort-js 1.3.0, @openfort/react 1.0.7), Wagmi 2.19.5, Viem 2.43.1
+- **State**: Jotai 2.12.5
+- **Data**: @tanstack/react-query 5.83.0
+- **Utils**: clsx 2.1.1
+- **Icons**: Lucide-react 0.526.0
+- **Styling**: Tailwind CSS 4
+
+**Key Differences:**
+- Landing-pro has **calendar, charting, animations, validation** (marketing/survey features)
+- Front-pro has **Web3 integration** (Openfort wallets, Wagmi, Viem) + TanStack Query (data fetching)
+- landing-pro uses **Zustand** for state; front-pro uses **Jotai**
+- landing-pro uses **Axios**; front-pro appears to use TanStack Query/native fetch
+- Incompatible: Both define different HTML dependencies (React 19 vs 18)
+
+---
+
+### 2. **Complete Routes &amp; Pages**
+
+**Landing-Pro Pages (Marketing Site + Questionnaire):**
+```
+/                       - Homepage (hero, operating system, funding, projects, trusted section)
+/about-us              - About Us (team, story, contributors, timeline)
+/blog                  - Blog listing
+/blog/[slug]           - Individual blog articles
+/builders              - For Builders page (blockchain diagram, energy flow, token flow)
+/faq                   - FAQ page
+/Investors             - For Investors page
+/project               - Projects / Investment Platform page
+/privacy               - Privacy Policy (56KB component)
+/risk-warning          - Risk Warning page
+/terms                 - Terms &amp; Conditions page
+/uk-residents          - UK Residents specific page
+```
+
+**Front-Pro Pages (Dashboard + Admin):**
+```
+/                            - Redirect/homepage
+/home                        - Dashboard
+/explore-projects            - Browse projects
+/create-project              - Create new projects
+/tokenization                - Tokenization dashboard
+/investment-portal           - Investment management
+/digital-assets              - Asset tracking
+/investor-management         - Manage investors
+/investment-requests         - Handle requests
+/asset-management            - Asset management
+/swap                        - Token swap interface
+/kyc                         - Know Your Customer forms
+/login                       - Authentication
+```
+
+**Complete API Routes in Landing-Pro:**
+```
+POST /api/contact              - Contact form submission
+POST /api/waitlists            - Waitlist signup (reCAPTCHA required)
+POST /api/non-resident/individual - Non-resident individual signup
+POST /api/non-resident/company    - Non-resident company signup
+GET /api/locations             - Location data (implied)
+```
+
+---
+
+### 3. **UI Component Library &amp; Design System**
+
+**Landing-Pro:**
+- **Custom UI components** in `/src/component/ui/`:
+  - CustomButton (filled/outlined/canceled variants)
+  - Modal, FormInput, Accordion, Dropdown
+  - ProjectCard, FaqList, AnimatedChevrons
+- **No shadcn/ui** – fully custom Tailwind
+- **Design tokens**: Colors like `#24FF8E` (neon green), `#263247` (dark blue)
+- Heavy use of **GSAP animations** for scroll effects and transitions
+
+**Front-Pro:**
+- Uses **shadcn/ui** style custom components in `/src/components/ui/`
+- More enterprise/dashboard aesthetic
+- Focuses on **functional layouts** (sidebar, header, main-layout)
+
+**Assessment:** UI systems are **NOT compatible** – different component APIs and design philosophies.
+
+---
+
+### 4. **Header Component Comparison**
+
+**Landing-Pro Header:**
+- Public-facing marketing header
+- Navigation: Projects, For Investors, For Builders, Learn (blog), About Us
+- Waitlist modal + "Create Account" button
+- Survey form integration (SurveyOnlyForm modal)
+- Animated mobile sidebar using GSAP
+- Sticky header with backdrop blur on scroll
+- No authentication awareness
+
+**Front-Pro Header:**
+- Dashboard header with user context
+- Displays personalized greeting (hi ${displayName})
+- Openfort wallet integration button
+- Role/email display from backend user
+- Notifications and support icons
+- Different layout entirely
+
+**Assessment:** Completely different purposes – **cannot be reused**.
+
+---
+
+### 5. **API &amp; Backend Connectivity**
+
+**Landing-Pro Architecture:**
+```
+Frontend (Next.js Client)
+  → /api/* routes (server-side)
+    → axios → Backend API at process.env.NEXT_PUBLIC_API_BASE_URL
+```
+
+**Key Implementation Details:**
+- API calls proxied through Next.js `/api/` routes
+- Base URL: `process.env.NEXT_PUBLIC_API_BASE_URL`
+- All requests use `getServerUrl()` utility to prepend `api/` path
+- **Authorization**: Optional Bearer token from localStorage (getAccessToken)
+- **Captcha**: X-Captcha-Token header required on certain endpoints
+
+**API Service (`src/services/apiService.ts`):**
+- Generic methods: get, post, put, patch
+- Auto-injects Authorization header and Captcha token
+- Rewrite URLs with `api` prefix
+- Throws on empty captcha token
+
+**Interceptor Setup:** (`src/utils/axios.utils.ts`)
+- Axios instance with `SERVER_URL` base
+- Custom interceptors (file not shown but referenced)
+
+**Middleware:** (`src/middleware.ts`)
+- Minimal: just sets `x-custom-pathname` header on all requests
+
+---
+
+### 6. **reCAPTCHA Configuration**
+
+**Implementation:**
+```typescript
+// src/lib/apiCaptcha.ts - Wrapper function
+withCaptcha(action: 'waitlist' | 'non_resident' | 'signup' | 'contact')
+  → calls getRecaptchaToken(action)
+  → returns { 'X-Captcha-Token': token }
+
+// src/utils/recaptcha.ts - reCAPTCHA v3 Execution
+getRecaptchaToken(action: string) → window.grecaptcha.execute()
+```
+
+**Setup:**
+- **Site Key**: `process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (loaded via Next/Script)
+- **Script**: Injected in `layout.tsx` with `strategy="afterInteractive"`
+- **Client-side execution**: Promise-based, runs on form submission
+- **Actions**: Different actions for different forms (waitlist, signup, contact, non-resident)
+
+**Validation:**
+- Checks for site key presence
+- Validates token is non-empty string
+- Throws errors on missing window or grecaptcha object
+
+---
+
+### 7. **Form &amp; Data Handling**
+
+**Major Form: SurveyOnlyForm (1,186 lines)**
+- Multi-step form (Steps 1-6)
+- User type selection: Individual vs Organization
+- UK residency checks with specific confirmations
+- Location/country selection
+- Personal info collection (name, email, phone)
+- Company info for organizations
+- Terms of Service acceptance
+- Integrates with Zod validation schema
+- Submits to backend via apiService
+
+**Other Forms:**
+- WaitlistModal - Waitlist signup
+- ContactUsPage - Contact form
+- SurveyOnlyForm - Main signup/questionnaire
+
+---
+
+### 8. **Content &amp; Data Structure**
+
+**Blog System:**
+- Hardcoded blog data in `/src/data/blog.ts`
+- Blog metadata: date, slug, readTime, title, description, image
+- 9 blog articles with fixed slugs (all point to same slug - data quality issue)
+- Blog categories with icons (Tokenization, InfraFund, Industry, Impact, Research, Case Study)
+- Image assets in `/public/image/`
+
+**Constants &amp; Types:**
+- Likely stored in `/src/constants/`, `/src/types/`, `/src/schema/`
+
+---
+
+### 9. **Tailwind &amp; Styling Setup**
+
+**Tailwind Configuration:**
+- Tailwind CSS 4 with PostCSS v4 plugin
+- `postcss.config.mjs`:
+```javascript
+const config = {
+  plugins: ['@tailwindcss/postcss']
+};
+```
+- Custom CSS likely in `globals.css`
+- Custom colors used: `#24FF8E`, `#263247`, etc. (not inspected)
+- Extensive use of arbitrary values and dark theme
+
+---
+
+### 10. **Project Structure Summary**
+
+```
+landing-pro/
+├── src/
+│   ├── app/                 # Next.js 15 app router
+│   │   ├── api/            # Backend proxy routes
+│   │   ├── about-us/
+│   │   ├── blog/
+│   │   ├── builders/
+│   │   ├── Investors/
+│   │   ├── project/
+│   │   ├── [static pages]
+│   │   └── layout.tsx      # Root layout with reCAPTCHA script
+│   │
+│   ├── component/          # 53 components
+│   │   ├── ui/            # Custom UI: button, modal, form-input, accordion, etc.
+│   │   ├── about-us/      # About page components
+│   │   ├── blog/          # Blog listing &amp; display
+│   │   ├── builders/      # Builders page with diagrams
+│   │   ├── contactus/     # Contact form components
+│   │   ├── animations/    # Reusable animations
+│   │   └── [single-file components]
+│   │
+│   ├── lib/               # apiCaptcha wrapper
+│   ├── services/          # apiService (generic HTTP)
+│   ├── utils/             # recaptcha, axios config, get-server-url, get-access-token
+│   ├── hooks/             # useFadeInScroll, others
+│   ├── data/              # blog.ts (hardcoded content)
+│   ├── constants/
+│   ├── stores/            # Zustand stores
+│   ├── schema/            # Zod schemas
+│   ├── types/
+│   └── middleware.ts      # pathname header injection
+│
+├── public/
+│   ├── image/            # Blog, hero images
+│   ├── svg/              # Logo, icons
+│   └── font/
+│
+├── package.json
+├── tsconfig.json
+├── next.config.ts        # Standalone output
+├── postcss.config.mjs
+└── .env.local           # Environment config
+```
+
+---
+
+### 11. **Technology Stack Summary**
+
+| Aspect | Landing-Pro | Front-Pro | Compatible? |
+|--------|------------|-----------|-------------|
+| **Next.js** | 15.5.7 | 15.4.4 | ✅ Minor version difference |
+| **React** | 19.1.2 | 18.3.1 | ❌ **Major version mismatch** |
+| **TypeScript** | 5.x | 5.x | ✅ |
+| **Tailwind** | 4 | 4 | ✅ |
+| **State Management** | Zustand | Jotai | ❌ Different |
+| **Web3** | None | Openfort, Wagmi, Viem | ❌ Incompatible |
+| **HTTP** | Axios | TanStack Query | ❌ Different patterns |
+| **UI Library** | Custom components | Custom components | ⚠️ Different APIs |
+| **Animations** | GSAP | (not apparent) | ❌ Different approach |
+
+---
+
+### 12. **Merge Assessment**
+
+#### **What landing-pro is:**
+- **Marketing/public-facing site** (homepage, blog, about, FAQ)
+- **Survey/questionnaire system** (multi-step form for signup)
+- **Waitlist management** (reCAPTCHA-protected signup)
+- **Informational pages** (Risk warning, Terms, Privacy for users)
+
+#### **What front-pro is:**
+- **Authenticated dashboard** (KYC, investment management, tokenization)
+- **Web3 integrated** (Openfort wallets, token swaps, blockchain interaction)
+- **Internal tool** (project creation, investor management, asset management)
+
+#### **Merge Feasibility: ⚠️ CHALLENGING**
+
+**Major Conflicts:**
+1. **React Version Mismatch**: Landing uses React 19, front-pro uses React 18
+   - Cannot mix major versions in single app
+   - Would require downgrading landing-pro OR upgrading front-pro fully
+   
+2. **Incompatible Dependencies**:
+   - landing-pro: Zustand, Axios, GSAP, FullCalendar, Zod
+   - front-pro: Jotai, TanStack Query, Openfort SDK
+   - These would coexist but complicate maintenance
+
+3. **Different Architecture Patterns**:
+   - Landing-pro: Server-side API proxy in `/api/`
+   - Front-pro: Likely direct API calls with TanStack Query
+   - Would need unified HTTP layer
+
+4. **Header/Navigation Completely Different**:
+   - Marketing header vs. authenticated dashboard header
+   - Would need conditional rendering and routing logic
+
+5. **Authentication Context**:
+   - Landing-pro: localStorage tokens + reCAPTCHA
+   - Front-pro: Openfort + backend auth (likely)
+   - Session management patterns likely incompatible
+
+---
+
+### **Recommendation: CONDITIONAL MERGE**
+
+**Option A: Merge if feasible (requires work):**
+- ✅ **Feasible**: Keeping blog, about, FAQ, policy pages from landing-pro
+- ✅ **Feasible**: Migrating signup/questionnaire flow to front-pro
+- ❌ **NOT feasible**: Merging as single monorepo without version conflicts
+- **Action**: Migrate specific components, not entire codebase
+
+**Option B: Keep Separate (recommended):**
+- Landing-pro: Public marketing site (independent deployment)
+- Front-pro: Dashboard app (independent deployment)
+- **Rationale**: Different React versions, target audiences, deployment patterns
+- Use shared: Blog content (via API), brand assets (CDN)
+
+**Option C: Create Bridge Solution:**
+- Keep both as separate deployments
+- Add routes in front-pro for:
+  - `/about` → iframe landing-pro
+  - `/blog` → iframe landing-pro
+  - `/faq` → iframe landing-pro
+- Pros: No version conflicts, independent scaling
+- Cons: Slight UX friction from domain switching
+
+---
+
+### **Final File Summary**
+
+**Landing-Pro Key Paths:**
+- `/home/sum/DEV/ETH/InfraFund/landing-pro/src/app/page.tsx` - Homepage (7 sections)
+- `/home/sum/DEV/ETH/InfraFund/landing-pro/src/component/header.tsx` - Marketing header
+- `/home/sum/DEV/ETH/InfraFund/landing-pro/src/component/SurveyOnlyForm.tsx` - Main signup form (1,186 lines)
+- `/home/sum/DEV/ETH/InfraFund/landing-pro/src/services/apiService.ts` - Generic HTTP layer
+- `/home/sum/DEV/ETH/InfraFund/landing-pro/src/lib/apiCaptcha.ts` - reCAPTCHA wrapper
+- `/home/sum/DEV/ETH/InfraFund/landing-pro/src/utils/recaptcha.ts` - reCAPTCHA v3 execution
+- `/home/sum/DEV/ETH/InfraFund/landing-pro/src/data/blog.ts` - Blog data (9 posts)
+
+**Complexity Metrics:**
+- **Total components**: 53 (custom UI, page components, forms)
+- **Total files**: 106 TypeScript/TSX files
+- **API routes**: 4 endpoints (contact, waitlist, non-resident individual/company)
+- **Pages**: 11 public routes + blog dynamic route</result>
+<usage><total_tokens>48938</total_tokens><tool_uses>41</tool_uses><duration_ms>98826</duration_ms></usage>
+</task-notification>
