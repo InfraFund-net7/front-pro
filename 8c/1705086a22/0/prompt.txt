@@ -1,0 +1,7 @@
+can you write the plan to `docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding.md` and mark `docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md` as superseeded
+
+then commit and push it all
+
+---
+
+does the plan in the task file include everyting and all context so we can start implementing it with just starting off blnak with that document ? It does not need to contain all document content, especially if longer but a reference to find more on a certain topic shpuld we run into problems at a certain stage would be nice. You also may want to mention that there is a `openfort-docs` MCP , however that it also already referenced in the openfort SKILL.md
