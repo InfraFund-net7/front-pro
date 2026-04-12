@@ -1,0 +1,5 @@
+i have implemented the tasks in @docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding.md , please review
+
+---
+
+can you write the issues which need attention into `@docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding-review.md` then fix , commit and push the obvious issues. commit and push. thereafter i will look at the remaining issues and provide feedback
