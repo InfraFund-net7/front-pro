@@ -1,3 +1,5 @@
+<!-- cspell:words Solana solana OFSDK myapp SIWE Supabase signup -->
+
 # Openfort Embedded Wallet Setup
 
 Embedded wallets provide a seamless experience by abstracting away wallet management. Users interact with your app without needing to understand private keys, seed phrases, or blockchain concepts.
