@@ -37,6 +37,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   }, [isOpenfortLoading, isPublicRoute, pathname, router, status]);
 
   const isCreatingWallet = status === 'creating_wallet';
+  const isAwaitingOnboarding = status === 'needs_onboarding';
   const showPublicAuthLoading =
     isOpenfortLoading ||
     (isOpenfortAuthenticated && (status === 'idle' || status === 'loading'));
@@ -61,7 +62,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               message={error || 'Unable to continue.'}
               onRetry={retry}
             />
-          ) : (
+          ) : isAwaitingOnboarding ? null : (
             children
           )}
         </div>

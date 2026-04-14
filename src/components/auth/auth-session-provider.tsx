@@ -1,7 +1,7 @@
 'use client';
 
 import type { User } from '@openfort/openfort-js';
-import { RecoveryMethod, useSignOut, useUser } from '@openfort/react';
+import { RecoveryMethod, useSignOut, useUI, useUser } from '@openfort/react';
 import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
 import {
   checkOpenfortUser,
@@ -78,6 +78,7 @@ function normalizeRole(role: QualificationSubmission['role']) {
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
   const { signOut } = useSignOut();
+  const { close: closeOpenfortModal } = useUI();
   const { create, wallets } = useEthereumEmbeddedWallet();
   const openfortUserId = user?.id ?? null;
   const [status, setStatus] = useState<AppSessionStatus>('idle');
@@ -96,6 +97,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     user: BackendMeResponse;
   } | null>(null);
   const previousAuthState = useRef(false);
+  const bootstrapAttemptKeyRef = useRef<string | null>(null);
 
   const clearSession = useCallback(() => {
     setBackendAccessToken(null);
@@ -103,11 +105,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setPendingOnboardingAccessToken(null);
     setPendingWalletCreation(null);
     setError(null);
+    bootstrapAttemptKeyRef.current = null;
     clearOnboardingDraft();
   }, []);
 
   const finalizeAuthenticatedSession = useCallback(
     (accessToken: string, currentUser: BackendMeResponse) => {
+      closeOpenfortModal();
       setBackendAccessToken(accessToken);
       setBackendUser(currentUser);
       setPendingOnboardingAccessToken(null);
@@ -116,7 +120,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       clearOnboardingDraft();
       setStatus('authenticated');
     },
-    []
+    [closeOpenfortModal]
   );
 
   const createWalletIfNeeded = useCallback(
@@ -173,6 +177,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       const checkResponse = await checkOpenfortUser(openfortAccessToken);
 
       if (!checkResponse.exists) {
+        closeOpenfortModal();
         setPendingOnboardingAccessToken(openfortAccessToken);
         setStatus('needs_onboarding');
         return;
@@ -189,6 +194,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [
     clearSession,
+    closeOpenfortModal,
     finalizeAuthenticatedSession,
     getAccessToken,
     openfortUserId,
@@ -267,6 +273,14 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setStatus('unauthenticated');
       return;
     }
+
+    const bootstrapAttemptKey = `${openfortUserId}:${retryCount}`;
+
+    if (bootstrapAttemptKeyRef.current === bootstrapAttemptKey) {
+      return;
+    }
+
+    bootstrapAttemptKeyRef.current = bootstrapAttemptKey;
 
     void bootstrapSession();
   }, [
