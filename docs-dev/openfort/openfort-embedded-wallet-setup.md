@@ -350,20 +350,27 @@ try OFSDK.initialize(thirdPartyAuth: .init(
 let sdk = OFSDK.shared
 
 // Authenticate
-try await sdk.logInWithEmailPassword(email: "user@example.com", password: "pass")
-try await sdk.initOAuth(provider: .google, redirectTo: "myapp://callback")
-
-// Configure embedded wallet (auto create or recover)
-let account = try await sdk.configureEmbeddedWallet(
-    chainId: 80002,
-    recoveryMethod: .automatic(encryptionSession: session)
+let response = try await sdk.logInWithEmailPassword(
+    params: OFLogInWithEmailPasswordParams(email: "user@example.com", password: "password")
 )
 
-// Get EIP-1193 provider
-let provider = try sdk.getEthereumProvider(policy: "pol_...")
+// OAuth
+let oauthResponse = try await sdk.initOAuth(
+    params: OFInitOAuthParams(provider: "google")
+)
 
-// Send transaction
-let txHash = try await provider.request(method: "eth_sendTransaction", params: [...])
+// Configure embedded wallet (auto create or recover)
+let account = try await sdk.configure(
+    params: OFEmbeddedAccountConfigureParams(
+        chainId: 80002,
+        recoveryParams: OFRecoveryParamsDTO(recoveryMethod: .automatic, encryptionSession: session)
+    )
+)
+
+// Sign a message
+let signature = try await sdk.signMessage(
+    params: OFSignMessageParams(message: "Hello, World!")
+)
 ```
 
 ---
@@ -394,11 +401,9 @@ var account = await sdk.ConfigureEmbeddedWallet(
     recoveryMethod: RecoveryMethod.Automatic,
     encryptionSession: session
 );
-
-// Get provider and send transaction
-var provider = sdk.GetEthereumProvider(policy: "pol_...");
-var txHash = await provider.Request("eth_sendTransaction", new object[] { txParams });
 ```
+
+> **Note:** The Unity SDK does not expose an EIP-1193 provider. Use the embedded wallet's signing methods directly, or bridge through a backend wallet for on-chain transactions.
 
 ---
 
