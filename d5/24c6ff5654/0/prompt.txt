@@ -1,5 +1,1 @@
-commit and push
-
----
-
-i just saw that all the PRs have been merged. Can we update our documents accordingly
+as we do not use Swift or Unity (afaik) in this project, we do not need to mention it anywhere, unless you fixed the skill itself , but for quite I while i do not see that we will need it
