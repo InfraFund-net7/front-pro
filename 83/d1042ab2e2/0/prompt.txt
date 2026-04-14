@@ -1,0 +1,12 @@
+openfort , the library we are using for account abstraction wallets got some error reports and PRs                                                                                                              
+   https://github.com/openfort-xyz/agent-skills/pulls                                                                                                                                                              
+   the skill we are using is in @.agents/skills/openfort/SKILL.md , however that looks like references to an MCP which would pull docs.                                                                            
+   Does the issue show up in the path we use , retrieving it with the openfort MCP or are the issues not relevant , or should we somehow include them into a local copy until the are officially merged ?
+
+---
+
+is any of our code here in the frontend repo or in the backend repo `../backpro` affected ?
+
+---
+
+can you fix the stale documentation/example
