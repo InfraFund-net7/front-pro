@@ -24,6 +24,7 @@ interface SurveyData {
   email: string;
   contact_fullname?: string;
   company_name?: string;
+  captcha_token?: string;
 }
 
 const getDomainCookie = (name: string): SurveyData | null => {
