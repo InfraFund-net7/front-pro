@@ -1,0 +1,112 @@
+the openfort backend is regarded as completed, what do we have to do now to get the frontend up and running and test the new 'openfort' integration - walk me through it, and do whatever you can do yourself
+
+---
+
+write it all in a new testplan document `docs-dev/tasks/v0.2.3-openfort-initial-testplan.md`
+what are the `SHIELD` env vars? where do i get them from >
+
+---
+
+i generated the keys with the openfort web interface
+NEXT_PUBLIC_SHIELD_API_KEY=pk_test_74********** (Project keys - Publishable key ?)  is this the same as `SHIELD_PUBLISHABLE_KEY` ?
+what do i set `NEXT_PUBLIC_BASE_URL=` to for local test
+
+---
+
+i think i have it now
+
+---
+
+ok, server is on 8080
+```
+$ go run ./cmd/api start --dotenv .env
+00:01:54 INF Initializing application environment=development
+00:01:54 INF API documentation enabled in development mode docs_path=/docs rest=fiber
+00:01:54 INF Application initialized successfully
+00:01:54 INF Starting application...
+00:01:54 INF Starting server port=8080 rest=fiber
+00:01:54 INF Server started successfully rest=fiber
+00:01:54 INF Application started and ready to accept connections
+```
+
+---
+
+do i need to append `v1`
+
+---
+
+ok, looks like the frontend is running , i tried to login just with email , but did not receive an email with the code
+
+---
+
+i cant remember that i have set anywhere the `project-id`
+also project keys on the dashboard also has Secret key , sk_test_********` but also i can not remember to have set that anywhere.
+is there a way to access the error messages or logs ?
+
+---
+
+just got the code - looks like it was just delayed !
+now i have the page `What brings you to Infrafund?` as background and a `create wallet` popup from openfort on top of it.
+Actually we wanted to chek if the user already exist, if yes then he is logged in right away , other wise we do the detour with the infrafund questionaire and only after the user qualified, create the wallet and the user account
+
+---
+
+actually you should check the `docs-dev/tasks/v0.2.2-*.md` documents
+
+---
+
+ok, will try, however i have more than ten like this in the browser console 
+```
+backend-auth-client.ts:120 
+ GET http://localhost:8080/v1/auth/openfort/check 401 (Unauthorized)
+request	@	backend-auth-client.ts:120
+checkOpenfortUser	@	backend-auth-client.ts:177
+(anonymous)	@	auth-session-provider.tsx:175
+```
+
+---
+
+i have now connect the frontend to "Browser MCP" , now you can see and check for yourself 
+these are identical, i just checked :
+•  frontend: NEXT_PUBLIC_OPENFORT_PUBLIC_KEY
+•  backend: INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY
+
+however, i have no idea if, where , how, or if i even should set project id , can you check the openfort docs if unsure - you have a skill for that (i think)
+
+---
+
+yes, check the backend
+i have many requests in the backend terminal
+```
+...
+est=fiber status=200 uri=/v1/auth/openfort/check
+00:23:54 INF request handled device=desktop duration_ms=360 method=GET platform="\"Linux\"" remote=127.0.0.1:33908 rest=fiber status=200 uri=/v1/auth/openfort/check
+00:23:54 INF request handled device=desktop duration_ms=360 method=GET platform="\"Linux\"" remote=127.0.0.1:33878 rest=fiber status=200 uri=/v1/auth/openfort/check
+00:23:54 INF request handled device=desktop duration_ms=352 method=GET platform="\"Linux\"" remote=127.0.0.1:38886 rest=fiber status=200 uri=/v1/auth/openfort/check
+00:23:54 INF request handled device=desktop duration_ms=353 method=GET platform="\"Linux\"" remote=127.0.0.1:33894 rest=fiber status=200 uri=/v1/auth/openfort/check
+00:23:54 INF request handled device=desktop duration_ms=349 method=GET platform="\"Linux\"" remote=127.0.0.1:33882 rest=fiber status=200 uri=/v1/auth/openfort/check
+00:27:44 INF request handled device=desktop duration_ms=0 method=POST platform="\"Linux\"" remote=127.0.0.1:48484 rest=fiber status=401 uri=/v1/auth/refresh
+00:27:45 INF request handled device= duration_ms=0 method=OPTIONS platform= remote=127.0.0.1:48500 rest=fiber status=204 uri=/v1/auth/openfort/check
+00:27:46 INF request handled device=desktop duration_ms=1051 method=GET platform="\"Linux\"" remote=127.0.0.1:48484 rest=fiber status=200 uri=/v1/auth/openfort/check
+```
+we also have a long list of tasks what we have done on the backend , if that helps `../backpro/docs-dev/tasks`
+
+---
+
+can you use the browser mcp to control the browser and take screenshots
+
+---
+
+do it
+
+---
+
+we have again the openfort wallet popup overlaying the questionaire, now that we apparently have an account (it shows a wallet address) we should not see the questionaire any more
+
+---
+
+now i can see the questionaire but the buttons do not works, try it yourself, also did not work after a page refresh
+
+---
+
+contine with the questionaire
