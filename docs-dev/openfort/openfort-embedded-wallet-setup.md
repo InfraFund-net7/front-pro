@@ -428,11 +428,20 @@ await openfort.waitForInitialization()
 ### Auth & Wallet
 
 ```typescript
+import { OAuthProvider, RecoveryMethod } from '@openfort/openfort-js'
+
 // Authenticate
 await openfort.auth.logInWithEmailPassword({ email: 'user@example.com', password: 'pass' })
 
 // Or OAuth
-const url = await openfort.auth.initOAuth({ provider: OAuthProvider.GOOGLE, redirectTo: '...' })
+const url = await openfort.auth.initOAuth({
+  provider: OAuthProvider.GOOGLE,
+  redirectTo: 'https://your-app.com/callback',
+  options: {
+    scopes: 'email profile',
+  },
+})
+window.location.href = url
 
 // Configure embedded wallet (auto create or recover)
 const account = await openfort.embeddedWallet.configure({
@@ -444,7 +453,9 @@ const account = await openfort.embeddedWallet.configure({
 })
 
 // Get EIP-1193 provider
-const provider = await openfort.embeddedWallet.getEthereumProvider({ policy: 'pol_...' })
+const provider = await openfort.embeddedWallet.getEthereumProvider({
+  feeSponsorship: 'pol_...',
+})
 
 // Send transaction
 const txHash = await provider.request({
