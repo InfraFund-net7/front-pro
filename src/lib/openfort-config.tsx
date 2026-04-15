@@ -18,6 +18,7 @@ const wagmiConfig = createConfig(
   getDefaultConfig({
     appName: 'InfraFund',
     chains: [baseSepolia, base],
+    ssr: true,
     ...(walletConnectProjectId ? { walletConnectProjectId } : {}),
   })
 );
