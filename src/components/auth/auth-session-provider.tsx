@@ -63,18 +63,6 @@ function clearOnboardingDraft() {
   }
 }
 
-function normalizeRole(role: QualificationSubmission['role']) {
-  if (role === 'client') {
-    return 'project_owner';
-  }
-
-  if (role === 'dao') {
-    return 'governance';
-  }
-
-  return role;
-}
-
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
   const { signOut } = useSignOut();
@@ -130,6 +118,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setPendingWalletCreation({ accessToken, user: currentUser });
 
       if (wallets.length > 0) {
+        console.info('[AuthSession] Wallet already exists, skipping creation.');
         finalizeAuthenticatedSession(accessToken, currentUser);
         return;
       }
@@ -142,7 +131,14 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         });
         finalizeAuthenticatedSession(accessToken, currentUser);
       } catch (walletError) {
-        setError(getErrorMessage(walletError));
+        const message = getErrorMessage(walletError);
+        if (/already exists|duplicate/i.test(message)) {
+          console.warn(
+            '[AuthSession] Possible duplicate wallet creation attempt.',
+            { error: message }
+          );
+        }
+        setError(message);
         setStatus('error');
       }
     },
@@ -215,7 +211,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         const loginResponse = await exchangeOpenfortSession(
           pendingOnboardingAccessToken,
           {
-            role: normalizeRole(role),
+            role,
             type,
             organization_name:
               type === 'organization' ? organizationName?.trim() : undefined,
