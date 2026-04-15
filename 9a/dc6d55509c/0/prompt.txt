@@ -1,0 +1,35 @@
+ok, opening localhost:3000 and i am immediately logged in , button shows account address
+
+if i go on account page there is a red error bubble
+```
+## Error Type
+Console TypeError
+
+## Error Message
+Failed to fetch
+
+
+    at _t (<anonymous>:1:64025)
+    at <unknown> (<anonymous>:1:68106)
+
+Next.js version: 15.5.15 (Webpack)
+```
+
+deleted my account > can we make both  [delete my account] buttons red , not green
+
+back on the "Welcome to Infrafund" home page , which has a red bubble error
+```
+## Error Type
+Console TypeError
+
+## Error Message
+Failed to fetch
+
+
+    at _t (<anonymous>:1:64025)
+    at <unknown> (<anonymous>:1:68106)
+
+Next.js version: 15.5.15 (Webpack)
+```
+
+other wise it looks good,
