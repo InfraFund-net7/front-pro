@@ -463,3 +463,7 @@ looks like everything is working !!
 - update the tasks document 
 - write release notes v0.3.0-openfort-integration.md 
 - push and commit everything
+
+---
+
+i deleted the test credentials file and the `test` folder
