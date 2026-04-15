@@ -19,6 +19,16 @@ export default function AccountPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [walletCheck, setWalletCheck] = useState(false);
+  const [dataCheck, setDataCheck] = useState(false);
+
+  const handleModalClose = () => {
+    if (isDeleting) return;
+    setConfirmOpen(false);
+    setWalletCheck(false);
+    setDataCheck(false);
+    setDeleteError(null);
+  };
 
   const displayName = [backendUser?.first_name, backendUser?.last_name]
     .filter(Boolean)
@@ -36,6 +46,7 @@ export default function AccountPage() {
 
     try {
       await deleteAccount();
+      window.location.replace('/');
     } catch {
       setDeleteError('Failed to delete account. Please try again.');
       setIsDeleting(false);
@@ -112,32 +123,72 @@ export default function AccountPage() {
       {/* Confirmation Modal */}
       <Modal
         isOpen={confirmOpen}
-        onClose={() => !isDeleting && setConfirmOpen(false)}
+        onClose={handleModalClose}
         ModalTitle="Delete Account"
       >
-        <p className="text-sm text-[#C7CAD5] mt-4">
-          Are you sure? This will permanently remove your account, embedded
-          wallet, and all data. You will not be able to recover it.
-        </p>
+        <div className="w-full mt-4 rounded-lg border border-[#7F1D1D] bg-[#1A1113]/60 px-4 py-3">
+          <p className="text-sm font-semibold text-red-400">
+            This action is permanent and cannot be undone.
+          </p>
+          <p className="text-sm text-[#C7CAD5] mt-1">
+            Please confirm what will be deleted:
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4 mt-6 w-full">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={walletCheck}
+              onChange={(e) => !isDeleting && setWalletCheck(e.target.checked)}
+              disabled={isDeleting}
+              className="mt-0.5 h-4 w-4 flex-shrink-0 accent-red-600 cursor-pointer"
+            />
+            <span className="text-sm text-[#C7CAD5]">
+              My embedded Openfort wallet will be{' '}
+              <span className="text-red-400 font-medium">
+                permanently deleted
+              </span>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={dataCheck}
+              onChange={(e) => !isDeleting && setDataCheck(e.target.checked)}
+              disabled={isDeleting}
+              className="mt-0.5 h-4 w-4 flex-shrink-0 accent-red-600 cursor-pointer"
+            />
+            <span className="text-sm text-[#C7CAD5]">
+              My InfraFund account and all associated data will be{' '}
+              <span className="text-red-400 font-medium">
+                permanently deleted
+              </span>
+            </span>
+          </label>
+        </div>
+
         {deleteError && (
-          <p className="text-sm text-red-400 mt-3">{deleteError}</p>
+          <p className="text-sm text-red-400 mt-4">{deleteError}</p>
         )}
+
         <div className="flex gap-4 mt-8 w-full">
           <CustomButton
             variant="canceled"
             className="flex-1"
-            onClick={() => setConfirmOpen(false)}
+            onClick={handleModalClose}
             disabled={isDeleting}
           >
             Cancel
           </CustomButton>
           <CustomButton
             variant="filled"
-            className="flex-1 bg-[#7F1D1D] border-[#7F1D1D] text-white hover:bg-[#991B1B] hover:border-[#991B1B]"
+            className="flex-1 bg-[#7F1D1D] border-[#7F1D1D] text-white hover:bg-[#991B1B] hover:border-[#991B1B] disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={handleConfirmDelete}
-            disabled={isDeleting}
+            disabled={!walletCheck || !dataCheck || isDeleting}
           >
-            {isDeleting ? 'Deleting…' : 'Confirm Delete'}
+            {isDeleting ? 'Deleting…' : 'Delete My Account'}
           </CustomButton>
         </div>
       </Modal>
