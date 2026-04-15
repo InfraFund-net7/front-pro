@@ -111,11 +111,7 @@ export default function AccountPage() {
           associated data from InfraFund and Openfort. This action cannot be
           undone.
         </p>
-        <CustomButton
-          variant="filled"
-          className="bg-[#7F1D1D] border-[#7F1D1D] text-white hover:bg-[#991B1B] hover:border-[#991B1B] active:bg-[#7F1D1D]"
-          onClick={() => setConfirmOpen(true)}
-        >
+        <CustomButton variant="danger" onClick={() => setConfirmOpen(true)}>
           Delete My Account
         </CustomButton>
       </div>
@@ -183,8 +179,8 @@ export default function AccountPage() {
             Cancel
           </CustomButton>
           <CustomButton
-            variant="filled"
-            className="flex-1 bg-[#7F1D1D] border-[#7F1D1D] text-white hover:bg-[#991B1B] hover:border-[#991B1B] disabled:opacity-40 disabled:cursor-not-allowed"
+            variant="danger"
+            className="flex-1"
             onClick={handleConfirmDelete}
             disabled={!walletCheck || !dataCheck || isDeleting}
           >
