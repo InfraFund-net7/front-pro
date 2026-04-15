@@ -1,32 +1,3 @@
-great, commit and push it.
-can we also move the v0.3.0 tag to the last commit once we have committed this update
-
----
-
-the frontend works fine, just shows one error as a red bubble, which gets me this when I click on it
-```
-## Error Type
-Console Error
-
-## Error Message
-Cannot update a component (`OpenfortWagmiBridge`) while rendering a different component (`Hydrate`). To locate the bad setState() call inside `Hydrate`, follow the stack trace as described in https://react.dev/link/setstate-in-render
-
-
-    at AppProviders (src/lib/openfort-config.tsx:51:7)
-    at RootLayout (src/app/layout.tsx:19:9)
-
-## Code Frame
-  49 |   return (
-  50 |     <QueryClientProvider client={queryClient}>
-> 51 |       <WagmiProvider config={wagmiConfig}>
-     |       ^
-  52 |         <OpenfortWagmiBridge>
-  53 |           <OpenfortProvider
-  54 |             publishableKey={publishableKey}
-
-Next.js version: 15.5.15 (Webpack)
-```
-
----
-
-I had a lot of problems like this in a previous project and do not see much advantage of SSR . Can we not use it anywhere ? Would that be a major change ? For now your fix looks like it is working , but in general I am not a big fan of SSR anyway.
+commit the fix for the wagmi SSR hydration issue which seems to work, move again the v0.3.0 tag after the commit to the latest.
+push it all - commit + tag
+create a new v0.3.1-no-SSR.md task , so we can pick up the task at a later time again
