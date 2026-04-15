@@ -1,7 +1,7 @@
 'use client';
 
 import { clearParticleAuthOk } from '@/lib/particle-session-memory';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   useAccount,
   useDisconnect,
@@ -34,6 +34,14 @@ function ParticleLoginContent({
     isConnected && connectorType === 'particleAuth' && Boolean(address);
   const isOtherWallet =
     isConnected && connectorType !== undefined && !isParticleWallet;
+
+  // Auto-open the Particle modal as soon as the login page loads
+  useEffect(() => {
+    if (!isConnected) {
+      const timer = window.setTimeout(() => setOpenRef.current(true), 300);
+      return () => window.clearTimeout(timer);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSignInWithParticle = useCallback(async () => {
     if (isConnected) {
