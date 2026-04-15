@@ -136,10 +136,10 @@ export default function Login() {
     if (isLoading || !isFullyVerified) {
       return;
     }
-    router.replace('/');
+    router.replace('/explore-projects');
     const fallback = window.setTimeout(() => {
       if (pathname?.includes('/login')) {
-        window.location.assign('/');
+        window.location.assign('/explore-projects');
       }
     }, 2500);
     return () => window.clearTimeout(fallback);
