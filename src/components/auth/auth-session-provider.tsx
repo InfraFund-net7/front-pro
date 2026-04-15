@@ -161,9 +161,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       const refreshedSession = await refreshBackendSession().catch(() => null);
 
       if (refreshedSession) {
-        const me = await getBackendMe(refreshedSession.access_token);
-        finalizeAuthenticatedSession(refreshedSession.access_token, me);
-        return;
+        try {
+          const me = await getBackendMe(refreshedSession.access_token);
+          finalizeAuthenticatedSession(refreshedSession.access_token, me);
+          return;
+        } catch {
+          // Refresh token was valid but user is inaccessible (e.g. soft-deleted).
+          // Clear the stale cookie and fall through to Openfort re-auth.
+          await logoutBackendSession().catch(() => undefined);
+        }
       }
 
       const openfortAccessToken = await getAccessToken();
@@ -186,7 +192,10 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
       finalizeAuthenticatedSession(loginResponse.access_token, me);
     } catch (sessionError) {
-      clearSession();
+      setBackendAccessToken(null);
+      setBackendUser(null);
+      setPendingOnboardingAccessToken(null);
+      setPendingWalletCreation(null);
       setError(getErrorMessage(sessionError));
       setStatus('error');
     }
