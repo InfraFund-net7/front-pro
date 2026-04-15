@@ -11,12 +11,14 @@ import { AuthSessionProvider } from '@/components/auth/auth-session-provider';
 const publishableKey = process.env.NEXT_PUBLIC_OPENFORT_PUBLIC_KEY;
 const shieldPublishableKey = process.env.NEXT_PUBLIC_SHIELD_API_KEY;
 
+const walletConnectProjectId =
+  process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || undefined;
+
 const wagmiConfig = createConfig(
   getDefaultConfig({
     appName: 'InfraFund',
     chains: [baseSepolia, base],
-    walletConnectProjectId:
-      process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '',
+    ...(walletConnectProjectId ? { walletConnectProjectId } : {}),
   })
 );
 

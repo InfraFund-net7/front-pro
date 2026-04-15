@@ -58,6 +58,10 @@ const Landmark = dynamic(
 const IdCard = dynamic(() => import('lucide-react').then((mod) => mod.IdCard), {
   ssr: false,
 });
+const UserCircle = dynamic(
+  () => import('lucide-react').then((mod) => mod.UserCircle),
+  { ssr: false }
+);
 
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 
@@ -101,6 +105,7 @@ function getNavigationItems(model: 'client' | 'full' = 'client') {
     { title: 'Explore Projects', url: '/explore-projects', icon: Compass },
     { title: 'Swap', url: '/swap', icon: ArrowUpDown },
     { title: 'KYC', url: '/kyc', icon: FileText },
+    { title: 'Account', url: '/account', icon: UserCircle },
   ];
 
   const clientItems: NavigationItem[] = [
@@ -126,6 +131,7 @@ function getNavigationItems(model: 'client' | 'full' = 'client') {
       icon: Landmark,
       isDisabled: true,
     },
+    { title: 'Account', url: '/account', icon: UserCircle },
   ];
 
   return model === 'client' ? clientItems : fullItems;
