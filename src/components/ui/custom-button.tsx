@@ -4,7 +4,7 @@ import type React from 'react';
 
 interface CustomButtonProps {
   children: React.ReactNode;
-  variant?: 'filled' | 'outlined' | 'canceled';
+  variant?: 'filled' | 'outlined' | 'canceled' | 'danger';
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
@@ -31,6 +31,9 @@ export function CustomButton({
     }`,
     canceled: `bg-card-cancel text-primary border-card-cancel hover:bg-card-cancel-hover hover:text-black active:bg-card-cancel-active active:text-black ${
       disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+    }`,
+    danger: `bg-[#7F1D1D] text-white border-[#7F1D1D] hover:bg-[#991B1B] hover:border-[#991B1B] active:bg-[#7F1D1D] active:border-[#7F1D1D] ${
+      disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
     }`,
   };
 
