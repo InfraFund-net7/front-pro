@@ -1,0 +1,184 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "84c483bdac8d",
+  "session_id": "1bf942d9-2aac-4ae9-9076-ef709c568258",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-15T12:06:15.528149252Z",
+  "branch": "openfort",
+  "checkpoints_count": 17,
+  "files_touched": [
+    "config-operation/environment-variables.md",
+    "docs-dev/release-notes/v0.3.0-openfort-integration.md",
+    "docs-dev/tasks/v0.2.5-openfort-frontend-implementation-review-fix.md",
+    "src/app/account/page.tsx",
+    "src/components/account/account-page.tsx",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/components/header.tsx",
+    "src/components/sidebar.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/lib/openfort-config.tsx"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "claude-sonnet-4-6",
+  "turn_id": "650c46e535cc",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-15T12:06:15.489411898Z",
+    "agent_lines": 251,
+    "agent_removed": 3,
+    "human_added": 0,
+    "human_modified": 2,
+    "human_removed": 48,
+    "total_committed": 253,
+    "total_lines_changed": 304,
+    "agent_percentage": 83.55263157894737,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 59,
+      "user_lines_removed": 48,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "config-operation/environment-variables.md": 51,
+        "docs-dev/test/openfort-test-credentials.md": 8
+      },
+      "user_removed_per_file": {
+        "config-operation/environment-variables.md": 48
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 59,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 59,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 59,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 59,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 244,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 244,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 244,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 244,
+      "agent_lines_removed": 48
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 248,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 11,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 248,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 12,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 255,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 13,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 255,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 14,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 255,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 15,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 255,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 16,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 255,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 17,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 255,
+      "agent_lines_removed": 50
+    },
+    {
+      "checkpoint_number": 18,
+      "user_lines_added": 0,
+      "user_lines_removed": 8,
+      "agent_lines_added": 360,
+      "agent_lines_removed": 51,
+      "user_removed_per_file": {
+        "docs-dev/test/openfort-test-credentials.md": 8
+      }
+    }
+  ]
+}
