@@ -223,6 +223,7 @@ export function QualificationQuestionnaire({
       }
     } else {
       if (!draft.organizationName.trim()) {
+        updateDraft({ step: 2 });
         setLocalError('Company name is required for organization onboarding.');
         return;
       }

@@ -181,7 +181,9 @@
     "sherv",
     "Solardeveloper",
     "viem",
-    "wagmi"
+    "wagmi",
+    "backpro",
+    "recaptcha"
   ],
   "ignorePaths": ["node_modules", "build", ".next"],
   "files": ["**/*.{js,jsx,ts,tsx,md}"]

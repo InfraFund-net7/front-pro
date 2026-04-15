@@ -15,18 +15,12 @@ interface BackendCountriesResponse {
 }
 
 interface BackendCountryRecord {
-  ID?: number;
-  id?: number;
-  Name?: string;
-  name?: string;
-  Iso?: string;
-  iso?: string;
-  Iso3?: string;
-  iso3?: string;
-  Code?: number;
-  code?: number;
-  PhoneCode?: number;
-  phone_code?: number;
+  ID: number;
+  Name: string;
+  Iso: string;
+  Iso3: string;
+  Code: number;
+  PhoneCode: number;
 }
 
 export interface CountryOption {
@@ -89,11 +83,7 @@ interface ErrorResponse {
 }
 
 function getApiBaseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    ''
-  ).replace(/\/+$/, '');
+  return (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/+$/, '');
 }
 
 function buildUrl(path: string) {
@@ -144,32 +134,12 @@ async function request<T>(
 
 function normalizeCountry(country: BackendCountryRecord): CountryOption {
   return {
-    id: Number(country.ID ?? country.id ?? 0),
-    name: String(country.Name ?? country.name ?? ''),
-    iso:
-      typeof country.Iso === 'string'
-        ? country.Iso
-        : typeof country.iso === 'string'
-          ? country.iso
-          : undefined,
-    iso3:
-      typeof country.Iso3 === 'string'
-        ? country.Iso3
-        : typeof country.iso3 === 'string'
-          ? country.iso3
-          : undefined,
-    code:
-      typeof country.Code === 'number'
-        ? country.Code
-        : typeof country.code === 'number'
-          ? country.code
-          : undefined,
-    phoneCode:
-      typeof country.PhoneCode === 'number'
-        ? country.PhoneCode
-        : typeof country.phone_code === 'number'
-          ? country.phone_code
-          : undefined,
+    id: country.ID,
+    name: country.Name,
+    iso: country.Iso,
+    iso3: country.Iso3,
+    code: country.Code,
+    phoneCode: country.PhoneCode,
   };
 }
 
