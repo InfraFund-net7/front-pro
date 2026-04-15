@@ -1,0 +1,485 @@
+i asked the backend team what need to be done for openfort configuration on the backend side. They came back that nothing is needed on the backend but made same valuable comments what to look out for on the frontend side , like CSP config. Read that (below) and update the file if they mentioned anything missing or worth adding.
+---
+2. Server-Side Configuration for Google, Apple, Passkey Auth
+
+    Short answer: No server-side code changes are needed on your Go backend. These are all
+    client-side (frontend) + Openfort dashboard configurations. Your backend already passes
+    INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY and validates JWTs — that's all it needs.
+
+    Here's what's required per provider:
+
+    Auth Method      │ Where to Configure           │ Server-Side Action          
+    -----------------+------------------------------+-----------------------------
+    **Google OAuth** │ 1. Google Cloud Console →    │ **None** — your backend just
+                     │ create OAuth client ID +     │ receives the JWT
+                     │ secret 2. Openfort Dashboard │
+                     │ → Providers → add Google     │
+                     │ credentials + redirect URL   │
+    **Apple OAuth**  │ 1. Apple Developer Console → │ **None** — your backend just
+                     │ App ID, Services ID, signing │ receives the JWT
+                     │ key 2. Openfort Dashboard →  │
+                     │ Providers → add Apple        │
+                     │ credentials + redirect URL   │
+    **Passkey**      │ Frontend `OpenfortProvider`  │ **None** — passkeys are
+                     │ config → set                 │ WebAuthn, handled entirely
+                     │ `walletRecovery.defaultMetho │ client-side via Openfort SDK
+                     │ d:                           │
+                     │ RecoveryMethod.PASSKEY`      │
+
+    Important: the feature branch deployment does need one Openfort dashboard change — you must add
+     the feature deployment's domain (or IP:port) to the Allowed Origins in your Openfort project's
+     security settings, and add the OAuth redirect URL. Without this, the publishable key won't
+    work on the feature instance and OAuth callbacks will fail.
+
+      Allowed Origins:  https://beta.infrafund.net, http://<feature-server-ip>:8081
+      OAuth Redirect:   https://beta.infrafund.net/auth/callback,
+      http://<feature-server-ip>:8081/auth/callback
+
+    Also note from the CSP docs: if your frontend enforces Content-Security-Policy, you'll need
+    frame-src https://embed.openfort.io and connect-src https://api.openfort.io 
+    https://shield.openfort.io — but this is a frontend concern, not your Go backend.
+
+    CSP headers (if backend serves frontend or sets headers)
+
+    If the Go API sets CSP headers, add these connect-src entries:
+    •  https://api.openfort.io
+    •  https://embed.openfort.io
+    •  https://shield.openfort.io
+
+    And frame-src https://embed.openfort.io for the Openfort embedded wallet iframe.
+
+    ──────────────────────────────────────────
+
+    Summary of work items:
+    1. Create deployer-feature.yml workflow
+    2. Create docker-compose-feature.yml
+    3. Add DOCKER_COMPOSE_PATH_FEATURE GitHub variable
+    4. In Openfort Dashboard: add feature instance origin to Allowed Origins + OAuth redirects
+    5. In Openfort Dashboard: configure Google + Apple providers (credentials + redirect URLs)
+    6. Frontend: add AuthProvider.GOOGLE, AuthProvider.APPLE to uiConfig.authProviders and set
+       RecoveryMethod.PASSKEY
+    7. (Optional later) nginx config for openfort.beta.infrafund.net domain
+
+---
+
+commit and push
+
+---
+
+i think i have done the setup "mainly" , skipped reCAPTCHA for now 
+do we still have a frontend dev server running ?
+
+---
+
+i think i did most of the config, just skipped reCAPTCH for now
+do we still have a frontend dev server running
+
+---
+
+can you kill it and let me know how we can run it best so we can monitor the output
+
+---
+
+i did `npm run dev > /tmp/front-pro-dev.log 2>&1 & tail -f /tmp/front-pro-dev.log` so you can access it as well
+```
+$ npm run dev > /tmp/front-pro-dev.log 2>&1 & tail -f /tmp/front-pro-dev.log
+[1] 1254132
+
+> front-pro@0.2.6 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/sum/DEV/ETH/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /home/sum/DEV/ETH/InfraFund/front-pro/package-lock.json
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.178.24:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1983ms
+```
+btw , do we have an endpoint so that a user can delete his account? During    
+   testing which i want to start soon, i now need to test the path of a new
+    user, so I need to remove the user , also for openfort (which may need 
+   some help from the frontend in `../front-pro)
+
+---
+
+actually , i was thinking about the option that a user , after successful login, can delete his own account
+
+---
+
+does our frontend have a 'user account' page ? if not then that would be a good addition, at at the bottom we would have a button [DELETE MY ACCOUNT]
+This is what we are going to implement on the backend now :
+```
+Add `DELETE /v1/me` endpoint for self-service account deletion
+
+    Summary
+
+    Add an authenticated endpoint that allows a logged-in user to
+    delete their own account. Uses the existing soft-delete pattern
+    (deleted_at) already present in the User entity.
+
+    Architecture (existing DDD layers)
+
+      Handler → AuthService → (UserRepo + SessionRepo + Openfort)
+
+    Changes by layer
+
+    1. SQL — 
+    `internal/infrastructure/persistence/postgres/queries/user.sql`
+
+    Add two queries:
+    •  SoftDeleteUser — sets deleted_at = NOW(), 
+       data_deletion_requested_at = NOW() by user ID
+    •  DeleteUserOrganization — deletes from user_organizations by user
+        ID
+
+    Then re-run sqlc generate.
+
+    2. Repository — `internal/domain/user/repository/user.go`
+
+    Add method to UserRepo interface:
+    •  SoftDelete(ctx, userID uuid.UUID) error
+
+    3. Postgres repo — 
+    `internal/infrastructure/persistence/postgres/user_repo.go`
+
+    Implement SoftDelete using the new sqlc query + org cleanup,
+    wrapped in a transaction.
+
+    4. Openfort client — `internal/infrastructure/external/openfort/`
+
+    Add a DeleteUser(ctx, openfortUserID string) error method that
+    calls the Openfort backend API (DELETE /iam/v1/users/{id}) with the
+     secret key. The Openfort JS SDK has deleteUserProject confirming
+    this API exists.
+
+    5. Auth service interface — `internal/domain/auth/service/auth.go`
+
+    Add method:
+    •  DeleteAccount(ctx, userID uuid.UUID) error
+
+    6. Auth service impl — `internal/application/auth/auth.go`
+
+    Implement DeleteAccount:
+    1. Fetch user by ID
+    2. Revoke all sessions (sessRepo.RevokeAllByUserID)
+    3. Soft-delete user + organization (userRepo.SoftDelete)
+    4. Call openfort.DeleteUser to remove Openfort-side identity
+    5. Steps 2-3 in a DB transaction; step 4 best-effort (log warning
+       on failure, don't block)
+
+    7. Handler — `internal/interfaces/rest/handler/auth.go`
+
+    Add DeleteAccount handler method — reads userID from auth context,
+    calls svc.DeleteAccount, returns success + clears refresh cookie.
+
+    8. Input/Output — `internal/interfaces/rest/input/auth.go` + 
+    `output/auth.go`
+    •  Input: reuse CurrentUserInput (no body needed)
+    •  Output: reuse LogoutOutput (success body + clear cookie)
+
+    9. Router — `internal/interfaces/rest/router/auth.go`
+
+    Register new route:
+
+    go
+      huma.Register(r.v1, huma.Operation{
+          OperationID: "DeleteAccount",
+          Summary:     "Delete account",
+          Description: "Soft-delete the current user's account and 
+      revoke all sessions",
+          Method:      fiber.MethodDelete,
+          Path:        "/me",
+          Tags:        []string{"Auth"},
+          Errors:      []int{500, 401},
+          Middlewares: huma.Middlewares{r.auth.Auth()},
+      }, ah.DeleteAccount)
+
+    Flow diagram
+
+    mermaid
+      sequenceDiagram
+          participant FE as Frontend
+          participant API as DELETE /v1/me
+          participant Auth as AuthService
+          participant DB as Postgres
+          participant OF as Openfort API
+
+          FE->>API: DELETE /v1/me (Bearer token)
+          API->>Auth: DeleteAccount(userID)
+          Auth->>DB: RevokeAllSessions(userID)
+          Auth->>DB: SoftDeleteUser(userID)
+          Auth->>DB: DeleteUserOrganization(userID)
+          Auth->>OF: DeleteUser(openfortUserID)
+          OF-->>Auth: OK (best-effort)
+          Auth-->>API: success
+          API-->>FE: 200 + Set-Cookie clear
+
+    Frontend (`../front-pro`)
+
+    No backend changes needed on the frontend — just call DELETE /v1/me
+     with the access token, then call openfort.auth.signOut() on the
+    Openfort SDK side to clear the client-side session state.
+
+    Notes
+    •  Soft-delete preserves audit trail; the
+       data_deletion_scheduled_at field can be used later for a GDPR
+       purge cron job
+    •  Openfort deletion is best-effort — if it fails we log but don't
+       roll back the local deletion (the user can no longer log in
+       anyway)
+    •  Existing deleted_at IS NULL filters in all read queries already
+       exclude soft-deleted users
+```
+
+---
+
+message from backend :
+Implemented DELETE /v1/me: it revokes all sessions, soft-deletes the 
+   local user, clears the refresh cookie, and frees the deleted user’s 
+   email/phone/Openfort ID so the same person can go through the 
+   new-user path again.  
+   If INFRA_AUTH_OPENFORT_SECRET_KEY is set, the backend also 
+   best-effort deletes the Openfort user via DELETE /v2/users/{id}; on 
+   the frontend, call this endpoint after login and then 
+   openfort.auth.signOut() to clear client state.  
+   Verified with make sqlc, make mock, make fmt, make test-unit, make 
+   vet, make lint, and make build.
+
+i get a 404 on localhost:3000
+
+use `browser MCP` to inspect the browser and control it yourself, also read console errors
+
+---
+
+took 30 sec after hitting load url in the browser for first sign of life, now it is in an endless loop "checking your Openfor session ..."
+
+---
+
+still looping with /v1/auth/refresh > 404
+
+---
+
+try again to use 'browser MCP'
+
+---
+
+i saw this in the browser console - you should be able to get it yourself next time with browser MCP
+```
+(index):1 Access to fetch at 'https://api.web3modal.org/appkit/v1/config?projectId=183945e458dfaf4cd88359aa91237d2a&st=appkit&sv=html-core-1.7.8' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+openfort-config.tsx:14  GET https://api.web3modal.org/appkit/v1/config?projectId=183945e458dfaf4cd88359aa91237d2a&st=appkit&sv=html-core-1.7.8 net::ERR_FAILED 502 (Bad Gateway)
+fetchData @ FetchUtil.js:6
+get @ FetchUtil.js:24
+fetchProjectConfig @ ApiController.js:118
+fetchRemoteFeatures @ ConfigUtil.js:186
+initialize @ appkit-base-client.js:237
+await in initialize
+AppKitBaseClient @ appkit-base-client.js:219
+AppKit @ appkit-core.js:20
+createAppKit @ core.js:11
+initialize @ index.es.js:14
+await in initialize
+init @ index.es.js:14
+initProvider @ walletConnect.js:222
+await in initProvider
+getProvider @ walletConnect.js:239
+setup @ walletConnect.js:78
+setup @ createConfig.js:75
+eval @ createConfig.js:40
+createStoreImpl @ vanilla.mjs:23
+createStore @ vanilla.mjs:26
+createConfig @ createConfig.js:36
+(anonymous) @ openfort-config.tsx:14
+(app-pages-browser)/./src/lib/openfort-config.tsx @ layout.js:10630
+(anonymous) @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+(anonymous) @ webpack.js:1
+Promise.then
+eval @ next-flight-client-entry-loader.js?modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fnode_modules%2Fnext%2Fdist%2Fclient%2Fscript.js%22%2C%22ids%22%3A%5B%22*%22%5D%7D&modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fsrc%2Fapp%2Fglobals.css%22%2C%22ids%22%3A%5B%5D%7D&modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fsrc%2Fcomponents%2Fmain-layout.tsx%22%2C%22ids%22%3A%5B%22MainLayout%22%5D%7D&modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fsrc%2Flib%2Fopenfort-config.tsx%22%2C%22ids%22%3A%5B%22AppProviders%22%5D%7D&server=false!:7
+(app-pages-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-client-entry-loader.js?modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fnode_modules%2Fnext%2Fdist%2Fclient%2Fscript.js%22%2C%22ids%22%3A%5B%22*%22%5D%7D&modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fsrc%2Fapp%2Fglobals.css%22%2C%22ids%22%3A%5B%5D%7D&modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fsrc%2Fcomponents%2Fmain-layout.tsx%22%2C%22ids%22%3A%5B%22MainLayout%22%5D%7D&modules=%7B%22request%22%3A%22%2Fhome%2Fsum%2FDEV%2FETH%2FInfraFund%2Ffront-pro%2Fsrc%2Flib%2Fopenfort-config.tsx%22%2C%22ids%22%3A%5B%22AppProviders%22%5D%7D&server=false! @ layout.js:6265
+(anonymous) @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+__webpack_exec__ @ layout.js:10680
+(anonymous) @ layout.js:10681
+(anonymous) @ webpack.js:1
+(anonymous) @ layout.js:10682
+(anonymous) @ webpack.js:1
+(anonymous) @ layout.js:9
+ConfigUtil.js:190 [Reown Config] Failed to fetch remote project configuration. Using local/default values. TypeError: Failed to fetch
+    at fetchData (FetchUtil.js:6:28)
+    at FetchUtil.get (FetchUtil.js:24:32)
+    at Object.fetchProjectConfig (ApiController.js:118:36)
+    at Object.fetchRemoteFeatures (ConfigUtil.js:186:107)
+    at AppKit.initialize (appkit-base-client.js:237:98)
+```
+
+---
+
+many of these and the dev server console also shows errors in a loop
+```
+backend-auth-client.ts:110 
+ GET http://localhost:3000/v1/auth/openfort/check 404 (Not Found)
+backend-auth-client.ts:110 
+ POST http://localhost:3000/v1/auth/refresh 404 (Not Found)
+backend-auth-client.ts:110 
+ GET http://localhost:3000/v1/auth/openfort/check 404 (Not Found)
+backend-auth-client.ts:110 
+ POST http://localhost:3000/v1/auth/refresh 404 (Not Found)
+backend-auth-client.ts:110 
+ GET http://localhost:3000/v1/auth/openfort/check 404 (Not Found)
+backend-auth-client.ts:110 
+ POST http://localhost:3000/v1/auth/refresh 404 (Not Found)
+backend-auth-client.ts:110 
+ GET http://localhost:3000/v1/auth/openfort/check 404 (Not Found)
+backend-auth-client.ts:110 
+ POST http://localhost:3000/v1/auth/refresh 404 (Not Found)
+backend-auth-client.ts:110 
+ GET http://localhost:3000/v1/auth/openfort/check 404 (Not Found)
+backend-auth-client.ts:110 
+ POST http://localhost:3000/v1/auth/refresh 404 (Not Found)
+backend-auth-client.ts:110 
+ GET http://localhost:3000/v1/auth/openfort/check 404 (Not Found)
+backend-auth-client.ts:110 
+ POST http://localhost:3000/v1/auth/refresh 404 (Not Found)
+backend-auth-client.ts:110 
+ GET http://localhost:3000/v1/auth/openfort/check 404 (Not Found)
+request	@	backend-auth-client.ts:110
+checkOpenfortUser	@	backend-auth-client.ts:147
+(anonymous)	@	auth-session-provider.tsx:175
+await in (anonymous)		
+(anonymous)	@	auth-session-provider.tsx:299
+```
+
+---
+
+Ah - ok, a hard refresh in the browser helped !!!
+Everything worked fine.
+However , one issue:
+- i deleted my account
+- clicked to connect again and instead of being redirected to the user servey , i was right back it and the accounts page shows all the past details from the user questionaire.
+do we still have a session cookie are wasnt the user actually not deleted or didnt we ask the server about the user state - please investigate.
+
+---
+
+interestingly the Account page shows all my deatils, but the login button shows [Not Connected] - try browser MCP to get a screenshot
+
+---
+
+ok, i restarted the backend server
+
+---
+
+server said "21:36:10 WRN failed to delete openfort user after local account deletion error="openfort: secret key is required" business=auth REDACTED user_id=REDACTED"
+
+---
+
+shall I add `INFRA_AUTH_OPENFORT_SECRET_KEY=` to the server `.env` ?
+
+---
+
+started the backend again after setting the secret key
+hard  refresh of the browser and got in the console 
+```
+Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+banner.js:15  📦 Openfort React SDK  v1.0.12  ↗ openfort.io/docs
+hot-reloader-app.js:242 ./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in '/home/sum/DEV/ETH/InfraFund/front-pro/node_modules/@metamask/sdk/dist/browser/es'
+openfort-config.tsx:17 Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+VM15501:1 
+ POST https://cca-lite.coinbase.com/amp net::ERR_BLOCKED_BY_CLIENT
+VM15501:1 
+ POST https://cca-lite.coinbase.com/metrics net::ERR_BLOCKED_BY_CLIENT
+VM15501:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 
+{context: 'AnalyticsSDKApiError'}
+```
+
+---
+
+i logged in, did the questionaire again , so it looks like the system thought i am a new user, but then the login button shows [not connected] 
+console shows this
+```
+VM18197:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 
+{context: 'AnalyticsSDKApiError'}
+VM18197:1 
+ POST https://cca-lite.coinbase.com/amp net::ERR_BLOCKED_BY_CLIENT
+VM18197:1 
+ POST https://cca-lite.coinbase.com/amp net::ERR_BLOCKED_BY_CLIENT
+VM18197:1 
+ POST https://cca-lite.coinbase.com/metrics net::ERR_BLOCKED_BY_CLIENT
+VM18197:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 
+{context: 'AnalyticsSDKApiError'}
+auth-session-provider.tsx:123 [AuthSession] Wallet already exists, skipping creation.
+```
+when i try to delete the user i still get on the backend 
+```
+21:40:00 INF Initializing application environment=development
+21:40:00 INF API documentation enabled in development mode docs_path=/docs rest=fiber
+21:40:00 INF Application initialized successfully
+21:40:00 INF Starting application...
+21:40:00 INF Starting server port=8080 rest=fiber
+21:40:00 INF Server started successfully rest=fiber
+21:40:00 INF Application started and ready to accept connections
+21:42:45 INF request handled device=desktop duration_ms=2 method=POST platform="\"Linux\"" remote=127.0.0.1:48194 rest=fiber status=401 uri=/v1/auth/refresh
+21:42:45 INF request handled device= duration_ms=0 method=OPTIONS platform= remote=127.0.0.1:48206 rest=fiber status=204 uri=/v1/auth/openfort/check
+21:42:46 INF request handled device=desktop duration_ms=1107 method=GET platform="\"Linux\"" remote=127.0.0.1:48194 rest=fiber status=200 uri=/v1/auth/openfort/check
+21:43:10 INF request handled device= duration_ms=0 method=OPTIONS platform= remote=127.0.0.1:50320 rest=fiber status=204 uri=/v1/auth/openfort/exchange
+21:43:11 INF request handled device=desktop duration_ms=395 method=POST platform="\"Linux\"" remote=127.0.0.1:50324 rest=fiber status=200 uri=/v1/auth/openfort/exchange
+21:43:11 INF request handled device= duration_ms=0 method=OPTIONS platform= remote=127.0.0.1:50320 rest=fiber status=204 uri=/v1/me
+21:43:11 INF request handled device=desktop duration_ms=1 method=GET platform="\"Linux\"" remote=127.0.0.1:50324 rest=fiber status=200 uri=/v1/me
+21:43:46 INF request handled device= duration_ms=0 method=OPTIONS platform= remote=127.0.0.1:50480 rest=fiber status=204 uri=/v1/me
+21:43:46 WRN openfort delete user failed body="{\n  \"error\": {\n    \"type\": \"invalid_request_error\",\n    \"message\": \"Project should be specified for this endpoint\"\n  }\n}" external=openfort REDACTED status=401
+21:43:46 WRN failed to delete openfort user after local account deletion error="openfort: delete user failed with status 401" business=auth REDACTED user_id=REDACTED
+21:43:46 INF request handled device=desktop duration_ms=323 method=DELETE platform="\"Linux\"" remote=127.0.0.1:50486 rest=fiber status=200 uri=/v1/me
+21:43:46 INF request handled device=desktop duration_ms=1 method=POST platform="\"Linux\"" remote=127.0.0.1:50486 rest=fiber status=401 uri=/v1/auth/logout
+21:43:47 INF request handled device=desktop duration_ms=0 method=POST platform="\"Linux\"" remote=127.0.0.1:50486 rest=fiber status=401 uri=/v1/auth/logout
+```
+
+---
+
+2. Openfort secret key — the error "Project should be specified for this endpoint" with 401 
+   means INFRA_AUTH_OPENFORT_SECRET_KEY has the wrong key.
+
+that looks correct , I had put the embedded wallet secret ket there not the secret key for the project. looks like i do not have access any more , need to regenerate it ...
+
+ok, great looks like i was able to delete the user , as i did not see the error on the backend console again !
+
+looks like everything is working !!
+
+## TASKS
+
+- update the tasks document 
+- write release notes v0.3.0-openfort-integration.md 
+- push and commit everything
+
+---
+
+i deleted the test credentials file and the `test` folder
+
+---
+
+tag the current version with v0.3.0 and push the tag
+
+---
+
+i have one issue. When I login as a mew user , it creates the wallet (it shows a popup for that) , and thereafter i have a connected wallet and the button shows a part of the address.
+Then i logout, and login again, which works but the button shows [not connected]
+
+---
+
+i have one issue. When I login as a mew user , it creates the wallet (it shows a popup for
+    that) , and thereafter i have a connected wallet and the button shows a part of the      
+   address.                                                                                  
+   Then i logout, and login again, which works but the button shows [not connected]
