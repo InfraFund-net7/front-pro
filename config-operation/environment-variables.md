@@ -143,7 +143,56 @@ authProviders: [AuthProvider.GOOGLE, AuthProvider.EMAIL_OTP, AuthProvider.APPLE]
 
 ---
 
-## Section 8: reCAPTCHA v3 Setup
+## Section 8: Passkey Setup
+
+Passkeys use WebAuthn and are handled entirely client-side via the Openfort SDK. No backend or Openfort Dashboard changes are required.
+
+Frontend change — in `src/lib/openfort-config.tsx`, set `defaultMethod` in the `shieldConfig` / wallet recovery block:
+
+```ts
+// BEFORE (current — automatic recovery only):
+recoveryMethod: RecoveryMethod.AUTOMATIC,
+
+// AFTER (adds passkey as the default recovery method):
+recoveryMethod: RecoveryMethod.PASSKEY,
+```
+
+`RecoveryMethod.PASSKEY` is already imported from `@openfort/react`. This is a one-field change in the `OpenfortProvider` config — no additional packages or dashboard steps needed.
+
+---
+
+## Section 9: Openfort Dashboard Security Settings
+
+Every deployment origin must be explicitly allowed in the Openfort Dashboard, or the publishable key will be rejected and OAuth callbacks will fail.
+
+**Openfort Dashboard > Project Settings > Security:**
+
+| Field | Value |
+|---|---|
+| Allowed Origins | `http://localhost:3000` (local), `https://beta.infrafund.net` (dev), `https://infrafund.net` (prod), `http://<feature-server-ip>:8081` (feature) |
+| OAuth Redirect URLs | `http://localhost:3000/auth/callback`, `https://beta.infrafund.net/auth/callback`, `https://infrafund.net/auth/callback`, `http://<feature-server-ip>:8081/auth/callback` |
+
+This must be updated every time a new deployment target is added (e.g. when a feature server spins up). Missing an origin produces an auth error on the client that looks like a publishable key mismatch.
+
+---
+
+## Section 10: Content Security Policy (CSP)
+
+If the frontend sets `Content-Security-Policy` headers (via `next.config.ts` or a reverse proxy), the following directives are required for Openfort to function:
+
+```
+frame-src https://embed.openfort.io;
+connect-src https://api.openfort.io https://embed.openfort.io https://shield.openfort.io;
+```
+
+- `frame-src https://embed.openfort.io` — required for the embedded wallet iframe
+- `connect-src` entries — required for SDK API calls to Openfort and Shield
+
+Without these, the embedded wallet will be blocked by the browser's CSP enforcement. These are frontend/proxy settings; the Go backend does not need changes unless it is the one serving CSP headers.
+
+---
+
+## Section 11: reCAPTCHA v3 Setup
 
 The reCAPTCHA code implementation is **already complete**:
 - `src/app/layout.tsx` — conditionally loads the reCAPTCHA v3 script when site key is set
@@ -179,6 +228,6 @@ What's needed is purely configuration:
 
 ---
 
-## Section 9: Version Bump Note
+## Section 12: Version Bump Note
 
 Once all N1–N7 items from `docs-dev/tasks/v0.2.5-openfort-frontend-implementation-review-fix.md` are resolved and verified, the `package.json` version is bumped from `0.1.0` to `0.2.6`.
