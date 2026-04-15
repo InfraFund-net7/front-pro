@@ -1,0 +1,53 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "d4c35c9c90d0",
+  "session_id": "2c814a63-f3e9-472c-8f74-a11c576e31ca",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-15T07:05:32.829866179Z",
+  "branch": "openfort",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs-dev/tasks/v0.2.4-openfort-frontend-implementation-review.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6",
+  "turn_id": "8b1be5cdfeeb",
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 109838,
+    "cache_read_tokens": 2599415,
+    "output_tokens": 26398,
+    "api_call_count": 32
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-15T07:05:32.813093427Z",
+    "agent_lines": 336,
+    "agent_removed": 0,
+    "human_added": 538,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 875,
+    "total_lines_changed": 875,
+    "agent_percentage": 38.4,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 337,
+      "agent_lines_removed": 0
+    }
+  ]
+}

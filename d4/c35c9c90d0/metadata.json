@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "d4c35c9c90d0",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs-dev/tasks/v0.2.4-openfort-frontend-implementation-review.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d4/c35c9c90d0/0/metadata.json",
+      "transcript": "/d4/c35c9c90d0/0/full.jsonl",
+      "content_hash": "/d4/c35c9c90d0/0/content_hash.txt",
+      "prompt": "/d4/c35c9c90d0/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 109838,
+    "cache_read_tokens": 2599415,
+    "output_tokens": 26398,
+    "api_call_count": 32
+  }
+}
