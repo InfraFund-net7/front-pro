@@ -1,0 +1,16 @@
+commit the fix for the wagmi SSR hydration issue which seems to work, move again the v0.3.0 tag after the commit to the latest.
+push it all - commit + tag
+create a new v0.3.1-no-SSR.md task , so we can pick up the task at a later time again
+
+---
+
+one more thing , when i click [Delete my Account] , i still looks like as if I am still logged in. The login button also still shows my wallet address.
+
+if i go onto `Account` it still shows my old account information
+
+Also , we should have a popup in red to ask the user to confirm account deletion.
+maybe we should even have 2 checks (and maybe even visualise this with 2 check boxes), that we delete the openfort wallet and also the backend server data. Once we have checked that both were deleted, we should make sure that all sessions , potialla cookies are deleted and redirect the user to the root.
+
+write these requirements in a new file `docs-dev/tasks/v0.2.8-openfort-account-deletion-confirmation.md
+
+once done, implement it
