@@ -19,6 +19,7 @@ const routeTitles: Record<string, string> = {
   '/asset-management': 'Asset Management',
   '/swap': 'Swap',
   '/kyc': 'KYC',
+  '/account': 'Account',
 };
 
 export default function Header() {

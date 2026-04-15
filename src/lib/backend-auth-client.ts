@@ -218,3 +218,10 @@ export async function logoutBackendSession() {
     method: 'POST',
   });
 }
+
+export async function deleteBackendAccount(accessToken: string) {
+  await request<null>('me', {
+    method: 'DELETE',
+    accessToken,
+  });
+}

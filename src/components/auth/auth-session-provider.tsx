@@ -5,6 +5,7 @@ import { RecoveryMethod, useSignOut, useUI, useUser } from '@openfort/react';
 import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
 import {
   checkOpenfortUser,
+  deleteBackendAccount,
   exchangeOpenfortSession,
   getBackendMe,
   logoutBackendSession,
@@ -44,6 +45,7 @@ interface AuthSessionContextValue {
   isOpenfortAuthenticated: boolean;
   error: string | null;
   retry: () => void;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthSessionContext = createContext<AuthSessionContextValue | null>(null);
@@ -241,6 +243,29 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setStatus('unauthenticated');
   }, [clearSession, signOut]);
 
+  const deleteAccount = useCallback(async () => {
+    setStatus('loading');
+    setError(null);
+
+    try {
+      if (backendAccessToken) {
+        await deleteBackendAccount(backendAccessToken);
+      }
+    } catch (deleteError) {
+      setError(getErrorMessage(deleteError));
+      setStatus('authenticated');
+      return;
+    }
+
+    await Promise.allSettled([
+      logoutBackendSession().catch(() => undefined),
+      signOut().catch(() => undefined),
+    ]);
+
+    clearSession();
+    setStatus('unauthenticated');
+  }, [backendAccessToken, clearSession, signOut]);
+
   const retry = useCallback(() => {
     if (pendingWalletCreation) {
       void createWalletIfNeeded(
@@ -313,6 +338,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isOpenfortAuthenticated: isAuthenticated,
       error,
       retry,
+      deleteAccount,
     }),
     [
       status,
@@ -323,6 +349,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isAuthenticated,
       error,
       retry,
+      deleteAccount,
     ]
   );
 
