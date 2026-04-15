@@ -1,0 +1,65 @@
+commit and push
+
+---
+
+i asked the backend team what need to be done for openfort configuration on the backend side. They came back that nothing is needed on the backend but made same valuable comments what to look out for on the frontend side , like CSP config. Read that (below) and update the file if they mentioned anything missing or worth adding.
+---
+2. Server-Side Configuration for Google, Apple, Passkey Auth
+
+    Short answer: No server-side code changes are needed on your Go backend. These are all
+    client-side (frontend) + Openfort dashboard configurations. Your backend already passes
+    INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY and validates JWTs — that's all it needs.
+
+    Here's what's required per provider:
+
+    Auth Method      │ Where to Configure           │ Server-Side Action          
+    -----------------+------------------------------+-----------------------------
+    **Google OAuth** │ 1. Google Cloud Console →    │ **None** — your backend just
+                     │ create OAuth client ID +     │ receives the JWT
+                     │ secret 2. Openfort Dashboard │
+                     │ → Providers → add Google     │
+                     │ credentials + redirect URL   │
+    **Apple OAuth**  │ 1. Apple Developer Console → │ **None** — your backend just
+                     │ App ID, Services ID, signing │ receives the JWT
+                     │ key 2. Openfort Dashboard →  │
+                     │ Providers → add Apple        │
+                     │ credentials + redirect URL   │
+    **Passkey**      │ Frontend `OpenfortProvider`  │ **None** — passkeys are
+                     │ config → set                 │ WebAuthn, handled entirely
+                     │ `walletRecovery.defaultMetho │ client-side via Openfort SDK
+                     │ d:                           │
+                     │ RecoveryMethod.PASSKEY`      │
+
+    Important: the feature branch deployment does need one Openfort dashboard change — you must add
+     the feature deployment's domain (or IP:port) to the Allowed Origins in your Openfort project's
+     security settings, and add the OAuth redirect URL. Without this, the publishable key won't
+    work on the feature instance and OAuth callbacks will fail.
+
+      Allowed Origins:  https://beta.infrafund.net, http://<feature-server-ip>:8081
+      OAuth Redirect:   https://beta.infrafund.net/auth/callback,
+      http://<feature-server-ip>:8081/auth/callback
+
+    Also note from the CSP docs: if your frontend enforces Content-Security-Policy, you'll need
+    frame-src https://embed.openfort.io and connect-src https://api.openfort.io 
+    https://shield.openfort.io — but this is a frontend concern, not your Go backend.
+
+    CSP headers (if backend serves frontend or sets headers)
+
+    If the Go API sets CSP headers, add these connect-src entries:
+    •  https://api.openfort.io
+    •  https://embed.openfort.io
+    •  https://shield.openfort.io
+
+    And frame-src https://embed.openfort.io for the Openfort embedded wallet iframe.
+
+    ──────────────────────────────────────────
+
+    Summary of work items:
+    1. Create deployer-feature.yml workflow
+    2. Create docker-compose-feature.yml
+    3. Add DOCKER_COMPOSE_PATH_FEATURE GitHub variable
+    4. In Openfort Dashboard: add feature instance origin to Allowed Origins + OAuth redirects
+    5. In Openfort Dashboard: configure Google + Apple providers (credentials + redirect URLs)
+    6. Frontend: add AuthProvider.GOOGLE, AuthProvider.APPLE to uiConfig.authProviders and set
+       RecoveryMethod.PASSKEY
+    7. (Optional later) nginx config for openfort.beta.infrafund.net domain
