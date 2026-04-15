@@ -1,53 +1,6 @@
-one more thing , when i click [Delete my Account] , i still looks like as if I am still logged in. The login button also still shows my wallet address.
+ok, opening localhost:3000 and i am immediately logged in , button shows account address
 
-if i go onto `Account` it still shows my old account information
-
-Also , we should have a popup in red to ask the user to confirm account deletion.
-maybe we should even have 2 checks (and maybe even visualise this with 2 check boxes), that we delete the openfort wallet and also the backend server data. Once we have checked that both were deleted, we should make sure that all sessions , potialla cookies are deleted and redirect the user to the root.
-
-write these requirements in a new file `docs-dev/tasks/v0.2.8-openfort-account-deletion-confirmation.md
-
-once done, implement it
-
----
-
-again i have a flicker screen, maybe kill and restart the server and clear the cache ?
-
----
-
-sorry , i should have done that as i started the server. stop/kill the last one on port 3001 , i will restart the one on 3000
-
----
-
-```
-$ npm run dev > /tmp/front-pro-dev.log 2>&1 & tail -f /tmp/front-pro-dev.log
-[1] 1752250
-
-> front-pro@0.2.6 dev
-> next dev
-
- ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of /home/sum/DEV/ETH/pnpm-lock.yaml as the root directory.
- To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
- Detected additional lockfiles: 
-   * /home/sum/DEV/ETH/InfraFund/front-pro/package-lock.json
-
- ⚠ Port 3000 is in use by an unknown process, using available port 3002 instead.
-   ▲ Next.js 15.5.15
-   - Local:        http://localhost:3002
-   - Network:      http://192.168.178.24:3002
-   - Environments: .env.local
-
- ✓ Starting...
- ✓ Ready in 1405ms
-```
-
-can you chekc the log , i opened a browsertab localhost:3000 and now i just have a blank sceen saying "Checking your Openfort session..."
-
----
-
-restarted on 3000 , and i flicker again 
+if i go on account page there is a red error bubble
 ```
 ## Error Type
 Console TypeError
@@ -61,9 +14,22 @@ Failed to fetch
 
 Next.js version: 15.5.15 (Webpack)
 ```
-many many messages like this on the backend server terminal
+
+deleted my account > can we make both  [delete my account] buttons red , not green
+
+back on the "Welcome to Infrafund" home page , which has a red bubble error
 ```
-23:54:06 INF request handled device=desktop duration_ms=7 method=POST platform="\"Linux\"" remote=127.0.0.1:45034 rest=fiber status=200 uri=/v1/auth/refresh
-23:54:06 INF request handled device=desktop duration_ms=0 method=GET platform="\"Linux\"" remote=127.0.0.1:45034 rest=fiber status=401 uri=/v1/me
-23:54:06 INF request handled device=desktop duration_ms=7 method=POST platform="\"Linux\"" remote=127.0.0.1:45034 rest=fiber status=200 uri=/v1/auth/refresh
+## Error Type
+Console TypeError
+
+## Error Message
+Failed to fetch
+
+
+    at _t (<anonymous>:1:64025)
+    at <unknown> (<anonymous>:1:68106)
+
+Next.js version: 15.5.15 (Webpack)
 ```
+
+other wise it looks good,
