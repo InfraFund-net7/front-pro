@@ -1,7 +1,3 @@
-commit and push
-
----
-
 i asked the backend team what need to be done for openfort configuration on the backend side. They came back that nothing is needed on the backend but made same valuable comments what to look out for on the frontend side , like CSP config. Read that (below) and update the file if they mentioned anything missing or worth adding.
 ---
 2. Server-Side Configuration for Google, Apple, Passkey Auth
