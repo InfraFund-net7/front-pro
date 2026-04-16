@@ -5,6 +5,8 @@ import MagicLink from '@/../public/assets/svg/magic-link.svg';
 import walletC from '@/../public/assets/svg/wallet-connect.svg';
 import metamask from '@/../public/assets/svg/meta-mask.svg';
 import aurox from '@/../public/assets/svg/aurox.svg';
+
+// Wallet connect component
 export default function WalletConnect() {
   const wallets = [
     {
