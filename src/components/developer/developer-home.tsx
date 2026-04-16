@@ -1,4 +1,4 @@
-import solar from '@/../public/assets/image/solar.jpg';
+import solar from '@public/assets/image/solar.jpg';
 import Image from 'next/image';
 export default function DeveloperHome() {
   return (

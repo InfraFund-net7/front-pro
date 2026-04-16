@@ -62,7 +62,7 @@ const LogOut = dynamic(() => import('lucide-react').then((mod) => mod.LogOut), {
   ssr: false,
 });
 
-import infrafund from '@/../public/assets/svg/infrafund.svg';
+import infrafund from '@public/assets/svg/infrafund.svg';
 
 interface NavigationItem {
   title: string;
