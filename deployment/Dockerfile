@@ -4,6 +4,11 @@ WORKDIR /app
 # Add libc6-compat for sharp/image optimization
 RUN apk add --no-cache libc6-compat
 
+# node:22-alpine ships npm 10; this lockfile is validated with npm 11 locally.
+# npm 10 `npm ci` can fail with "Missing: zod@3.25.76 from lock file" on nested
+# optional peers (wagmi / walletconnect). Use the same npm major as dev/CI lock authors.
+RUN npm install -g npm@11.6.1
+
 COPY package*.json package-lock.json* ./
 RUN npm ci --ignore-scripts
 
