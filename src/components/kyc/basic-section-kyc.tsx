@@ -5,7 +5,7 @@ import { FormInput } from '../ui/form-input';
 import { NationalitySelect } from '../ui/nationality-select';
 import { StepIndicator } from '../ui/step-indicator';
 import { CustomButton } from '../ui/custom-button';
-import bigtik from '@/../public/assets/svg/big-tik.svg';
+import bigtik from '@public/assets/svg/big-tik.svg';
 import Image from 'next/image';
 
 type BasicSectionProps = {
