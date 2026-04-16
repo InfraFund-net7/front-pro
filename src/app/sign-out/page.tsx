@@ -5,6 +5,9 @@ import { useDisconnect, useModal } from '@particle-network/connectkit';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useState } from 'react';
 
+const USER_ROLE_STORAGE_KEY = 'infrafund_user_role';
+const USER_ROLE_UPDATED_EVENT = 'infrafund:user-role-updated';
+
 export default function SignOutPage() {
   const router = useRouter();
   const { disconnectAsync } = useDisconnect();
@@ -15,6 +18,8 @@ export default function SignOutPage() {
     setBusy(true);
     try {
       clearParticleAuthOk();
+      localStorage.removeItem(USER_ROLE_STORAGE_KEY);
+      window.dispatchEvent(new Event(USER_ROLE_UPDATED_EVENT));
       setOpen(false);
       /**
        * Disconnect can leave ConnectKit in `reconnecting` for a long time; the
