@@ -1,6 +1,8 @@
 'use client';
 
 import { clearParticleAuthOk } from '@/lib/particle-session-memory';
+import { isRecentParticleAuthOk } from '@/lib/particle-session-memory';
+import { useParticleSessionGate } from '@/hooks/use-particle-session-gate';
 import React, { useCallback, useEffect, useRef } from 'react';
 import {
   useAccount,
@@ -19,6 +21,7 @@ function ParticleLoginContent({
   const { disconnect, disconnectAsync } = useDisconnect();
   const { needRestoreWallet } = useParticleAuth();
   const { setOpen } = useModal();
+  const { waitingForReconnectOrHydration } = useParticleSessionGate();
   const setOpenRef = useRef(setOpen);
   setOpenRef.current = setOpen;
 
@@ -37,11 +40,21 @@ function ParticleLoginContent({
 
   // Auto-open the Particle modal as soon as the login page loads
   useEffect(() => {
-    if (!isConnected) {
-      const timer = window.setTimeout(() => setOpenRef.current(true), 300);
-      return () => window.clearTimeout(timer);
+    /**
+     * Avoid reopening the login modal during the short reconnect/hydration window
+     * right after a successful auth (first-login race).
+     */
+    if (
+      status !== 'disconnected' ||
+      waitingForReconnectOrHydration ||
+      isRecentParticleAuthOk()
+    ) {
+      return;
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const timer = window.setTimeout(() => setOpenRef.current(true), 300);
+    return () => window.clearTimeout(timer);
+  }, [status, waitingForReconnectOrHydration]);
 
   const handleSignInWithParticle = useCallback(async () => {
     if (isConnected) {

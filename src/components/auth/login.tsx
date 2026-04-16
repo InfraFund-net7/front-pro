@@ -27,6 +27,9 @@ interface SurveyData {
   captcha_token?: string;
 }
 
+const USER_ROLE_STORAGE_KEY = 'infrafund_user_role';
+const USER_ROLE_UPDATED_EVENT = 'infrafund:user-role-updated';
+
 const getDomainCookie = (name: string): SurveyData | null => {
   if (typeof document === 'undefined') return null;
 
@@ -124,6 +127,10 @@ export default function Login() {
       };
 
       setSurveyData(payload);
+      if (payload.role.trim()) {
+        localStorage.setItem(USER_ROLE_STORAGE_KEY, payload.role.trim());
+        window.dispatchEvent(new Event(USER_ROLE_UPDATED_EVENT));
+      }
       clearDomainCookie('survey_data');
     } else {
       console.log('❌ No survey_data found in cookies.');
