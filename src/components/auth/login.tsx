@@ -11,7 +11,7 @@ import { useAccount } from '@particle-network/connectkit';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import CardView from '../ui/card-view';
-import infrafund from '@/../public/assets/svg/infrafund.svg';
+import infrafund from '@public/assets/svg/infrafund.svg';
 import Image from 'next/image';
 
 interface SurveyData {

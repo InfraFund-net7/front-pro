@@ -88,7 +88,7 @@ export default function Header() {
 
       // Prefer a friendly name from Particle user profile when available.
       try {
-        const info = (await Promise.resolve(getUserInfo())) as
+        const info = (await Promise.resolve(getUserInfo())) as unknown as
           | Record<string, unknown>
           | undefined;
         const profileName =

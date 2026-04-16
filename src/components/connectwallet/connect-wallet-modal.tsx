@@ -1,12 +1,12 @@
 'use client';
 
+import Image from 'next/image';
+import { useState } from 'react';
 import { Wallet, PlusCircle, KeySquare } from 'lucide-react';
+import AddWallet from '@public/assets/svg/add-wallet.svg';
 import { Modal } from '../ui/modal';
 import CardView from '../ui/card-view';
-import AddWallet from '@/../public/assets/svg/add-wallet.svg';
-import Image from 'next/image';
 import { CustomButton } from '../ui/custom-button';
-import { useState } from 'react';
 import WalletConnect from './wallet-connect';
 import NewWallet from './new-wallet';
 interface ConnectWalletProps {
