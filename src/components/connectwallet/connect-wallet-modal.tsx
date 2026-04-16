@@ -14,6 +14,7 @@ interface ConnectWalletProps {
   onClose: () => void;
 }
 
+// Connect wallet modal
 export function ConnectWallet({ isOpen, onClose }: ConnectWalletProps) {
   const [createwallet, setCreatewallet] = useState(false);
   const [addwallet, setAddwallet] = useState(false);
