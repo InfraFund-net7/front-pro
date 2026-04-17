@@ -26,6 +26,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { usePathname } from 'next/navigation';
+import { reportError } from '@/lib/error-reporting';
 
 type AppSessionStatus =
   | 'idle'
@@ -36,6 +38,8 @@ type AppSessionStatus =
   | 'unauthenticated'
   | 'error';
 
+type ErrorCategory = 'recoverable' | 'fatal';
+
 interface AuthSessionContextValue {
   status: AppSessionStatus;
   backendAccessToken: string | null;
@@ -44,6 +48,7 @@ interface AuthSessionContextValue {
   isOpenfortLoading: boolean;
   isOpenfortAuthenticated: boolean;
   error: string | null;
+  errorCategory: ErrorCategory | null;
   retry: () => void;
   deleteAccount: () => Promise<void>;
 }
@@ -57,6 +62,34 @@ function getErrorMessage(error: unknown) {
   }
 
   return 'Failed to initialize your session.';
+}
+
+function getUserFacingErrorMessage(message: string) {
+  if (/failed to establish iFrame connection/i.test(message)) {
+    return "We couldn't connect to the wallet service. Please check your connection and try again.";
+  }
+
+  if (/not logged in|session/i.test(message)) {
+    return 'Your session expired. Please sign in again.';
+  }
+
+  if (/failed to fetch|networkerror/i.test(message)) {
+    return 'We hit a network issue. Please try again.';
+  }
+
+  return 'Something went wrong. Please try again.';
+}
+
+function classifyError(message: string): ErrorCategory {
+  if (
+    /failed to fetch|networkerror|failed to establish iframe|timeout|temporarily|try again/i.test(
+      message
+    )
+  ) {
+    return 'recoverable';
+  }
+
+  return 'fatal';
 }
 
 function clearOnboardingDraft() {
@@ -79,7 +112,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     null
   );
   const [error, setError] = useState<string | null>(null);
+  const [errorCategory, setErrorCategory] = useState<ErrorCategory | null>(
+    null
+  );
   const [retryCount, setRetryCount] = useState(0);
+  const pathname = usePathname();
   const [pendingOnboardingAccessToken, setPendingOnboardingAccessToken] =
     useState<string | null>(null);
   const [pendingWalletCreation, setPendingWalletCreation] = useState<{
@@ -95,9 +132,26 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setPendingOnboardingAccessToken(null);
     setPendingWalletCreation(null);
     setError(null);
+    setErrorCategory(null);
     bootstrapAttemptKeyRef.current = null;
     clearOnboardingDraft();
   }, []);
+
+  const commitUserFacingError = useCallback((raw: string) => {
+    const userMessage = getUserFacingErrorMessage(raw);
+    setError(userMessage);
+    setErrorCategory(classifyError(raw));
+    return userMessage;
+  }, []);
+
+  const baseReportExtras = useCallback(
+    () => ({
+      route: pathname ?? null,
+      retryCount,
+      openfortUserId: openfortUserId ? openfortUserId.slice(-6) : null,
+    }),
+    [openfortUserId, pathname, retryCount]
+  );
 
   const finalizeAuthenticatedSession = useCallback(
     (accessToken: string, currentUser: BackendMeResponse) => {
@@ -107,6 +161,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setPendingOnboardingAccessToken(null);
       setPendingWalletCreation(null);
       setError(null);
+      setErrorCategory(null);
       clearOnboardingDraft();
       setStatus('authenticated');
     },
@@ -133,18 +188,32 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         });
         finalizeAuthenticatedSession(accessToken, currentUser);
       } catch (walletError) {
-        const message = getErrorMessage(walletError);
-        if (/already exists|duplicate/i.test(message)) {
+        const rawMessage = getErrorMessage(walletError);
+        reportError(walletError, {
+          area: 'wallet',
+          tags: { stage: 'create' },
+          extra: {
+            ...baseReportExtras(),
+            hasExistingWallet: wallets.length > 0,
+          },
+        });
+        if (/already exists|duplicate/i.test(rawMessage)) {
           console.warn(
             '[AuthSession] Possible duplicate wallet creation attempt.',
-            { error: message }
+            { error: rawMessage }
           );
         }
-        setError(message);
+        commitUserFacingError(rawMessage);
         setStatus('error');
       }
     },
-    [create, finalizeAuthenticatedSession, wallets.length]
+    [
+      baseReportExtras,
+      commitUserFacingError,
+      create,
+      finalizeAuthenticatedSession,
+      wallets.length,
+    ]
   );
 
   const bootstrapSession = useCallback(async () => {
@@ -161,9 +230,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       const refreshedSession = await refreshBackendSession().catch(() => null);
 
       if (refreshedSession) {
-        const me = await getBackendMe(refreshedSession.access_token);
-        finalizeAuthenticatedSession(refreshedSession.access_token, me);
-        return;
+        try {
+          const me = await getBackendMe(refreshedSession.access_token);
+          finalizeAuthenticatedSession(refreshedSession.access_token, me);
+          return;
+        } catch {
+          // Refresh token was valid but user is inaccessible (e.g. soft-deleted).
+          // Clear the stale cookie and fall through to Openfort re-auth.
+          await logoutBackendSession().catch(() => undefined);
+        }
       }
 
       const openfortAccessToken = await getAccessToken();
@@ -186,13 +261,23 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
       finalizeAuthenticatedSession(loginResponse.access_token, me);
     } catch (sessionError) {
-      clearSession();
-      setError(getErrorMessage(sessionError));
+      reportError(sessionError, {
+        area: 'auth',
+        tags: { stage: 'bootstrap' },
+        extra: baseReportExtras(),
+      });
+      setBackendAccessToken(null);
+      setBackendUser(null);
+      setPendingOnboardingAccessToken(null);
+      setPendingWalletCreation(null);
+      commitUserFacingError(getErrorMessage(sessionError));
       setStatus('error');
     }
   }, [
+    baseReportExtras,
     clearSession,
     closeOpenfortModal,
+    commitUserFacingError,
     finalizeAuthenticatedSession,
     getAccessToken,
     openfortUserId,
@@ -223,11 +308,21 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
         await createWalletIfNeeded(loginResponse.access_token, me);
       } catch (sessionError) {
-        setError(getErrorMessage(sessionError));
+        reportError(sessionError, {
+          area: 'auth',
+          tags: { stage: 'onboarding' },
+          extra: baseReportExtras(),
+        });
+        commitUserFacingError(getErrorMessage(sessionError));
         setStatus('needs_onboarding');
       }
     },
-    [createWalletIfNeeded, pendingOnboardingAccessToken]
+    [
+      baseReportExtras,
+      commitUserFacingError,
+      createWalletIfNeeded,
+      pendingOnboardingAccessToken,
+    ]
   );
 
   const abandonOnboarding = useCallback(async () => {
@@ -252,7 +347,12 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         await deleteBackendAccount(backendAccessToken);
       }
     } catch (deleteError) {
-      setError(getErrorMessage(deleteError));
+      reportError(deleteError, {
+        area: 'auth',
+        tags: { stage: 'delete-account' },
+        extra: baseReportExtras(),
+      });
+      commitUserFacingError(getErrorMessage(deleteError));
       setStatus('authenticated');
       return;
     }
@@ -264,7 +364,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
     clearSession();
     setStatus('unauthenticated');
-  }, [backendAccessToken, clearSession, signOut]);
+  }, [
+    backendAccessToken,
+    baseReportExtras,
+    clearSession,
+    commitUserFacingError,
+    signOut,
+  ]);
 
   const retry = useCallback(() => {
     if (pendingWalletCreation) {
@@ -337,6 +443,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isOpenfortLoading: isLoading,
       isOpenfortAuthenticated: isAuthenticated,
       error,
+      errorCategory,
       retry,
       deleteAccount,
     }),
@@ -348,6 +455,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isLoading,
       isAuthenticated,
       error,
+      errorCategory,
       retry,
       deleteAccount,
     ]
