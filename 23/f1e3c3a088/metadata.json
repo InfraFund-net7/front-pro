@@ -4,13 +4,23 @@
   "strategy": "manual-commit",
   "branch": "openfort",
   "checkpoints_count": 2,
-  "files_touched": null,
+  "files_touched": [
+    "instrumentation-client.ts",
+    "next.config.ts",
+    "sentry.client.config.ts"
+  ],
   "sessions": [
     {
       "metadata": "/23/f1e3c3a088/0/metadata.json",
       "transcript": "/23/f1e3c3a088/0/full.jsonl",
       "content_hash": "/23/f1e3c3a088/0/content_hash.txt",
       "prompt": "/23/f1e3c3a088/0/prompt.txt"
+    },
+    {
+      "metadata": "/23/f1e3c3a088/1/metadata.json",
+      "transcript": "/23/f1e3c3a088/1/full.jsonl",
+      "content_hash": "/23/f1e3c3a088/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
