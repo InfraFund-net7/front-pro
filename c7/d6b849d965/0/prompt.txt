@@ -1,0 +1,66 @@
+can you connect to browser MCP ?
+
+---
+
+in the bottom right of the screen is a small flag which is always only parially visible. It has 2 lines stating with "ERROR fo" and "Invalid do"
+can you find out where it comes from and what causes this.
+
+---
+
+- this does not look like an ideal way to report an error, we should be able to see it and get notified, but unless its a real error which causes disruption in the user experience then we should net allow it to be displayed. Also, if we cature such error than we should have a better error message towards the user.
+
+- can you find the underlying errors which cause this and find a way that we as developers get notified if something is wrong and needs our attention? What is the best way to handle that ?
+
+---
+
+try again
+
+---
+
+can you review the implementation as well as the plan , which should be updated with the implementation status when done.
+
+---
+
+can you fix the gaps and open issues
+
+---
+
+commit and push
+
+---
+
+i started the local dev server fresh and got these messages 
+```
+$ npm run dev > /tmp/front-pro-dev.log 2>&1 & tail -f /tmp/front-pro-dev.log
+[5] 3916197
+
+> front-pro@0.2.6 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/sum/DEV/ETH/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /home/sum/DEV/ETH/InfraFund/front-pro/package-lock.json
+
+ ⚠ Port 3000 is in use by an unknown process, using available port 3005 instead.
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3005
+   - Network:      http://192.168.178.24:3005
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+ ✓ Starting...
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+ ✓ Ready in 2.3s
+```
+
+---
+
+can you kill all processes running on port 300?
+
+---
+
+what about 3001,3002,3003,3004 , just to clean it all up
