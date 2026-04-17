@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "78dbf033dc65",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "docs-dev/tasks/task-0.3.1-error-reporting-sentry.md",
+    "instrumentation.ts",
+    "next.config.ts",
+    "package-lock.json",
+    "package.json",
+    "sentry.client.config.ts",
+    "sentry.edge.config.ts",
+    "sentry.server.config.ts",
+    "src/app/global-error.tsx",
+    "src/app/globals.css",
+    "src/app/layout.tsx",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/components/main-layout.tsx",
+    "src/components/ui/error-banner.tsx",
+    "src/lib/error-reporting.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/78/dbf033dc65/0/metadata.json",
+      "transcript": "/78/dbf033dc65/0/full.jsonl",
+      "content_hash": "/78/dbf033dc65/0/content_hash.txt",
+      "prompt": "/78/dbf033dc65/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}

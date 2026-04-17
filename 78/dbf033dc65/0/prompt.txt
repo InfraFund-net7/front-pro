@@ -1,0 +1,24 @@
+can you connect to browser MCP ?
+
+---
+
+in the bottom right of the screen is a small flag which is always only parially visible. It has 2 lines stating with "ERROR fo" and "Invalid do"
+can you find out where it comes from and what causes this.
+
+---
+
+- this does not look like an ideal way to report an error, we should be able to see it and get notified, but unless its a real error which causes disruption in the user experience then we should net allow it to be displayed. Also, if we cature such error than we should have a better error message towards the user.
+
+- can you find the underlying errors which cause this and find a way that we as developers get notified if something is wrong and needs our attention? What is the best way to handle that ?
+
+---
+
+try again
+
+---
+
+can you review the implementation as well as the plan , which should be updated with the implementation status when done.
+
+---
+
+can you fix the gaps and open issues
