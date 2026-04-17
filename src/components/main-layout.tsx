@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AuthErrorState, AuthLoadingState } from './auth/auth-state';
 import { useAuthSession } from './auth/auth-session-provider';
+import { ErrorBanner } from './ui/error-banner';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -15,8 +16,14 @@ export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isPublicRoute = pathname === '/' || pathname === '/login';
-  const { status, error, retry, isOpenfortLoading, isOpenfortAuthenticated } =
-    useAuthSession();
+  const {
+    status,
+    error,
+    errorCategory,
+    retry,
+    isOpenfortLoading,
+    isOpenfortAuthenticated,
+  } = useAuthSession();
 
   useEffect(() => {
     if (isOpenfortLoading || !pathname) {
@@ -58,10 +65,14 @@ export function MainLayout({ children }: MainLayoutProps) {
           ) : showPublicAuthLoading ? (
             <AuthLoadingState message="Checking your Openfort session..." />
           ) : status === 'error' ? (
-            <AuthErrorState
-              message={error || 'Unable to continue.'}
-              onRetry={retry}
-            />
+            <div className="flex w-full max-w-4xl flex-col items-center gap-6">
+              <ErrorBanner
+                title="We couldn't restore your session"
+                message={error || 'Unable to continue.'}
+                onRetry={retry}
+              />
+              {children}
+            </div>
           ) : isAwaitingOnboarding ? null : (
             children
           )}
@@ -73,10 +84,21 @@ export function MainLayout({ children }: MainLayoutProps) {
           ) : showPrivateAuthLoading ? (
             <AuthLoadingState message="Restoring your InfraFund session..." />
           ) : status === 'error' ? (
-            <AuthErrorState
-              message={error || 'Unable to continue.'}
-              onRetry={retry}
-            />
+            errorCategory === 'recoverable' ? (
+              <div className="flex w-full max-w-4xl flex-col items-center gap-6">
+                <ErrorBanner
+                  title="We hit a problem"
+                  message={error || 'Unable to continue.'}
+                  onRetry={retry}
+                />
+                <AuthLoadingState message="Waiting to retry your session..." />
+              </div>
+            ) : (
+              <AuthErrorState
+                message={error || 'Unable to continue.'}
+                onRetry={retry}
+              />
+            )
           ) : (
             <div className="relative z-[999] flex p-4 md:p-8 lg:p-12 gap-4 md:gap-8 lg:gap-12 min-h-screen w-full">
               <div className="h-full -mt-3.5">
