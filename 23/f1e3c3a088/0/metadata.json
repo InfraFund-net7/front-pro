@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "23f1e3c3a088",
+  "session_id": "3de31939-a28f-45f5-9223-85fb3facec07",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-17T06:41:29.943903072Z",
+  "branch": "openfort",
+  "checkpoints_count": 2,
+  "files_touched": [],
+  "agent": "Factory AI Droid",
+  "model": "claude-opus-4-7",
+  "turn_id": "4ec934c08f31",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 8,
+      "user_lines_removed": 0,
+      "agent_lines_added": 7,
+      "agent_lines_removed": 1,
+      "user_added_per_file": {
+        "railway.toml": 8
+      }
+    }
+  ]
+}
