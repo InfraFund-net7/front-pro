@@ -183,7 +183,8 @@
     "viem",
     "wagmi",
     "backpro",
-    "recaptcha"
+    "recaptcha",
+    "lokijs"
   ],
   "ignorePaths": ["node_modules", "build", ".next"],
   "files": ["**/*.{js,jsx,ts,tsx,md}"]
