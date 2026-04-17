@@ -26,3 +26,33 @@ can you fix the gaps and open issues
 ---
 
 commit and push
+
+---
+
+i started the local dev server fresh and got these messages 
+```
+$ npm run dev > /tmp/front-pro-dev.log 2>&1 & tail -f /tmp/front-pro-dev.log
+[5] 3916197
+
+> front-pro@0.2.6 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/sum/DEV/ETH/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /home/sum/DEV/ETH/InfraFund/front-pro/package-lock.json
+
+ ⚠ Port 3000 is in use by an unknown process, using available port 3005 instead.
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3005
+   - Network:      http://192.168.178.24:3005
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+ ✓ Starting...
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+ ✓ Ready in 2.3s
+```
