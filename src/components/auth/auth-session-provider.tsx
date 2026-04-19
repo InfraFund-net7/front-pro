@@ -168,6 +168,35 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     [closeOpenfortModal]
   );
 
+  // NOTE: On every login, the OpenFort SDK's useAutoRecovery hook fires in
+  // the EMBEDDED_SIGNER_NOT_CONFIGURED state and attempts to recover the
+  // Shield share via the Shield API.  This recovery call fails with
+  // NoSecretFoundError on EVERY login (not just first login), producing
+  // console errors:
+  //   GET shield.openfort.io/shares/<ref>   → 400
+  //   GET shield.openfort.io/shares          → 404
+  //   [ERROR] failed to retrieve secret  NoSecretFoundError
+  //   [ERROR] Recover failed               NoSecretFoundError
+  //
+  // Root cause: The iframe's recover() path calls ShieldSDK.getSecret() which
+  // returns 404 — the Shield API cannot find a stored share for the user's
+  // current auth context.  This appears to be a bug in the Shield / iframe
+  // recovery flow (@openfort/react 1.0.12, @openfort/shield-js 0.1.36,
+  // iframe v0.4.50).  See https://github.com/openfort-xyz/openfort-js/issues/272
+  //
+  // Impact: The wallet still functions on the same device because the iframe
+  // independently recovers the private key from its own persistent storage
+  // (IndexedDB in the iframe origin).  However, the useEthereumEmbeddedWallet
+  // hook remains in "disconnected" state (embeddedState stays
+  // NOT_CONFIGURED) until the iframe self-recovers, meaning provider is null
+  // and any signing call would fail during that window.  Cross-device or
+  // post-clear-storage recovery is likely broken until the upstream issue is
+  // resolved.
+  //
+  // Current app status: No code currently calls signing methods, so the
+  // errors are noise-only.  When on-chain features are added, this must be
+  // re-evaluated — the provider from useEthereumEmbeddedWallet must be
+  // confirmed as non-null before any signing attempt.
   const createWalletIfNeeded = useCallback(
     async (accessToken: string, currentUser: BackendMeResponse) => {
       setBackendAccessToken(accessToken);
