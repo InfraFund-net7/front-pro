@@ -1,8 +1,8 @@
-import React from "react";
-import emptylogo from "@/../public/assets/svg/emptyinvestment.svg";
-import Image from "next/image";
-import { CustomButton } from "@/components/ui/custom-button";
-import { PackagePlus } from "lucide-react";
+import React from 'react';
+import emptylogo from '@public/assets/svg/emptyinvestment.svg';
+import Image from 'next/image';
+import { CustomButton } from '@/components/ui/custom-button';
+import { PackagePlus } from 'lucide-react';
 export default function EmptyInvestment() {
   return (
     <div className="flex flex-col justify-center items-center gap-12 bg-red-500">

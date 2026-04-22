@@ -1,5 +1,5 @@
-import { atom } from 'jotai'
+import { atom } from 'jotai';
 
-export type KycLevel = 'none' | 'basic' | 'advanced'
+export type KycLevel = 'none' | 'basic' | 'advanced';
 
-export const kycLevelAtom = atom<KycLevel>('none')
+export const kycLevelAtom = atom<KycLevel>('none');

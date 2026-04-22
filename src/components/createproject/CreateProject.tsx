@@ -1,42 +1,42 @@
-"use client";
-import React, { useState } from "react";
-import CardView from "../ui/card-view";
-import { SelectTypeButton } from "../ui/select-mode-btn";
+'use client';
+import React, { useState } from 'react';
+import CardView from '../ui/card-view';
+import { SelectTypeButton } from '../ui/select-mode-btn';
 import {
   ArrowRight,
   HandHeart,
   Rocket,
   ChartNoAxesCombined,
   CreditCard,
-} from "lucide-react";
-import PreSale from "./PreSale";
-import Equity from "./Equity";
-import Debt from "./Debt";
-import Charity from "./Charity/Charity";
+} from 'lucide-react';
+import PreSale from './PreSale';
+import Equity from './Equity';
+import Debt from './Debt';
+import Charity from './Charity/Charity';
 
 export default function CreateProject() {
   const ProjectData = [
     {
-      title: "Charity",
-      description: "",
+      title: 'Charity',
+      description: '',
       icon: HandHeart,
       component: Charity,
     },
     {
-      title: "Pre-Sale",
-      description: "",
+      title: 'Pre-Sale',
+      description: '',
       icon: Rocket,
       component: PreSale,
     },
     {
-      title: "Equity",
-      description: "",
+      title: 'Equity',
+      description: '',
       icon: ChartNoAxesCombined,
       component: Equity,
     },
     {
-      title: "Debt",
-      description: "",
+      title: 'Debt',
+      description: '',
       icon: CreditCard,
       component: Debt,
     },

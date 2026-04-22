@@ -1,6 +1,6 @@
-import { FormInput } from "@/components/ui/form-input";
-import MilestoneCard from "@/components/ui/MilestoneCard";
-import React from "react";
+import { FormInput } from '@/components/ui/form-input';
+import MilestoneCard from '@/components/ui/MilestoneCard';
+import React from 'react';
 
 export default function CharityCrowdfunding() {
   return (

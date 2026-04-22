@@ -1,26 +1,26 @@
-import { useState } from "react";
-import { FormInput } from "./form-input";
+import { useState } from 'react';
+import { FormInput } from './form-input';
 
 export default function MilestoneCard() {
   const [milestones, setMilestones] = useState([
-    { id: 1, name: "", cost: "", endDate: "" },
+    { id: 1, name: '', cost: '', endDate: '' },
   ]);
 
   const addMilestone = () => {
     const newId = milestones.length + 1;
     setMilestones([
       ...milestones,
-      { id: newId, name: "", cost: "", endDate: "" },
+      { id: newId, name: '', cost: '', endDate: '' },
     ]);
   };
 
-  const updateMilestone = (id: number, field: string, value: string) => {
-    setMilestones(
-      milestones.map((milestone) =>
-        milestone.id === id ? { ...milestone, [field]: value } : milestone
-      )
-    );
-  };
+  // const updateMilestone = (id: number, field: string, value: string) => {
+  //   setMilestones(
+  //     milestones.map((milestone) =>
+  //       milestone.id === id ? { ...milestone, [field]: value } : milestone
+  //     )
+  //   );
+  // };
 
   return (
     <div className="space-y-4">

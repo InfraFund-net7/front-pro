@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useRef, type ChangeEvent } from "react";
-import Image from "next/image";
-import { ImageIcon } from "lucide-react";
+import { useState, useRef, type ChangeEvent } from 'react';
+import Image from 'next/image';
+import { ImageIcon } from 'lucide-react';
 
 interface ImageUploadProps {
   text: string;
@@ -44,10 +44,10 @@ export default function BoxUpload({ text, width, height }: ImageUploadProps) {
       />
       {uploadedImage ? (
         <Image
-          src={uploadedImage || "/placeholder.svg"}
+          src={uploadedImage || '/placeholder.svg'}
           alt="Uploaded image"
           fill
-          style={{ objectFit: "contain" }}
+          style={{ objectFit: 'contain' }}
         />
       ) : (
         <>

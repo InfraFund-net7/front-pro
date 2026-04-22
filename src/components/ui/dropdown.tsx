@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from 'react';
 
 interface DropdownOption {
   key: string;
@@ -21,12 +21,12 @@ export function Dropdown({
   options,
   value,
   onChange,
-  placeholder = "Select an option",
+  placeholder = 'Select an option',
   label,
-  className = "",
+  className = '',
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(value || "");
+  const [selectedValue, setSelectedValue] = useState(value || '');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find(
@@ -43,8 +43,8 @@ export function Dropdown({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleSelect = (option: DropdownOption) => {
@@ -66,12 +66,12 @@ export function Dropdown({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-left text-slate-200 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ease-in-out flex items-center justify-between"
       >
-        <span className={selectedOption ? "text-slate-200" : "text-slate-400"}>
+        <span className={selectedOption ? 'text-slate-200' : 'text-slate-400'}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <svg
           className={`w-5 h-5 text-slate-400 transition-transform duration-300 ease-in-out ${
-            isOpen ? "rotate-180" : ""
+            isOpen ? 'rotate-180' : ''
           }`}
           fill="none"
           stroke="currentColor"
@@ -89,8 +89,8 @@ export function Dropdown({
       <div
         className={`absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl transition-all duration-300 ease-in-out origin-top ${
           isOpen
-            ? "opacity-100 scale-y-100 translate-y-0"
-            : "opacity-0 scale-y-95 -translate-y-2 pointer-events-none"
+            ? 'opacity-100 scale-y-100 translate-y-0'
+            : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
         }`}
       >
         <div className="py-1 max-h-60 overflow-auto">
@@ -101,8 +101,8 @@ export function Dropdown({
               onClick={() => handleSelect(option)}
               className={`w-full px-4 py-3 text-left hover:bg-slate-700 transition-colors duration-200 ease-in-out ${
                 selectedValue === option.value
-                  ? "bg-slate-700 text-primary"
-                  : "text-slate-200"
+                  ? 'bg-slate-700 text-primary'
+                  : 'text-slate-200'
               }`}
             >
               {option.label}
