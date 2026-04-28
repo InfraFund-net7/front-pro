@@ -235,6 +235,66 @@ Resume notes:
 - DB layer uses Prisma 7 with `@prisma/adapter-pg`, `pg`, `prisma.config.ts`, and a lazy Next.js-safe client singleton in `src/server/db/client.ts`.
 - `npx prisma generate` passes. Runtime DB access requires `DATABASE_URL` pointing at a Postgres database with the existing `../backpro` migrations and seed/reference data applied.
 
+### Phase 2.5: Stack modernization
+
+**Status:** pending
+**Goal:** Upgrade all runtime and tooling packages to their latest major versions before more backend endpoint code is added.
+
+Rationale:
+
+- The app is still early enough that major framework and wallet-library migrations should be cheaper now than after more API/UI code lands.
+- Treat this as a dedicated infrastructure migration, not a casual dependency bump.
+- Do this before Phase 3 so public endpoint work starts on the final intended stack.
+
+Tasks:
+
+- [ ] Create or switch to a dedicated branch, for example `feat/modernize-stack`, if the work will be isolated from the current phase branch.
+- [ ] Upgrade all `package.json` dependencies and devDependencies to latest stable versions, including previously skipped major upgrades:
+  - Next.js 16+ and matching `eslint-config-next`.
+  - React 19+ and matching `react-dom`, `@types/react`, and `@types/react-dom`.
+  - Wagmi 3+ and required connector peer dependencies.
+  - ESLint 10+ and compatible flat-config setup.
+  - Knip 6+, CSpell 10+, TypeScript 6+, Lucide React 1+, and other latest package versions.
+- [ ] Run official code migration tools where available, especially for Next.js, React, and ESLint.
+- [ ] Rename/refactor Next.js middleware/proxy files if required by the latest Next.js release.
+- [ ] Audit React 19 compatibility in local components and third-party providers, including ref handling and provider boundaries.
+- [ ] Audit Wagmi 3/Openfort integration for connector and hook API changes.
+- [ ] Confirm Node.js runtime requirements for local development, CI, Docker, Railway, and any deployment target.
+- [ ] Update package/tooling config only as needed for validators to pass.
+- [ ] Do a basic manual smoke test for app startup and wallet/Openfort provider rendering.
+
+Expected files changed:
+
+- `package.json`
+- `package-lock.json`
+- `eslint.config.mjs` or equivalent lint config.
+- `src/middleware.ts` / `src/proxy.ts` only if required by Next.js.
+- Openfort/Wagmi provider files if connector APIs changed.
+- Component files only where React 19 compatibility requires it.
+- Deployment config only if Node.js runtime requirements change.
+
+Validation:
+
+- `npm install`
+- `npm run format:prettier`
+- `npm run format:lint`
+- `npm run format:cspell`
+- `npm run format:knip`
+- `npx tsc --noEmit`
+- `npm run build`
+- Manual app startup smoke test.
+- Manual Openfort/wallet provider smoke test.
+
+Commit boundary:
+
+- Suggested commit: `chore(deps): modernize app stack`
+
+Resume notes:
+
+- Start with `npm outdated --depth=0` and package peer-dependency checks.
+- Keep this phase focused on dependency/tooling compatibility only; do not port backend endpoints in the same commit.
+- If a major package is blocked by an incompatible required peer dependency, record the exact blocker here before deciding whether to defer that package.
+
 ### Phase 3: Public CRUD endpoints
 
 **Status:** pending
@@ -616,6 +676,7 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | 2026-04-28 | Phase 1 | done | Added server env validation, shared API error/response helpers, request metadata, captcha verification helper, and structured logger. |
 | 2026-04-28 | Phase 2 | done | Added Prisma 7 schema/config and lazy Postgres access layer for existing backend tables. |
 | 2026-04-28 | Dependency maintenance | done | Upgraded Prisma to v7 and applied safe patch/minor package updates. |
+| 2026-04-28 | Phase 2.5 | pending | Added a dedicated stack modernization phase for latest major package upgrades before endpoint work. |
 
 ## 13. Preserved research from `../backpro`
 
