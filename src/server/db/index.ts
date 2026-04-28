@@ -1,3 +1,3 @@
 import 'server-only';
 
-export { db, getDb } from './client';
+export { getDb } from './client';

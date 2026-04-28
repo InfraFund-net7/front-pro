@@ -18,8 +18,10 @@
     "src/server/http/**/*.ts": ["exports", "types"]
   },
   "ignoreDependencies": [
+    "@prisma/adapter-pg",
     "@prisma/client",
     "jotai",
+    "pg",
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",
     "eslint-config-next"
