@@ -30,3 +30,54 @@ export function createSession(record: CreateSessionRecord) {
     },
   });
 }
+
+export function findSessionByRefreshTokenHash(
+  refreshTokenHash: Uint8Array<ArrayBuffer>
+) {
+  return getDb().session.findUnique({
+    where: {
+      refreshTokenHash,
+    },
+    include: {
+      user: true,
+    },
+  });
+}
+
+export function findSessionById(sessionId: string) {
+  return getDb().session.findUnique({
+    where: {
+      id: sessionId,
+    },
+    include: {
+      user: true,
+    },
+  });
+}
+
+export function updateSessionActivity(
+  sessionId: string,
+  activityTimeoutAt: Date
+) {
+  return getDb().session.update({
+    where: {
+      id: sessionId,
+    },
+    data: {
+      lastActivityAt: new Date(),
+      activityTimeoutAt,
+    },
+  });
+}
+
+export function revokeSession(sessionId: string, reason: string) {
+  return getDb().session.update({
+    where: {
+      id: sessionId,
+    },
+    data: {
+      revokedAt: new Date(),
+      revokedReason: reason,
+    },
+  });
+}

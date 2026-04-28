@@ -1,7 +1,7 @@
 import 'server-only';
 
 import type { UserRole, UserType } from '@prisma/client';
-import { SignJWT } from 'jose';
+import { jwtVerify, SignJWT } from 'jose';
 
 import { requireServerEnv } from '@/server/env';
 
@@ -42,4 +42,21 @@ export async function signAppAccessToken(
   }
 
   return jwt.sign(getJwtSecret());
+}
+
+export async function verifyAppAccessToken(token: string) {
+  const env = requireServerEnv(['auth']);
+  const result = await jwtVerify(token, getJwtSecret(), {
+    audience: env.auth.jwtAudience,
+    issuer: env.auth.jwtIssuer,
+  });
+
+  if (!result.payload.sub || typeof result.payload.session_id !== 'string') {
+    throw new Error('Invalid app access token claims');
+  }
+
+  return {
+    userId: result.payload.sub,
+    sessionId: result.payload.session_id,
+  };
 }

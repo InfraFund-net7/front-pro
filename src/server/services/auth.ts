@@ -3,9 +3,15 @@ import 'server-only';
 import type { RequestMetadata } from '@/server/http';
 import { ApiError } from '@/server/http';
 import { getAuthConfig } from '@/server/auth/config';
-import { signAppAccessToken } from '@/server/auth/jwt';
+import { signAppAccessToken, verifyAppAccessToken } from '@/server/auth/jwt';
 import { createOpaqueToken, hashOpaqueToken } from '@/server/auth/tokens';
-import { createSession } from '@/server/repositories/sessions';
+import {
+  createSession,
+  findSessionById,
+  findSessionByRefreshTokenHash,
+  revokeSession,
+  updateSessionActivity,
+} from '@/server/repositories/sessions';
 import {
   createUser,
   findUserByOpenfortId,
@@ -29,6 +35,13 @@ interface OpenfortExchangeInput {
   role?: string;
   metadata: RequestMetadata;
 }
+
+type SessionWithUser = NonNullable<
+  Awaited<ReturnType<typeof findSessionByRefreshTokenHash>>
+>;
+type ActiveSession = SessionWithUser & {
+  user: NonNullable<SessionWithUser['user']>;
+};
 
 function emptyToNull(value: string | null | undefined) {
   const trimmed = value?.trim();
@@ -123,6 +136,64 @@ async function findOrCreateUser(
   }
 }
 
+function assertActiveSession(
+  session: SessionWithUser | null
+): asserts session is ActiveSession {
+  if (!session || !session.user || session.user.deletedAt) {
+    throw new ApiError(
+      'UNAUTHORIZED',
+      'Invalid refresh token or revoked token.'
+    );
+  }
+
+  if (session.revokedAt) {
+    throw new ApiError(
+      'UNAUTHORIZED',
+      'Your session was terminated, try to login.'
+    );
+  }
+
+  const now = new Date();
+
+  if (session.absoluteExpiresAt <= now) {
+    throw new ApiError(
+      'UNAUTHORIZED',
+      'Your session has expired. Please login again.'
+    );
+  }
+
+  if (session.activityTimeoutAt <= now) {
+    throw new ApiError(
+      'UNAUTHORIZED',
+      'Your session expired due to inactivity. Please login again.'
+    );
+  }
+}
+
+async function createAccessTokenForSession(session: ActiveSession) {
+  const authConfig = getAuthConfig();
+  const accessTokenExpiresAt = new Date(
+    Date.now() + authConfig.accessTokenTtlMs
+  );
+  const accessToken = await signAppAccessToken(
+    {
+      userId: session.user.id,
+      sessionId: session.id,
+      kycVerified: Boolean(session.user.kycVerified),
+      kybVerified: Boolean(session.user.kybVerified),
+      type: session.user.type,
+      role: session.user.role,
+    },
+    accessTokenExpiresAt
+  );
+
+  return {
+    userId: session.user.id,
+    accessToken,
+    accessTokenExpiresAt,
+  };
+}
+
 export async function checkOpenfortUser(accessToken: string) {
   const session = await verifyOpenfortAccessToken(accessToken);
 
@@ -163,5 +234,51 @@ export async function exchangeOpenfortSession(input: OpenfortExchangeInput) {
     accessTokenExpiresAt,
     refreshToken,
     refreshTokenExpiresAt: new Date(now + authConfig.absoluteSessionTtlMs),
+  };
+}
+
+export async function refreshBackendSession(refreshToken: string) {
+  const authConfig = getAuthConfig();
+  const session = await findSessionByRefreshTokenHash(
+    hashOpaqueToken(refreshToken)
+  );
+
+  assertActiveSession(session);
+
+  const refreshedToken = await createAccessTokenForSession(session);
+
+  await updateSessionActivity(
+    session.id,
+    new Date(Date.now() + authConfig.activityTimeoutMs)
+  );
+
+  return refreshedToken;
+}
+
+export async function logoutBackendSession(refreshToken: string) {
+  const session = await findSessionByRefreshTokenHash(
+    hashOpaqueToken(refreshToken)
+  );
+
+  if (!session || session.revokedAt) {
+    return;
+  }
+
+  await revokeSession(session.id, 'logout');
+}
+
+export async function authenticateAppRequest(accessToken: string) {
+  const claims = await verifyAppAccessToken(accessToken);
+  const session = await findSessionById(claims.sessionId);
+
+  assertActiveSession(session);
+
+  if (session.user.id !== claims.userId) {
+    throw new ApiError('UNAUTHORIZED', 'Invalid access token.');
+  }
+
+  return {
+    user: session.user,
+    session,
   };
 }
