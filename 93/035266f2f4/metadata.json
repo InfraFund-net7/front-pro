@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "93035266f2f4",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/task-100-nextjs-migration-plan.md",
+    "package-lock.json",
+    "package.json",
+    "prisma/schema.prisma",
+    "src/app/api/v1/contact-forms/route.ts",
+    "src/app/api/v1/locations/countries/route.ts",
+    "src/app/api/v1/non-resident-waitlist/company/route.ts",
+    "src/app/api/v1/non-resident-waitlist/individual/route.ts",
+    "src/app/api/v1/waitlists/route.ts",
+    "src/server/repositories/public-forms.ts",
+    "src/server/services/email.ts",
+    "src/server/services/public-forms.ts",
+    "src/server/validation/public-forms.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/93/035266f2f4/0/metadata.json",
+      "transcript": "/93/035266f2f4/0/full.jsonl",
+      "content_hash": "/93/035266f2f4/0/content_hash.txt",
+      "prompt": "/93/035266f2f4/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}

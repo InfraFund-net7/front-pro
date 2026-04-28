@@ -1,0 +1,58 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "93035266f2f4",
+  "session_id": "3a802003-a30f-4049-bcd3-5e9f5e0e7acb",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-28T15:32:39.319543628Z",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/task-100-nextjs-migration-plan.md",
+    "package-lock.json",
+    "package.json",
+    "prisma/schema.prisma",
+    "src/app/api/v1/contact-forms/route.ts",
+    "src/app/api/v1/locations/countries/route.ts",
+    "src/app/api/v1/non-resident-waitlist/company/route.ts",
+    "src/app/api/v1/non-resident-waitlist/individual/route.ts",
+    "src/app/api/v1/waitlists/route.ts",
+    "src/server/repositories/public-forms.ts",
+    "src/server/services/email.ts",
+    "src/server/services/public-forms.ts",
+    "src/server/validation/public-forms.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(OpenAI-API)-0",
+  "turn_id": "f82dd22aaf93",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-28T15:32:39.305200952Z",
+    "agent_lines": 646,
+    "agent_removed": 15,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 646,
+    "total_lines_changed": 661,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

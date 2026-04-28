@@ -1,0 +1,6 @@
+we have just implemneted Phase 2.5 of @docs-dev/tasks/task-100-nextjs-migration-plan.md  continue with the implementation starting with Phase 3.
+After finishing each phase , update the document , commit and push, then implement the next phase until done.
+
+---
+
+continue
