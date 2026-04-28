@@ -184,7 +184,9 @@
     "wagmi",
     "backpro",
     "recaptcha",
-    "lokijs"
+    "lokijs",
+    "solana",
+    "turbopack"
   ],
   "ignorePaths": ["node_modules", "build", ".next"],
   "files": ["**/*.{js,jsx,ts,tsx,md}"]

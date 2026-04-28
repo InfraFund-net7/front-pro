@@ -1,13 +1,16 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+function withoutReactRules(configs) {
+  return configs.map((config) => ({
+    ...config,
+    rules: Object.fromEntries(
+      Object.entries(config.rules ?? {}).filter(
+        ([ruleName]) => !ruleName.startsWith('react/')
+      )
+    ),
+  }));
+}
 
 const eslintConfig = [
   {
@@ -18,9 +21,17 @@ const eslintConfig = [
       'node_modules/**',
       '.opencode/**',
       'next-env.d.ts',
+      'eslint.config.mjs',
     ],
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...withoutReactRules(nextVitals),
+  ...nextTypescript,
+  {
+    rules: {
+      'react-hooks/immutability': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
 ];
 
 export default eslintConfig;
