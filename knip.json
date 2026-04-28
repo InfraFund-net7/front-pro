@@ -16,11 +16,10 @@
   ],
   "ignoreIssues": {
     "src/server/db/**/*.ts": ["files", "exports"],
-    "src/server/http/**/*.ts": ["exports", "types"]
+    "src/server/http/**/*.ts": ["exports", "types"],
+    "src/server/services/auth.ts": ["exports"]
   },
   "ignoreDependencies": [
-    "@prisma/adapter-pg",
-    "@prisma/client",
     "jotai",
     "pg",
     "@typescript-eslint/eslint-plugin",
