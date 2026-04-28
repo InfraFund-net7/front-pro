@@ -3,3 +3,7 @@ implement Phase 1 and Phase 2 in @docs-dev/tasks/task-100-nextjs-migration-plan.
 ---
 
 why are we not using the latest v7 prima version
+
+---
+
+yes, lets do that now ! commit and push when done
