@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "fefa3706530d",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs-dev/release-notes/v0.2.1-openfort-implementation-part-2.md",
+    "docs-dev/release-notes/v0.2.2-openfort-implementation-with-onboarding-review.md",
+    "docs-dev/release-notes/v0.2.2-openfort-implementation-with-onboarding.md",
+    "docs-dev/release-notes/v0.2.3-openfort-initial-testplan.md",
+    "docs-dev/release-notes/v0.2.4-openfort-frontend-implementation-review.md",
+    "docs-dev/release-notes/v0.2.5-openfort-frontend-implementation-review-fix.md",
+    "docs-dev/release-notes/v0.2.8-openfort-account-deletion-confirmation.md",
+    "docs-dev/release-notes/v0.3.1-no-ssr.md",
+    "docs-dev/release-notes/v0.3.2-error-reporting-sentry.md",
+    "docs-dev/tasks/v0.2.1-openfort-implementation-part-2.md",
+    "docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding-review.md",
+    "docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding.md",
+    "docs-dev/tasks/v0.2.3-openfort-initial-testplan.md",
+    "docs-dev/tasks/v0.2.4-openfort-frontend-implementation-review.md",
+    "docs-dev/tasks/v0.2.5-openfort-frontend-implementation-review-fix.md",
+    "docs-dev/tasks/v0.2.8-openfort-account-deletion-confirmation.md",
+    "docs-dev/tasks/v0.3.1-no-ssr.md",
+    "docs-dev/tasks/v0.3.2-error-reporting-sentry.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/fe/fa3706530d/0/metadata.json",
+      "transcript": "/fe/fa3706530d/0/full.jsonl",
+      "content_hash": "/fe/fa3706530d/0/content_hash.txt",
+      "prompt": "/fe/fa3706530d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
