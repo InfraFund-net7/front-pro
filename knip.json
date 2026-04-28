@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "ignoreFiles": [
+    "src/atoms/kyc/kycAtoms.ts",
+    "src/atoms/kyc/kycLevel.ts",
+    "src/components/investmentportal/create/create-sections/media.tsx",
+    "src/components/investmentportal/empty/emptyinvestment.tsx",
+    "src/components/ui/date-picker.tsx",
+    "src/components/ui/horizontal-progress-bar.tsx",
+    "src/components/ui/kyc-card.tsx",
+    "src/components/ui/pagination-dots.tsx",
+    "src/components/ui/toggle-switch.tsx",
+    "src/utils/is-development.util.ts",
+    "src/utils/is-production.util.ts"
+  ],
+  "ignoreIssues": {
+    "src/server/db/**/*.ts": ["files", "exports"],
+    "src/server/http/**/*.ts": ["exports", "types"]
+  },
+  "ignoreDependencies": [
+    "@prisma/client",
+    "jotai",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint-config-next"
+  ]
+}
