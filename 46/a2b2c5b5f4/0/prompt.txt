@@ -1,0 +1,17 @@
+implement Phase 1 and Phase 2 in @docs-dev/tasks/task-100-nextjs-migration-plan.md , commit and push when done
+
+---
+
+why are we not using the latest v7 prima version
+
+---
+
+yes, lets do that now ! commit and push when done
+
+---
+
+is there anyhting else worth upgrading , react, next, anything in @package.json ?
+
+---
+
+ok, lets do the "safe worthwhile upgrades", commit and push
