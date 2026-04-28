@@ -1,0 +1,41 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "9e7cedf61cd1",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "knip.json",
+    "package-lock.json",
+    "package.json",
+    "src/app/api/v1/auth/openfort/check/route.ts",
+    "src/app/api/v1/auth/openfort/exchange/route.ts",
+    "src/lib/backend-auth-client.ts",
+    "src/lib/openfort-config.tsx",
+    "src/server/auth/config.ts",
+    "src/server/auth/cookies.ts",
+    "src/server/auth/http.ts",
+    "src/server/auth/jwt.ts",
+    "src/server/auth/tokens.ts",
+    "src/server/env.ts",
+    "src/server/openfort/session.ts",
+    "src/server/repositories/sessions.ts",
+    "src/server/repositories/users.ts",
+    "src/server/services/auth.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/9e/7cedf61cd1/0/metadata.json",
+      "transcript": "/9e/7cedf61cd1/0/full.jsonl",
+      "content_hash": "/9e/7cedf61cd1/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
