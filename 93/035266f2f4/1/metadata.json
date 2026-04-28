@@ -1,7 +1,9 @@
 {
   "cli_version": "0.5.6",
   "checkpoint_id": "93035266f2f4",
+  "session_id": "55d4658f-d43a-4478-9188-8d9376c2c15e",
   "strategy": "manual-commit",
+  "created_at": "2026-04-28T15:32:39.492493034Z",
   "branch": "openfort",
   "checkpoints_count": 0,
   "files_touched": [
@@ -19,25 +21,35 @@
     "src/server/services/public-forms.ts",
     "src/server/validation/public-forms.ts"
   ],
-  "sessions": [
-    {
-      "metadata": "/93/035266f2f4/0/metadata.json",
-      "transcript": "/93/035266f2f4/0/full.jsonl",
-      "content_hash": "/93/035266f2f4/0/content_hash.txt",
-      "prompt": "/93/035266f2f4/0/prompt.txt"
-    },
-    {
-      "metadata": "/93/035266f2f4/1/metadata.json",
-      "transcript": "/93/035266f2f4/1/full.jsonl",
-      "content_hash": "/93/035266f2f4/1/content_hash.txt",
-      "prompt": ""
-    }
-  ],
+  "agent": "Factory AI Droid",
+  "model": "",
+  "turn_id": "419a6029bdb4",
   "token_usage": {
     "input_tokens": 0,
     "cache_creation_tokens": 0,
     "cache_read_tokens": 0,
     "output_tokens": 0,
     "api_call_count": 0
-  }
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-28T15:32:39.482380863Z",
+    "agent_lines": 646,
+    "agent_removed": 15,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 646,
+    "total_lines_changed": 661,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
 }
