@@ -3,10 +3,8 @@
   "ignoreFiles": [
     "src/atoms/kyc/kycAtoms.ts",
     "src/atoms/kyc/kycLevel.ts",
-    "src/components/developer/developer-home.tsx",
     "src/components/investmentportal/create/create-sections/media.tsx",
     "src/components/investmentportal/empty/emptyinvestment.tsx",
-    "src/components/ui/custom-checkbox.tsx",
     "src/components/ui/date-picker.tsx",
     "src/components/ui/horizontal-progress-bar.tsx",
     "src/components/ui/kyc-card.tsx",
@@ -15,7 +13,12 @@
     "src/utils/is-development.util.ts",
     "src/utils/is-production.util.ts"
   ],
+  "ignoreIssues": {
+    "src/server/db/**/*.ts": ["files", "exports"],
+    "src/server/http/**/*.ts": ["exports", "types"]
+  },
   "ignoreDependencies": [
+    "@prisma/client",
     "jotai",
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",

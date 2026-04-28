@@ -1,41 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SHIELD_URL = process.env.SHIELD_URL || 'https://shield.openfort.io';
-const SHIELD_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SHIELD_API_KEY;
-const SHIELD_SECRET_KEY = process.env.SHIELD_SECRET_KEY;
-const SHIELD_ENCRYPTION_SHARE = process.env.SHIELD_ENCRYPTION_SHARE;
+import { requireServerEnv } from '@/server/env';
+import { handleApiError } from '@/server/http';
+import { logger } from '@/server/logger';
 
 export async function POST(request: NextRequest) {
-  if (
-    !SHIELD_PUBLISHABLE_KEY ||
-    !SHIELD_SECRET_KEY ||
-    !SHIELD_ENCRYPTION_SHARE
-  ) {
-    return NextResponse.json(
-      { message: 'Shield credentials not configured on server' },
-      { status: 500 }
-    );
-  }
-
   try {
+    const { shield } = requireServerEnv(['shield']);
+    const publishableKey = shield.publishableKey!;
+    const secretKey = shield.secretKey!;
+    const encryptionShare = shield.encryptionShare!;
+
     const body = await request.json();
 
-    const response = await fetch(`${SHIELD_URL}/project/encryption-session`, {
+    const response = await fetch(`${shield.url}/project/encryption-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': SHIELD_PUBLISHABLE_KEY,
-        'x-api-secret': SHIELD_SECRET_KEY,
+        'x-api-key': publishableKey,
+        'x-api-secret': secretKey,
       },
       body: JSON.stringify({
-        encryption_part: SHIELD_ENCRYPTION_SHARE,
+        encryption_part: encryptionShare,
         user_id: body.user_id,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Shield encryption session error:', error);
+      logger.warn(
+        { status: response.status, error },
+        'Shield encryption session request failed'
+      );
       return NextResponse.json(
         { message: 'Failed to create encryption session' },
         { status: response.status }
@@ -45,10 +41,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json({ session: data.session_id });
   } catch (err) {
-    console.error('Encryption session error:', err);
-    return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error({ err }, 'Encryption session error');
+    return handleApiError(err);
   }
 }
