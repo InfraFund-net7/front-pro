@@ -11,7 +11,20 @@ const OPTIONAL_PEERS =
 const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: projectRoot,
+  turbopack: {
+    resolveAlias: {
+      '@solana/kit': './src/lib/solana-kit-unavailable.ts',
+    },
+  },
   webpack: (config, { webpack }) => {
+    config.resolve = config.resolve ?? {};
+    config.resolve.alias = {
+      ...(config.resolve.alias ?? {}),
+      '@solana/kit': path.join(
+        projectRoot,
+        'src/lib/solana-kit-unavailable.ts'
+      ),
+    };
     config.plugins = config.plugins ?? [];
     config.plugins.push(
       new webpack.IgnorePlugin({

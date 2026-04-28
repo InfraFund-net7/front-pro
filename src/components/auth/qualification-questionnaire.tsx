@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from 'react';
 type Step = 1 | 2 | 3 | 'non_resident';
 type UserType = 'individual' | 'organization';
 
-export type QualificationRole = 'client' | 'investor' | 'contractor' | 'dao';
+type QualificationRole = 'client' | 'investor' | 'contractor' | 'dao';
 
 export interface QualificationSubmission {
   role: QualificationRole;

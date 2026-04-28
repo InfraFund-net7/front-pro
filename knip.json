@@ -10,6 +10,7 @@
     "src/components/ui/kyc-card.tsx",
     "src/components/ui/pagination-dots.tsx",
     "src/components/ui/toggle-switch.tsx",
+    "src/lib/solana-kit-unavailable.ts",
     "src/utils/is-development.util.ts",
     "src/utils/is-production.util.ts"
   ],
@@ -23,7 +24,6 @@
     "jotai",
     "pg",
     "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/parser",
-    "eslint-config-next"
+    "@typescript-eslint/parser"
   ]
 }
