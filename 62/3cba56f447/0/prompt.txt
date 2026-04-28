@@ -11,3 +11,7 @@ yes, lets do that now ! commit and push when done
 ---
 
 is there anyhting else worth upgrading , react, next, anything in @package.json ?
+
+---
+
+ok, lets do the "safe worthwhile upgrades", commit and push
