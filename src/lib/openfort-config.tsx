@@ -1,6 +1,10 @@
 'use client';
 
-import { OpenfortProvider, AuthProvider } from '@openfort/react';
+import {
+  OpenfortProvider,
+  AuthProvider,
+  RecoveryMethod,
+} from '@openfort/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { AuthSessionProvider } from '@/components/auth/auth-session-provider';
@@ -49,13 +53,14 @@ export function AppProviders({ children }: { children: ReactNode }) {
             ethereumFeeSponsorshipId:
               process.env.NEXT_PUBLIC_POLICY_ID || undefined,
           },
-          connectOnLogin: true,
+          connectOnLogin: false,
           createEncryptedSessionEndpoint: '/api/auth/encryption-session',
         }}
         uiConfig={{
           theme: 'midnight',
           mode: 'dark',
           authProviders: [AuthProvider.GOOGLE, AuthProvider.EMAIL_OTP],
+          walletRecovery: { defaultMethod: RecoveryMethod.AUTOMATIC },
         }}
       >
         <AuthSessionProvider>{children}</AuthSessionProvider>
