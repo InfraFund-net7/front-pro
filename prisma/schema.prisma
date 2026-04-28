@@ -174,7 +174,7 @@ model ContactForm {
   firstName String        @map("first_name") @db.VarChar(100)
   lastName  String        @map("last_name") @db.VarChar(100)
   email     String        @db.VarChar(255)
-  subject   String        @map("Subject") @db.VarChar(255)
+  subject   String        @db.VarChar(255)
   message   String
   status    ContactStatus @default(new)
   ip        String?

@@ -77,11 +77,11 @@ Status values: `pending`, `in-progress`, `done`, `deferred`.
 | `DELETE /v1/me` | `DELETE /api/v1/me` | app session | `users`, Openfort account deletion if needed | pending |
 | `GET /v1/account/status` | `GET /api/v1/account/status` | app session | `users` | pending |
 | `GET /v1/kyc/status` | `GET /api/v1/kyc/status` | app session | `users` | pending |
-| `POST /v1/waitlists` | `POST /api/v1/waitlists` | captcha | `waitlist` | pending |
-| `POST /v1/contact-forms` | `POST /api/v1/contact-forms` | captcha | `contact_forms`, email service | pending |
-| `POST /v1/non-resident-waitlist/individual` | `POST /api/v1/non-resident-waitlist/individual` | captcha | `non_resident_waitlists`, `countries` | pending |
-| `POST /v1/non-resident-waitlist/company` | `POST /api/v1/non-resident-waitlist/company` | captcha | `non_resident_waitlists`, `countries` | pending |
-| `GET /v1/locations/countries` | `GET /api/v1/locations/countries` | optional | `countries` | pending |
+| `POST /v1/waitlists` | `POST /api/v1/waitlists` | captcha | `waitlist` | done |
+| `POST /v1/contact-forms` | `POST /api/v1/contact-forms` | captcha | `contact_forms`, email service | done |
+| `POST /v1/non-resident-waitlist/individual` | `POST /api/v1/non-resident-waitlist/individual` | captcha | `non_resident_waitlists`, `countries` | done |
+| `POST /v1/non-resident-waitlist/company` | `POST /api/v1/non-resident-waitlist/company` | captcha | `non_resident_waitlists`, `countries` | done |
+| `GET /v1/locations/countries` | `GET /api/v1/locations/countries` | optional | `countries` | done |
 
 ## 6. Target auth flow
 
@@ -299,18 +299,18 @@ Resume notes:
 
 ### Phase 3: Public CRUD endpoints
 
-**Status:** pending
+**Status:** done
 **Goal:** Replace simple Go public endpoints first.
 
 Tasks:
 
-- [ ] Implement `POST /api/v1/waitlists`.
-- [ ] Implement `POST /api/v1/contact-forms`.
-- [ ] Implement `POST /api/v1/non-resident-waitlist/individual`.
-- [ ] Implement `POST /api/v1/non-resident-waitlist/company`.
-- [ ] Implement `GET /api/v1/locations/countries`.
-- [ ] Preserve duplicate checks, country FK validation, captcha handling, and response status codes.
-- [ ] Update existing frontend route proxies only if needed for same-origin compatibility.
+- [x] Implement `POST /api/v1/waitlists`.
+- [x] Implement `POST /api/v1/contact-forms`.
+- [x] Implement `POST /api/v1/non-resident-waitlist/individual`.
+- [x] Implement `POST /api/v1/non-resident-waitlist/company`.
+- [x] Implement `GET /api/v1/locations/countries`.
+- [x] Preserve duplicate checks, country FK validation, captcha handling, and response status codes.
+- [x] Update existing frontend route proxies only if needed for same-origin compatibility.
 
 Expected files changed:
 
@@ -336,7 +336,10 @@ Commit boundary:
 
 Resume notes:
 
-- These endpoints are independent of Openfort and should be completed before auth migration.
+- Done in the Phase 3 implementation commit.
+- Added same-origin `/api/v1` public route handlers for waitlist, contact forms, non-resident waitlist submissions, and country listing.
+- Preserved 204 success responses for write endpoints, 409 duplicate email conflicts, invalid-country 400 responses, captcha verification, and Go-compatible country response field names.
+- Added `nodemailer` for optional async contact-form team notifications when `CONTACT_FORM_EMAIL_ENABLED` and SMTP env vars are configured.
 
 ### Phase 4: Openfort check and exchange
 
@@ -679,6 +682,7 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | 2026-04-28 | Phase 2 | done | Added Prisma 7 schema/config and lazy Postgres access layer for existing backend tables. |
 | 2026-04-28 | Dependency maintenance | done | Upgraded Prisma to v7 and applied safe patch/minor package updates. |
 | 2026-04-28 | Phase 2.5 | done | Modernized to Next.js 16, React 19, ESLint 10, Knip 6, CSpell 10, TypeScript 6, and latest compatible packages; Wagmi v3 deferred due Openfort peer constraint. |
+| 2026-04-29 | Phase 3 | done | Ported public form and country endpoints into Next.js App Router routes with Prisma-backed services. |
 
 ## 13. Preserved research from `../backpro`
 
