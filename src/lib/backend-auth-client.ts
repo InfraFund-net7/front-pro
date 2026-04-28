@@ -90,7 +90,7 @@ function buildUrl(path: string) {
   const normalizedPath = path.replace(/^\/+/, '');
   const baseUrl = getApiBaseUrl();
 
-  return baseUrl ? `${baseUrl}/${normalizedPath}` : `/v1/${normalizedPath}`;
+  return baseUrl ? `${baseUrl}/${normalizedPath}` : `/api/v1/${normalizedPath}`;
 }
 
 async function request<T>(
