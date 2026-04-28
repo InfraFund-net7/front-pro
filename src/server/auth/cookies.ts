@@ -27,3 +27,18 @@ export function setRefreshTokenCookie(
     ...(authConfig.cookieDomain ? { domain: authConfig.cookieDomain } : {}),
   });
 }
+
+export function clearRefreshTokenCookie(response: NextResponse) {
+  const authConfig = getAuthConfig();
+
+  response.cookies.set({
+    name: refreshTokenCookieName,
+    value: '',
+    maxAge: 0,
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: normalizeSameSite(authConfig.cookieSameSite),
+    ...(authConfig.cookieDomain ? { domain: authConfig.cookieDomain } : {}),
+  });
+}
