@@ -15,3 +15,7 @@ is there anyhting else worth upgrading , react, next, anything in @package.json 
 ---
 
 ok, lets do the "safe worthwhile upgrades", commit and push
+
+---
+
+can you update `docs-dev/tasks/task-100-nextjs-migration-plan.md` with the current status, commit and push
