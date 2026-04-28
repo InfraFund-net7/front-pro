@@ -1,0 +1,1 @@
+implement Phase 1 and Phase 2 in @docs-dev/tasks/task-100-nextjs-migration-plan.md , commit and push when done
