@@ -2,7 +2,7 @@
 
 # Task 100: Next.js Backend Migration Plan
 
-**Status:** Pending
+**Status:** In progress
 **Target repo:** `front-pro`
 **Backend to retire:** `../backpro`
 **Decision:** Migrate backend functionality into the existing Next.js app first, then simplify Openfort. Do not rebase the app onto the Openfort sample project.
@@ -154,16 +154,16 @@ Resume notes:
 
 ### Phase 1: Next.js backend foundation
 
-**Status:** pending
+**Status:** done
 **Goal:** Add shared server-only primitives without porting endpoint logic yet.
 
 Tasks:
 
-- [ ] Create server-only env validation.
-- [ ] Add shared API error shape and response helpers.
-- [ ] Add request metadata helper for IP, user agent, platform, browser, and device.
-- [ ] Add captcha verification helper or preserve existing helper if already sufficient.
-- [ ] Add structured server logger.
+- [x] Create server-only env validation.
+- [x] Add shared API error shape and response helpers.
+- [x] Add request metadata helper for IP, user agent, platform, browser, and device.
+- [x] Add captcha verification helper or preserve existing helper if already sufficient.
+- [x] Add structured server logger.
 
 Expected files changed:
 
@@ -184,18 +184,19 @@ Commit boundary:
 
 Resume notes:
 
-- This phase should not change endpoint behavior.
-- If validators fail due pre-existing issues, record exact failures in this section before stopping.
+- Done in commit `bbe5eb9`.
+- Added `src/server/env.ts`, shared `src/server/http/*` helpers, `src/server/logger.ts`, and adopted the shared env/logger/error helpers in the existing Shield encryption-session route.
+- Endpoint behavior is otherwise unchanged.
 
 ### Phase 2: Database schema and access layer
 
-**Status:** pending
+**Status:** done
 **Goal:** Make Next.js able to read/write the existing PostgreSQL schema.
 
 Tasks:
 
-- [ ] Choose DB layer. Default: Prisma.
-- [ ] Generate or write schema for existing tables:
+- [x] Choose DB layer. Default: Prisma.
+- [x] Generate or write schema for existing tables:
   - `users`
   - `user_organizations`
   - `wallets`
@@ -206,13 +207,14 @@ Tasks:
   - `contact_forms`
   - `countries`
   - `non_resident_waitlists`
-- [ ] Ensure UUID, enum, timestamp, soft-delete, and composite-key behavior matches Go backend.
-- [ ] Add database client singleton safe for Next.js dev reloads.
-- [ ] Add seed/introspection notes if direct reuse of DB requires manual setup.
+- [x] Ensure UUID, enum, timestamp, soft-delete, and composite-key behavior matches Go backend.
+- [x] Add database client singleton safe for Next.js dev reloads.
+- [x] Add seed/introspection notes if direct reuse of DB requires manual setup.
 
 Expected files changed:
 
 - `prisma/schema.prisma` or selected DB-layer equivalent.
+- `prisma.config.ts` if using Prisma 7+.
 - `src/server/db/*`
 - Package files if dependencies are added.
 
@@ -229,7 +231,9 @@ Commit boundary:
 
 Resume notes:
 
-- Do not proceed to endpoint ports until DB access can connect locally or a clear mock strategy is recorded.
+- Done across commits `bbe5eb9` and `46c1afb`.
+- DB layer uses Prisma 7 with `@prisma/adapter-pg`, `pg`, `prisma.config.ts`, and a lazy Next.js-safe client singleton in `src/server/db/client.ts`.
+- `npx prisma generate` passes. Runtime DB access requires `DATABASE_URL` pointing at a Postgres database with the existing `../backpro` migrations and seed/reference data applied.
 
 ### Phase 3: Public CRUD endpoints
 
@@ -609,6 +613,9 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | Date | Phase | Status | Notes |
 | --- | --- | --- | --- |
 | 2026-04-28 | Planning | done | Decided to migrate `front-pro` in place and avoid adopting the Openfort sample app as the base. |
+| 2026-04-28 | Phase 1 | done | Added server env validation, shared API error/response helpers, request metadata, captcha verification helper, and structured logger. |
+| 2026-04-28 | Phase 2 | done | Added Prisma 7 schema/config and lazy Postgres access layer for existing backend tables. |
+| 2026-04-28 | Dependency maintenance | done | Upgraded Prisma to v7 and applied safe patch/minor package updates. |
 
 ## 13. Preserved research from `../backpro`
 
