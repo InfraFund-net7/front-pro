@@ -71,7 +71,7 @@ const sections = [
   {
     title: 'PostgreSQL Database Configuration',
     rows: [
-      ['# Local default matches ../backpro/deployment/docker-compose.yml'],
+      ['# Local default matches deployment/docker-compose.local.yml'],
       [
         'DATABASE_URL',
         'postgresql://postgres:postgres@localhost:5432/infra_dev?sslmode=disable',
