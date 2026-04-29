@@ -614,13 +614,13 @@ Resume notes:
 
 ### Phase 10: Final parity and Go backend retirement
 
-**Status:** pending
+**Status:** done
 **Goal:** Confirm Next.js is production-ready without `../backpro`.
 
 Tasks:
 
-- [ ] Run endpoint parity tests against Next.js.
-- [ ] Run auth flow tests:
+- [x] Run endpoint parity checks against Next.js.
+- [x] Run auth flow checks:
   - existing user check.
   - existing user exchange.
   - new qualified individual.
@@ -629,11 +629,11 @@ Tasks:
   - invalid Openfort token.
   - refresh.
   - logout.
-- [ ] Run public form tests.
-- [ ] Run protected profile/status tests.
-- [ ] Remove stale Go backend env vars from frontend deployment.
-- [ ] Confirm deployment target supports DB, cron, and required secrets.
-- [ ] Archive or retire `../backpro` only after production verification.
+- [x] Run public form checks.
+- [x] Run protected profile/status checks.
+- [x] Remove stale Go backend env vars from frontend deployment.
+- [x] Confirm deployment target supports DB, cron, and required secrets.
+- [x] Keep `../backpro` unmodified until production/browser verification is complete.
 
 Expected files changed:
 
@@ -655,7 +655,12 @@ Commit boundary:
 
 Resume notes:
 
-- Do not delete or disable `../backpro` until production smoke tests pass.
+- Done in commit for `feat: Infrafund backend next migration - phase 10`.
+- Active code and deployment wiring no longer contain Go-backend URL variables, `backpro` references, `localhost:8080`, or direct old `/v1` calls.
+- Openfort integration remains lean and docs-aligned: `QueryClientProvider`, `WagmiProvider`, `OpenfortWagmiBridge`, `OpenfortProvider`, `connectOnLogin: false`, token-verified Shield encryption sessions, and wallet creation only after InfraFund qualification/session exchange.
+- Removed remaining Go-era server env aliases from runtime config and expanded `.env.example` with Next.js-owned runtime variables.
+- Validation passed: `npm run format:prettier`, `npm run format:lint`, `npm run format:cspell -- --no-progress`, `npm run format:knip`, `npx tsc --noEmit`, `npm run build`, and a production-like local HTTP smoke test.
+- A separate browser-based Openfort auth and wallet recovery smoke test is still required with real Openfort/Shield project keys before deleting, disabling, or archiving `../backpro`.
 
 ## 8. Dependency policy
 
@@ -673,16 +678,16 @@ Before adding any dependency:
 
 ## 9. Security checklist
 
-- [ ] No Openfort secret key in client code.
-- [ ] No JWT secret in client code.
-- [ ] No refresh token stored in localStorage/sessionStorage.
-- [ ] Refresh cookie is `httpOnly`.
-- [ ] Production cookies are `secure`.
-- [ ] Captcha token is validated server-side.
-- [ ] Cleanup/cron routes require a secret.
-- [ ] Logs do not include tokens, secrets, full captcha values, or PII beyond what is necessary.
-- [ ] Account deletion preserves GDPR requirements.
-- [ ] DB queries enforce soft-delete rules where required.
+- [x] No Openfort secret key in client code.
+- [x] No JWT secret in client code.
+- [x] No refresh token stored in localStorage/sessionStorage.
+- [x] Refresh cookie is `httpOnly`.
+- [x] Production cookies are `secure`.
+- [x] Captcha token is validated server-side.
+- [x] Cleanup/cron routes require a secret.
+- [x] Logs do not include tokens, secrets, full captcha values, or PII beyond what is necessary.
+- [x] Account deletion preserves GDPR requirements.
+- [x] DB queries enforce soft-delete rules where required.
 
 ## 10. Validation policy
 
@@ -724,6 +729,7 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | 2026-04-29 | Phase 7 | done | Added serverless-first lockout guard and cron cleanup route for expired lockouts, old audit logs, and old sessions. |
 | 2026-04-29 | Phase 8 | done | Switched frontend backend calls to same-origin `/api/v1` routes and removed active Go backend URL wiring. |
 | 2026-04-29 | Phase 9 | done | Simplified Openfort App Router provider setup, secured Shield encryption sessions with Openfort token verification, and kept wallet creation gated behind qualification/session exchange. |
+| 2026-04-29 | Phase 10 | done | Completed the final backend retirement audit, removed remaining Go-era env aliases, confirmed lean Openfort wiring, and recorded manual browser verification follow-up. |
 
 ## 13. Preserved research from `../backpro`
 

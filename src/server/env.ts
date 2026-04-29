@@ -52,11 +52,8 @@ interface ServerEnv {
 
 const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
   database: ['DATABASE_URL'],
-  auth: ['APP_JWT_SECRET or INFRA_AUTH_JWT_SIGNING_KEY'],
-  openfort: [
-    'OPENFORT_SECRET_KEY or OPENFORT_API_KEY',
-    'OPENFORT_PUBLISHABLE_KEY or NEXT_PUBLIC_OPENFORT_PUBLIC_KEY',
-  ],
+  auth: ['APP_JWT_SECRET'],
+  openfort: ['OPENFORT_SECRET_KEY', 'OPENFORT_PUBLISHABLE_KEY'],
   captcha: ['RECAPTCHA_SECRET_KEY'],
   email: [
     'SMTP_HOST',
@@ -103,32 +100,18 @@ export function getServerEnv() {
       url: readOptionalString('DATABASE_URL'),
     },
     auth: {
-      jwtSecret:
-        readOptionalString('APP_JWT_SECRET') ??
-        readOptionalString('INFRA_AUTH_JWT_SIGNING_KEY') ??
-        readOptionalString('JWT_SIGNING_KEY'),
-      jwtIssuer:
-        readOptionalString('APP_JWT_ISSUER') ??
-        readOptionalString('INFRA_AUTH_JWT_ISSUER'),
-      jwtAudience:
-        readOptionalString('APP_JWT_AUDIENCE') ??
-        readOptionalString('INFRA_AUTH_JWT_AUDIENCE') ??
-        'infrafund',
+      jwtSecret: readOptionalString('APP_JWT_SECRET'),
+      jwtIssuer: readOptionalString('APP_JWT_ISSUER'),
+      jwtAudience: readOptionalString('APP_JWT_AUDIENCE') ?? 'infrafund',
     },
     openfort: {
-      secretKey:
-        readOptionalString('OPENFORT_SECRET_KEY') ??
-        readOptionalString('OPENFORT_API_KEY'),
-      publishableKey:
-        readOptionalString('OPENFORT_PUBLISHABLE_KEY') ??
-        readOptionalString('NEXT_PUBLIC_OPENFORT_PUBLIC_KEY'),
+      secretKey: readOptionalString('OPENFORT_SECRET_KEY'),
+      publishableKey: readOptionalString('OPENFORT_PUBLISHABLE_KEY'),
       baseUrl:
         readOptionalString('OPENFORT_BASE_URL') ?? 'https://api.openfort.io',
     },
     captcha: {
-      googleSecret:
-        readOptionalString('RECAPTCHA_SECRET_KEY') ??
-        readOptionalString('GOOGLE_RECAPTCHA_SECRET_KEY'),
+      googleSecret: readOptionalString('RECAPTCHA_SECRET_KEY'),
     },
     email: {
       enabled: readBoolean('CONTACT_FORM_EMAIL_ENABLED'),
