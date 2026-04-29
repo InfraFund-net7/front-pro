@@ -175,7 +175,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setPendingWalletCreation({ accessToken, user: currentUser });
 
       if (wallets.length > 0) {
-        console.info('[AuthSession] Wallet already exists, skipping creation.');
         finalizeAuthenticatedSession(accessToken, currentUser);
         return;
       }
@@ -197,12 +196,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
             hasExistingWallet: wallets.length > 0,
           },
         });
-        if (/already exists|duplicate/i.test(rawMessage)) {
-          console.warn(
-            '[AuthSession] Possible duplicate wallet creation attempt.',
-            { error: rawMessage }
-          );
-        }
         commitUserFacingError(rawMessage);
         setStatus('error');
       }
