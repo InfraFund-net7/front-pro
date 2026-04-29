@@ -14,6 +14,7 @@ jobs:
         run: |
           docker build \
             -f ./deployment/Dockerfile \
+            --build-arg NEXT_PUBLIC_ENVIRONMENT=production \
             --build-arg NEXT_PUBLIC_OPENFORT_PUBLIC_KEY=${{ secrets.AUTH_OPENFORT_PUBLISHABLE_KEY }} \
             --build-arg NEXT_PUBLIC_SHIELD_API_KEY=${{ secrets.SHIELD_API_KEY }} \
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.GOOGLE_RECAPTCHA_SITE_KEY }} \

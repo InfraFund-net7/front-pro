@@ -92,3 +92,14 @@ export async function verifyOpenfortAccessToken(accessToken: string) {
 export function deleteOpenfortUser(openfortUserId: string) {
   return getOpenfortClient().iam.users.delete(openfortUserId);
 }
+
+export function createOpenfortEncryptionSession() {
+  const { shield } = requireServerEnv(['shield']);
+
+  return getOpenfortClient().createEncryptionSession(
+    shield.publishableKey!,
+    shield.secretKey!,
+    shield.encryptionShare!,
+    shield.url
+  );
+}
