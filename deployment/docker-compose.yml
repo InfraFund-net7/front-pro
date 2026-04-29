@@ -16,7 +16,6 @@ services:
       - NODE_ENV=${ENVIRONMENT}
       - PORT=3000
       - HOSTNAME=0.0.0.0
-      - API_URL=${API_URL}
     env_file:
       - .env.production
     deploy:

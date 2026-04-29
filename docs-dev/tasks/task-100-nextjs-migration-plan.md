@@ -526,15 +526,15 @@ Resume notes:
 
 ### Phase 8: Frontend same-origin API switch
 
-**Status:** pending
-**Goal:** Stop frontend code from depending on the Go backend base URL.
+**Status:** done
+**Goal:** Stop frontend code and active deployment wiring from depending on the Go backend base URL.
 
 Tasks:
 
-- [ ] Replace proxy-style routes that call `getServerUrl(...)` with direct Next.js implementations or compatibility redirects.
-- [ ] Update frontend API service paths to use same-origin `/api/v1/...` routes.
-- [ ] Remove or deprecate `API_URL`/`NEXT_PUBLIC_API_BASE_URL` where no longer needed.
-- [ ] Keep old route aliases temporarily if UI code still calls them:
+- [x] Confirm no proxy-style routes or helpers that call `getServerUrl(...)` remain in the current app.
+- [x] Update frontend API service paths to use same-origin `/api/v1/...` routes.
+- [x] Remove `API_URL`/`NEXT_PUBLIC_API_BASE_URL` where no longer needed by active runtime/deployment wiring.
+- [x] Avoid adding old route aliases because current UI code does not call them:
   - `/api/waitlists`
   - `/api/contact`
   - `/api/locations`
@@ -542,17 +542,20 @@ Tasks:
 
 Expected files changed:
 
-- `src/services/apiService.ts`
-- `src/utils/get-server-url.util.ts` if still needed.
-- Existing `src/app/api/*` compatibility routes.
-- UI components that call backend endpoints.
+- `src/lib/backend-auth-client.ts`
+- `.env.example`
+- `deployment/Dockerfile`
+- `deployment/docker-compose.yml`
+- `.github/workflows/deploy.yaml`
+- `.github/workflows/deploy-dev.yaml`
+- `docs-dev/release-notes/v1.0.8-backend-next-migration.md`
 
 Validation:
 
-- UI smoke tests for forms.
 - `npm run format:prettier`
 - `npm run format:lint`
 - `npx tsc --noEmit`
+- `npm run build`
 
 Commit boundary:
 
@@ -560,7 +563,8 @@ Commit boundary:
 
 Resume notes:
 
-- Keep compatibility aliases until all UI call sites are verified.
+- Frontend backend requests now always resolve to same-origin `/api/v1/...`. `NEXT_PUBLIC_API_BASE_URL` and `API_URL` are removed from active code/deployment wiring. No legacy aliases were added because current UI call sites already use the shared Next.js API client.
+- Validation passed: `npm run format`, `npx tsc --noEmit`, and `npm run build`.
 
 ### Phase 9: Openfort simplification
 
@@ -709,6 +713,7 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | 2026-04-29 | Phase 5 | done | Added JWT access-token verification/signing, refresh/logout routes, session activity/expiry checks, and secure refresh-cookie lifecycle. |
 | 2026-04-29 | Phase 6 | done | Added protected profile/status endpoints and self-service account deletion with local soft delete plus best-effort Openfort user deletion. |
 | 2026-04-29 | Phase 7 | done | Added serverless-first lockout guard and cron cleanup route for expired lockouts, old audit logs, and old sessions. |
+| 2026-04-29 | Phase 8 | done | Switched frontend backend calls to same-origin `/api/v1` routes and removed active Go backend URL wiring. |
 
 ## 13. Preserved research from `../backpro`
 
