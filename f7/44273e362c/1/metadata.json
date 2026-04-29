@@ -1,0 +1,59 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "f744273e362c",
+  "session_id": "a73be39c-24b2-4823-939a-d7c98bc8cef0",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-29T02:00:03.150082701Z",
+  "branch": "openfort",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs-dev/tasks/task-100-nextjs-migration-plan.md"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(OpenAI-API)-0",
+  "turn_id": "c407b858d8a8",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-29T02:00:03.13168896Z",
+    "agent_lines": 9,
+    "agent_removed": 17,
+    "human_added": 226,
+    "human_modified": 14,
+    "human_removed": 0,
+    "total_committed": 249,
+    "total_lines_changed": 267,
+    "agent_percentage": 9.737827715355806,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 23,
+      "agent_lines_removed": 17,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    }
+  ]
+}
