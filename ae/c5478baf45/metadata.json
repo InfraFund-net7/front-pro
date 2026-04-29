@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "aec5478baf45",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".env.example",
+    ".github/workflows/deploy-dev.yaml",
+    ".github/workflows/deploy.yaml",
+    "deployment/Dockerfile",
+    "deployment/docker-compose.yml",
+    "docs-dev/release-notes/v1.0.8-backend-next-migration.md",
+    "docs-dev/tasks/task-100-nextjs-migration-plan.md",
+    "src/lib/backend-auth-client.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ae/c5478baf45/0/metadata.json",
+      "transcript": "/ae/c5478baf45/0/full.jsonl",
+      "content_hash": "/ae/c5478baf45/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
