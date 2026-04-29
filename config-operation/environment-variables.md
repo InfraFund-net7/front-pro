@@ -1,236 +1,107 @@
+<!-- cspell:words Openfort Reown Supabase recaptcha pgcrypto uuidv sslmode waitlists nodemailer -->
+
 # Environment Variables — Operational Reference
 
-**Last updated:** 2026-04-15
+**Last updated:** 2026-04-29
 **Branch:** `openfort`
 
-This document is the single source of truth for all environment variables required to build, deploy, and operate the front-pro dashboard.
+This is the canonical environment reference for the single Next.js `front-pro` app. The Go backend has been retired; do not configure `NEXT_PUBLIC_API_BASE_URL`, `API_URL`, `INFRA_AUTH_*`, or other `backpro`-only variables for this app.
 
----
+Use `.env.local` for local secrets and `.env.example` as the sanitized template. Regenerate the template from a working local env with:
 
-## Section 1: Frontend Build-Time Variables
+```sh
+npm run env:example
+```
 
-Baked into the JS bundle via the `NEXT_PUBLIC_` prefix. Passed as Dockerfile `ARG`s in `deployment/Dockerfile`.
+## Local baseline
 
-| Variable                                | Required                    | Source                           | Description                                                      |
-|-----------------------------------------|-----------------------------|----------------------------------|------------------------------------------------------------------|
-| `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY`       | Yes                         | Openfort Dashboard               | Must match `INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY` in backpro      |
-| `NEXT_PUBLIC_SHIELD_API_KEY`            | Yes                         | `openfort embedded-wallet setup` | Shield publishable key for embedded wallet config                |
-| `NEXT_PUBLIC_API_BASE_URL`              | Yes                         | Deployment config                | Backend API base URL (e.g. `http://localhost:8080/v1` for local) |
-| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`        | Yes (for non-resident flow) | Google reCAPTCHA admin console   | reCAPTCHA v3 site key                                            |
-| `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | No                          | WalletConnect Cloud              | Optional — enables external wallet support                       |
-| `NEXT_PUBLIC_POLICY_ID`                 | No                          | Openfort Dashboard > Policies    | Optional — gas sponsorship policy ID                             |
+| Variable | Required | Local/default value | Source | Purpose |
+| --- | --- | --- | --- | --- |
+| `NEXT_PUBLIC_ENVIRONMENT` | Yes | `development` | Local/deployment config | Selects app environment and Base/Base Sepolia chain behavior. |
+| `DATABASE_URL` | Yes | `postgresql://postgres:postgres@localhost:5432/infra_dev?sslmode=disable` | `deployment/docker-compose.local.yml` or managed Postgres/Supabase | Prisma database connection for all Next.js API routes. |
 
----
+Local database and dev server setup is documented in `docs-dev/test/local-testing-runbook.md`.
 
-## Section 2: Frontend Runtime Variables (server-side only)
+## Openfort and Shield
 
-Required by the Next.js API route at `src/app/api/auth/encryption-session/route.ts`. Must be injected at **runtime** via Docker Compose environment section — NOT as Dockerfile build args.
+| Variable | Required | Local/test shape | Source | Purpose |
+| --- | --- | --- | --- | --- |
+| `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` | Yes | `pk_test_...` | Openfort Dashboard > API Keys | Browser-side Openfort publishable key. |
+| `OPENFORT_PUBLISHABLE_KEY` | Yes | Same as `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` | Openfort Dashboard > API Keys | Server-side Openfort publishable key for the Node SDK. |
+| `OPENFORT_SECRET_KEY` | Yes | `sk_test_...` | Openfort Dashboard > API Keys | Server-side Openfort API key for token verification, user deletion, and Shield session creation. |
+| `OPENFORT_BASE_URL` | No | `https://api.openfort.io` | Openfort docs | Optional Openfort API override. |
+| `NEXT_PUBLIC_SHIELD_API_KEY` | Yes | Shield publishable key | `openfort embedded-wallet setup` | Browser-side Shield publishable key for embedded wallet recovery. |
+| `SHIELD_URL` | No | `https://shield.openfort.io` | Openfort docs | Optional Shield API override. |
+| `SHIELD_SECRET_KEY` | Yes | Shield secret key | `openfort embedded-wallet setup` | Server-side Shield secret for encryption sessions. |
+| `SHIELD_ENCRYPTION_SHARE` | Yes | Shield encryption share | `openfort embedded-wallet setup` | Server-side encryption share for automatic wallet recovery. |
+| `NEXT_PUBLIC_POLICY_ID` | No | Empty unless testing sponsorship | Openfort Dashboard > Policies | Optional fee sponsorship policy ID. |
+| `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | No | Reown project ID | Reown Cloud | Optional external-wallet support. |
 
-| Variable                  | Required | Source                                   | Description                                                |
-|---------------------------|----------|------------------------------------------|------------------------------------------------------------|
-| `SHIELD_SECRET_KEY`       | Yes      | `openfort embedded-wallet setup`         | Shield secret key for encryption sessions                  |
-| `SHIELD_ENCRYPTION_SHARE` | Yes      | `openfort embedded-wallet setup`         | Server-side encryption share for automatic wallet recovery |
-| `SHIELD_URL`              | No       | Defaults to `https://shield.openfort.io` | Shield API endpoint override                               |
+Get Shield values with:
 
-**How to get Shield credentials:**
-
-```bash
+```sh
 openfort login
 openfort embedded-wallet setup
 ```
 
-Copy from the setup output or `~/.config/openfort/credentials`. Alternatively, use the Openfort Dashboard > Embedded Wallet > Shield configuration.
+Openfort Dashboard security must allow `http://localhost:3000` for local testing and the deployed origins for dev/prod.
 
----
+## App session auth
 
-## Section 3: Backend Variables (backpro)
+| Variable | Required | Local/default value | Source | Purpose |
+| --- | --- | --- | --- | --- |
+| `APP_JWT_SECRET` | Yes | Generate with `openssl rand -base64 32` | Local/deployment secret manager | Signs InfraFund app access tokens. |
+| `APP_JWT_ISSUER` | No | Empty locally | Deployment config | Optional JWT issuer claim. |
+| `APP_JWT_AUDIENCE` | Yes | `infrafund` | App convention | JWT audience claim. |
+| `APP_JWT_ACCESS_TOKEN_TTL` | Yes | `15m` | App convention | Access-token lifetime. |
+| `APP_AUTH_SESSION_ACTIVITY_TIMEOUT` | Yes | `15m` | App convention | Refresh-session idle timeout. |
+| `APP_AUTH_SESSION_ABSOLUTE_TTL` | Yes | `7d` | App convention | Refresh-session absolute lifetime. |
+| `APP_REFRESH_COOKIE_DOMAIN` | No | Empty locally | Deployment config | Optional cookie domain for deployed environments. |
+| `APP_REFRESH_COOKIE_SAME_SITE` | Yes | `lax` | App convention | Refresh-cookie SameSite policy. |
 
-Key auth-related variables from `backpro/.env.example`:
+Refresh tokens are stored only as an `httpOnly` cookie plus a hashed database value.
 
-| Variable                                  | Required                    | Notes                                                           |
-|-------------------------------------------|-----------------------------|-----------------------------------------------------------------|
-| `INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY`     | Yes                         | **Must match** frontend `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY`       |
-| `INFRA_AUTH_JWT_SIGNING_KEY`              | Yes                         | Secret key for JWT signing                                      |
-| `INFRA_AUTH_JWT_ISSUER`                   | Yes                         | JWT issuer string                                               |
-| `INFRA_REST_COOKIE_ENCRYPTION_SECRET_KEY` | Yes                         | Cookie encryption key                                           |
-| `INFRA_REST_CORS_ALLOW_ORIGINS`           | Yes                         | Must include the frontend origin (e.g. `http://localhost:3000`) |
-| `INFRA_REST_COOKIE_SAME_SITE`             | Yes                         | `lax` for same-domain, `none` for cross-origin                  |
-| `INFRA_REST_RECAPTCHA_GOOGLE_SECRET`      | Yes (for non-resident flow) | Server-side reCAPTCHA secret key                                |
-| `INFRA_POSTGRES_HOST`                     | Yes                         | Database host                                                   |
-| `INFRA_POSTGRES_PORT`                     | Yes                         | Database port                                                   |
-| `INFRA_POSTGRES_USERNAME`                 | Yes                         | Database user                                                   |
-| `INFRA_POSTGRES_PASSWORD`                 | Yes                         | Database password                                               |
-| `INFRA_POSTGRES_DATABASE`                 | Yes                         | Database name                                                   |
+## Captcha for public forms
 
-**Note:** The backend bypasses captcha validation when `INFRA_REST_RECAPTCHA_GOOGLE_SECRET` is empty. This is safe for local development but the key must be set for deployed environments.
+| Variable | Required | Local/default value | Source | Purpose |
+| --- | --- | --- | --- | --- |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Required for captcha-protected public forms | Empty until configured | Google reCAPTCHA Admin | Browser site key for waitlist/contact flows. |
+| `RECAPTCHA_SECRET_KEY` | Required for captcha-protected public forms | Empty until configured | Google reCAPTCHA Admin | Server-side token verification key. |
 
----
+Create or reuse reCAPTCHA v3 keys at <https://www.google.com/recaptcha/admin> and add `localhost` plus deployed domains.
 
-## Section 4: GitHub Secrets per Environment
+## Cleanup cron
 
-**Dev environment** (workflow: `.github/workflows/deploy-dev.yaml`, runner: `develop-runner`):
+| Variable | Required | Local/default value | Source | Purpose |
+| --- | --- | --- | --- | --- |
+| `CRON_SECRET` | Yes for cleanup route | Generate with `openssl rand -base64 32` | Local/deployment secret manager | Bearer token for `GET /api/cron/cleanup`. |
 
-| Secret                              | Maps to Dockerfile ARG            |
-|-------------------------------------|-----------------------------------|
-| `DEV_API_BASE_URL`                  | `NEXT_PUBLIC_API_BASE_URL`        |
-| `DEV_AUTH_OPENFORT_PUBLISHABLE_KEY` | `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` |
-| `DEV_SHIELD_API_KEY`                | `NEXT_PUBLIC_SHIELD_API_KEY`      |
-| `GOOGLE_RECAPTCHA_SITE_KEY`         | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`  |
+## Contact form email
 
-**Production environment** (workflow: `.github/workflows/deploy.yaml`, runner: `prod-runner`):
+| Variable | Required | Local/default value | Source | Purpose |
+| --- | --- | --- | --- | --- |
+| `CONTACT_FORM_EMAIL_ENABLED` | No | `false` | Local/deployment config | Enables SMTP notification after contact form submission. |
+| `SMTP_HOST` | Only if email enabled | Empty | Email provider | SMTP host. |
+| `SMTP_PORT` | Only if email enabled | Empty | Email provider | SMTP port. |
+| `SMTP_USER` | Only if email enabled | Empty | Email provider | SMTP username. |
+| `SMTP_PASSWORD` | Only if email enabled | Empty | Email provider | SMTP password/app password. |
+| `SMTP_SENDER` | Only if email enabled | Empty | Email provider | From address. |
+| `CONTACT_FORM_RECEIVER` | Only if email enabled | Empty | Team inbox | Contact-form destination inbox. |
 
-| Secret                          | Maps to Dockerfile ARG            |
-|---------------------------------|-----------------------------------|
-| `PROD_API_BASE_URL`             | `NEXT_PUBLIC_API_BASE_URL`        |
-| `AUTH_OPENFORT_PUBLISHABLE_KEY` | `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` |
-| `SHIELD_API_KEY`                | `NEXT_PUBLIC_SHIELD_API_KEY`      |
-| `GOOGLE_RECAPTCHA_SITE_KEY`     | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`  |
+## Deployment mapping
 
----
+Build-time variables with the `NEXT_PUBLIC_` prefix must be available when building the Next.js bundle. Server-only variables must be injected at runtime by the hosting platform or container environment.
 
-## Section 5: Docker Compose Runtime Variables
+Current deploy workflows pass:
 
-The Docker Compose files referenced by the workflows (`${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}` and `${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }}`) must inject these as environment variables to the dashboard container:
+| Workflow secret | Runtime/build variable |
+| --- | --- |
+| `DEV_AUTH_OPENFORT_PUBLISHABLE_KEY` / `AUTH_OPENFORT_PUBLISHABLE_KEY` | `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` |
+| `DEV_SHIELD_API_KEY` / `SHIELD_API_KEY` | `NEXT_PUBLIC_SHIELD_API_KEY` |
+| `GOOGLE_RECAPTCHA_SITE_KEY` | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` |
 
-| Variable                  | Required | Purpose                                                |
-|---------------------------|----------|--------------------------------------------------------|
-| `SHIELD_SECRET_KEY`       | Yes      | Used by `src/app/api/auth/encryption-session/route.ts` |
-| `SHIELD_ENCRYPTION_SHARE` | Yes      | Used by `src/app/api/auth/encryption-session/route.ts` |
+The deployment environment also needs server-only values such as `DATABASE_URL`, `APP_JWT_SECRET`, `OPENFORT_SECRET_KEY`, `OPENFORT_PUBLISHABLE_KEY`, `SHIELD_SECRET_KEY`, `SHIELD_ENCRYPTION_SHARE`, `CRON_SECRET`, and optional SMTP variables.
 
-Without these, wallet creation will fail in deployed environments with "Shield credentials not configured on server".
+## Local testing reference
 
----
-
-## Section 6: Google OAuth Setup for Openfort
-
-The frontend already has `AuthProvider.GOOGLE` configured at `src/lib/openfort-config.tsx:65`.
-
-Setup steps:
-
-1. Go to Google Cloud Console > APIs & Services > Credentials
-2. Google : Create an OAuth 2.0 Client ID (Web application type)
-3. Openfort : https://dashboard.openfort.io/ > Account Management > Configuration > Providers > Google : "Enable Sign in with Google"
-3. Openfort : Copy `Callback URL (for OAuth)` > Google : paste URL into Authorized URI 
-4. Google : click [Create]
-5. Google : Copy Client ID and Client Secret
-6. Enable **Google** and paste the Client ID and Client Secret
-7. No frontend code changes needed — `AuthProvider.GOOGLE` is already in the config
-
----
-
-## Section 7: Apple iOS Login Setup for Openfort
-
-Apple Sign-In is not yet configured. When ready, it requires both dashboard setup and a one-line frontend change.
-
-Setup steps:
-
-1. Apple Developer account > Certificates, Identifiers & Profiles
-2. Create an App ID with "Sign In with Apple" capability enabled
-3. Create a Services ID (this becomes the OAuth client ID for web)
-4. Configure the Services ID: add the return URL from the Openfort Dashboard > Auth Providers > Apple
-5. Generate a private key for Sign In with Apple (Keys section)
-6. In the Openfort Dashboard, go to **Authentication > Providers**
-7. Enable **Apple** and configure with: Services ID, Team ID, Key ID, and the private key (.p8 file)
-
-Frontend change when ready — in `src/lib/openfort-config.tsx`:
-
-```ts
-// BEFORE:
-authProviders: [AuthProvider.GOOGLE, AuthProvider.EMAIL_OTP],
-
-// AFTER:
-authProviders: [AuthProvider.GOOGLE, AuthProvider.EMAIL_OTP, AuthProvider.APPLE],
-```
-
----
-
-## Section 8: Passkey Setup
-
-Passkeys use WebAuthn and are handled entirely client-side via the Openfort SDK. No backend or Openfort Dashboard changes are required.
-
-Frontend change — in `src/lib/openfort-config.tsx`, set `defaultMethod` in the `shieldConfig` / wallet recovery block:
-
-```ts
-// BEFORE (current — automatic recovery only):
-recoveryMethod: RecoveryMethod.AUTOMATIC,
-
-// AFTER (adds passkey as the default recovery method):
-recoveryMethod: RecoveryMethod.PASSKEY,
-```
-
-`RecoveryMethod.PASSKEY` is already imported from `@openfort/react`. This is a one-field change in the `OpenfortProvider` config — no additional packages or dashboard steps needed.
-
----
-
-## Section 9: Openfort Dashboard Security Settings
-
-Every deployment origin must be explicitly allowed in the Openfort Dashboard, or the publishable key will be rejected and OAuth callbacks will fail.
-
-**Openfort Dashboard > Project Settings > Security:**
-
-| Field               | Value                                                                                                                                                                     |
-|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Allowed Origins     | `http://localhost:3000` (local), `https://beta.infrafund.net` (dev), `https://infrafund.net` (prod), `http://<feature-server-ip>:8081` (feature)                          |
-| OAuth Redirect URLs | `http://localhost:3000/auth/callback`, `https://beta.infrafund.net/auth/callback`, `https://infrafund.net/auth/callback`, `http://<feature-server-ip>:8081/auth/callback` |
-
-This must be updated every time a new deployment target is added (e.g. when a feature server spins up). Missing an origin produces an auth error on the client that looks like a publishable key mismatch.
-
-Alternative setup for testing (current config) : Web Origins - Allow all origins (not secure)
-
----
-
-## Section 10: Content Security Policy (CSP)
-
-If the frontend sets `Content-Security-Policy` headers (via `next.config.ts` or a reverse proxy), the following directives are required for Openfort to function:
-
-```
-frame-src https://embed.openfort.io;
-connect-src https://api.openfort.io https://embed.openfort.io https://shield.openfort.io;
-```
-
-- `frame-src https://embed.openfort.io` — required for the embedded wallet iframe
-- `connect-src` entries — required for SDK API calls to Openfort and Shield
-
-Without these, the embedded wallet will be blocked by the browser's CSP enforcement. These are frontend/proxy settings; the Go backend does not need changes unless it is the one serving CSP headers.
-
----
-
-## Section 11: reCAPTCHA v3 Setup
-
-The reCAPTCHA code implementation is **already complete**:
-- `src/app/layout.tsx` — conditionally loads the reCAPTCHA v3 script when site key is set
-- `src/utils/recaptcha.ts` — `getRecaptchaToken(action)` utility
-- `src/components/auth/non-resident-form.tsx` — calls it with action `'non_resident_waitlist'`
-- `deployment/Dockerfile` — build arg and env for the site key
-- Both deploy workflows pass `secrets.GOOGLE_RECAPTCHA_SITE_KEY`
-
-What's needed is purely configuration:
-
-**Option A — Reuse existing keys from landing-pro:**
-
-1. Copy the reCAPTCHA site key from `landing-pro`'s env configuration
-2. Copy the reCAPTCHA secret key from `landing-pro`'s backend env
-3. Set `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` in `.env.local` (frontend)
-4. Set `INFRA_REST_RECAPTCHA_GOOGLE_SECRET` in `.env` (backend)
-5. Ensure the reCAPTCHA admin console includes `localhost` in allowed domains
-
-**Option B — Create new reCAPTCHA credentials:**
-
-1. Go to https://www.google.com/recaptcha/admin
-2. Register a new site with **reCAPTCHA v3**
-3. Add all domains: `localhost` for dev, production domain(s)
-4. Copy the **Site Key** (public) → `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`
-5. Copy the **Secret Key** (server-side) → `INFRA_REST_RECAPTCHA_GOOGLE_SECRET`
-
-**For deployed environments:**
-
-6. Set `GOOGLE_RECAPTCHA_SITE_KEY` GitHub secret (used by both deploy workflows)
-7. Set `GOOGLE_RECAPTCHA_SECRET` GitHub secret (used by backpro deploy workflows at `backpro/.github/workflows/deployer-dev.yml` and `deployer-prod.yml`)
-
-**Local testing note:** The backend bypasses captcha when `INFRA_REST_RECAPTCHA_GOOGLE_SECRET` is empty. So local testing of the non-resident flow works without the key — the form submits, just without captcha protection. Set the key to test the full captcha flow.
-
----
-
-## Section 12: Version Bump Note
-
-Once all N1–N7 items from `docs-dev/tasks/v0.2.5-openfort-frontend-implementation-review-fix.md` are resolved and verified, the `package.json` version is bumped from `0.1.0` to `0.2.6`.
+See `docs-dev/test/local-testing-runbook.md` for local startup, log monitoring, deterministic Openfort test credentials, and manual smoke-test steps.
