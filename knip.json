@@ -21,7 +21,6 @@
   },
   "ignoreDependencies": [
     "jotai",
-    "pg",
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser"
   ]
