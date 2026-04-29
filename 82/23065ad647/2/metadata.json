@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "8223065ad647",
+  "session_id": "b446af92-ec8e-44a8-99c0-140f9740c39d",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-29T04:41:45.988892266Z",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".env.example",
+    "docs-dev/release-notes/v1.0.10-backend-next-migration-openfort-simplification.md",
+    "docs-dev/tasks/task-100-nextjs-migration-plan.md",
+    "src/server/auth/config.ts",
+    "src/server/env.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "",
+  "turn_id": "4bfb37542b9a",
+  "checkpoint_transcript_start": 1,
+  "transcript_lines_at_start": 1,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-29T04:41:45.988024069Z",
+    "agent_lines": 96,
+    "agent_removed": 63,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 96,
+    "total_lines_changed": 159,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
