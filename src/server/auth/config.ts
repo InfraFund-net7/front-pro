@@ -30,38 +30,27 @@ function parseDuration(value: string | undefined, fallbackMs: number) {
   return amount * multipliers[unit];
 }
 
-function readDuration(names: string[], fallbackMs: number) {
-  for (const name of names) {
-    const parsed = parseDuration(readOptionalString(name), fallbackMs);
-    if (parsed !== fallbackMs || readOptionalString(name)) {
-      return parsed;
-    }
-  }
-
-  return fallbackMs;
+function readDuration(name: string, fallbackMs: number) {
+  return parseDuration(readOptionalString(name), fallbackMs);
 }
 
 export function getAuthConfig() {
   return {
     accessTokenTtlMs: readDuration(
-      ['APP_JWT_ACCESS_TOKEN_TTL', 'INFRA_AUTH_JWT_ACCESS_TOKEN_TTL'],
+      'APP_JWT_ACCESS_TOKEN_TTL',
       defaultAccessTokenTtlMs
     ),
     activityTimeoutMs: readDuration(
-      ['APP_AUTH_SESSION_ACTIVITY_TIMEOUT', 'INFRA_AUTH_ACTIVITY_TIMEOUT'],
+      'APP_AUTH_SESSION_ACTIVITY_TIMEOUT',
       defaultActivityTimeoutMs
     ),
     absoluteSessionTtlMs: readDuration(
-      ['APP_AUTH_SESSION_ABSOLUTE_TTL', 'INFRA_AUTH_ABSOLUTE_EXPIRES_DURATION'],
+      'APP_AUTH_SESSION_ABSOLUTE_TTL',
       defaultAbsoluteSessionTtlMs
     ),
-    cookieDomain:
-      readOptionalString('APP_REFRESH_COOKIE_DOMAIN') ??
-      readOptionalString('INFRA_REST_COOKIE_DOMAIN'),
+    cookieDomain: readOptionalString('APP_REFRESH_COOKIE_DOMAIN'),
     cookieSameSite: (
-      readOptionalString('APP_REFRESH_COOKIE_SAME_SITE') ??
-      readOptionalString('INFRA_REST_COOKIE_SAME_SITE') ??
-      'lax'
+      readOptionalString('APP_REFRESH_COOKIE_SAME_SITE') ?? 'lax'
     ).toLowerCase(),
   };
 }
