@@ -121,7 +121,6 @@ export function getServerEnv() {
         readOptionalString('OPENFORT_API_KEY'),
       publishableKey:
         readOptionalString('OPENFORT_PUBLISHABLE_KEY') ??
-        readOptionalString('INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY') ??
         readOptionalString('NEXT_PUBLIC_OPENFORT_PUBLIC_KEY'),
       baseUrl:
         readOptionalString('OPENFORT_BASE_URL') ?? 'https://api.openfort.io',

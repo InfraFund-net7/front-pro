@@ -1,45 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { requireServerEnv } from '@/server/env';
-import { handleApiError } from '@/server/http';
+import { requireBearerToken } from '@/server/auth/http';
+import { ApiError, handleApiError } from '@/server/http';
 import { logger } from '@/server/logger';
+import {
+  createOpenfortEncryptionSession,
+  verifyOpenfortAccessToken,
+} from '@/server/openfort/session';
 
 export async function POST(request: NextRequest) {
   try {
-    const { shield } = requireServerEnv(['shield']);
-    const publishableKey = shield.publishableKey!;
-    const secretKey = shield.secretKey!;
-    const encryptionShare = shield.encryptionShare!;
+    const accessToken = requireBearerToken(request);
+    const body = await request.json().catch(() => ({}));
+    const requestedUserId =
+      body && typeof body === 'object' && 'user_id' in body
+        ? body.user_id
+        : undefined;
 
-    const body = await request.json();
+    if (typeof requestedUserId !== 'string' || !requestedUserId.trim()) {
+      throw new ApiError('BAD_REQUEST', 'Openfort user ID is required.');
+    }
 
-    const response = await fetch(`${shield.url}/project/encryption-session`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': publishableKey,
-        'x-api-secret': secretKey,
-      },
-      body: JSON.stringify({
-        encryption_part: encryptionShare,
-        user_id: body.user_id,
-      }),
-    });
+    const session = await verifyOpenfortAccessToken(accessToken);
 
-    if (!response.ok) {
-      const error = await response.text();
-      logger.warn(
-        { status: response.status, error },
-        'Shield encryption session request failed'
-      );
-      return NextResponse.json(
-        { message: 'Failed to create encryption session' },
-        { status: response.status }
+    if (session.user.id !== requestedUserId) {
+      throw new ApiError(
+        'FORBIDDEN',
+        'Openfort user mismatch for encryption session.'
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json({ session: data.session_id });
+    const encryptionSession = await createOpenfortEncryptionSession();
+
+    return NextResponse.json({ session: encryptionSession });
   } catch (err) {
     logger.error({ err }, 'Encryption session error');
     return handleApiError(err);

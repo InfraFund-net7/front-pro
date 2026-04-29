@@ -568,23 +568,27 @@ Resume notes:
 
 ### Phase 9: Openfort simplification
 
-**Status:** pending
+**Status:** done
 **Goal:** Keep Openfort integration minimal and aligned with the onboarding flow.
 
 Tasks:
 
-- [ ] Add minimal Openfort provider setup for Next.js App Router.
-- [ ] Use `connectOnLogin: false` so auth does not create a wallet before qualification.
-- [ ] Use a single Openfort entry point in the public UI.
-- [ ] After successful qualification and app-session exchange, create the wallet.
-- [ ] Avoid importing the full sample app UI, Pages Router structure, and unrelated dependencies.
-- [ ] Treat Openfort CLI as optional admin/MCP tooling, not a runtime requirement.
+- [x] Add minimal Openfort provider setup for Next.js App Router.
+- [x] Use `connectOnLogin: false` so auth does not create a wallet before qualification.
+- [x] Use a single Openfort entry point in the public UI.
+- [x] After successful qualification and app-session exchange, create the wallet.
+- [x] Avoid importing the full sample app UI, Pages Router structure, and unrelated dependencies.
+- [x] Treat Openfort CLI as optional admin/MCP tooling, not a runtime requirement.
 
 Expected files changed:
 
 - `src/app/layout.tsx` or app provider wrapper.
 - `src/lib/openfort-config.tsx` or equivalent.
 - Login/onboarding components.
+- `src/app/api/auth/encryption-session/route.ts`
+- `src/server/openfort/session.ts`
+- `src/server/env.ts`
+- Active deployment build wiring if environment-specific chain selection needs correction.
 - Package files if SDK dependencies are added.
 
 Validation:
@@ -601,7 +605,12 @@ Commit boundary:
 
 Resume notes:
 
-- If Openfort SDK behavior is unclear, read `https://www.openfort.io/docs/products/embedded-wallet/react` and inspect the auth sample for only the provider/config pattern.
+- Implemented the documented EVM provider stack with `WagmiProvider`, `OpenfortWagmiBridge`, and `OpenfortProvider` without importing the sample app UI or CLI runtime tooling.
+- Kept `connectOnLogin: false`; the public login card remains the single public Openfort entry point, and wallet creation still happens only after qualification plus app-session exchange.
+- Replaced the unauthenticated Shield endpoint mode with a token-aware `getEncryptionSession` callback and a same-origin route that verifies the Openfort access token/user ID before issuing a Shield encryption session.
+- Removed the old `INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY` alias from runtime env loading and set deployment builds to pass `NEXT_PUBLIC_ENVIRONMENT` for Base/Base Sepolia selection.
+- Validation passed: `npm run format:prettier`, `npm run format:lint`, `npm run format:cspell -- --no-progress`, `npm run format:knip`, `npx tsc --noEmit`, `npm run build`, and local HTTP smoke test returned `200 OK`.
+- Browser-based Openfort auth and wallet recovery smoke testing still requires real Openfort/Shield keys.
 
 ### Phase 10: Final parity and Go backend retirement
 
@@ -714,6 +723,7 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | 2026-04-29 | Phase 6 | done | Added protected profile/status endpoints and self-service account deletion with local soft delete plus best-effort Openfort user deletion. |
 | 2026-04-29 | Phase 7 | done | Added serverless-first lockout guard and cron cleanup route for expired lockouts, old audit logs, and old sessions. |
 | 2026-04-29 | Phase 8 | done | Switched frontend backend calls to same-origin `/api/v1` routes and removed active Go backend URL wiring. |
+| 2026-04-29 | Phase 9 | done | Simplified Openfort App Router provider setup, secured Shield encryption sessions with Openfort token verification, and kept wallet creation gated behind qualification/session exchange. |
 
 ## 13. Preserved research from `../backpro`
 
