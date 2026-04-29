@@ -1,18 +1,1 @@
-regarding "Phase 0" 
-- we have decided to retire the Go backend fully and create a new fresh NEXT.js 
-implementatation, so there is often littele need or benefit to use the old Go backend as 
-guidance. 
-- Also for all tasks related to `openport` always user the openfort SKILL.md to get up to day 
-guidance on the best implementation an latest documentation 
-- to start with we can use the existing PostgreSQL but we may want to move to the vercel 
-database when the migration is complete. 
-- we plan to deploy only on vercel once done, but you can keep deployemwnt stricts for other 
-platform as long as they do not interfere with our new clean approach 
-- there is also a openfort sample app should you need some guidance on it : 
-https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample 
-- update the document Phase 0 section based on this information 
-
-- phase 6 question : Confirm whether Openfort account deletion is required in this phase or 
-deferred => replicate the existing functionality which is likely deleting the openfort 
-account should user request it, we keep database dataset for that user for now, should we 
-need to report on that or have an audit, so a "soft delete" approach.
+ok, now implement Phase 6 , when all green ,  commit and push it all
