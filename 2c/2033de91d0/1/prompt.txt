@@ -1,0 +1,13 @@
+ok, now implement Phase 6 , when all green ,  commit and push it all
+
+---
+
+make a plan how to implement Phase 7: Lockout, audit, and cleanup jobs in @docs-dev/tasks/task-100-nextjs-migration-plan.md
+there may be functionality which only made sense for the separate Go backend `../backpro` which we are going to retire as this is the main goal of this refactor, so there might be functionality which we can drop in a NEXT.js only implementation to which we are working towards.
+
+---
+
+implement as suggested , when green
+- write a new file `docs-dev/release-notes/v1.0.7-backend-next-migration.md` mainly copying the plan you just presented in the last response, updated with what has been implemented if it diverted from the original plan 
+- update `docs-dev/tasks/task-100-nextjs-migration-plan.md` with the status after implementation is done
+- commit and push it all with msg "feat: Infrafund backend next migration - phase 7"
