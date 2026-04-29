@@ -5,7 +5,7 @@
 **Status:** In progress
 **Target repo:** `front-pro`
 **Backend to retire:** `../backpro`
-**Decision:** Migrate backend functionality into the existing Next.js app first, then simplify Openfort. Do not rebase the app onto the Openfort sample project.
+**Decision:** Fully retire the Go backend and build the fresh backend implementation in the existing Next.js app. Do not rebase the app onto the Openfort sample project.
 
 ## 1. Goal
 
@@ -16,6 +16,7 @@ The migration must be resumable. Each phase below is intended to be small enough
 ## 2. Source-of-truth references
 
 - Existing migration research: `../backpro/docs-dev/tasks/task-100-nextjs-migration.md`
+  - Treat Go/backend material as historical parity reference only. Do not copy Go architecture or use it as primary implementation guidance.
 - Openfort backend/onboarding plans:
   - `../backpro/docs-dev/tasks/v0.2.2-openfort-implementation-with-onboarding-backend.md`
   - `../backpro/docs-dev/tasks/v0.2.5-openfort-backend-implementation-review.md`
@@ -25,6 +26,7 @@ The migration must be resumable. Each phase below is intended to be small enough
   - `https://www.openfort.io/docs/overview/building-with-ai`
   - `https://www.openfort.io/docs/products/embedded-wallet/react`
   - `https://www.openfort.io/docs/configuration/custom-auth/auth-token`
+  - For Openfort-related tasks, use the project Openfort `SKILL.md` and current Openfort documentation first.
 - Openfort sample app:
   - `https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample`
 
@@ -33,11 +35,11 @@ The migration must be resumable. Each phase below is intended to be small enough
 Choose option **A**:
 
 1. Keep this Next.js app as the base.
-2. Move the Go backend contracts into Next.js API routes.
-3. Retain PostgreSQL and existing data model.
+2. Recreate required backend contracts directly in Next.js API routes.
+3. Start with the existing PostgreSQL database and data model; consider a later move to Vercel database after migration completion.
 4. Keep Openfort responsible for auth and wallet lifecycle.
 5. Keep Next.js responsible for InfraFund app sessions, profile, authorization, and CRUD endpoints.
-6. Use the Openfort sample app only as a reference for minimal provider setup and wallet calls.
+6. Use the Openfort sample app only as optional guidance for minimal provider setup and wallet calls.
 
 Do **not** choose option B unless this plan fails for a concrete reason. The sample app is a demo/template, uses Pages Router, brings unrelated UI and dependencies, and would force unnecessary migration of the existing frontend into a different structure.
 
@@ -55,8 +57,8 @@ flowchart TD
 | Area | Owner after migration | Notes |
 | --- | --- | --- |
 | Public landing pages | Next.js UI | Existing app remains the base. |
-| Public form endpoints | Next.js API | Replace proxying to Go backend. |
-| Database | PostgreSQL | Keep existing data; no migration unless schema mismatch requires it. |
+| Public form endpoints | Next.js API | Implement directly in Next.js; do not proxy to Go. |
+| Database | PostgreSQL | Start with existing PostgreSQL data; revisit Vercel database after migration completion. |
 | DB access | Prisma or equivalent server-only TS layer | Prefer Prisma per original research unless a lighter layer is selected before Phase 2. |
 | App auth/session | Next.js API | JWT access token and httpOnly refresh cookie. |
 | Openfort auth/wallet | Openfort SDK/API | Verify Openfort session server-side, defer wallet creation until qualification. |
@@ -73,10 +75,10 @@ Status values: `pending`, `in-progress`, `done`, `deferred`.
 | `POST /v1/auth/openfort/exchange` | `POST /api/v1/auth/openfort/exchange` | Openfort token | `users`, `sessions`, `wallets`, lockout service | done |
 | `POST /v1/auth/refresh` | `POST /api/v1/auth/refresh` | refresh cookie | `sessions` | done |
 | `POST /v1/auth/logout` | `POST /api/v1/auth/logout` | app session | `sessions` | done |
-| `GET /v1/me` | `GET /api/v1/me` | app session | `users`, `wallets` | pending |
-| `DELETE /v1/me` | `DELETE /api/v1/me` | app session | `users`, Openfort account deletion if needed | pending |
-| `GET /v1/account/status` | `GET /api/v1/account/status` | app session | `users` | pending |
-| `GET /v1/kyc/status` | `GET /api/v1/kyc/status` | app session | `users` | pending |
+| `GET /v1/me` | `GET /api/v1/me` | app session | `users`, `wallets` | done |
+| `DELETE /v1/me` | `DELETE /api/v1/me` | app session | `users`, Openfort user deletion, local soft delete | done |
+| `GET /v1/account/status` | `GET /api/v1/account/status` | app session | `users` | done |
+| `GET /v1/kyc/status` | `GET /api/v1/kyc/status` | app session | `users` | done |
 | `POST /v1/waitlists` | `POST /api/v1/waitlists` | captcha | `waitlist` | done |
 | `POST /v1/contact-forms` | `POST /api/v1/contact-forms` | captcha | `contact_forms`, email service | done |
 | `POST /v1/non-resident-waitlist/individual` | `POST /api/v1/non-resident-waitlist/individual` | captcha | `non_resident_waitlists`, `countries` | done |
@@ -125,15 +127,19 @@ Before starting any phase:
 ### Phase 0: Inventory and baseline
 
 **Status:** done
-**Goal:** Confirm frontend and backend contracts before any migration code.
+**Goal:** Confirm the fresh Next.js migration baseline before implementation.
 
 Tasks:
 
-- [ ] Capture current `front-pro` API routes and backend-auth behavior.
-- [ ] Capture current `../backpro` routes, database migrations, env vars, and tests.
-- [ ] Confirm whether existing PostgreSQL database should be reused directly.
-- [ ] Confirm deployment target: Vercel, Railway, or another Node-compatible host.
-- [ ] Confirm required runtime env names.
+- [x] Capture current `front-pro` API routes and auth behavior.
+- [x] Fully retire the Go backend and build a fresh Next.js implementation.
+- [x] Use `../backpro` only as historical parity reference where needed.
+- [x] Confirm Openfort tasks must use the Openfort `SKILL.md` and current docs first.
+- [x] Start with the existing PostgreSQL database; consider Vercel database after migration completion.
+- [x] Confirm Vercel as the intended deployment target. Keep other deployment scripts only if they do not interfere with the clean Vercel-first approach.
+- [x] Keep the Openfort sample app available as optional implementation guidance:
+  `https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample`.
+- [x] Confirm required runtime env names.
 
 Expected files changed:
 
@@ -150,7 +156,7 @@ Commit boundary:
 
 Resume notes:
 
-- If interrupted here, continue by opening this file and the existing `../backpro/docs-dev/tasks/task-100-nextjs-migration.md`.
+- If interrupted here, continue from this file. Consult `../backpro` only for endpoint parity or data-shape questions, and use Openfort `SKILL.md`/current docs for Openfort decisions.
 
 ### Phase 1: Next.js backend foundation
 
@@ -343,7 +349,7 @@ Resume notes:
 
 ### Phase 4: Openfort check and exchange
 
-**Status:** pending
+**Status:** done
 **Goal:** Port the onboarding-aware auth split from Go.
 
 Tasks:
@@ -436,17 +442,17 @@ Resume notes:
 
 ### Phase 6: Protected profile and status endpoints
 
-**Status:** pending
+**Status:** done
 **Goal:** Port user-facing protected API contracts.
 
 Tasks:
 
-- [ ] Implement `GET /api/v1/me`.
-- [ ] Implement `DELETE /api/v1/me`.
-- [ ] Implement `GET /api/v1/account/status`.
-- [ ] Implement `GET /api/v1/kyc/status`.
-- [ ] Preserve soft-delete/GDPR behavior.
-- [ ] Confirm whether Openfort account deletion is required in this phase or deferred.
+- [x] Implement `GET /api/v1/me`.
+- [x] Implement `DELETE /api/v1/me`.
+- [x] Implement `GET /api/v1/account/status`.
+- [x] Implement `GET /api/v1/kyc/status`.
+- [x] Preserve soft-delete/GDPR behavior by retaining local database records for audit/reporting.
+- [x] Delete the Openfort user/account via Openfort API when a user requests account deletion.
 
 Expected files changed:
 
@@ -454,7 +460,7 @@ Expected files changed:
 - `src/app/api/v1/account/status/route.ts`
 - `src/app/api/v1/kyc/status/route.ts`
 - `src/server/services/account.ts`
-- Tests.
+- No project test runner exists yet.
 
 Validation:
 
@@ -462,6 +468,7 @@ Validation:
 - `npm run format:prettier`
 - `npm run format:lint`
 - `npx tsc --noEmit`
+- `npm run build`
 
 Commit boundary:
 
@@ -469,7 +476,8 @@ Commit boundary:
 
 Resume notes:
 
-- Compare against Go responses before frontend switch.
+- Implemented protected profile/status routes, local account soft deletion with session revocation, refresh-cookie clearing, and best-effort Openfort user deletion.
+- Validation passed: `npm run format`, `npx tsc --noEmit`, and `npm run build`.
 
 ### Phase 7: Lockout, audit, and cleanup jobs
 
@@ -728,7 +736,7 @@ The original research file is still useful as historical context, but the unique
 | Integration | Current behavior | Migration note |
 | --- | --- | --- |
 | Openfort session lookup | `GET /iam/v2/auth/get-session` verifies access token and returns user profile data. | Keep as server-side verification for check/exchange. |
-| Openfort user deletion | `DELETE /v2/users/{id}` during account deletion. | Port in protected account deletion phase; decide retry/circuit-breaker depth then. |
+| Openfort user deletion | `DELETE /v2/users/{id}` during account deletion. | Port in Phase 6 account deletion; keep local data soft-deleted for audit/reporting. |
 | reCAPTCHA/captcha | Supports Google reCAPTCHA, hCaptcha, and Cloudflare Turnstile through Go library. | Preserve accepted provider(s) actually used by deployed frontend. |
 | SMTP | Contact form sends async HTML email to team address. | Port as fire-and-forget server-side email with safe logging. |
 | Sumsub | Placeholder only; not implemented. | Do not add during migration unless a separate task requires it. |

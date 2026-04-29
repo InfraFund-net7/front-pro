@@ -15,6 +15,17 @@ export interface CreateUserRecord {
   role: UserRole;
 }
 
+export type UserWithOrganization = Prisma.UserGetPayload<{
+  include: { organization: true };
+}>;
+
+export function findActiveUserById(userId: string) {
+  return getDb().user.findFirst({
+    where: { id: userId, deletedAt: null },
+    include: { organization: true },
+  });
+}
+
 export function findUserByOpenfortId(openfortUserId: string) {
   return getDb().user.findFirst({
     where: {
@@ -60,6 +71,41 @@ export async function createUser(record: CreateUserRecord) {
     }
 
     return user;
+  });
+}
+
+export async function softDeleteUserAccount(userId: string) {
+  const db = getDb();
+  const now = new Date();
+
+  await db.$transaction(async (tx) => {
+    const user = await tx.user.findFirst({
+      where: { id: userId, deletedAt: null },
+      select: { dataDeletionRequestedAt: true },
+    });
+
+    if (!user) return;
+
+    await tx.session.updateMany({
+      where: { userId, revokedAt: null },
+      data: {
+        revokedAt: now,
+        revokedReason: 'user_terminated',
+        revokedByUserId: null,
+      },
+    });
+
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        email: null,
+        phoneNumber: null,
+        openfortUserId: `deleted:${userId}`,
+        dataDeletionRequestedAt: user.dataDeletionRequestedAt ?? now,
+        deletedAt: now,
+        updatedAt: now,
+      },
+    });
   });
 }
 
