@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "1be31dc83c18",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 6,
+  "files_touched": [
+    ".env.example",
+    "README.md",
+    "config-operation/environment-variables.md",
+    "deployment/docker-compose.local.yml",
+    "deployment/local-postgres/init-db.sql",
+    "docs-dev/test/local-testing-runbook.md",
+    "knip.json",
+    "package.json",
+    "prisma/seed/countries.sql",
+    "scripts/generate-env-example.mjs",
+    "scripts/load-env-local.mjs",
+    "scripts/seed-countries.mjs",
+    "scripts/setup-local-db.mjs"
+  ],
+  "sessions": [
+    {
+      "metadata": "/1b/e31dc83c18/0/metadata.json",
+      "transcript": "/1b/e31dc83c18/0/full.jsonl",
+      "content_hash": "/1b/e31dc83c18/0/content_hash.txt",
+      "prompt": "/1b/e31dc83c18/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}

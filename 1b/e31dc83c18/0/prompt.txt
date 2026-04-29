@@ -1,0 +1,166 @@
+can you commit it all, and push it - `.env.local` should be excluded automatically by `.gitignore` with `.env.example` excluded , add the script as well , use commit msg "feat: Infrafund backend next migration - env template"
+
+Then give me a list what values it still need to populate to make it work, grouped by feature (i.e. sending email) sorted by priority , openfort login and database likely at the top , recaptcha , mail more towards the end with less priority
+
+---
+
+for starting the test database , you suggested these lines which still refer back to the old , now retired , `backpro` repo.
+can we move this over and what would be the best approach to start the local environment with everything needed, which for now should just be postgresql and the dev server , and also make sure that you can access the output of the dev server , so we can monitor and debug together.
+```
+docker compose -f ../backpro/deployment/docker-compose.yml up -d postgres
+     DATABASE_URL='postgresql://postgres:postgres@localhost:5432/infra_dev?sslmode=disable' make -C
+     ../backpro migration-up
+```
+we also need a place for these test credentials , maybe `docs-dev/test/test-credentials.md` ?
+
+---
+
+good, just that `docs-dev/test/test-credentials.md` and `config-operation/environment-variables.md` are kind of overlapping partially and maybe not at the right place ?
+Or they are at the right place , `config-operation/environment-variables.md` would need an update to reflect our current setup to explain what env vars are needed , what there purpose is, where to get them from, and what the default/local-test values are.
+`docs-dev/test/test-credentials.md` should be renamed and repurposed to just describe how to set up everything locally to run the tests locally ? ... and that file would also have instructions what to do (manually) to test the website, like using these credentials for testing openfort.
+```
+# openfort test credentials
+
+test account for automated testing and App Store review flows. When enabled, deterministic credentials are generated that bypass email/SMS delivery.
+
+email : test-96cb@openfort.xyz
+phone : +15555557383
+OTP code : 371941
+```
+
+---
+
+i just tried a deploy to vercel , just providing `.env.local` and removing the database URL as i want to go with the vercel hosted postgres, and got this output 
+```
+21:08:17.453 Running build in Washington, D.C., USA (East) – iad1
+21:08:17.454 Build machine configuration: 4 cores, 8 GB
+21:08:17.562 Cloning github.com/InfraFund-net7/front-pro (Branch: develop, Commit: beaf7d2)
+21:08:17.563 Previous build caches not available.
+21:08:18.106 Cloning completed: 543.000ms
+21:08:18.411 Running "vercel build"
+21:08:19.098 Vercel CLI 51.6.1
+21:08:19.388 Installing dependencies...
+21:08:20.959 npm warn ERESOLVE overriding peer dependency
+21:08:20.960 npm warn While resolving: @ant-design/v5-patch-for-react-19@1.0.3
+21:08:20.960 npm warn Found: react@18.3.1
+21:08:20.961 npm warn node_modules/react
+21:08:20.961 npm warn   react@"18.3.1" from the root project
+21:08:20.961 npm warn   73 more (@ant-design/cssinjs, @ant-design/cssinjs-utils, ...)
+21:08:20.961 npm warn
+21:08:20.962 npm warn Could not resolve dependency:
+21:08:20.962 npm warn peer react@">=19.0.0" from @ant-design/v5-patch-for-react-19@1.0.3
+21:08:20.962 npm warn node_modules/@particle-network/authkit/node_modules/@ant-design/v5-patch-for-react-19
+21:08:20.962 npm warn   @ant-design/v5-patch-for-react-19@"^1.0.3" from @particle-network/authkit@2.1.1
+21:08:20.962 npm warn   node_modules/@particle-network/authkit
+21:08:20.962 npm warn
+21:08:20.962 npm warn Conflicting peer dependency: react@19.2.5
+21:08:20.963 npm warn node_modules/react
+21:08:20.963 npm warn   peer react@">=19.0.0" from @ant-design/v5-patch-for-react-19@1.0.3
+21:08:20.963 npm warn   node_modules/@particle-network/authkit/node_modules/@ant-design/v5-patch-for-react-19
+21:08:20.963 npm warn     @ant-design/v5-patch-for-react-19@"^1.0.3" from @particle-network/authkit@2.1.1
+21:08:20.963 npm warn     node_modules/@particle-network/authkit
+21:08:21.041 npm warn ERESOLVE overriding peer dependency
+21:08:21.042 npm warn While resolving: react-dom@19.2.3
+21:08:21.042 npm warn Found: react@18.3.1
+21:08:21.042 npm warn node_modules/react
+21:08:21.042 npm warn   react@"18.3.1" from the root project
+21:08:21.042 npm warn   73 more (@ant-design/cssinjs, @ant-design/cssinjs-utils, ...)
+21:08:21.043 npm warn
+21:08:21.043 npm warn Could not resolve dependency:
+21:08:21.043 npm warn peer react@"^19.2.3" from react-dom@19.2.3
+21:08:21.043 npm warn node_modules/@particle-network/authkit/node_modules/react-dom
+21:08:21.043 npm warn   peer react-dom@">=19.0.0" from @ant-design/v5-patch-for-react-19@1.0.3
+21:08:21.043 npm warn   node_modules/@particle-network/authkit/node_modules/@ant-design/v5-patch-for-react-19
+21:08:21.043 npm warn   1 more (antd)
+21:08:21.043 npm warn
+21:08:21.044 npm warn Conflicting peer dependency: react@19.2.5
+21:08:21.044 npm warn node_modules/react
+21:08:21.044 npm warn   peer react@"^19.2.3" from react-dom@19.2.3
+21:08:21.044 npm warn   node_modules/@particle-network/authkit/node_modules/react-dom
+21:08:21.044 npm warn     peer react-dom@">=19.0.0" from @ant-design/v5-patch-for-react-19@1.0.3
+21:08:21.044 npm warn     node_modules/@particle-network/authkit/node_modules/@ant-design/v5-patch-for-react-19
+21:08:21.044 npm warn     1 more (antd)
+21:08:23.301 npm warn deprecated uuidv4@6.2.13: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+21:08:24.780 npm warn deprecated intersection-observer@0.12.2: The Intersection Observer polyfill is no longer needed and can safely be removed. Intersection Observer has been Baseline since 2019.
+21:08:26.781 npm warn deprecated @simplewebauthn/types@10.0.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+21:08:27.256 npm warn deprecated @paulmillr/qr@0.2.1: The package is now available as "qr": npm install qr
+21:08:34.631 npm warn deprecated @walletconnect/sign-client@2.21.2: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:34.961 npm warn deprecated @walletconnect/ethereum-provider@2.21.2: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.089 npm warn deprecated @walletconnect/universal-provider@2.21.2: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.411 npm warn deprecated @walletconnect/sign-client@2.21.1: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.601 npm warn deprecated @walletconnect/sign-client@2.21.0: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.610 npm warn deprecated @walletconnect/sign-client@2.21.0: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.648 npm warn deprecated @walletconnect/sign-client@2.21.0: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.805 npm warn deprecated @walletconnect/universal-provider@2.21.1: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.954 npm warn deprecated @walletconnect/ethereum-provider@2.21.1: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:35.959 npm warn deprecated @walletconnect/universal-provider@2.21.0: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:36.010 npm warn deprecated @walletconnect/universal-provider@2.21.0: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:36.041 npm warn deprecated @walletconnect/universal-provider@2.21.0: Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases
+21:08:58.749 npm warn deprecated next@15.4.4: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
+21:08:59.521 
+21:08:59.521 > front-pro@0.1.0 prepare
+21:08:59.521 > husky
+21:08:59.521 
+21:08:59.607 
+21:08:59.608 added 1440 packages in 40s
+21:08:59.608 
+21:08:59.608 255 packages are looking for funding
+21:08:59.608   run `npm fund` for details
+21:08:59.828 Detected Next.js version: 15.4.4
+21:08:59.844 Running "npm run build"
+21:08:59.940 
+21:08:59.940 > front-pro@0.1.0 build
+21:08:59.940 > next build
+21:08:59.940 
+21:09:00.732 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+21:09:00.732 This information is used to shape Next.js' roadmap and prioritize features.
+21:09:00.732 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+21:09:00.732 https://nextjs.org/telemetry
+21:09:00.732 
+21:09:00.812    ▲ Next.js 15.4.4
+21:09:00.812 
+21:09:00.826    Creating an optimized production build ...
+21:09:52.597  ✓ Compiled successfully in 48s
+21:09:52.600    Linting and checking validity of types ...
+21:09:55.992 
+21:09:55.993 ./src/components/investmentportal/create/create-sections/press-section.tsx
+21:09:55.994 2:10  Warning: 'FileUploadWithPreview' is defined but never used.  @typescript-eslint/no-unused-vars
+21:09:55.994 
+21:09:55.994 ./src/services/api.service.ts
+21:09:55.994 16:16  Warning: 'getAxiosRequestConfig' is defined but never used.  @typescript-eslint/no-unused-vars
+21:09:55.994 
+21:09:55.994 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+21:09:58.928    Collecting page data ...
+21:10:02.984    Generating static pages (0/22) ...
+21:10:03.585    Generating static pages (5/22) 
+21:10:03.756 Error occurred prerendering page "/_not-found". Read more: https://nextjs.org/docs/messages/prerender-error
+21:10:03.756 Error: Init AuthCore failed, please check project config!
+21:10:03.757     at dm (.next/server/chunks/8881.js:219:37112)
+21:10:03.757     at eG.init (.next/server/chunks/8881.js:219:76235)
+21:10:03.757     at cy (.next/server/chunks/8881.js:578:2186) {
+21:10:03.757   digest: '2098582973'
+21:10:03.757 }
+21:10:03.757 Export encountered an error on /_not-found/page: /_not-found, exiting the build.
+21:10:03.871  ⨯ Next.js build worker exited with code: 1 and signal: null
+21:10:03.929 Error: Command "npm run build" exited with 1
+```
+
+---
+
+you should be able to use vercel CLI for inspection or config
+
+---
+
+- This vercel project instance and deployments will actually only be for development.
+- i assigned this project the domain `infrafund.dev` and linked branch `openfort` to `openfort.infrafund.dev`
+- later (not now) when we have merged into `develop branch` , i want to map it to `develop.infrafund.dev`
+- I have also setup a neon database `Infrafund` , name "neon-citron-forest", "Neon ID: divine-feather-32734733", which I want to use and have already linked to project "Infrafund", but it think the real configuration might not have been properly setup , to project and db might still be disconnected.
+- once the deployment of branch `openfort` works, I can populate the missing env vars - is there anything which need to be different from our `.env.local` config beside the postgresql db ?
+
+---
+
+- ich check ed the 'Environment Variables' on the vercel dashboard and there are ~14 env vars which all look like 'neon' specific. Looks like vercel set it up already automatically as i would say
+- NEXT_PUBLIC_ENVIRONMENT: was also already set to 'development'
+- APP_REFRESH_COOKIE_DOMAIN : no results found
+- reCAPTCHA domains must include infrafund.dev / openfort.infrafund.dev => done
+- Openfort allowed origins settings : nowhere on their dashboard i can find an option to set it. I have sent them a support request
