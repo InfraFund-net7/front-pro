@@ -88,3 +88,7 @@ export async function verifyOpenfortAccessToken(accessToken: string) {
     throw new ApiError('UNAUTHORIZED', 'Invalid Openfort access token.');
   }
 }
+
+export function deleteOpenfortUser(openfortUserId: string) {
+  return getOpenfortClient().iam.users.delete(openfortUserId);
+}

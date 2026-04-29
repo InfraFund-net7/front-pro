@@ -268,7 +268,9 @@ export async function logoutBackendSession(refreshToken: string) {
 }
 
 export async function authenticateAppRequest(accessToken: string) {
-  const claims = await verifyAppAccessToken(accessToken);
+  const claims = await verifyAppAccessToken(accessToken).catch(() => {
+    throw new ApiError('UNAUTHORIZED', 'Invalid access token.');
+  });
   const session = await findSessionById(claims.sessionId);
 
   assertActiveSession(session);
