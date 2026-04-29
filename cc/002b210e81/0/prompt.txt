@@ -1,0 +1,7 @@
+we have done most of the mogration from a Go based backend to this single Next.js repo as described in @docs-dev/tasks/task-100-nextjs-migration-plan.md 
+Next step should be Phase 9
+Make sure we have a clean , lean openfprt integration, refer to `openfort` `SKILL.md` for documentation and guidance.
+There is also a demo app code for reference : https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample
+make sure we do not rely on the backend for anything, and do not have any code remaining which was only there to support the backend
+test as far as you can do, we may need a separate manual + browser based test run to finally verify if everything is working as expected
+once everything is green, write a new file `docs-dev/release-notes/v1.0.9-backend-next-migration-openfort-simplification.md` , update the migration plan , commit and push as "feat: Infrafund backend next migration - phase 9"
