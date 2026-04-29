@@ -481,32 +481,39 @@ Resume notes:
 
 ### Phase 7: Lockout, audit, and cleanup jobs
 
-**Status:** pending
-**Goal:** Preserve security and cleanup behavior from Go backend.
+**Status:** done
+**Goal:** Preserve security and cleanup behavior that remains useful in the Next.js-only backend.
 
 Tasks:
 
-- [ ] Port account lockout service.
-- [ ] Port lockout audit logging.
-- [ ] Add cleanup route/job for expired lockouts.
-- [ ] Add cleanup route/job for audit logs older than 90 days.
-- [ ] Add cleanup route/job for expired sessions older than 90 days.
-- [ ] Protect cleanup route with a cron secret if exposed as an HTTP route.
+- [x] Port the account lockout guard needed by app-session exchange.
+- [x] Preserve lockout audit log retention cleanup.
+- [x] Add cleanup route/job for expired lockouts.
+- [x] Add cleanup route/job for audit logs older than 90 days.
+- [x] Add cleanup route/job for expired sessions older than 90 days.
+- [x] Protect cleanup route with a cron secret.
+- [x] Intentionally drop Go-only background goroutine scheduling.
+- [x] Intentionally drop local failed-attempt tracking and artificial auth delays because Openfort owns credential authentication.
 
 Expected files changed:
 
 - `src/server/auth/lockout.ts`
 - `src/server/repositories/lockouts.ts`
 - `src/app/api/cron/cleanup/route.ts`
-- Tests.
+- `src/server/services/cleanup.ts`
+- `src/server/repositories/sessions.ts`
+- `src/server/env.ts`
+- `src/server/http/api-error.ts`
+- `docs-dev/release-notes/v1.0.7-backend-next-migration.md`
+- No project test runner exists yet.
 
 Validation:
 
-- Lockout service tests.
-- Cron route tests if practical.
+- Static validation for lockout and cron route behavior.
 - `npm run format:prettier`
 - `npm run format:lint`
 - `npx tsc --noEmit`
+- `npm run build`
 
 Commit boundary:
 
@@ -514,7 +521,8 @@ Commit boundary:
 
 Resume notes:
 
-- This phase can be deferred only if the deployment is not yet public.
+- Implemented a serverless-first lockout guard and cron cleanup route. Existing active lockouts block `/api/v1/auth/openfort/exchange`; stale, expired, or otherwise non-active lockout state is reset after Openfort verification. Cleanup is available at `GET /api/cron/cleanup` with `Authorization: Bearer $CRON_SECRET` and deletes expired lockouts, lockout audit logs older than 90 days, and sessions expired/revoked more than 90 days ago.
+- Validation passed: `npm run format`, `npx tsc --noEmit`, and `npm run build`.
 
 ### Phase 8: Frontend same-origin API switch
 
@@ -699,6 +707,8 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | 2026-04-29 | Phase 3 | done | Ported public form and country endpoints into Next.js App Router routes with Prisma-backed services. |
 | 2026-04-29 | Phase 4 | done | Added Openfort-docs-guided session verification plus check/exchange routes and deferred wallet creation until after onboarding/session exchange. |
 | 2026-04-29 | Phase 5 | done | Added JWT access-token verification/signing, refresh/logout routes, session activity/expiry checks, and secure refresh-cookie lifecycle. |
+| 2026-04-29 | Phase 6 | done | Added protected profile/status endpoints and self-service account deletion with local soft delete plus best-effort Openfort user deletion. |
+| 2026-04-29 | Phase 7 | done | Added serverless-first lockout guard and cron cleanup route for expired lockouts, old audit logs, and old sessions. |
 
 ## 13. Preserved research from `../backpro`
 

@@ -5,6 +5,7 @@ import { ApiError } from '@/server/http';
 import { getAuthConfig } from '@/server/auth/config';
 import { signAppAccessToken, verifyAppAccessToken } from '@/server/auth/jwt';
 import { createOpaqueToken, hashOpaqueToken } from '@/server/auth/tokens';
+import { assertUserNotLocked } from '@/server/auth/lockout';
 import {
   createSession,
   findSessionById,
@@ -120,13 +121,16 @@ async function findOrCreateUser(
   const existingUser = await findUserByOpenfortId(session.user.id);
 
   if (existingUser) {
-    return existingUser;
+    return { user: existingUser, created: false };
   }
 
   assertNewUserPayload(input);
 
   try {
-    return await createUser(buildUserRecord(input, session));
+    return {
+      user: await createUser(buildUserRecord(input, session)),
+      created: true,
+    };
   } catch (error) {
     if (isUserUniqueConstraintError(error)) {
       throw new ApiError('CONFLICT', 'User already exists, please try again.');
@@ -204,7 +208,12 @@ export async function checkOpenfortUser(accessToken: string) {
 
 export async function exchangeOpenfortSession(input: OpenfortExchangeInput) {
   const openfortSession = await verifyOpenfortAccessToken(input.accessToken);
-  const user = await findOrCreateUser(input, openfortSession);
+  const { user, created } = await findOrCreateUser(input, openfortSession);
+
+  if (!created) {
+    await assertUserNotLocked(user.id);
+  }
+
   const refreshToken = createOpaqueToken();
   const authConfig = getAuthConfig();
   const now = Date.now();

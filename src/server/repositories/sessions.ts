@@ -81,3 +81,27 @@ export function revokeSession(sessionId: string, reason: string) {
     },
   });
 }
+
+export function deleteOldSessions(cutoff: Date) {
+  return getDb().session.deleteMany({
+    where: {
+      OR: [
+        {
+          absoluteExpiresAt: {
+            lt: cutoff,
+          },
+        },
+        {
+          activityTimeoutAt: {
+            lt: cutoff,
+          },
+        },
+        {
+          revokedAt: {
+            lt: cutoff,
+          },
+        },
+      ],
+    },
+  });
+}

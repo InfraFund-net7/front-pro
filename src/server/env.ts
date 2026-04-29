@@ -6,7 +6,8 @@ type ServerEnvFeature =
   | 'openfort'
   | 'captcha'
   | 'email'
-  | 'shield';
+  | 'shield'
+  | 'cron';
 
 interface ServerEnv {
   app: {
@@ -44,6 +45,9 @@ interface ServerEnv {
     secretKey?: string;
     encryptionShare?: string;
   };
+  cron: {
+    secret?: string;
+  };
 }
 
 const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
@@ -66,6 +70,7 @@ const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
     'SHIELD_SECRET_KEY',
     'SHIELD_ENCRYPTION_SHARE',
   ],
+  cron: ['CRON_SECRET'],
 };
 
 let cachedEnv: ServerEnv | undefined;
@@ -141,6 +146,9 @@ export function getServerEnv() {
       secretKey: readOptionalString('SHIELD_SECRET_KEY'),
       encryptionShare: readOptionalString('SHIELD_ENCRYPTION_SHARE'),
     },
+    cron: {
+      secret: readOptionalString('CRON_SECRET'),
+    },
   };
 
   return cachedEnv;
@@ -161,6 +169,10 @@ function findMissingServerEnv(features: ServerEnvFeature[]) {
           ? []
           : [requiredEnvByFeature.openfort[1]]),
       ];
+    }
+
+    if (feature === 'cron') {
+      return env.cron.secret ? [] : requiredEnvByFeature.cron;
     }
 
     return requiredEnvByFeature[feature].filter(
