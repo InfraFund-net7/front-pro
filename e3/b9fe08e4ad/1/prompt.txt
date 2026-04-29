@@ -1,7 +1,1 @@
-we have just implemented Phase 3 of @docs-dev/tasks/task-100-nextjs-migration-plan.md 
-regarding the `openfort` implementation we should be more guided by the openfort documentation - use your openfort skill - as that describes the implementation for a react + next.js implementation and the previous backend was a very special case as it has been written in Go, so what we have in `..backpro` might not be the ideal guide for our openfort implementation.
-Let do a fresh openfort implementation according to `openfort` documentation , let me know if you can not find the `openfort` SKILL.md or documentation.
-There is also a sample app from openfort which may be helpful as guidance
-https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample
-
-when done and everything is green, commit and push, then do the next phase
+what phase did you finish?did you update the migration plan document and commit and push it as well? if not, do it
