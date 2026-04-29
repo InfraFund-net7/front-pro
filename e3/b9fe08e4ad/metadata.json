@@ -3,7 +3,7 @@
   "checkpoint_id": "e3b9fe08e4ad",
   "strategy": "manual-commit",
   "branch": "openfort",
-  "checkpoints_count": 0,
+  "checkpoints_count": 1,
   "files_touched": [
     "docs-dev/tasks/task-100-nextjs-migration-plan.md"
   ],
@@ -13,6 +13,12 @@
       "transcript": "/e3/b9fe08e4ad/0/full.jsonl",
       "content_hash": "/e3/b9fe08e4ad/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/e3/b9fe08e4ad/1/metadata.json",
+      "transcript": "/e3/b9fe08e4ad/1/full.jsonl",
+      "content_hash": "/e3/b9fe08e4ad/1/content_hash.txt",
+      "prompt": "/e3/b9fe08e4ad/1/prompt.txt"
     }
   ],
   "token_usage": {
