@@ -69,10 +69,10 @@ Status values: `pending`, `in-progress`, `done`, `deferred`.
 
 | Go endpoint | Target Next.js route | Auth | Tables/services | Status |
 | --- | --- | --- | --- | --- |
-| `GET /v1/auth/openfort/check` | `GET /api/v1/auth/openfort/check` | Openfort token | `users`, Openfort session lookup | pending |
-| `POST /v1/auth/openfort/exchange` | `POST /api/v1/auth/openfort/exchange` | Openfort token | `users`, `sessions`, `wallets`, lockout service | pending |
-| `POST /v1/auth/refresh` | `POST /api/v1/auth/refresh` | refresh cookie | `sessions` | pending |
-| `POST /v1/auth/logout` | `POST /api/v1/auth/logout` | app session | `sessions` | pending |
+| `GET /v1/auth/openfort/check` | `GET /api/v1/auth/openfort/check` | Openfort token | `users`, Openfort session lookup | done |
+| `POST /v1/auth/openfort/exchange` | `POST /api/v1/auth/openfort/exchange` | Openfort token | `users`, `sessions`, `wallets`, lockout service | done |
+| `POST /v1/auth/refresh` | `POST /api/v1/auth/refresh` | refresh cookie | `sessions` | done |
+| `POST /v1/auth/logout` | `POST /api/v1/auth/logout` | app session | `sessions` | done |
 | `GET /v1/me` | `GET /api/v1/me` | app session | `users`, `wallets` | pending |
 | `DELETE /v1/me` | `DELETE /api/v1/me` | app session | `users`, Openfort account deletion if needed | pending |
 | `GET /v1/account/status` | `GET /api/v1/account/status` | app session | `users` | pending |
@@ -124,7 +124,7 @@ Before starting any phase:
 
 ### Phase 0: Inventory and baseline
 
-**Status:** pending
+**Status:** done
 **Goal:** Confirm frontend and backend contracts before any migration code.
 
 Tasks:
@@ -348,17 +348,17 @@ Resume notes:
 
 Tasks:
 
-- [ ] Add server-side Openfort session verification.
-- [ ] Implement `GET /api/v1/auth/openfort/check`.
-- [ ] Implement `POST /api/v1/auth/openfort/exchange`.
-- [ ] Preserve existing behavior:
+- [x] Add server-side Openfort session verification.
+- [x] Implement `GET /api/v1/auth/openfort/check`.
+- [x] Implement `POST /api/v1/auth/openfort/exchange`.
+- [x] Preserve existing behavior:
   - existing user can exchange token without onboarding fields.
   - new user must provide role and type.
   - organization user requires organization name.
   - role aliases `client` and `dao` are accepted only if still required by frontend compatibility.
   - invalid Openfort token returns `401`.
-- [ ] Create server-side session row on successful exchange.
-- [ ] Return app access token and set refresh cookie.
+- [x] Create server-side session row on successful exchange.
+- [x] Return app access token and set refresh cookie.
 
 Expected files changed:
 
@@ -383,25 +383,28 @@ Commit boundary:
 
 Resume notes:
 
-- Use `../backpro/docs-dev/tasks/v0.2.5-openfort-backend-implementation-review.md` as the expected behavior checklist.
+- Done in commit `1952c5b`.
+- Added Openfort Node SDK session verification using `openfort.iam.getSession`, `/api/v1/auth/openfort/check`, and `/api/v1/auth/openfort/exchange`.
+- Aligned the frontend provider with Openfort React documentation by using `connectOnLogin: false` and automatic wallet recovery, then creating the wallet only after successful onboarding/session exchange.
+- Added server-side JWT signing, opaque refresh-token generation, session row creation, and same-origin `/api/v1` client calls.
 
 ### Phase 5: JWT, refresh, logout, and middleware
 
-**Status:** pending
+**Status:** done
 **Goal:** Replace Go session management completely.
 
 Tasks:
 
-- [ ] Add JWT signing and verification using a server-only secret.
-- [ ] Add opaque refresh token generation and SHA-256 hashing.
-- [ ] Implement `POST /api/v1/auth/refresh`.
-- [ ] Implement `POST /api/v1/auth/logout`.
-- [ ] Add middleware or route helper for protected endpoints.
-- [ ] Preserve session expiry behavior:
+- [x] Add JWT signing and verification using a server-only secret.
+- [x] Add opaque refresh token generation and SHA-256 hashing.
+- [x] Implement `POST /api/v1/auth/refresh`.
+- [x] Implement `POST /api/v1/auth/logout`.
+- [x] Add middleware or route helper for protected endpoints.
+- [x] Preserve session expiry behavior:
   - idle/activity timeout.
   - absolute expiration.
   - revocation fields.
-- [ ] Ensure cookies are `httpOnly`, `secure` in production, `sameSite`, and path-scoped.
+- [x] Ensure cookies are `httpOnly`, `secure` in production, `sameSite`, and path-scoped.
 
 Expected files changed:
 
@@ -426,7 +429,10 @@ Commit boundary:
 
 Resume notes:
 
-- Do not switch frontend auth consumers until refresh/logout behavior is tested.
+- Done in commit `2e08c13`.
+- Added `/api/v1/auth/refresh` and `/api/v1/auth/logout`, JWT verification helpers, refresh cookie clear/set helpers, and route-level app-session authentication support.
+- Preserved hashed opaque refresh tokens, idle/activity timeout, absolute expiry, revocation checks, and production-secure httpOnly refresh cookies.
+- Validation passed: `npm run format`, `npx tsc --noEmit`, and `npm run build`.
 
 ### Phase 6: Protected profile and status endpoints
 
@@ -683,6 +689,8 @@ Do not run `npm run build` for every small iteration. Run it before production d
 | 2026-04-28 | Dependency maintenance | done | Upgraded Prisma to v7 and applied safe patch/minor package updates. |
 | 2026-04-28 | Phase 2.5 | done | Modernized to Next.js 16, React 19, ESLint 10, Knip 6, CSpell 10, TypeScript 6, and latest compatible packages; Wagmi v3 deferred due Openfort peer constraint. |
 | 2026-04-29 | Phase 3 | done | Ported public form and country endpoints into Next.js App Router routes with Prisma-backed services. |
+| 2026-04-29 | Phase 4 | done | Added Openfort-docs-guided session verification plus check/exchange routes and deferred wallet creation until after onboarding/session exchange. |
+| 2026-04-29 | Phase 5 | done | Added JWT access-token verification/signing, refresh/logout routes, session activity/expiry checks, and secure refresh-cookie lifecycle. |
 
 ## 13. Preserved research from `../backpro`
 
