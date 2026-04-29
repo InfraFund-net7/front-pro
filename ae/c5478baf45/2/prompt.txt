@@ -1,0 +1,8 @@
+implement as suggested , when green
+- write a new file `docs-dev/release-notes/v1.0.7-backend-next-migration.md` mainly copying the plan you just presented in the last response, updated with what has been implemented if it diverted from the original plan 
+- update `docs-dev/tasks/task-100-nextjs-migration-plan.md` with the status after implementation is done
+- commit and push it all with msg "feat: Infrafund backend next migration - phase 7"
+
+---
+
+implement Phase 8 , write a new file `docs-dev/release-notes/v1.0.8-backend-next-migration.md` when all is green and done, update our migration plan document , commit and push as "feat: Infrafund backend next migration - phase 8"
