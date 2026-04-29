@@ -6,7 +6,8 @@ type ServerEnvFeature =
   | 'openfort'
   | 'captcha'
   | 'email'
-  | 'shield';
+  | 'shield'
+  | 'cron';
 
 interface ServerEnv {
   app: {
@@ -44,12 +45,18 @@ interface ServerEnv {
     secretKey?: string;
     encryptionShare?: string;
   };
+  cron: {
+    secret?: string;
+  };
 }
 
 const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
   database: ['DATABASE_URL'],
-  auth: ['APP_JWT_SECRET'],
-  openfort: ['OPENFORT_SECRET_KEY'],
+  auth: ['APP_JWT_SECRET or INFRA_AUTH_JWT_SIGNING_KEY'],
+  openfort: [
+    'OPENFORT_SECRET_KEY or OPENFORT_API_KEY',
+    'OPENFORT_PUBLISHABLE_KEY or NEXT_PUBLIC_OPENFORT_PUBLIC_KEY',
+  ],
   captcha: ['RECAPTCHA_SECRET_KEY'],
   email: [
     'SMTP_HOST',
@@ -63,6 +70,7 @@ const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
     'SHIELD_SECRET_KEY',
     'SHIELD_ENCRYPTION_SHARE',
   ],
+  cron: ['CRON_SECRET'],
 };
 
 let cachedEnv: ServerEnv | undefined;
@@ -97,14 +105,23 @@ export function getServerEnv() {
     auth: {
       jwtSecret:
         readOptionalString('APP_JWT_SECRET') ??
+        readOptionalString('INFRA_AUTH_JWT_SIGNING_KEY') ??
         readOptionalString('JWT_SIGNING_KEY'),
-      jwtIssuer: readOptionalString('APP_JWT_ISSUER'),
-      jwtAudience: readOptionalString('APP_JWT_AUDIENCE') ?? 'infrafund',
+      jwtIssuer:
+        readOptionalString('APP_JWT_ISSUER') ??
+        readOptionalString('INFRA_AUTH_JWT_ISSUER'),
+      jwtAudience:
+        readOptionalString('APP_JWT_AUDIENCE') ??
+        readOptionalString('INFRA_AUTH_JWT_AUDIENCE') ??
+        'infrafund',
     },
     openfort: {
-      secretKey: readOptionalString('OPENFORT_SECRET_KEY'),
+      secretKey:
+        readOptionalString('OPENFORT_SECRET_KEY') ??
+        readOptionalString('OPENFORT_API_KEY'),
       publishableKey:
         readOptionalString('OPENFORT_PUBLISHABLE_KEY') ??
+        readOptionalString('INFRA_AUTH_OPENFORT_PUBLISHABLE_KEY') ??
         readOptionalString('NEXT_PUBLIC_OPENFORT_PUBLIC_KEY'),
       baseUrl:
         readOptionalString('OPENFORT_BASE_URL') ?? 'https://api.openfort.io',
@@ -129,15 +146,39 @@ export function getServerEnv() {
       secretKey: readOptionalString('SHIELD_SECRET_KEY'),
       encryptionShare: readOptionalString('SHIELD_ENCRYPTION_SHARE'),
     },
+    cron: {
+      secret: readOptionalString('CRON_SECRET'),
+    },
   };
 
   return cachedEnv;
 }
 
 function findMissingServerEnv(features: ServerEnvFeature[]) {
-  return features.flatMap((feature) =>
-    requiredEnvByFeature[feature].filter((name) => !readOptionalString(name))
-  );
+  const env = getServerEnv();
+
+  return features.flatMap((feature) => {
+    if (feature === 'auth') {
+      return env.auth.jwtSecret ? [] : requiredEnvByFeature.auth;
+    }
+
+    if (feature === 'openfort') {
+      return [
+        ...(env.openfort.secretKey ? [] : [requiredEnvByFeature.openfort[0]]),
+        ...(env.openfort.publishableKey
+          ? []
+          : [requiredEnvByFeature.openfort[1]]),
+      ];
+    }
+
+    if (feature === 'cron') {
+      return env.cron.secret ? [] : requiredEnvByFeature.cron;
+    }
+
+    return requiredEnvByFeature[feature].filter(
+      (name) => !readOptionalString(name)
+    );
+  });
 }
 
 export function requireServerEnv(features: ServerEnvFeature[]) {
