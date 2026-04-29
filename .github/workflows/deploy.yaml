@@ -14,10 +14,9 @@ jobs:
         run: |
           docker build \
             -f ./deployment/Dockerfile \
-            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.PROD_API_BASE_URL }} \
-            --build-arg NEXT_PUBLIC_PROJECT_ID=${{ secrets.PARTICLE_PROJECT_ID }} \
-            --build-arg NEXT_PUBLIC_CLIENT_KEY=${{ secrets.PARTICLE_CLIENT_KEY }} \
-            --build-arg NEXT_PUBLIC_APP_ID=${{ secrets.PARTICLE_APP_ID }} \
+            --build-arg NEXT_PUBLIC_OPENFORT_PUBLIC_KEY=${{ secrets.AUTH_OPENFORT_PUBLISHABLE_KEY }} \
+            --build-arg NEXT_PUBLIC_SHIELD_API_KEY=${{ secrets.SHIELD_API_KEY }} \
+            --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.GOOGLE_RECAPTCHA_SITE_KEY }} \
             -t infra-dashboard:prod .
 
   deploy:
