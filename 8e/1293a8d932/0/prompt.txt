@@ -1,1 +1,12 @@
 /init
+
+---
+
+cspell complained when I wanted to commit CLAUDE.md , can you fix it.
+CLAUDE.md:18:45 - Unknown word (prebuild)
+CLAUDE.md:29:82 - Unknown word (sslmode)
+CLAUDE.md:66:89 - Unknown word (uuidv)
+CLAUDE.md:66:159 - Unknown word (prebuild)
+
+create also a symlink AGENTS.md => CLAUDE.md
+commit them
