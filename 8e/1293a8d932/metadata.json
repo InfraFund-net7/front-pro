@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "8e1293a8d932",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CLAUDE.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/8e/1293a8d932/0/metadata.json",
+      "transcript": "/8e/1293a8d932/0/full.jsonl",
+      "content_hash": "/8e/1293a8d932/0/content_hash.txt",
+      "prompt": "/8e/1293a8d932/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 35,
+    "cache_creation_tokens": 34522,
+    "cache_read_tokens": 892316,
+    "output_tokens": 7206,
+    "api_call_count": 25
+  }
+}
