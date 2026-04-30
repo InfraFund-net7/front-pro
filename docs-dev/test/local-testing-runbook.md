@@ -50,11 +50,11 @@ npm run db:local:down
 
 Openfort test account for automated testing and App Store review flows. When enabled, deterministic credentials bypass email/SMS delivery.
 
-| Field | Value |
-| --- | --- |
-| Email | `test-96cb@openfort.xyz` |
-| Phone | `+15555557383` |
-| OTP code | `371941` |
+| Field    | Value                    |
+|----------|--------------------------|
+| Email    | `test-96cb@openfort.xyz` |
+| Phone    | `+15555557383`           |
+| OTP code | `371941`                 |
 
 ## Manual smoke-test flow
 
