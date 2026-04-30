@@ -1,4 +1,4 @@
-<!-- cspell:words Openfort Reown recaptcha pgcrypto uuidv sslmode waitlists signup -->
+<!-- cspell:words Openfort Reown recaptcha pgcrypto uuidv sslmode waitlists signup Referer -->
 
 # Local Testing Runbook
 
@@ -117,3 +117,20 @@ npm run format:knip
 npx tsc --noEmit
 npm run build
 ```
+
+## Test Cases
+
+### Register with Google Login
+
+1. Go to <http://localhost:3000>
+2. Click Continue with Openfort
+3. Click Google in the Openfort modal
+4. Complete qualification: Raise Funds → Individual → Continue → Continue (all checkboxes
+   pre-checked)
+5. Wait ~5–10s for "Setting up your wallet..." to finish
+6. Wallet address `0x…` appears in the header button and the app lands on `/home` — login complete
+
+The earlier "We couldn't restore your session" banner that required a manual reload was an Openfort
+embedded-wallet iframe 403 caused by a missing Referer header. Fixed by setting
+`metadata.referrer = 'origin'` in `src/app/layout.tsx`. See
+`docs-dev/tasks/task-101-fix-openfort-registration.md`.
