@@ -17,11 +17,13 @@ Before requesting any reviews, the developer responsible for the task must ensur
 **Clean Build:** All automated CI/CD checks (linters, builds, dependency checks) are passing. A PR with failing checks will not be reviewed.
 
 **Comprehensive Testing:**
+
 - The author has written new unit and/or integration tests that cover the new logic and functionality.
 - All existing and new tests are passing.
 - Overall test coverage has not decreased.
 
 **Automated Security Scan:**
+
 - (For Smart Contracts): The code has passed a run of our automated security analyzer (e.g., Slither) with no new high or medium-severity issues introduced.
 - (For Backend/Frontend): The code has passed a run of our static analysis security testing (SAST) tools.
 
@@ -34,6 +36,7 @@ Once the developer has completed the pre-review checklist, the formal review pro
 **Peer Review:** The author requests a review from at least one other developer on the team (a "peer"). This is to catch logic errors and ensure the code is understandable to other team members. All feedback from the peer review must be addressed.
 
 **Final Code Owner Review (Tech Lead):** Once the peer review is complete and all feedback is resolved, the author requests a final review from the designated Code Owner, who is the Tech Lead (Homayoun). The Tech Lead's review is focused on high-level concerns:
+
 - **Architectural Alignment:** Does this change fit with our long-term technical vision?
 - **Security & Risk:** Does this introduce any new attack vectors or vulnerabilities?
 - **Business Logic:** Does the code correctly and efficiently implement the business requirements of the task?
