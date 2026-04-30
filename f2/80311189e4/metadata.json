@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "f280311189e4",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CONTRIBUTING.md",
+    "config-operation/environment-variables.md",
+    "docs-dev/test/local-testing-runbook.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f2/80311189e4/0/metadata.json",
+      "transcript": "/f2/80311189e4/0/full.jsonl",
+      "content_hash": "/f2/80311189e4/0/content_hash.txt",
+      "prompt": "/f2/80311189e4/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 36,
+    "cache_creation_tokens": 39913,
+    "cache_read_tokens": 938257,
+    "output_tokens": 7460,
+    "api_call_count": 26
+  }
+}
