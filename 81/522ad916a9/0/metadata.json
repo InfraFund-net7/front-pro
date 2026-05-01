@@ -1,0 +1,92 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "81522ad916a9",
+  "session_id": "92f71903-ec80-4473-886a-dbc49c3cc9be",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-01T12:38:37.266574294Z",
+  "branch": "openfort",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "docs-dev/tasks/task-101-fix-openfort-registration.md",
+    "next.config.ts",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/lib/openfort-config.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-4-6",
+  "turn_id": "495b31935229",
+  "token_usage": {
+    "input_tokens": 118,
+    "cache_creation_tokens": 602464,
+    "cache_read_tokens": 8778575,
+    "output_tokens": 101547,
+    "api_call_count": 92
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-01T12:38:37.162429654Z",
+    "agent_lines": 0,
+    "agent_removed": 29,
+    "human_added": 189,
+    "human_modified": 155,
+    "human_removed": 0,
+    "total_committed": 331,
+    "total_lines_changed": 373,
+    "agent_percentage": 7.774798927613941,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 102,
+      "agent_lines_removed": 19,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 133,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 136,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 142,
+      "agent_lines_removed": 29,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    }
+  ]
+}

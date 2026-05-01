@@ -1,0 +1,101 @@
+I have to debug a complex login/register auth process involving Google/Apple/Email login , `openfort` 
+for auth and web3 embedded wallet support , with in the process we have to make a detour for new 
+users with a questionaire and only register and create a wallet for them if they qualify. 
+ 
+I had implemented openfort for auth and embeddded wallet support with a Go backend, the openfort 
+login/registration worked as expected, see `docs-dev/release-notes/v0.2.*.md` , so mainly like : 
+ 
+1. User clicks the Openfort button → authenticates (Google, Email OTP, etc.).
+2. No wallet is created (`connectOnLogin: false`, `embeddedState` stays at `EMBEDDED_SIGNER_NOT_CONFIGURED`).
+3. Frontend calls the backend with the Openfort access token to check if the user already exists.
+4. **Existing user** → backend session exchange → enter the app.
+5. **New user** → qualification questionnaire → if qualified, exchange with role/type → create wallet → enter the app. 
+ 
+as described in @docs-dev/release-notes/v0.2.2-openfort-implementation-with-onboarding.md 
+
+definitely have a look at the mermaind diagram !
+ 
+Now we have spent quite some effort to retire the Go backend and pull all the functionality into 
+this repo (`front-pro`) @docs-dev/tasks/task-100-nextjs-migration-plan.md
+
+However now the login/register process is not working properly.
+
+Here are the test steps :
+
+## Test Cases
+
+### Register with Google Login
+
+1. Go to <http://localhost:3000>
+2. Click Continue with Openfort
+3. Click Google in the Openfort modal
+4. Complete qualification: Raise Funds → Individual → Continue → Continue (all checkboxes
+pre-checked)
+5. Wait ~10s for "Setting up your wallet..." to finish
+6. If "We couldn't restore your session" banner appears — dismiss it and hard reload the page
+(Ctrl+R)
+7. After reload, wallet address 0x7b39...A304 appears in the button — login complete
+
+Known issue: Session restore error on first load after wallet creation; resolves on manual reload.
+
+### Logout
+
+I just deleted my account so that when you try that path that you will get into the new
+registration path. 
+Logout is still a bit hidden. You would need to click on the top right button with the address,
+then i think the opoup has a small icon in the top left, if you click that then a [Disconnect] 
+button should show up.
+
+---
+
+You have `chrome-devtools-mcp` at your disposal to control and inspect the browser, and i think you should also be able to get the network logs.
+
+We actually though that we had solved the problem with the last commit as documented in @docs-dev/tasks/task-101-fix-openfort-registration.md , but now i just did a manual test again and had the same issue.
+
+---
+
+be aware that you have `openfort` `SKILL.md` and an MCP as well at your disposal to access documentation and code examples. But maybe we are doing it all right and openfort has a nasty bug.
+Have you gained any additional insights worth adding already to `docs-dev/tasks/task-101-fix-openfort-registration.md` ?
+
+---
+
+ok, we took a break, but shoukd have a summary of what we did before
+
+be aware that you have `openfort` `SKILL.md` and an MCP as well at your disposal to access           
+  documentation and code examples. But maybe we are doing it all right and openfort has a nasty bug.   
+  Have you gained any additional insights worth adding already to                                      
+  `docs-dev/tasks/task-101-fix-openfort-registration.md` ?
+
+---
+
+ok, implement it and then lets test it to see if it works. Maybe even restart the dev server before testing just to be on the safe side (i can do that).
+
+---
+
+same result no change , afte rthe login with google, it is wroking for 10 sec on "setting up your wallet" and then again I have the popup with
+```
+We couldn't restore your session
+
+We couldn't connect to the wallet service. Please check your connection and try again.
+```
+
+and a [Not connected] button in the box below.
+
+---
+
+as my account still existed (i did not manage to go in and delete my account), I went the "existing user" path , went right to the dashboard, but the wallet button in the top right says [Not connected].
+
+Deleting my account now.
+
+Back on the homepage trying again the onboarding with the questionaire. Just to point that out again that is is different than the normal `openfort` onbaording, as we check if the user is already registered once he signed in with google, and if not the user has to make a detour , answer the quetionaire and only if he qualifies , he will then get a wallet created , logged in , and redirected to the dashboard.
+
+I actually had it working before when I had a Go based backend `backpro`, but then we did a larger migration to absorb the whole Go backend into this NEXT repository and since then we have these issues.
+The initial long process to get it working in documented in ~10 files in the release notes folder with the most interesting one likely being `docs-dev/release-notes/v0.2.2-openfort-implementation-with-onboarding.md`
+
+I dont know if openfort has changed anything, if i ha to do that we upgraded to newer packages, or what got lost along the way, or how our implementation in NEXT is different from the one where we still had the Go based backend in another repo `../backpro`
+
+Maybe it was not necessary to write this, because now I tried again and the registration is working !!
+
+However, I logged out, and looged in again. As expected I did not have to do the questionaire again, was directed directly to the dashbaord, but the top right button says [Not connected].
+
+I do a page refesh - no change - still [Not connected]
