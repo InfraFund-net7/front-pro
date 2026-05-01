@@ -10,6 +10,14 @@ const OPTIONAL_PEERS =
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [{ key: 'Referrer-Policy', value: 'origin' }],
+      },
+    ];
+  },
   outputFileTracingRoot: projectRoot,
   turbopack: {
     resolveAlias: {
