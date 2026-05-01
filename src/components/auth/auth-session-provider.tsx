@@ -1,5 +1,32 @@
 'use client';
 
+// AuthSessionProvider bridges Openfort identity with our app session.
+//
+// Design: Openfort owns auth (Google/Email OTP) and wallets. We own the app
+// session (JWT + httpOnly refresh cookie), user profile, and the qualification
+// gate. connectOnLogin: false means Openfort never auto-connects the wallet —
+// we call create() explicitly at the right moment.
+//
+// Status machine:
+//   idle → loading → needs_onboarding → loading → creating_wallet → authenticated
+//                 ↘ creating_wallet → authenticated   (existing user)
+//                 ↘ error                             (any failure)
+//
+// New-user path (registration):
+//   Openfort auth → check backend (exists: false) → qualification questionnaire
+//   → backend exchange with role/type → createWalletIfNeeded → authenticated
+//
+// Existing-user path (login):
+//   Openfort auth → refresh cookie valid? → getBackendMe → createWalletIfNeeded
+//                                        ↘ no cookie → check backend (exists: true)
+//                                          → backend exchange → createWalletIfNeeded
+//
+// createWalletIfNeeded always calls Openfort's create() to load the iframe and
+// establish the embedded-wallet connection. For new users create() provisions
+// the wallet; for returning users it reconnects to the existing one. Skipping
+// this step for returning users leaves the wallet in [Not connected] state
+// because the embedded-wallet iframe is never loaded (connectOnLogin: false).
+
 import type { User } from '@openfort/openfort-js';
 import { RecoveryMethod, useSignOut, useUI, useUser } from '@openfort/react';
 import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
@@ -124,6 +151,9 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     user: BackendMeResponse;
   } | null>(null);
   const previousAuthState = useRef(false);
+  // Deduplication key: we only run one bootstrap per (userId, retryCount) pair.
+  // This prevents the useEffect from re-triggering bootstrap when callbacks are
+  // recreated due to dependency changes mid-flow.
   const bootstrapAttemptKeyRef = useRef<string | null>(null);
 
   const clearSession = useCallback(() => {
@@ -153,6 +183,9 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     [openfortUserId, pathname, retryCount]
   );
 
+  // Terminal success state: app session is fully established and the wallet
+  // iframe is connected. Closes any Openfort modal still visible and resets
+  // all transient state accumulated during the auth/onboarding flow.
   const finalizeAuthenticatedSession = useCallback(
     (accessToken: string, currentUser: BackendMeResponse) => {
       closeOpenfortModal();
@@ -168,17 +201,28 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     [closeOpenfortModal]
   );
 
+  // Loads the Openfort embedded-wallet iframe and connects/creates the wallet,
+  // then transitions to authenticated.
+  //
+  // Context when called: the backend session is already established (accessToken
+  // and currentUser are valid). The Openfort SDK is authenticated. The only
+  // remaining step is to load the hidden iframe so the wallet is usable.
+  //
+  // Why always call create(): connectOnLogin: false means the SDK never loads
+  // the iframe automatically. create() is the correct call for both paths:
+  //   - New user:      provisions the wallet and connects it via the iframe.
+  //   - Existing user: reconnects to the existing wallet via the iframe.
+  //                    The SDK's wallets[] array may already contain the wallet
+  //                    (fetched from the Openfort API), but that does not mean
+  //                    the iframe is loaded — without it the wallet is [Not
+  //                    connected] and cannot sign transactions. Skipping create()
+  //                    when wallets.length > 0 was the original bug causing
+  //                    returning users to see [Not connected] on every login.
   const createWalletIfNeeded = useCallback(
     async (accessToken: string, currentUser: BackendMeResponse) => {
       setBackendAccessToken(accessToken);
       setBackendUser(currentUser);
       setPendingWalletCreation({ accessToken, user: currentUser });
-
-      if (wallets.length > 0) {
-        finalizeAuthenticatedSession(accessToken, currentUser);
-        return;
-      }
-
       setStatus('creating_wallet');
 
       try {
@@ -209,6 +253,16 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     ]
   );
 
+  // Runs once per Openfort user identity (keyed on openfortUserId + retryCount).
+  // Determines which path the user takes and drives them to createWalletIfNeeded.
+  //
+  // Priority order:
+  //   1. Valid refresh cookie → restore the app session directly, skip Openfort
+  //      token exchange (faster; avoids an extra round-trip to Openfort API).
+  //   2. No refresh cookie, existing backend user → exchange Openfort token for
+  //      app session.
+  //   3. No backend user → show qualification questionnaire; wallet creation is
+  //      deferred until completeOnboarding() succeeds.
   const bootstrapSession = useCallback(async () => {
     if (!openfortUserId) {
       clearSession();
@@ -220,12 +274,17 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
+      // Path 1: try to restore an existing app session via the refresh cookie.
+      // This is the fast path for page reloads and returning sessions.
       const refreshedSession = await refreshBackendSession().catch(() => null);
 
       if (refreshedSession) {
         try {
           const me = await getBackendMe(refreshedSession.access_token);
-          finalizeAuthenticatedSession(refreshedSession.access_token, me);
+          // Route through createWalletIfNeeded (not finalizeAuthenticatedSession
+          // directly) so the embedded-wallet iframe is loaded and the wallet
+          // becomes usable for signing — even on session restore.
+          await createWalletIfNeeded(refreshedSession.access_token, me);
           return;
         } catch {
           // Refresh token was valid but user is inaccessible (e.g. soft-deleted).
@@ -234,6 +293,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      // Paths 2 & 3: no valid refresh cookie; re-authenticate via Openfort token.
       const openfortAccessToken = await getAccessToken();
 
       if (!openfortAccessToken) {
@@ -243,16 +303,19 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       const checkResponse = await checkOpenfortUser(openfortAccessToken);
 
       if (!checkResponse.exists) {
+        // Path 3: new user — hold the Openfort token and show the qualification
+        // questionnaire. Wallet creation is deferred to completeOnboarding().
         closeOpenfortModal();
         setPendingOnboardingAccessToken(openfortAccessToken);
         setStatus('needs_onboarding');
         return;
       }
 
+      // Path 2: existing user — exchange the Openfort token for an app session.
       const loginResponse = await exchangeOpenfortSession(openfortAccessToken);
       const me = await getBackendMe(loginResponse.access_token);
 
-      finalizeAuthenticatedSession(loginResponse.access_token, me);
+      await createWalletIfNeeded(loginResponse.access_token, me);
     } catch (sessionError) {
       reportError(sessionError, {
         area: 'auth',
@@ -271,11 +334,14 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     clearSession,
     closeOpenfortModal,
     commitUserFacingError,
-    finalizeAuthenticatedSession,
+    createWalletIfNeeded,
     getAccessToken,
     openfortUserId,
   ]);
 
+  // Called when the user submits the qualification questionnaire.
+  // Context: status === 'needs_onboarding', pendingOnboardingAccessToken is set.
+  // The Openfort token is still valid; no app session exists yet.
   const completeOnboarding = useCallback(
     async ({ role, type, organizationName }: QualificationSubmission) => {
       if (!pendingOnboardingAccessToken) {
@@ -377,6 +443,10 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setRetryCount((count) => count + 1);
   }, [createWalletIfNeeded, pendingWalletCreation]);
 
+  // Primary driver: react to Openfort auth state changes.
+  // bootstrapAttemptKey deduplicate calls so we run bootstrap exactly once
+  // per (user, retryCount) pair, even when the effect re-fires because a
+  // callback was recreated due to dependency changes mid-flow.
   useEffect(() => {
     if (isLoading) {
       setStatus((currentStatus) =>
@@ -412,6 +482,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     retryCount,
   ]);
 
+  // Secondary driver: detect explicit sign-out. Openfort's own sign-out does
+  // not call our logout endpoint, so we must revoke the app session cookie here.
   useEffect(() => {
     const signedOut =
       previousAuthState.current && !isLoading && !isAuthenticated;
