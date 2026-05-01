@@ -1,5 +1,5 @@
 import { CustomButton } from '@/components/ui/custom-button';
-import { FileUploadWithPreview } from '@/components/ui/file-upload-with-preview';
+// import { FileUploadWithPreview } from '@/components/ui/file-upload-with-preview';
 import { FormInput } from '@/components/ui/form-input';
 import { Eye, Plus } from 'lucide-react';
 import React from 'react';
