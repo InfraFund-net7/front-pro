@@ -45,3 +45,7 @@ ok do it and then i'll try it out
 
 - ok, does not look much different, but it feel a bit faster than before and fast enough that the user does not come up with the idea that the process is stuck and start clkicking something
 - I noticed in our progress list the 1 gets checked first , then 3 , then 2 (and i think 3 goes off ), then 3 gets checked (again ?) , then 4 , 5 . If these are the states correctlt represented, then this might be ok as it happens quickly but still looks at bit confusing. Maybe the first and the second time step 3 gets checked are actually different staes and we can split and put them in the right order ?
+
+---
+
+that looks great ! Update the task doc , then commit and push
