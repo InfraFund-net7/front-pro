@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "d11f191606b3",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "docs-dev/tasks/task-104-openfort-login-pre-auth-cleanup.md",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/components/main-layout.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d1/1f191606b3/0/metadata.json",
+      "transcript": "/d1/1f191606b3/0/full.jsonl",
+      "content_hash": "/d1/1f191606b3/0/content_hash.txt",
+      "prompt": "/d1/1f191606b3/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 245,
+    "cache_creation_tokens": 282728,
+    "cache_read_tokens": 30845087,
+    "output_tokens": 105464,
+    "api_call_count": 180
+  }
+}
