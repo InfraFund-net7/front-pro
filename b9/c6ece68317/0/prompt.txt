@@ -27,3 +27,8 @@ You have access to the browser to read state, take snapshots, and press buttons 
 - i logged out , logged in again , still the same behaviour in step 3
 - i have started the browser with debug port open so you should be able to check the console and network log yourself using chrome-devtools-mcp
 - want to try to run it yourself
+
+---
+
+- great that worked. just change the starting count down time for the wallet connect at 10 sec
+- then update our task-103 file, write an extensive commit message with header "task-103-openfort-login-ux-cleanup-and-progress-list" (remove dash between words), commit and push
