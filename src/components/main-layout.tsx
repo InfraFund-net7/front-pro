@@ -49,6 +49,13 @@ export function MainLayout({ children }: MainLayoutProps) {
     status === 'loading' ||
     status === 'creating_wallet' ||
     status === 'error';
+  // Cover the brief window between page mount on `/?openfortAuthProviderUI=…`
+  // and the AuthSessionProvider bootstrap useEffect running. Without this the
+  // public landing flashes for a few hundred ms after Google redirects back.
+  // Read the URL synchronously to avoid the flash on first render.
+  const isHandlingOAuthCallback =
+    typeof window !== 'undefined' &&
+    window.location.search.includes('openfortAuthProviderUI');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">
@@ -61,13 +68,17 @@ export function MainLayout({ children }: MainLayoutProps) {
         <div className="relative z-[999] flex items-center justify-center min-h-screen p-4">
           {showInitialSdkLoading ? (
             <AuthLoadingState message="Loading…" />
-          ) : isAwaitingOnboarding || isBootstrapping ? null : (
+          ) : isAwaitingOnboarding ||
+            isBootstrapping ||
+            isHandlingOAuthCallback ? null : (
             children
           )}
         </div>
       ) : (
         <div className="relative z-[999] flex min-h-screen items-center justify-center p-4 md:p-8 lg:p-12">
-          {showInitialSdkLoading || isBootstrapping ? (
+          {showInitialSdkLoading ||
+          isBootstrapping ||
+          isHandlingOAuthCallback ? (
             <AuthLoadingState message="Loading…" />
           ) : (
             <div className="relative z-[999] flex p-4 md:p-8 lg:p-12 gap-4 md:gap-8 lg:gap-12 min-h-screen w-full">
