@@ -425,12 +425,16 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     try {
       // Path 1: try to restore an existing app session via the refresh cookie.
       // This is the fast path for page reloads and returning sessions.
-      startStep('restoring_session');
+      // The cookie attempt is silent (no UI change) — typically resolves in
+      // <50 ms. Showing a spinner for it would tick step 3 active before
+      // step 2, which looks out-of-order.
       const refreshedSession = await refreshBackendSession().catch(() => null);
 
       if (refreshedSession) {
         try {
-          // Cookie path skips the Openfort /check round-trip entirely.
+          // Cookie path succeeded. Tick steps 2 and 3 in order: the cookie
+          // makes both 'checking_account' (we know who you are) and
+          // 'restoring_session' (your session is restored) effectively true.
           completeStep('checking_account');
           completeStep('restoring_session');
           startStep('loading_profile');
@@ -448,18 +452,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         } catch {
           // Refresh token was valid but user is inaccessible (e.g. soft-deleted).
           // Clear the stale cookie and fall through to Openfort re-auth. Reset
-          // any steps we marked active/done in the cookie branch so they don't
-          // appear out-of-order while the exchange path runs.
+          // the steps we already ticked in the cookie branch so the exchange
+          // path can re-walk them in order.
           await logoutBackendSession().catch(() => undefined);
           updateStep('checking_account', { status: 'pending' });
           updateStep('restoring_session', { status: 'pending' });
           updateStep('loading_profile', { status: 'pending' });
         }
-      } else {
-        // Cookie path didn't even return a session; reset restoring_session
-        // back to pending so the exchange path's startStep is the first time
-        // it appears active.
-        updateStep('restoring_session', { status: 'pending' });
       }
 
       // Paths 2 & 3: no valid refresh cookie; re-authenticate via Openfort token.
@@ -691,6 +690,34 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
     setRetryCount((count) => count + 1);
   }, [createWalletIfNeeded, pendingWalletCreation]);
+
+  // OAuth callback pre-emptive cover: when Openfort's redirect-based OAuth
+  // returns the user to our app at `/?openfortAuthProviderUI=…`, the SDK's
+  // ConnectModal auto-detects those params and reopens itself to run
+  // ConnectWithOAuth (which calls storeCredentials). That UI flashes for a
+  // few hundred ms before our bootstrap useEffect can run and close the
+  // Openfort modal. Seeding authProgress here makes the task-103 modal
+  // (z-[10001]) appear immediately on page load and cover the Openfort
+  // ConnectWithOAuth page underneath. The signing_in step gets re-marked
+  // done when bootstrapSession runs and overwrites the plan.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.location.search.includes('openfortAuthProviderUI')) return;
+    setStepPlan([
+      'signing_in',
+      'checking_account',
+      'restoring_session',
+      'loading_profile',
+      'connecting_wallet',
+    ]);
+    startStep('signing_in');
+    // Eagerly close the Openfort modal too — defensive, since the SDK reopens
+    // it on URL detection. Our bootstrap useEffect would do this once
+    // isAuthenticated flips, but doing it here closes the gap.
+    closeOpenfortModal();
+    // Mount-only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Primary driver: react to Openfort auth state changes.
   // bootstrapAttemptKey deduplicate calls so we run bootstrap exactly once
