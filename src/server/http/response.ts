@@ -8,7 +8,7 @@ import {
   isApiError,
   jsonError,
 } from './api-error';
-import logger from '@/server/logger';
+import { logger } from '@/server/logger';
 
 export interface ApiSuccessBody<T> {
   code: 'OK';
