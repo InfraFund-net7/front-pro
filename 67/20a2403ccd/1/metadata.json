@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "6720a2403ccd",
+  "session_id": "9961cc6a-9059-4ed0-a584-1a0677601dcb",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-03T07:03:19.174528594Z",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/task-107-initialize-vercel-neon-database.md",
+    "docs/deployment-neon-vercel.md"
+  ],
+  "agent": "Copilot CLI",
+  "model": "claude-sonnet-4.6",
+  "turn_id": "286e27a70d74",
+  "checkpoint_transcript_start": 581,
+  "transcript_lines_at_start": 581,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-03T07:03:19.15688557Z",
+    "agent_lines": 116,
+    "agent_removed": 171,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 116,
+    "total_lines_changed": 287,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
