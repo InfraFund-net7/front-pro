@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "8b30beb15419",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "docs-dev/tasks/task-105-avatar-dropdown-menu.md",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/components/header.tsx",
+    "src/components/header/avatar-menu.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/8b/30beb15419/0/metadata.json",
+      "transcript": "/8b/30beb15419/0/full.jsonl",
+      "content_hash": "/8b/30beb15419/0/content_hash.txt",
+      "prompt": "/8b/30beb15419/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 322,
+    "cache_creation_tokens": 961613,
+    "cache_read_tokens": 47661014,
+    "output_tokens": 131416,
+    "api_call_count": 238
+  }
+}

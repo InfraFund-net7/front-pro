@@ -1,0 +1,66 @@
+After quite some work, we managed to implement `openfort` auth into our next.js version of our app @docs-dev/tasks/task-102-openfort-registration-login-ux-improvement.md 
+The registration process is bit differen than the default as the user has to start with i.e. "login with google" and we check if the user is already registered, if not he has to do a questionaire first and only if he qualifies, he will be registered, logged in, and a embedded wallet created for him.
+If the user is already registred, we want to send him straight to the dashboard and have his wallet connected. This is working but during the login process so many pop ups and messages show up temporarely and then , as the user mught think he has to act on on, then disaapear, until (if untouched) the user is logged in.
+
+The mermaid diagram in @docs-dev/release-notes/v0.2.2-openfort-implementation-with-onboarding-review.md may be a good description of the process as well, although I already described the gist of it. Be aware that this file describes the implementation for the openfort login while we were still using a Go based backend which we have now retired and fully absorbed inti this repo.
+
+Most confusing I find at the moment that a small pop up comes up "Connected - Manage wallets" and it looks like to the users that the process is done and he has to do something, but he should not, he needs to wait about 5 sec before it disappears and he will eventually end up on the dashboard - can we improve this ?
+
+You have `openfort` SKILL.md and MCP to get up to date documentation and code examples.
+You have access to the browser to read state, take snapshots, and press buttons using `chrome-devtools-mcp`
+
+---
+
+- rename `task-103-openfort-registration-login-ux-cleanup.md` to `task-103-openfort-login-ux-cleanup-and-progress-list.md`
+- how can i run the dev server so that we both can check the logs ?
+- i will do a manual test run first
+
+---
+
+- ok, google auth popup was there for about 5 sec, but lets keeps that for now. 
+- progress was shows nicely although i had the impression that after step 1 the list suddenly got longer (from 4 to 5 entries ?)\
+- got to the point where just "connecting to your wallet" is still unchecked, but the dashbard already shows blurred in the back ... so i am stuck here
+
+---
+
+- i refreshed the page (not sure if your changes were already hotloaded) and it completed the wallet connection in about 10 sec (may use that as default for now)
+- i logged out , logged in again , still the same behaviour in step 3
+- i have started the browser with debug port open so you should be able to check the console and network log yourself using chrome-devtools-mcp
+- want to try to run it yourself
+
+---
+
+- great that worked. just change the starting count down time for the wallet connect at 10 sec
+- then update our task-103 file, write an extensive commit message with header "task-103-openfort-login-ux-cleanup-and-progress-list" (remove dash between words), commit and push
+
+---
+
+great ! Small issue at the beginning : we have the home screen with "infrafund box and connect button", if i click the button, the modal comes up where i can currently choose between "google" and "email", I click "Google" , google modal popup up and shows "connecting" then diappears, the the infrafung box shows up again (page reload ?), then the google connect model shows up again, and only then our progress list comes up. Can we lean up the process before our progress list, maybe there is one page reload too much ? Why does the Google modal shows up twice ? Create a tash-104 , investigate , and suggest improvements
+
+---
+
+ok do it and then i'll try it out
+
+---
+
+- ok, does not look much different, but it feel a bit faster than before and fast enough that the user does not come up with the idea that the process is stuck and start clkicking something
+- I noticed in our progress list the 1 gets checked first , then 3 , then 2 (and i think 3 goes off ), then 3 gets checked (again ?) , then 4 , 5 . If these are the states correctlt represented, then this might be ok as it happens quickly but still looks at bit confusing. Maybe the first and the second time step 3 gets checked are actually different staes and we can split and put them in the right order ?
+
+---
+
+that looks great ! Update the task doc , then commit and push
+
+---
+
+once logged it the logout ("disconnect") is a bit hard to find. User needs to click the button with the address, then the openfort modal comes up, there  is a tiny icon on the top left, user needs to click that, then user has a few options, the last one is [Disconnect] 
+How can we improve that ?
+We also have a user icon right to the connect button which is currently unused.
+I am not sure i we should show the wallet address button anyway (maybe we keep it for testing for now), but our users do not care much , so maybe we can put that into a menu which comes up when the user icon is clicked ? The user icon should indicate the wallet connect state , maybe the tool tip on hover to show "not connected / connected", the submenue could show the wallet address and a copy address icon, and a "logout" at the end of the submenu.
+
+---
+
+- you should be able to access the openfort docs , either mcp or web as fallback if you need to - but looks like you fugured it out already
+- i would propose that we have an "Account" menu entry in the sub menu instead which goes to a new separate webpage where the user can see hos account details and (maybe later) update. So just keep "Account" and "Logout"
+- keep the wallet address button for now, we can always hide or remove it later when we go live, but may be helpful for debug.
+- no additional changes for now.
+- write a new taskfile, then implement it
