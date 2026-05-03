@@ -131,3 +131,9 @@ I has been working fine on localhost, the `openfort` branch was deployed on verc
 ---
 
 on localhost we have a script to start the database and set it up, I think we do not have that for the `neon` database on vercel. Maybe we just have not set it up yet
+
+---
+
+1) I checked the vercel dashboard : `OPENFORT_SECRET_KEY` is set - i just copied the env vars from localhost when i setup the end vars for the vercel preview deployment
+
+You have access to `vercel` CLI so you can check and do the other tasks
