@@ -1,0 +1,3 @@
+update @docs-dev/tasks/task-107-initialize-vercel-neon-database.md with our now working solution, remove everything which is not relevant any more. 
+Also update @docs/deployment-neon-vercel.md  , we want a clean document to deploy this on another vercel account with the live server and live domain.
+then commit and push everything

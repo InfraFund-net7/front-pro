@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "6720a2403ccd",
+  "session_id": "22551c1c-78b7-46bd-9aee-54c95517373b",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-03T07:03:18.809203652Z",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/task-107-initialize-vercel-neon-database.md",
+    "docs/deployment-neon-vercel.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-4-6",
+  "turn_id": "2cc3ae56e33f",
+  "checkpoint_transcript_start": 517,
+  "transcript_lines_at_start": 517,
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 98481,
+    "cache_read_tokens": 659168,
+    "output_tokens": 3617,
+    "api_call_count": 6
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-03T07:03:18.753793294Z",
+    "agent_lines": 116,
+    "agent_removed": 171,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 116,
+    "total_lines_changed": 287,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    }
+  ]
+}

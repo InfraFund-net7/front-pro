@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "6720a2403ccd",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/tasks/task-107-initialize-vercel-neon-database.md",
+    "docs/deployment-neon-vercel.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/67/20a2403ccd/0/metadata.json",
+      "transcript": "/67/20a2403ccd/0/full.jsonl",
+      "content_hash": "/67/20a2403ccd/0/content_hash.txt",
+      "prompt": "/67/20a2403ccd/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 98481,
+    "cache_read_tokens": 659168,
+    "output_tokens": 3617,
+    "api_call_count": 6
+  }
+}
