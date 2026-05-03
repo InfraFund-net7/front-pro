@@ -1,0 +1,2 @@
+the deployment has an error , and that's why when I tried again I get the same error.
+you should check the result of the deployment, fix any errors , and then only report back to test it when the deployment is green
