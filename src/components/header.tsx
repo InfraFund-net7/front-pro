@@ -3,8 +3,6 @@
 import { Bell, Headset } from 'lucide-react';
 import { OpenfortButton } from '@openfort/react';
 import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
-import { useAuthSession } from './auth/auth-session-provider';
 import { AvatarMenu } from './header/avatar-menu';
 
 const routeTitles: Record<string, string> = {
@@ -25,35 +23,11 @@ const routeTitles: Record<string, string> = {
 
 export default function Header() {
   const pathname = usePathname();
-  const { backendUser, openfortUser } = useAuthSession();
   const pageTitle = routeTitles[pathname] || 'Page';
-  const displayName = useMemo(() => {
-    const fullName = [backendUser?.first_name, backendUser?.last_name]
-      .filter(Boolean)
-      .join(' ')
-      .trim();
-
-    return fullName || openfortUser?.name || openfortUser?.email || 'User';
-  }, [
-    backendUser?.first_name,
-    backendUser?.last_name,
-    openfortUser?.email,
-    openfortUser?.name,
-  ]);
-
-  const secondaryLabel =
-    openfortUser?.email || backendUser?.role || openfortUser?.id || 'Openfort';
 
   return (
     <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-normal text-white leading-2">
-          Hi {displayName}
-          <span className="text-[#8087A3] text-base font-normal">
-            {' '}
-            - {secondaryLabel}
-          </span>
-        </span>
         <span className="text-[40px] font-bold text-white">{pageTitle}</span>
       </div>
 
