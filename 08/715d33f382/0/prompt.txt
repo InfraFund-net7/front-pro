@@ -1,0 +1,1 @@
+remove greeting and email address from the header of all pages
