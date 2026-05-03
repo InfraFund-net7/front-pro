@@ -1,137 +1,133 @@
-<!-- cspell:words neondb Neon uuidv7 uuidv pooler UNPOOLED sslmode libpq pacman ETIMEDOUT dbgenerated waitlists -->
+<!-- cspell:words neondb Neon uuidv7 uuidv pooler sslmode prebuild UNPOOLED -->
 
-# Deploying to Vercel with Neon Postgres
+# Deploying InfraFund to Vercel with Neon Postgres
 
-This guide covers one-time database initialization for a new Vercel deployment
-(preview, production, or any branch that gets its own Neon database).
-
-## When you need this
-
-- First deployment of a new branch to Vercel
-- The Vercel project was linked to a new Neon database
-- The error "Something went wrong" appears at step 2 "Checking your account"
-  and the Neon database is empty (no tables)
+Step-by-step guide to deploy this project on a new Vercel account with a custom
+domain. The database schema and seed data are applied **automatically on every build**
+via the `prebuild` script — no manual DB setup required.
 
 ## Prerequisites
 
-- Vercel CLI: `npm i -g vercel` (or `npx vercel`)
-- `psql` CLI available locally (`sudo pacman -S postgresql` / `brew install libpq`)
-- Access to the Vercel project (run `vercel link` if not already linked)
+- A Vercel account with access to add a project
+- The GitHub repo connected (or ready to connect) to Vercel
+- A domain you control (for DNS configuration)
+- Credentials for all third-party services (Openfort, reCAPTCHA, Sentry, etc.)
+  See `config-operation/environment-variables.md` for the full list.
 
-## Quick Summary
+---
+
+## Step 1 — Create the Vercel project
+
+1. In the Vercel dashboard, click **Add New → Project**
+2. Import the `front-pro` GitHub repository
+3. Set **Root Directory** to `/` (default)
+4. Set **Framework Preset** to `Next.js` (auto-detected)
+5. Do **not** click Deploy yet — set env vars first
+
+---
+
+## Step 2 — Add the Neon Postgres integration
+
+1. In your Vercel project, go to **Storage → Connect Store**
+2. Select **Neon** and follow the OAuth flow
+3. Create a new Neon project (or connect an existing one)
+4. Vercel automatically injects `DATABASE_URL` and `DATABASE_URL_UNPOOLED`
+
+If you prefer to provision Neon manually, create a project at
+[console.neon.tech](https://console.neon.tech), copy the connection string, and add
+`DATABASE_URL` as an environment variable manually.
+
+---
+
+## Step 3 — Set environment variables
+
+In **Vercel → Project Settings → Environment Variables**, add all variables listed in
+`config-operation/environment-variables.md`.
+
+Key variables:
+
+| Variable | Where to get it |
+|---|---|
+| `DATABASE_URL` | Injected by Neon integration (or from Neon console) |
+| `APP_JWT_SECRET` | Generate: `openssl rand -hex 32` |
+| `APP_REFRESH_TOKEN_SECRET` | Generate: `openssl rand -hex 32` |
+| `OPENFORT_SECRET_KEY` | Openfort dashboard → API Keys |
+| `OPENFORT_PUBLISHABLE_KEY` | Openfort dashboard → API Keys |
+| `NEXT_PUBLIC_OPENFORT_PUBLISHABLE_KEY` | Same as above |
+| `RECAPTCHA_SECRET_KEY` | Google reCAPTCHA admin console |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Google reCAPTCHA admin console |
+| `SENTRY_DSN` | Sentry project settings |
+| `NEXT_PUBLIC_SENTRY_DSN` | Same as above |
+| `CRON_SECRET` | Generate: `openssl rand -hex 32` |
+
+Set variables for all relevant environments (Preview and/or Production).
+
+---
+
+## Step 4 — Configure the custom domain
+
+1. In **Vercel → Project Settings → Domains**, add your domain (e.g. `infrafund.dev`)
+2. Vercel shows the DNS records to add (usually an A record or CNAME)
+3. In your DNS provider, add those records
+4. Wait for DNS propagation (usually under 5 minutes on Cloudflare)
+
+---
+
+## Step 5 — Deploy
+
+Trigger a deployment by pushing to the branch connected to your environment, or click
+**Redeploy** in the Vercel dashboard.
+
+During the build, `prebuild` runs automatically:
 
 ```
-vercel env pull .env.neon --environment preview                                            
-DATABASE_URL="$(grep '^DATABASE_URL_UNPOOLED=' .env.neon | cut -d= -f2- | tr -d '"')" npm run db:neon:setup                                                                              
-rm .env.neon  
+prisma generate && node scripts/setup-neon-db.mjs
 ```
 
-## Step 1 — Pull the Neon DATABASE_URL from Vercel
+This script:
+1. Installs the `pg_uuidv7` extension (Neon runs Postgres 17; `uuidv7()` is not
+   built-in until Postgres 18)
+2. Creates a `uuidv7()` alias pointing to `uuid_generate_v7()`
+3. Runs `prisma db push --accept-data-loss` to create all tables
+4. Seeds 251 ISO countries (skips automatically if already seeded)
 
-```bash
-vercel env pull .env.neon --environment preview
-# or --environment production for prod
+Build time is approximately 60–90 seconds.
 
-grep DATABASE_URL .env.neon
-# → DATABASE_URL="postgresql://neondb_owner:...@ep-xxx-pooler.eu-west-2.aws.neon.tech/neondb?..."
-```
+---
 
-The pulled file contains both pooled (`-pooler.` hostname) and non-pooled URLs.
-Use the **non-pooled** `DATABASE_URL_UNPOOLED` for schema setup (Prisma requires a
-direct connection for `db push`).
+## Step 6 — Verify
 
-```bash
-grep DATABASE_URL_UNPOOLED .env.neon
-# → DATABASE_URL_UNPOOLED="postgresql://neondb_owner:...@ep-xxx.eu-west-2.aws.neon.tech/neondb?sslmode=require"
-```
+Once the deployment is green, open the site and click **Login / Register**. The
+progress modal should complete all five steps:
 
-## Step 2 — Run the Neon setup script
+1. Authenticating with Openfort ✓
+2. Checking your account ✓
+3. Restoring your session ✓
+4. Loading your profile ✓
+5. Connecting your wallet ✓
 
-```bash
-DATABASE_URL="$(grep '^DATABASE_URL_UNPOOLED=' .env.neon | cut -d= -f2- | tr -d '"')" \
-  npm run db:neon:setup
-```
+---
 
-This script (`scripts/setup-neon-db.mjs`) does:
-
-1. Connects to the database and checks whether `uuidv7()` is a built-in
-   (`pg_catalog`, present in Postgres 18+).
-2. If not (Neon runs Postgres 17), installs the `pg_uuidv7` extension and creates
-   a `uuidv7()` alias pointing to `uuid_generate_v7()` — which is what `pg_uuidv7`
-   v1.6 provides.
-3. Runs `prisma db push` to create all tables.
-4. Runs `scripts/seed-countries.mjs` to insert the 251 ISO countries.
-
-### If the Node.js `pg` client times out (ETIMEDOUT on port 5432)
-
-This can happen on some networks where the Node.js TCP stack behaves differently from
-`psql` (libpq). Run the three steps manually instead:
-
-```bash
-NEON_URL="postgresql://neondb_owner:...@ep-xxx.eu-west-2.aws.neon.tech/neondb?sslmode=require"
-
-# 1. Install extension and create uuidv7() alias
-psql "$NEON_URL" <<'SQL'
-CREATE EXTENSION IF NOT EXISTS pg_uuidv7;
-CREATE OR REPLACE FUNCTION uuidv7() RETURNS uuid
-  LANGUAGE SQL AS $$ SELECT uuid_generate_v7() $$;
-SQL
-
-# 2. Apply Prisma schema
-DATABASE_URL="$NEON_URL" npx prisma db push
-
-# 3. Seed countries
-psql "$NEON_URL" -f prisma/seed/countries.sql
-```
-
-## Step 3 — Verify
-
-```bash
-psql "$NEON_URL" -c "\dt"
-# → 10 tables: account_lockouts, contact_forms, countries, lockout_audit_logs,
-#              non_resident_waitlists, sessions, user_organizations, users,
-#              waitlist, wallets
-
-psql "$NEON_URL" -c "SELECT COUNT(*) FROM countries;"
-# → 251
-```
-
-## Step 4 — Clean up
-
-Delete the pulled env file — it contains secrets.
-
-```bash
-rm .env.neon
-```
-
-## Step 5 — Redeploy on Vercel (if needed)
-
-If environment variables were added or changed after the last deployment:
-
-```bash
-vercel redeploy --target preview
-# or visit Vercel dashboard → Deployments → Redeploy
-```
-
-## Postgres version compatibility note
+## Postgres version note
 
 | Environment | Postgres | `uuidv7()` source |
 |---|---|---|
 | Local Docker (`npm run dev:local`) | 18.x | Built-in `pg_catalog` |
 | Neon (Vercel) | 17.x | `pg_uuidv7` extension + alias |
 
-The Prisma schema uses `@default(dbgenerated("uuidv7()"))` for all primary keys. The
-`db:neon:setup` script handles both cases automatically. If Neon upgrades to Postgres
-18 in the future, the alias step will be skipped automatically.
+The `setup-neon-db.mjs` script detects the Postgres version automatically and skips
+the extension step on Postgres 18+.
+
+---
 
 ## Adding Prisma migrations later
 
 This project currently uses `prisma db push` (schema-first, no migration files). If
-formal migration files are added, replace step 2 with:
+formal migrations are added, update the `run` call in `scripts/setup-neon-db.mjs` to:
 
-```bash
-DATABASE_URL="$NEON_URL" npx prisma migrate deploy
+```js
+run('npx', ['prisma', 'migrate', 'deploy']);
 ```
 
-`prisma migrate deploy` applies all pending migration files in order and is safe to
-run repeatedly (skips already-applied migrations).
+`prisma migrate deploy` applies pending migrations in order and is safe to run on
+every build (skips already-applied migrations).
