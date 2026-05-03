@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "5450b747ed55",
+  "session_id": "6a1efa9e-2068-4623-ae4e-7c9c24873f5d",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-03T04:17:51.58244678Z",
+  "branch": "openfort",
+  "checkpoints_count": 1,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-4-6",
+  "turn_id": "518123072bb8",
+  "token_usage": {
+    "input_tokens": 496,
+    "cache_creation_tokens": 1138438,
+    "cache_read_tokens": 75576002,
+    "output_tokens": 194627,
+    "api_call_count": 366
+  },
+  "session_metrics": {
+    "turn_count": 22
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    }
+  ]
+}
