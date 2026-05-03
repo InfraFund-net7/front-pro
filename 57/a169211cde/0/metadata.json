@@ -1,0 +1,114 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "57a169211cde",
+  "session_id": "6a1efa9e-2068-4623-ae4e-7c9c24873f5d",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-03T00:58:40.378948403Z",
+  "branch": "openfort",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "src/app/api/v1/locations/countries/route.ts",
+    "src/app/page.tsx",
+    "src/components/auth/non-resident-form.tsx",
+    "src/components/ui/dropdown.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/server/http/captcha.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-4-6",
+  "turn_id": "513916a9f32d",
+  "token_usage": {
+    "input_tokens": 413,
+    "cache_creation_tokens": 1018451,
+    "cache_read_tokens": 67445985,
+    "output_tokens": 164196,
+    "api_call_count": 294
+  },
+  "session_metrics": {
+    "turn_count": 18
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-03T00:58:40.330341432Z",
+    "agent_lines": 132,
+    "agent_removed": 47,
+    "human_added": 102,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 235,
+    "total_lines_changed": 284,
+    "agent_percentage": 63.02816901408451,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 100,
+      "agent_lines_removed": 42,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 108,
+      "agent_lines_removed": 45,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 133,
+      "agent_lines_removed": 47,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 133,
+      "agent_lines_removed": 47,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 133,
+      "agent_lines_removed": 47,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 133,
+      "agent_lines_removed": 47,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    }
+  ]
+}

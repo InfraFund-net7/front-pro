@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "57a169211cde",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "src/app/api/v1/locations/countries/route.ts",
+    "src/app/page.tsx",
+    "src/components/auth/non-resident-form.tsx",
+    "src/components/ui/dropdown.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/server/http/captcha.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/57/a169211cde/0/metadata.json",
+      "transcript": "/57/a169211cde/0/full.jsonl",
+      "content_hash": "/57/a169211cde/0/content_hash.txt",
+      "prompt": "/57/a169211cde/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 413,
+    "cache_creation_tokens": 1018451,
+    "cache_read_tokens": 67445985,
+    "output_tokens": 164196,
+    "api_call_count": 294
+  }
+}
