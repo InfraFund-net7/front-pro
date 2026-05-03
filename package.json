@@ -1,6 +1,6 @@
 {
-  "name": "front-pro",
-  "version": "0.2.6",
+  "name": "Infrafund/front-pro",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
