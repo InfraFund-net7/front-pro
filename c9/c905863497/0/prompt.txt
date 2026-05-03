@@ -1,0 +1,12 @@
+<task-notification>
+<task-id>b00lymyi2</task-id>
+<tool-use-id>toolu_01U81usdEfbX8iYmdZo7xoKH</tool-use-id>
+<output-file>/tmp/claude-1000/-home-sum-DEV-ETH-InfraFund-front-pro/22551c1c-78b7-46bd-9aee-54c95517373b/tasks/b00lymyi2.output</output-file>
+<status>failed</status>
+<summary>Monitor "Watch Vercel build logs for openfort branch" script failed (exit 1)</summary>
+</task-notification>
+
+---
+
+`entire/checkpoints/v1` branch does not contain any code and should never be tried to deploy.
+`openfort` deplo errored again
