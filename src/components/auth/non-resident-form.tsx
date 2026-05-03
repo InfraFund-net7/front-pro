@@ -222,12 +222,14 @@ export function NonResidentForm({
               placeholder="First Name"
               value={firstName}
               onChange={(event) => setFirstName(event.target.value)}
+              invalid={!firstName.trim()}
             />
             <FormInput
               label="Last Name"
               placeholder="Last Name"
               value={lastName}
               onChange={(event) => setLastName(event.target.value)}
+              invalid={!lastName.trim()}
             />
           </>
         ) : (
@@ -237,6 +239,7 @@ export function NonResidentForm({
               placeholder="Contact Full Name"
               value={contactFullName}
               onChange={(event) => setContactFullName(event.target.value)}
+              invalid={!hasFullContactName}
               className="md:col-span-2"
             />
             <FormInput
@@ -244,10 +247,20 @@ export function NonResidentForm({
               placeholder="Company Name"
               value={companyName}
               onChange={(event) => setCompanyName(event.target.value)}
+              invalid={!companyName.trim()}
               className="md:col-span-2"
             />
           </>
         )}
+
+        <FormInput
+          label="Email"
+          placeholder="Email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          className="md:col-span-2"
+        />
 
         <Dropdown
           label="Country"
@@ -261,15 +274,6 @@ export function NonResidentForm({
           placeholder={
             isLoadingCountries ? 'Loading countries...' : 'Select a country'
           }
-          className="md:col-span-2"
-        />
-
-        <FormInput
-          label="Email"
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
           className="md:col-span-2"
         />
       </div>

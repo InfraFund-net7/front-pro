@@ -3,10 +3,11 @@
 import { OpenfortButton } from '@openfort/react';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 import Image from 'next/image';
+import type { ReactNode } from 'react';
 
 interface LoginProps {
   title?: string;
-  description?: string;
+  description?: ReactNode;
   buttonLabel?: string;
 }
 
