@@ -111,6 +111,7 @@ interface AuthSessionContextValue {
   errorCategory: ErrorCategory | null;
   retry: () => void;
   deleteAccount: () => Promise<void>;
+  logout: () => Promise<void>;
   authProgress: AuthProgress | null;
   dismissProgress: () => void;
 }
@@ -644,6 +645,19 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setStatus('unauthenticated');
   }, [clearSession, signOut]);
 
+  const logout = useCallback(async () => {
+    setStatus('loading');
+    setError(null);
+
+    await Promise.allSettled([
+      logoutBackendSession().catch(() => undefined),
+      signOut().catch(() => undefined),
+    ]);
+
+    clearSession();
+    setStatus('unauthenticated');
+  }, [clearSession, signOut]);
+
   const deleteAccount = useCallback(async () => {
     setStatus('loading');
     setError(null);
@@ -793,6 +807,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       errorCategory,
       retry,
       deleteAccount,
+      logout,
       authProgress,
       dismissProgress,
     }),
@@ -807,6 +822,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       errorCategory,
       retry,
       deleteAccount,
+      logout,
       authProgress,
       dismissProgress,
     ]

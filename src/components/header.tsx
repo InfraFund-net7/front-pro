@@ -5,6 +5,7 @@ import { OpenfortButton } from '@openfort/react';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAuthSession } from './auth/auth-session-provider';
+import { AvatarMenu } from './header/avatar-menu';
 
 const routeTitles: Record<string, string> = {
   '/': 'Dashboard',
@@ -42,7 +43,6 @@ export default function Header() {
 
   const secondaryLabel =
     openfortUser?.email || backendUser?.role || openfortUser?.id || 'Openfort';
-  const avatarLabel = displayName.charAt(0).toUpperCase();
 
   return (
     <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">
@@ -61,9 +61,7 @@ export default function Header() {
         <Headset size={24} className="text-white cursor-pointer" />
         <Bell size={24} className="text-white cursor-pointer" />
         <OpenfortButton label="Wallet" showAvatar />
-        <div className="w-12 h-12 rounded-full bg-[#263247] flex justify-center items-center text-white">
-          {avatarLabel}
-        </div>
+        <AvatarMenu />
       </div>
     </div>
   );

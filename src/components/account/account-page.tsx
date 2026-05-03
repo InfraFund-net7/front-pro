@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
+import { Check, Copy, ExternalLink } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
+import { getAddressExplorerUrl, getChainName } from '@/lib/block-explorer';
 import { Modal } from '@/components/ui/modal';
 import { CustomButton } from '@/components/ui/custom-button';
 
@@ -14,8 +17,81 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function DetailNodeRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-[#263247] last:border-0">
+      <span className="text-sm text-[#8087A3]">{label}</span>
+      <div className="flex items-center gap-2">{children}</div>
+    </div>
+  );
+}
+
+function WalletAddressRow({
+  address,
+  chainId,
+}: {
+  address: string;
+  chainId: number | undefined;
+}) {
+  const [justCopied, setJustCopied] = useState(false);
+  const explorerUrl = getAddressExplorerUrl(chainId, address);
+  const chainName = getChainName(chainId);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setJustCopied(true);
+      window.setTimeout(() => setJustCopied(false), 1500);
+    } catch {
+      // Clipboard API can fail in non-secure contexts; ignore silently.
+    }
+  };
+
+  return (
+    <DetailNodeRow label={chainName ? `Wallet (${chainName})` : 'Wallet'}>
+      {explorerUrl ? (
+        <a
+          href={explorerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="View on block explorer"
+          aria-label="View on block explorer"
+          className="p-1.5 rounded-md hover:bg-[#1F2937] text-[#8087A3] hover:text-white transition-colors"
+        >
+          <ExternalLink size={16} />
+        </a>
+      ) : null}
+      <button
+        type="button"
+        onClick={handleCopy}
+        title={justCopied ? 'Copied' : 'Copy address'}
+        aria-label="Copy wallet address"
+        className="p-1.5 rounded-md hover:bg-[#1F2937] text-[#8087A3] hover:text-white transition-colors cursor-pointer"
+      >
+        {justCopied ? (
+          <Check size={16} className="text-emerald-400" />
+        ) : (
+          <Copy size={16} />
+        )}
+      </button>
+      <span className="text-xs font-mono text-white break-all">{address}</span>
+    </DetailNodeRow>
+  );
+}
+
 export default function AccountPage() {
   const { backendUser, openfortUser, deleteAccount } = useAuthSession();
+  const wallet = useEthereumEmbeddedWallet();
+  const walletAddress =
+    wallet.status === 'connected' ? wallet.address : undefined;
+  const walletChainId =
+    wallet.status === 'connected' ? wallet.chainId : undefined;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -97,6 +173,12 @@ export default function AccountPage() {
                   value={backendUser.company_name}
                 />
               )}
+            {walletAddress ? (
+              <WalletAddressRow
+                address={walletAddress}
+                chainId={walletChainId}
+              />
+            ) : null}
           </div>
         </div>
       )}
