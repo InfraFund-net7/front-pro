@@ -1,0 +1,16 @@
+we had some issues with login / register, but that was all solved and running fine on localhost:3000 , for the live deployment we fixed the non existing database , see tasks 103-107 in `docs-dev/tasks
+Now it is deployed on vercel but we have an issue, can you connect to the browser using chrome-devtools-mcp while I go through the website https://openfort.infrafund.dev/
+Btw, you also have `vercel` CLI at your disposal should you want to check the deployment of branch `openfort` (ignore all other ones), we also use the `neon` postgrSQL compatible db on vercel which should have been automatically confired with the right env vars set, at least we had a script to deploy the schema and initial values for the countires list, see `scripts`
+
+---
+
+The problem is , that our progress list shows
+1 Authenticating with Openfort > OK
+2 Checking your account > Something went wrong. Please try again.
+CAn you check what is going wrong, also a better error message may help
+
+---
+
+Let's take a step back. I can not imagine that we have to do all this stuff.
+We have a working solution on localhost with a local postgresql DB, there must be a very easy way to deploy that on vercel and their postgresql compatible DB 'neon'.
+Do a websearch , read the docs, tell me if you need access to anything. You already have `vercel` CLI - but do not work on a complex work around. There must be a very easy solution.
