@@ -113,7 +113,13 @@ async function request<T>(
 
     try {
       const errorBody = (await response.json()) as ErrorResponse;
-      message = errorBody.message || errorBody.detail || message;
+      const baseMessage = errorBody.message || errorBody.detail || message;
+      // When both are present (server adds detail for diagnostics, e.g. Google
+      // reCAPTCHA error codes in dev), include the detail so the user sees it.
+      message =
+        errorBody.message && errorBody.detail
+          ? `${errorBody.message} — ${errorBody.detail}`
+          : baseMessage;
     } catch {}
 
     throw new Error(message);
@@ -170,8 +176,10 @@ export async function getBackendMe(accessToken: string) {
 }
 
 export async function getCountries() {
+  // The endpoint defaults to 10 results; ask for the full ISO country list in
+  // one shot so the dropdown isn't silently truncated.
   const response = await request<BackendCountriesResponse>(
-    'locations/countries',
+    'locations/countries?limit=300',
     {
       method: 'GET',
     }

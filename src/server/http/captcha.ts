@@ -3,6 +3,7 @@ import 'server-only';
 import type { NextRequest } from 'next/server';
 
 import { getServerEnv } from '@/server/env';
+import { logger } from '@/server/logger';
 
 import { ApiError } from './api-error';
 import { getRequestMetadata } from './request-metadata';
@@ -68,7 +69,23 @@ export async function verifyCaptchaToken(
   const data = (await response.json()) as GoogleCaptchaResponse;
 
   if (!data.success) {
-    throw new ApiError('UNAUTHORIZED', 'Captcha verification failed');
+    const errorCodes = data['error-codes'] ?? [];
+    // Always log Google's error codes — they're how we tell apart bad keys vs
+    // domain mismatch vs expired token vs duplicate use, which are otherwise
+    // indistinguishable from the client.
+    logger.warn(
+      { errorCodes, hostname: data.hostname },
+      'reCAPTCHA verification failed'
+    );
+    // Surface them in non-production so the developer running locally sees
+    // exactly what Google said without having to grep server logs.
+    const detail =
+      process.env.NODE_ENV !== 'production' && errorCodes.length > 0
+        ? `Google reCAPTCHA returned: ${errorCodes.join(', ')}`
+        : undefined;
+    throw new ApiError('UNAUTHORIZED', 'Captcha verification failed', {
+      detail,
+    });
   }
 
   return {
