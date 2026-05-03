@@ -140,6 +140,10 @@ function getUserFacingErrorMessage(message: string) {
     return 'We hit a network issue. Please try again.';
   }
 
+  if (/internal server error/i.test(message)) {
+    return 'Our service is temporarily unavailable. Please try again in a moment.';
+  }
+
   return 'Something went wrong. Please try again.';
 }
 

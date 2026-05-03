@@ -8,6 +8,7 @@ import {
   isApiError,
   jsonError,
 } from './api-error';
+import logger from '@/server/logger';
 
 export interface ApiSuccessBody<T> {
   code: 'OK';
@@ -30,6 +31,7 @@ export function handleApiError(error: unknown) {
     return jsonError(error);
   }
 
+  logger.error({ err: error }, 'Unhandled server error');
   return jsonError(internalServerError());
 }
 
