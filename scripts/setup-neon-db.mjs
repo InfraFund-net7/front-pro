@@ -52,7 +52,7 @@ try {
   await client.end();
 }
 
-run('npx', ['prisma', 'db', 'push']);
+run('npx', ['prisma', 'db', 'push', '--accept-data-loss']);
 run('node', ['scripts/seed-countries.mjs']);
 
 function run(command, args) {
