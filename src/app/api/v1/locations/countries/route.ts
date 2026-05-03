@@ -41,8 +41,11 @@ export async function GET(request: NextRequest) {
       fields.offset = 'offset must be greater than or equal to 0';
     }
 
-    if (limit < 1 || limit > 100) {
-      fields.limit = 'limit must be between 1 and 100';
+    // Cap at 300 — there are ~250 ISO countries; the contact-form dropdown
+    // wants the full list in one shot. The default of 10 stays unchanged for
+    // any other paginated caller.
+    if (limit < 1 || limit > 300) {
+      fields.limit = 'limit must be between 1 and 300';
     }
 
     if (Object.keys(fields).length > 0) {
