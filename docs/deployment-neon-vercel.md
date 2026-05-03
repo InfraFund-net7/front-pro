@@ -18,6 +18,14 @@ This guide covers one-time database initialization for a new Vercel deployment
 - `psql` CLI available locally (`sudo pacman -S postgresql` / `brew install libpq`)
 - Access to the Vercel project (run `vercel link` if not already linked)
 
+## Quick Summary
+
+```
+vercel env pull .env.neon --environment preview                                            
+DATABASE_URL="$(grep '^DATABASE_URL_UNPOOLED=' .env.neon | cut -d= -f2- | tr -d '"')" npm run db:neon:setup                                                                              
+rm .env.neon  
+```
+
 ## Step 1 — Pull the Neon DATABASE_URL from Vercel
 
 ```bash
