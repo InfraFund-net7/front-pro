@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.6",
+  "checkpoint_id": "f91e66272912",
+  "strategy": "manual-commit",
+  "branch": "openfort",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "vercel.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f9/1e66272912/0/metadata.json",
+      "transcript": "/f9/1e66272912/0/full.jsonl",
+      "content_hash": "/f9/1e66272912/0/content_hash.txt",
+      "prompt": "/f9/1e66272912/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 10,
+    "cache_creation_tokens": 155702,
+    "cache_read_tokens": 538686,
+    "output_tokens": 1485,
+    "api_call_count": 6
+  }
+}

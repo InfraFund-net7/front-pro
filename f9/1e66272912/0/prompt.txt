@@ -1,0 +1,2 @@
+can we stop vercel from trying to deploy ? These are just log files which are copied to that branch whenever we do anything on any branch.
+Deploy of real `openfort` branch takes about 70 sec and is now done - green !
