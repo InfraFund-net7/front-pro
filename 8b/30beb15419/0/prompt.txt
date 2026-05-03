@@ -64,3 +64,17 @@ I am not sure i we should show the wallet address button anyway (maybe we keep i
 - keep the wallet address button for now, we can always hide or remove it later when we go live, but may be helpful for debug.
 - no additional changes for now.
 - write a new taskfile, then implement it
+
+---
+
+great , just add the wallet address as last entry in "Account Details" box on `account` page with a address copy icon and a link icon which goes to a blockexplorer which may be different depending on which blockchain we are using. Ideally we could automatically derive it from the chain (id) we are currently connected to. Not sure if openfort gives us that information, or wagmi , otherwise we would need to maintain a list for the most important chains : Ethereum mainnet, Polygon , Base mainnet, Sepolia
+
+---
+
+looks good, small change , reorder :  Wallet (chain) , link icon , copy icon , full address
+when done commit and push it all
+
+---
+
+looks good, small change , reorder :  Wallet (chain) , link icon , copy icon , full address
+when done commit and push it all
