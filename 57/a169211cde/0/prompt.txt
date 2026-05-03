@@ -114,3 +114,10 @@ Can you check the logs, console, network yourself using chrome-devtools-mcp
 
 - additional minor issue : i can not search for a country by typing into the drop down field
 - right , i did not include "localhost" , do i need to add the port as well, answer this first quickly
+
+---
+
+great its working now !
+- can you just add a red order to the first and last name in the contact form if it is empty so people see why they can not commit
+- on the home page insert a line break  so that "New user ..." start in a new line
+- once done, write a short task file (task-106 is guess), then commit and push it all
