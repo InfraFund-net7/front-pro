@@ -1,0 +1,35 @@
+i have installed `headroom` proxy `https://github.com/chopratejas/headroom`                         
+   so far up grade was easy , even downgrade to v0.14.5 as later version hat major issues.             
+   Now version v0.20.13 is out, install looked ok, but it wont start                                   
+   ```                                                                                                 
+   $ ~/Scripts/aidev_update/headroom_update.sh                                                         
+   Headroom Update                                                                                     
+   Fetching latest version from GitHub...                                                              
+   Latest version: 0.20.13                                                                             
+   Current version: 0.20.13                                                                            
+   ✓ Headroom already up to date (0.20.13)                                                             
+   $ ~/Scripts/aidev_update/headroom_stop.sh                                                           
+   Stopping manifest profile 'init-aertura-blockchain-frontend-d0cc58e9'...                            
+   Stopped deployment 'init-aertura-blockchain-frontend-d0cc58e9'.                                     
+   ✓ Headroom stopped, port 8787 is free                                                               
+   $ ~/Scripts/aidev_update/headroom_start.sh                                                          
+   Starting manifest profile 'init-aertura-blockchain-frontend-d0cc58e9'...                            
+   Error: Deployment 'init-aertura-blockchain-frontend-d0cc58e9' did not become ready after start.     
+   $                                                                                                   
+   ```
+
+---
+
+what needs to be done to get it with the new rust component to work , wasn't that the intention of the new release ?
+
+---
+
+ok, understood. Lets try to get the version with rust enabled to work
+
+---
+
+so its a problem of the developer / maintainer of the headroom app whi forgot to include the require components in the latest release ?
+
+---
+
+yes, create a new issue `https://github.com/chopratejas/headroom`
