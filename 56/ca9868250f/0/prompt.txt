@@ -1,3 +1,8 @@
 based on all files starting with `docs-dev/release-notes/v1.0.7-backend-next-migration.md` 
 to `docs-dev/release-notes/v1.1.0-openfort-branch-becomes-develop.md` and all files in `docs-dev/tasks`
 can you create a summary `docs-dev/release-notes/v1.1.0-nextjs-backend-openfort-auth.md`
+
+---
+
+rename `v1.1.0-nextjs-backend-openfort-auth.md` to `v1.1.0-nextjs-backend-openfort-auth-summary.md`
+then use `gh` to create a new release on github. we already have a v1.1.0 tag just a few commits back, maybe delete that, and recreate once you have renamed the release notes file and committed that. then push everything
