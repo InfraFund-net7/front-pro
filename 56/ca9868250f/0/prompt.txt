@@ -1,0 +1,3 @@
+based on all files starting with `docs-dev/release-notes/v1.0.7-backend-next-migration.md` 
+to `docs-dev/release-notes/v1.1.0-openfort-branch-becomes-develop.md` and all files in `docs-dev/tasks`
+can you create a summary `docs-dev/release-notes/v1.1.0-nextjs-backend-openfort-auth.md`
