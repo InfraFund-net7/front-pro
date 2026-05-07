@@ -14,10 +14,11 @@ import {
   updateSessionActivity,
 } from '@/server/repositories/sessions';
 import {
+  attachOpenfortUserId,
   createUser,
+  findUserByEmail,
   findUserByOpenfortId,
   isUserUniqueConstraintError,
-  openfortUserExists,
   type CreateUserRecord,
 } from '@/server/repositories/users';
 import {
@@ -114,11 +115,56 @@ function buildUserRecord(
   };
 }
 
+async function findLinkedUserByEmail(session: VerifiedOpenfortSession) {
+  const email = emptyToNull(session.user.email);
+
+  if (!email) {
+    return null;
+  }
+
+  return findUserByEmail(email);
+}
+
+async function linkExistingUserToOpenfort(
+  userId: string,
+  session: VerifiedOpenfortSession
+) {
+  try {
+    return await attachOpenfortUserId(userId, session.user.id);
+  } catch (error) {
+    if (isUserUniqueConstraintError(error)) {
+      const existingUser = await findUserByOpenfortId(session.user.id);
+
+      if (existingUser) {
+        return existingUser;
+      }
+    }
+
+    throw error;
+  }
+}
+
+async function resolveExistingUser(session: VerifiedOpenfortSession) {
+  const existingUser = await findUserByOpenfortId(session.user.id);
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  const emailMatchedUser = await findLinkedUserByEmail(session);
+
+  if (!emailMatchedUser) {
+    return null;
+  }
+
+  return linkExistingUserToOpenfort(emailMatchedUser.id, session);
+}
+
 async function findOrCreateUser(
   input: OpenfortExchangeInput,
   session: VerifiedOpenfortSession
 ) {
-  const existingUser = await findUserByOpenfortId(session.user.id);
+  const existingUser = await resolveExistingUser(session);
 
   if (existingUser) {
     return { user: existingUser, created: false };
@@ -133,7 +179,16 @@ async function findOrCreateUser(
     };
   } catch (error) {
     if (isUserUniqueConstraintError(error)) {
-      throw new ApiError('CONFLICT', 'User already exists, please try again.');
+      const recoveredUser = await resolveExistingUser(session);
+
+      if (recoveredUser) {
+        return { user: recoveredUser, created: false };
+      }
+
+      throw new ApiError('CONFLICT', 'User already exists.', {
+        detail:
+          'This email is already linked to another account and could not be recovered automatically. Please contact support.',
+      });
     }
 
     throw error;
@@ -200,9 +255,10 @@ async function createAccessTokenForSession(session: ActiveSession) {
 
 export async function checkOpenfortUser(accessToken: string) {
   const session = await verifyOpenfortAccessToken(accessToken);
+  const existingUser = await resolveExistingUser(session);
 
   return {
-    exists: await openfortUserExists(session.user.id),
+    exists: Boolean(existingUser),
   };
 }
 

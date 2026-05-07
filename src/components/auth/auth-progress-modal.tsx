@@ -64,7 +64,8 @@ function ActiveCountdown({ stepId }: { stepId: string }) {
 }
 
 export function AuthProgressModal() {
-  const { authProgress, retry, dismissProgress } = useAuthSession();
+  const { authProgress, retry, dismissProgress, cancelAuthFlow } =
+    useAuthSession();
   const dismissTimerRef = useRef<number | null>(null);
   const [isDismissing, setIsDismissing] = useState(false);
 
@@ -115,6 +116,14 @@ export function AuthProgressModal() {
       aria-label="Authentication progress"
     >
       <div className="relative pointer-events-auto w-[28rem] max-w-[calc(100vw-2rem)] rounded-3xl border border-[#263247] bg-[#111827]/95 p-8 text-white shadow-2xl">
+        <button
+          type="button"
+          onClick={() => void cancelAuthFlow()}
+          aria-label="Close authentication flow"
+          className="absolute right-4 top-4 text-[#8087A3] transition hover:text-white"
+        >
+          <X className="h-5 w-5" />
+        </button>
         <h2 className="mb-2 text-xl font-semibold">{headline}</h2>
         <p className="mb-6 text-sm text-[#8087A3]">
           {hasError
@@ -166,6 +175,13 @@ export function AuthProgressModal() {
               onClick={retry}
             >
               Retry
+            </CustomButton>
+            <CustomButton
+              variant="outlined"
+              className="w-full text-base"
+              onClick={() => void cancelAuthFlow()}
+            >
+              Cancel and restart
             </CustomButton>
           </div>
         ) : null}

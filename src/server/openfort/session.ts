@@ -93,13 +93,60 @@ export function deleteOpenfortUser(openfortUserId: string) {
   return getOpenfortClient().iam.users.delete(openfortUserId);
 }
 
-export function createOpenfortEncryptionSession() {
+export class OpenfortEncryptionSessionError extends ApiError {
+  readonly service = 'openfort-shield';
+  readonly envVars: string[];
+  readonly hint: string;
+
+  constructor(
+    message: string,
+    hint: string,
+    options: { cause?: unknown } = {}
+  ) {
+    super('SERVICE_UNAVAILABLE', message, {
+      detail: hint,
+      cause: options.cause,
+    });
+    this.name = 'OpenfortEncryptionSessionError';
+    this.envVars = [
+      'NEXT_PUBLIC_SHIELD_API_KEY',
+      'SHIELD_SECRET_KEY',
+      'SHIELD_ENCRYPTION_SHARE',
+    ];
+    this.hint = hint;
+  }
+}
+
+function isInvalidShieldTokenError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : '';
+
+  return /invalid token|a_invalid/i.test(message);
+}
+
+export async function createOpenfortEncryptionSession() {
   const { shield } = requireServerEnv(['shield']);
 
-  return getOpenfortClient().createEncryptionSession(
-    shield.publishableKey!,
-    shield.secretKey!,
-    shield.encryptionShare!,
-    shield.url
-  );
+  try {
+    return await getOpenfortClient().createEncryptionSession(
+      shield.publishableKey!,
+      shield.secretKey!,
+      shield.encryptionShare!,
+      shield.url
+    );
+  } catch (error) {
+    if (isInvalidShieldTokenError(error)) {
+      throw new OpenfortEncryptionSessionError(
+        'Openfort Shield rejected the wallet setup request.',
+        'Likely cause: NEXT_PUBLIC_SHIELD_API_KEY, SHIELD_SECRET_KEY, or SHIELD_ENCRYPTION_SHARE is missing, invalid, or from a different Openfort project.',
+        { cause: error }
+      );
+    }
+
+    throw error;
+  }
 }

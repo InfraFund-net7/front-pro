@@ -35,6 +35,22 @@ export function findUserByOpenfortId(openfortUserId: string) {
   });
 }
 
+export function findUserByEmail(email: string) {
+  return getDb().user.findFirst({
+    where: {
+      email,
+      deletedAt: null,
+    },
+  });
+}
+
+export function attachOpenfortUserId(userId: string, openfortUserId: string) {
+  return getDb().user.update({
+    where: { id: userId },
+    data: { openfortUserId },
+  });
+}
+
 export async function openfortUserExists(openfortUserId: string) {
   const count = await getDb().user.count({
     where: {

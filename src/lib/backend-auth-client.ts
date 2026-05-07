@@ -80,6 +80,7 @@ interface SuccessResponse<T> {
 interface ErrorResponse {
   message?: string;
   detail?: string;
+  fields?: Record<string, unknown>;
 }
 
 function buildUrl(path: string) {
@@ -114,12 +115,14 @@ async function request<T>(
     try {
       const errorBody = (await response.json()) as ErrorResponse;
       const baseMessage = errorBody.message || errorBody.detail || message;
-      // When both are present (server adds detail for diagnostics, e.g. Google
-      // reCAPTCHA error codes in dev), include the detail so the user sees it.
-      message =
-        errorBody.message && errorBody.detail
-          ? `${errorBody.message} — ${errorBody.detail}`
-          : baseMessage;
+      const fieldMessages = errorBody.fields
+        ? Object.entries(errorBody.fields)
+            .map(([key, value]) => `${key}: ${String(value)}`)
+            .join(', ')
+        : '';
+      message = [baseMessage, errorBody.detail, fieldMessages]
+        .filter(Boolean)
+        .join(' — ');
     } catch {}
 
     throw new Error(message);

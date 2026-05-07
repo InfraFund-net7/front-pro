@@ -5,6 +5,7 @@ import { ApiError, handleApiError } from '@/server/http';
 import { logger } from '@/server/logger';
 import {
   createOpenfortEncryptionSession,
+  OpenfortEncryptionSessionError,
   verifyOpenfortAccessToken,
 } from '@/server/openfort/session';
 
@@ -34,6 +35,31 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ session: encryptionSession });
   } catch (err) {
+    if (err instanceof OpenfortEncryptionSessionError) {
+      logger.error(
+        {
+          err,
+          code: err.code,
+          hint: err.hint,
+          service: err.service,
+          envVars: err.envVars,
+        },
+        'Encryption session configuration error'
+      );
+      return NextResponse.json(
+        {
+          code: err.code,
+          message: err.message,
+          detail: err.hint,
+          fields: {
+            service: err.service,
+            envVars: err.envVars.join(', '),
+          },
+        },
+        { status: err.status }
+      );
+    }
+
     logger.error({ err }, 'Encryption session error');
     return handleApiError(err);
   }

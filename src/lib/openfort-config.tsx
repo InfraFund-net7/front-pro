@@ -57,11 +57,36 @@ async function getEncryptionSession({
   const data: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
+    const payload = data && typeof data === 'object' ? data : null;
     const message =
-      data && typeof data === 'object' && 'message' in data
-        ? String(data.message)
+      payload && 'message' in payload
+        ? String(payload.message)
         : 'Failed to create encryption session.';
-    throw new Error(message);
+    const detail =
+      payload && 'detail' in payload ? String(payload.detail) : null;
+    const envVars =
+      payload &&
+      'fields' in payload &&
+      payload.fields &&
+      typeof payload.fields === 'object' &&
+      'envVars' in payload.fields
+        ? String(payload.fields.envVars)
+        : null;
+
+    if (response.status >= 500) {
+      console.error('Openfort Shield encryption session failed', {
+        status: response.status,
+        message,
+        detail,
+        envVars,
+      });
+    }
+
+    throw new Error(
+      [message, detail, envVars ? `Check env vars: ${envVars}.` : null]
+        .filter(Boolean)
+        .join(' ')
+    );
   }
 
   if (
