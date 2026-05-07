@@ -26,6 +26,9 @@
 .claude/
 .cursor/
 .entire/
+!.entire/
+.entire/*
+!.entire/settings.json
 .factory/
 .gemini/
 .github/hooks/
