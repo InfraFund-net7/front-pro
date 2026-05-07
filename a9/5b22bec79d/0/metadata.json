@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.6.0",
+  "checkpoint_id": "a95b22bec79d",
+  "session_id": "6a1efa9e-2068-4623-ae4e-7c9c24873f5d",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-07T12:26:31.67760402Z",
+  "branch": "develop",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/auth/auth-progress-modal.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-4-6",
+  "turn_id": "d3d209967e74",
+  "token_usage": {
+    "input_tokens": 537,
+    "cache_creation_tokens": 1193985,
+    "cache_read_tokens": 79104953,
+    "output_tokens": 202823,
+    "api_call_count": 394
+  },
+  "session_metrics": {
+    "turn_count": 24
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-07T12:26:31.474038316Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 277,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 277,
+    "total_lines_changed": 310,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    }
+  ]
+}
