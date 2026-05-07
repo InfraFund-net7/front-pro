@@ -1,2 +1,6 @@
 can we move all entire branches to https://github.com/SvenMeyer/Infrafund-front-pro-entire and then ensure that entire puts all session logs there. Either we can just manually modify `.entire/settings.json` , which I have already done now and hopefully i just works or can you see anything here why it would not work and may need further adjustments somewhere : https://docs.entire.io/cli/checkpoints#checkpoint-remote
 You have `gh` , `gh auth status` should work if you want to check
+
+---
+
+just exclude `.entire/settings.json` from `.gitignore` and commit and push it
