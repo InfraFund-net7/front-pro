@@ -202,3 +202,7 @@ did you Write the requirements = expected behaviour , and then the
    implementation plan (no code needed , keep it high level, just mention any pitfalls or 
    whatever needed to be able implement it properly). Filename : 
    `docs-dev/tasks/task-111-openfort-onboarding-improve-error-handling.md`
+
+---
+
+ok, commit and push it all with a detailed commit message, msg title `refactor: task-111-openfort-onboarding-improve-error-handling` (remove dash between words).
