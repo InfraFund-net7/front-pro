@@ -3,9 +3,17 @@
   "checkpoint_id": "a95b22bec79d",
   "strategy": "manual-commit",
   "branch": "develop",
-  "checkpoints_count": 1,
+  "checkpoints_count": 11,
   "files_touched": [
-    "src/components/auth/auth-progress-modal.tsx"
+    "docs-dev/tasks/task-111-openfort-onboarding-improve-error-handling.md",
+    "src/app/api/auth/encryption-session/route.ts",
+    "src/components/auth/auth-progress-modal.tsx",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/lib/openfort-config.tsx",
+    "src/server/openfort/session.ts",
+    "src/server/repositories/users.ts",
+    "src/server/services/auth.ts"
   ],
   "sessions": [
     {
@@ -13,6 +21,12 @@
       "transcript": "/a9/5b22bec79d/0/full.jsonl",
       "content_hash": "/a9/5b22bec79d/0/content_hash.txt",
       "prompt": "/a9/5b22bec79d/0/prompt.txt"
+    },
+    {
+      "metadata": "/a9/5b22bec79d/1/metadata.json",
+      "transcript": "/a9/5b22bec79d/1/full.jsonl",
+      "content_hash": "/a9/5b22bec79d/1/content_hash.txt",
+      "prompt": "/a9/5b22bec79d/1/prompt.txt"
     }
   ],
   "token_usage": {

@@ -1,0 +1,204 @@
+after loggin in with openfort + google, the last step is to setup the wallet, however that fails    
+   with (copy from browser console) :                                                                  
+   ```                                                                                                 
+   lockdown-install.js:1 SES Removing unpermitted intrinsics                                           
+   inpage.js:1 MetaMask encountered an error setting the global Ethereum provider - this is likely due 
+   to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot   
+   set property ethereum of #<Window> which has only a getter                                          
+       at a (inpage.js:1:147566)                                                                       
+       at r.initializeProvider (inpage.js:1:147337)                                                    
+       at Object.<anonymous> (inpage.js:1:2296)                                                        
+       at Object.<anonymous> (inpage.js:1:6326)                                                        
+       at 2.../../shared/lib/provider-injection (inpage.js:1:6339)                                     
+       at i (inpage.js:1:254)                                                                          
+       at e (inpage.js:1:412)                                                                          
+       at inpage.js:1:429                                                                              
+   a @ inpage.js:1                                                                                     
+   lockdown-install.js:1 SES Removing unpermitted intrinsics                                           
+   inpage.js:1 MetaMask encountered an error setting the global Ethereum provider - this is likely due 
+   to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot   
+   set property ethereum of #<Window> which has only a getter                                          
+       at a (inpage.js:1:147566)                                                                       
+       at r.initializeProvider (inpage.js:1:147337)                                                    
+       at Object.<anonymous> (inpage.js:1:2296)                                                        
+       at Object.<anonymous> (inpage.js:1:6326)                                                        
+       at 2.../../shared/lib/provider-injection (inpage.js:1:6339)                                     
+       at i (inpage.js:1:254)                                                                          
+       at e (inpage.js:1:412)                                                                          
+       at inpage.js:1:429                                                                              
+   a @ inpage.js:1                                                                                     
+   lockdown-install.js:1 SES Removing unpermitted intrinsics                                           
+   inpage.js:1 MetaMask encountered an error setting the global Ethereum provider - this is likely due 
+   to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot   
+   set property ethereum of #<Window> which has only a getter                                          
+       at a (inpage.js:1:147566)                                                                       
+       at r.initializeProvider (inpage.js:1:147337)                                                    
+       at Object.<anonymous> (inpage.js:1:2296)                                                        
+       at Object.<anonymous> (inpage.js:1:6326)                                                        
+       at 2.../../shared/lib/provider-injection (inpage.js:1:6339)                                     
+       at i (inpage.js:1:254)                                                                          
+       at e (inpage.js:1:412)                                                                          
+       at inpage.js:1:429                                                                              
+   a @ inpage.js:1                                                                                     
+   cca-lite.coinbase.com/amp:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT                    
+   cca-lite.coinbase.com/metrics:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT                
+   VM67:1 Analytics SDK: TypeError: Failed to fetch                                                    
+       at _t (<anonymous>:1:64025)                                                                     
+       at <anonymous>:1:68106 Object                                                                   
+   onError @ VM67:1                                                                                    
+   /api/v1/auth/refresh:1  Failed to load resource: the server responded with a status of 401 ()       
+   lockdown-install.js:1 SES Removing unpermitted intrinsics                                           
+   inpage.js:1 MetaMask encountered an error setting the global Ethereum provider - this is likely due 
+   to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot   
+   set property ethereum of #<Window> which has only a getter                                          
+       at a (inpage.js:1:147566)                                                                       
+       at r.initializeProvider (inpage.js:1:147337)                                                    
+       at Object.<anonymous> (inpage.js:1:2296)                                                        
+       at Object.<anonymous> (inpage.js:1:6326)                                                        
+       at 2.../../shared/lib/provider-injection (inpage.js:1:6339)                                     
+       at i (inpage.js:1:254)                                                                          
+       at e (inpage.js:1:412)                                                                          
+       at inpage.js:1:429                                                                              
+   a @ inpage.js:1                                                                                     
+   index-9BbJNVtB.js:33 Warning!                                                                       
+   index-9BbJNVtB.js:33 You are reading this message because you opened the browser console, a         
+   developer tool. Do not enter or paste code you do not understand. Never share your tokens or any    
+   other info with anyone. If someone told you to do this, it is very likely a scam.                   
+   shield.openfort.io/shares:1  Failed to load resource: the server responded with a status of 401 ()  
+   index-DcqjOTt6.js:17 2026-05-07T08:31:04.165Z [ERROR] failed to create account or device: Error:    
+   [AxiosError] Request failed with status code 401, code=ERR_BAD_REQUEST, status=401,                 
+   body={"message":"Invalid token","code":"A_INVALID"}  request=019e018fce037cc0940abd6bcbfcd1fd       
+   version=0.4.50                                                                                      
+   (anonymous) @ index-DcqjOTt6.js:17                                                                  
+   index-DcqjOTt6.js:17 2026-05-07T08:31:04.168Z [ERROR] Configure failed {"error":"Error: failed to   
+   create account or device: Error: [AxiosError] Request failed with status code 401,                  
+   code=ERR_BAD_REQUEST, status=401, body={\"message\":\"Invalid                                       
+   token\",\"code\":\"A_INVALID\"}","uuid":"c42cb641-99f2-449d-9c7c-f0cd49cabe9d"}                     
+   request=019e018fce037cc0940abd6bcbfcd1fd version=0.4.50                                             
+   (anonymous) @ index-DcqjOTt6.js:17                                                                  
+   ```                                                                                                 
+   can you tell me exactly where this error comes from , maybe we can add some additional code to      
+   better surface the error and add what application (although in this step it is likelike just        
+   'openfort` which is involved.                                                                       
+                                                                                                       
+   Currently it is deployed on `https://dash-dev.infrafund.net` , you may try to connecto to the       
+   browser using chrome dev tools MCP.                                                                 
+                                                                                                       
+   should `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` and `OPENFORT_PUBLISHABLE_KEY` be identical ?              
+                                                                                                       
+   You also have openfort MCP and SKILL.md at your disposal.
+
+---
+
+i just check my local .env and there `NEXT_PUBLIC_OPENFORT_PUBLIC_KEY` and `OPENFORT_PUBLISHABLE_KEY` are identical and that setup worked.
+
+---
+
+i just noticed that openfort has a public / publishable 'Project Key' (and a corresponding secret key) , and then there is a separate Setting in the Web UI , and likely that is the one we were looking for "Configuration > Security" which page says :
+"Restrict client-side access to your Openfort app to select origins and authorized apps. This is a critical security setting."
+There is can create "Publishable Keys
+Manage security settings for your publishable API keys"
+and each key can have various "Modes" , and we use "Web Origins" here and I can optionally (!!) configure "web origins". 
+"Restrict access to your Openfort app from specific web origins. Only requests from these domains will be allowed when using this publishable key."
+"If no origins are configured, all web origins will be allowed."
+It looks like that by default , there is the project publishable key available, but you could add more publishable keys there and assign then web origigin or authorized apps. 
+Likely we are currently using the the default key, but may want to note at least this setup in a document `docs-dev/openfort/openfort-setup-configuration.md` which I would need to further flesh out should you not be able to write it yourself based on the available documentation, but the procedure on a high level is :
+- create/sign-in website openfort.io
+- menu 'API keys" : create Project keys -  publishable key and secret key which we assign to
+1) NEXT_PUBLIC_OPENFORT_PUBLIC_KEY , OPENFORT_PUBLISHABLE_KEY = publishable key project
+2) OPENFORT_SECRET_KEY = secret key project
+
+Also on the 'API keys' page we can create "Embedded wallet keys (Shield)"
+Once created we can download a small file which contains :
+SHIELD_PUBLISHABLE_KEY
+SHIELD_SECRET_KEY
+SHIELD_ENCRYPTION_SHARE
+
+Then as a newxt step we go to (but actually I would put that to the end) 'Configuration > Security' where we can "Restrict client-side access to your Openfort app to select origins and authorized apps." Better not touch it initially, allow all origins and only if everything is working then assign web origins to the publishable key to restrict the client-side access to the app.
+
+### Sign in with Google
+menu 'Configuration > Providers'
+Google : (expand the row with the google icon)
+- enable "Enable Sign in with Google"
+- there is a [Documentation] button which leads to `https://www.openfort.io/docs/configuration/social-login/auth-google` and describes to go to Google , follow the described process which is mainly
+a) set "Name"
+b) add the application's domains/URLs to "Authorised JavaScript origins" (i.e. 'https://app.company.com')
+3) "Authorised redirect URIs" paste the URL given on the Openfort>Configuration>Providers>Google section `https://api.openfort.io/iam/v2/auth/callback/google`
+4) copy `Client secret` on the Google page and paste it into the openfort page provider Google section
+4) copy 'Client IDs' on the Google pageand paste it into the openfort page provider Google section
+
+---
+
+let's start with the documentation : 2) turn your notes into that doc exactly in 
+   the structure you described and create `docs-dev/openfort/openfort-setup-configuration.md`
+
+---
+
+ok, now we can implement better runtime error surfacing around the 
+   Shield/encryption-session and wallet setup path, we could even surface error in that "likely environment variable ENV_VAR_NAME is not correct or set at all" , may be can log them into the browser console (as well) ? The current error message "Something went wrong. Please try again." is not really helpful as it would push users to try again, and again .. which would not change anything if an env var ist set wrong.
+
+---
+
+@README.md says I can run the local dev server with 'npm run dev:local" , however I remeber that we had a special setup also checking that a local database instance is running and populated as well, located in `scripts` , why isn't it working ?
+```
+$ cd ~/DEV/ETH/InfraFund/landing-pro
+$ npm run dev:local
+npm error Missing script: "dev:local"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /home/sum/.npm/_logs/2026-05-07T11_32_48_776Z-debug-0.log
+$ pwd
+/home/sum/DEV/ETH/InfraFund/landing-pro
+$ git branch
+* develop
+```
+
+---
+
+now i got an error message at step 3 of our progress list "Creating your account", it errored which was not an issue before, and the message just reads "Something went wrong. Please try again." 
+1) Actually I did not expect an error there
+2) The error message is actually not what we wanted to display anyway and the last change was all about.
+
+---
+
+ok, interesting. "User already exists, please try again."
+"Please try again" is again not useful, and actually if a user exists we should log him in directly. However, in this case it might be a very special scenario. I possible started the process not being registred, something went wrong mid way, then I reloaded the page while I was in the questionaire for new users, then went to the process for new users ?
+Not sure if that's what really happend, but should we see at step 3 that the user alreay exists (for whatever reason) we should just login him in.
+There is also a chance that our changes broke the "existing user" detection, maybe just surface it as an error instead of logging the user in ?
+Check the changes you made if they changed the behaviour of the login/register flow.
+
+---
+
+we should also have a clean exit , should a user get stuck in our login/register process and at least give the popup a close button in the top right which also clean up things (if necessay), any state or cookies whatever would prevent a clean restart.
+
+---
+
+It is still broken and it worked before , now I get this error at step 3
+```
+Creating your account
+User already exists. — A user record was created while onboarding was still in progress. Please sign in again to continue.
+```
+- Does the user actually exist at the start and we send him mistakenly into the onboarding questionaire
+- Do we create the user (now) too ealry ?
+- Do we think now its wring that the user exists at this stage ?
+- anything else ?
+
+---
+
+I reloaded the page and started from the begining.
+a) if the user existed he should have just been logged in 
+b) if the user did not exist, then we should have send him to the questionaire , and upon successful completion should have created the account and wallet.
+
+Maybe the problem is that the user exists in openfort but not in our database , or the otherway round? We should be able to recover from a state where these are not in sync, and of course ideally it should never happen.
+
+---
+
+ignore the last error, and try again
+
+---
+
+did you Write the requirements = expected behaviour , and then the 
+   implementation plan (no code needed , keep it high level, just mention any pitfalls or 
+   whatever needed to be able implement it properly). Filename : 
+   `docs-dev/tasks/task-111-openfort-onboarding-improve-error-handling.md`
