@@ -4,9 +4,10 @@ import AppSidebar from './sidebar';
 import Header from './header';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { AuthErrorState, AuthLoadingState } from './auth/auth-state';
+import { AuthLoadingState } from './auth/auth-state';
 import { useAuthSession } from './auth/auth-session-provider';
-import { ErrorBanner } from './ui/error-banner';
+import { AuthProgressModal } from './auth/auth-progress-modal';
+import { BuildInfo } from './build-info';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -16,14 +17,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isPublicRoute = pathname === '/' || pathname === '/login';
-  const {
-    status,
-    error,
-    errorCategory,
-    retry,
-    isOpenfortLoading,
-    isOpenfortAuthenticated,
-  } = useAuthSession();
+  const { status, isOpenfortLoading } = useAuthSession();
 
   useEffect(() => {
     if (isOpenfortLoading || !pathname) {
@@ -43,13 +37,26 @@ export function MainLayout({ children }: MainLayoutProps) {
     }
   }, [isOpenfortLoading, isPublicRoute, pathname, router, status]);
 
-  const isCreatingWallet = status === 'creating_wallet';
   const isAwaitingOnboarding = status === 'needs_onboarding';
-  const showPublicAuthLoading =
-    isOpenfortLoading ||
-    (isOpenfortAuthenticated && (status === 'idle' || status === 'loading'));
-  const showPrivateAuthLoading =
-    isOpenfortLoading || status === 'idle' || status === 'loading';
+  // Pre-click SDK init only. Everything else (loading, creating_wallet, error)
+  // is now owned by AuthProgressModal so the user sees one consistent surface.
+  const showInitialSdkLoading = isOpenfortLoading;
+  // Hide route content while bootstrap is in flight or has failed. The
+  // progress modal sits on top, but the underlying page would otherwise
+  // flash through (especially the dashboard on private routes, since
+  // router.replace('/') is async).
+  const isBootstrapping =
+    status === 'idle' ||
+    status === 'loading' ||
+    status === 'creating_wallet' ||
+    status === 'error';
+  // Cover the brief window between page mount on `/?openfortAuthProviderUI=…`
+  // and the AuthSessionProvider bootstrap useEffect running. Without this the
+  // public landing flashes for a few hundred ms after Google redirects back.
+  // Read the URL synchronously to avoid the flash on first render.
+  const isHandlingOAuthCallback =
+    typeof window !== 'undefined' &&
+    window.location.search.includes('openfortAuthProviderUI');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">
@@ -60,45 +67,20 @@ export function MainLayout({ children }: MainLayoutProps) {
 
       {isPublicRoute ? (
         <div className="relative z-[999] flex items-center justify-center min-h-screen p-4">
-          {isCreatingWallet ? (
-            <AuthLoadingState message="Setting up your wallet..." />
-          ) : showPublicAuthLoading ? (
-            <AuthLoadingState message="Checking your Openfort session..." />
-          ) : status === 'error' ? (
-            <div className="flex w-full max-w-4xl flex-col items-center gap-6">
-              <ErrorBanner
-                title="We couldn't restore your session"
-                message={error || 'Unable to continue.'}
-                onRetry={retry}
-              />
-              {children}
-            </div>
-          ) : isAwaitingOnboarding ? null : (
+          {showInitialSdkLoading ? (
+            <AuthLoadingState message="Loading…" />
+          ) : isAwaitingOnboarding ||
+            isBootstrapping ||
+            isHandlingOAuthCallback ? null : (
             children
           )}
         </div>
       ) : (
         <div className="relative z-[999] flex min-h-screen items-center justify-center p-4 md:p-8 lg:p-12">
-          {isCreatingWallet ? (
-            <AuthLoadingState message="Setting up your wallet..." />
-          ) : showPrivateAuthLoading ? (
-            <AuthLoadingState message="Restoring your InfraFund session..." />
-          ) : status === 'error' ? (
-            errorCategory === 'recoverable' ? (
-              <div className="flex w-full max-w-4xl flex-col items-center gap-6">
-                <ErrorBanner
-                  title="We hit a problem"
-                  message={error || 'Unable to continue.'}
-                  onRetry={retry}
-                />
-                <AuthLoadingState message="Waiting to retry your session..." />
-              </div>
-            ) : (
-              <AuthErrorState
-                message={error || 'Unable to continue.'}
-                onRetry={retry}
-              />
-            )
+          {showInitialSdkLoading ||
+          isBootstrapping ||
+          isHandlingOAuthCallback ? (
+            <AuthLoadingState message="Loading…" />
           ) : (
             <div className="relative z-[999] flex p-4 md:p-8 lg:p-12 gap-4 md:gap-8 lg:gap-12 min-h-screen w-full">
               <div className="h-full -mt-3.5">
@@ -110,12 +92,15 @@ export function MainLayout({ children }: MainLayoutProps) {
                   <main className="flex-1 backdrop-blur-sm rounded-lg">
                     {children}
                   </main>
+                  <BuildInfo className="pb-8 text-center" />
                 </div>
               </div>
             </div>
           )}
         </div>
       )}
+
+      <AuthProgressModal />
     </div>
   );
 }
