@@ -114,6 +114,7 @@ interface AuthSessionContextValue {
   logout: () => Promise<void>;
   authProgress: AuthProgress | null;
   dismissProgress: () => void;
+  cancelAuthFlow: () => Promise<void>;
 }
 
 const AuthSessionContext = createContext<AuthSessionContextValue | null>(null);
@@ -124,6 +125,24 @@ function getErrorMessage(error: unknown) {
     return error.message;
   }
 
+  if (typeof error === 'string' && error) {
+    return error;
+  }
+
+  if (error && typeof error === 'object') {
+    if (
+      'message' in error &&
+      typeof error.message === 'string' &&
+      error.message
+    ) {
+      return error.message;
+    }
+
+    try {
+      return JSON.stringify(error);
+    } catch {}
+  }
+
   return 'Failed to initialize your session.';
 }
 
@@ -132,7 +151,37 @@ function getUserFacingErrorMessage(message: string) {
     return "We couldn't connect to the wallet service. Please check your connection and try again.";
   }
 
-  if (/not logged in|session/i.test(message)) {
+  if (
+    /openfort shield rejected the wallet setup request|failed to create account or device|a_invalid|invalid token/i.test(
+      message
+    )
+  ) {
+    return 'Wallet setup is currently misconfigured on the server. Request Admin to check SHIELD env var settings; retrying will not fix it.';
+  }
+
+  if (
+    /next_public_shield_api_key|shield_secret_key|shield_encryption_share/i.test(
+      message
+    )
+  ) {
+    return 'Wallet setup is unavailable because a required Openfort Shield configuration value is missing or invalid. Request Admin to check SHIELD env var settings.';
+  }
+
+  if (
+    /user type is required|user role is required|organization name is required/i.test(
+      message
+    )
+  ) {
+    return `Account setup is missing required onboarding data. ${message}`;
+  }
+
+  if (/openfort access token is unavailable/i.test(message)) {
+    return 'Your Openfort sign-in session is missing or expired. Please sign in again.';
+  }
+
+  if (
+    /not logged in|session expired|invalid openfort access token/i.test(message)
+  ) {
     return 'Your session expired. Please sign in again.';
   }
 
@@ -142,6 +191,10 @@ function getUserFacingErrorMessage(message: string) {
 
   if (/internal server error/i.test(message)) {
     return 'Our service is temporarily unavailable. Please try again in a moment.';
+  }
+
+  if (message && message !== 'Failed to initialize your session.') {
+    return message;
   }
 
   return 'Something went wrong. Please try again.';
@@ -284,10 +337,24 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setPendingWalletCreation(null);
     setError(null);
     setErrorCategory(null);
+    setRetryCount(0);
     bootstrapAttemptKeyRef.current = null;
     clearOnboardingDraft();
     clearProgress();
   }, [clearProgress]);
+
+  const cancelAuthFlow = useCallback(async () => {
+    clearSession();
+    setStatus('loading');
+
+    await Promise.allSettled([
+      logoutBackendSession().catch(() => undefined),
+      signOut().catch(() => undefined),
+    ]);
+
+    clearSession();
+    setStatus('unauthenticated');
+  }, [clearSession, signOut]);
 
   const commitUserFacingError = useCallback((raw: string) => {
     const userMessage = getUserFacingErrorMessage(raw);
@@ -637,17 +704,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   );
 
   const abandonOnboarding = useCallback(async () => {
-    clearSession();
-    setStatus('loading');
-
-    await Promise.allSettled([
-      logoutBackendSession(),
-      signOut().catch(() => undefined),
-    ]);
-
-    clearSession();
-    setStatus('unauthenticated');
-  }, [clearSession, signOut]);
+    await cancelAuthFlow();
+  }, [cancelAuthFlow]);
 
   const logout = useCallback(async () => {
     setStatus('loading');
@@ -814,6 +872,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       logout,
       authProgress,
       dismissProgress,
+      cancelAuthFlow,
     }),
     [
       status,
@@ -829,6 +888,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       logout,
       authProgress,
       dismissProgress,
+      cancelAuthFlow,
     ]
   );
 
