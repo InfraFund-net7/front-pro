@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ShieldCheck, ShieldX } from 'lucide-react';
 import CardView from '@/components/ui/card-view';
 import { FormInput } from '@/components/ui/form-input';
 import { CustomButton } from '@/components/ui/custom-button';
-import PersonalModal from '../personal-modal';
-import ApplicationForm from '../ApplicationForm';
-import EquityProject from './equity-project';
+import PersonalModal from './personal-modal';
+import ApplicationForm from './ApplicationForm';
 
-export default function EquitySection() {
+interface CrowdfundingSymbolSectionProps {
+  CrowdfundingComponent: React.ComponentType;
+}
+
+export default function CrowdfundingSymbolSection({
+  CrowdfundingComponent,
+}: CrowdfundingSymbolSectionProps) {
   const [symbol, setSymbol] = useState('');
   const [status, setStatus] = useState<null | 'available' | 'taken'>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,7 +44,7 @@ export default function EquitySection() {
       className="gap-80 flex flex-col justify-between"
     >
       {showApplicationForm ? (
-        <ApplicationForm CrowdfundingComponent={EquityProject} />
+        <ApplicationForm CrowdfundingComponent={CrowdfundingComponent} />
       ) : (
         <>
           <div className="flex flex-col gap-10">

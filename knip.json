@@ -1,13 +1,9 @@
 {
   "$schema": "./node_modules/knip/schema.json",
   "ignoreFiles": [
-    "src/atoms/kyc/kycAtoms.ts",
-    "src/atoms/kyc/kycLevel.ts",
-    "src/components/investmentportal/create/create-sections/media.tsx",
     "src/components/investmentportal/empty/emptyinvestment.tsx",
     "src/components/ui/date-picker.tsx",
     "src/components/ui/horizontal-progress-bar.tsx",
-    "src/components/ui/kyc-card.tsx",
     "src/components/ui/pagination-dots.tsx",
     "src/components/ui/toggle-switch.tsx",
     "src/lib/solana-kit-unavailable.ts",
@@ -20,7 +16,6 @@
     "src/server/services/auth.ts": ["exports"]
   },
   "ignoreDependencies": [
-    "jotai",
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser"
   ]

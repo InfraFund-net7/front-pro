@@ -1,4 +1,4 @@
-<!-- cspell:words Openfort Infrafund onboarding -->
+<!-- cspell:words Openfort Infrafund onboarding desync desynchronization -->
 
 # Task 111: Openfort onboarding improve error handling
 

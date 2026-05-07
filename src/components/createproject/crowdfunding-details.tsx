@@ -1,6 +1,5 @@
 import { FormInput } from '@/components/ui/form-input';
 import MilestoneCard from '@/components/ui/MilestoneCard';
-import React from 'react';
 
 const formFields = [
   { label: 'Token Name', placeholder: 'Token Name' },
@@ -23,12 +22,16 @@ const extraFields = [
   { label: 'Pledge Address', placeholder: 'Pledge Address' },
 ];
 
-export default function PreSaleProject() {
+interface CrowdfundingDetailsProps {
+  title: string;
+}
+
+export default function CrowdfundingDetails({
+  title,
+}: CrowdfundingDetailsProps) {
   return (
     <div className="flex flex-col gap-6">
-      <span className="text-3xl font-normal text-white">
-        Security Token Crowdfunding Details
-      </span>
+      <span className="text-3xl font-normal text-white">{title}</span>
 
       <div className="grid grid-cols-2 gap-6 w-full">
         {formFields.map((field) => (
