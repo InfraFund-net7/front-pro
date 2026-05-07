@@ -1,0 +1,152 @@
+can we move all entire branches to https://github.com/SvenMeyer/Infrafund-front-pro-entire and then ensure that entire puts all session logs there. Either we can just manually modify `.entire/settings.json` , which I have already done now and hopefully i just works or can you see anything here why it would not work and may need further adjustments somewhere : https://docs.entire.io/cli/checkpoints#checkpoint-remote
+You have `gh` , `gh auth status` should work if you want to check
+
+---
+
+just exclude `.entire/settings.json` from `.gitignore` and commit and push it
+
+---
+
+can we delete `.vercel-bak` from the push
+
+---
+
+can you copy the entire branches over anyway and then we have to test it. we may run `entire enable --checkpoint-remote github:myorg/checkpoints-private` anyway although as far as I can see they suggest that the manual change to the the settings file should do the same.
+Maybe i have to get out of this session thereafter if entire does not put to the remote and check if it does if i start a new session.
+
+---
+
+- we updated `.entire/settings.json` as discussed , comitted and pushed it
+- i logged out 
+- did
+```
+$ entire enable --checkpoint-remote github:SvenMeyer/Infrafund-front-pro-entire
+✓ Settings updated (.entire/settings.json)
+Agents: Claude Code, Copilot CLI, Cursor, Factory AI Droid, Gemini CLI, OpenCode
+
+To add more agents, run `entire agent add <name>`.
+```
+- logged into another session of DROID CLI and ask it to do a commit and push
+- and still it did not push to the external entire branches. In addition it looks like it lost the connection of the session to the commit `98b6a7d` and only states on the web dashboard "Transcript data is unavailable for this checkpoint."
+
+can you create an issue describing it all.
+motivation : we started with an "internal" checkpoint storage and just later decided to prefer to have it in a remote private repo as described here : https://docs.entire.io/cli/checkpoints#checkpoint-remote
+However, it should be possible to do that at a later stage as well, but looks like the process we came up with did not work.
+
+entire repo : https://github.com/entireio/cli
+
+---
+
+where else could the have stored information? Maybe check `.git/config` ?
+
+---
+
+so there is nothing else where we could influence the behaviour? 
+what about `/home/sum/.config/entire`
+
+---
+
+maybe diable entire and then re-enable ?
+
+---
+
+do it
+
+---
+
+create a new issue for that
+
+---
+
+now i was trying to push one file, but it does not work
+```
+$ pwd
+/home/sum/DEV/ETH/InfraFund/front-pro
+$ git status
+On branch develop
+Your branch is up to date with 'origin/develop'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   docs/deployment-neon-vercel.md
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   vercel.json
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .vercel-bak/
+        docs-dev/openfort/google-login-prod-403-investigation-2.md
+        docs-dev/openfort/google-login-prod-403-investigation.md
+
+$ git add docs/deployment-neon-vercel.md
+$ git commit -m "chore: format markdown tables"
+
+> Infrafund/front-pro@1.1.1 format
+> npm run format:lint && npm run format:prettier && npm run format:cspell && npm run format:knip
+
+
+> Infrafund/front-pro@1.1.1 format:lint
+> eslint
+
+
+> Infrafund/front-pro@1.1.1 format:prettier
+> prettier . --check
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> Infrafund/front-pro@1.1.1 format:cspell
+> cspell
+
+  6/182 docs-dev/openfort/google-login-prod-403-investigation-2.md 3.21ms X
+docs-dev/openfort/google-login-prod-403-investigation-2.md:28:5 - Unknown word (Ourcome)
+  7/182 docs-dev/openfort/google-login-prod-403-investigation.md 12.37ms X
+docs-dev/openfort/google-login-prod-403-investigation.md:28:53 - Unknown word (infrafunds)
+docs-dev/openfort/google-login-prod-403-investigation.md:109:65 - Unknown word (Referer)
+ 37/182 docs-dev/tasks/task-111-openfort-onboarding-improve-error-handling.md 5.57ms X
+docs-dev/tasks/task-111-openfort-onboarding-improve-error-handling.md:19:44 - Unknown word (desynchronization)
+docs-dev/tasks/task-111-openfort-onboarding-improve-error-handling.md:45:38 - Unknown word (desync)
+CSpell: Files checked: 182, Issues found: 5 in 3 files.
+husky - pre-commit script failed (code 1)
+$ 
+$ git push                                     
+Everything up-to-date
+$ git status                                   
+On branch develop
+Your branch is up to date with 'origin/develop'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   docs/deployment-neon-vercel.md
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   vercel.json
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .vercel-bak/
+        docs-dev/openfort/google-login-prod-403-investigation-2.md
+        docs-dev/openfort/google-login-prod-403-investigation.md
+
+$ git push help                                
+fatal: 'help' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+$ git help push
+$ git push --force
+Everything up-to-date
+$ git status      
+On branch develop
+Your branch is up to date with 'origin/develop'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   docs/deployment-neon-vercel.md
+```
