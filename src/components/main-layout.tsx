@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { AuthLoadingState } from './auth/auth-state';
 import { useAuthSession } from './auth/auth-session-provider';
 import { AuthProgressModal } from './auth/auth-progress-modal';
+import { BuildInfo } from './build-info';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -91,6 +92,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                   <main className="flex-1 backdrop-blur-sm rounded-lg">
                     {children}
                   </main>
+                  <BuildInfo className="pb-8 text-center" />
                 </div>
               </div>
             </div>

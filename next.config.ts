@@ -2,13 +2,19 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
+import packageJson from './package.json';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const OPTIONAL_PEERS =
   /^(?:@react-native-async-storage\/async-storage|pino-pretty|encoding|lokijs)$/;
+const gitSha = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local';
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_APP_VERSION: packageJson.version,
+    NEXT_PUBLIC_GIT_SHA: gitSha,
+  },
   output: 'standalone',
   async headers() {
     return [
