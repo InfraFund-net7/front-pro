@@ -1,9 +1,1 @@
-ok, we ignore it for now. the `entire` branches contain all the ai chat hostory, so these branches should not have been made public. Lets commit and push our changes and I will take care of it later.
-
----
-
-now , i think i have still my account registered, i got this error at the end, and I think this indicates not set or wrong `SHIELD` key settings. Maybe just add at the end if we encounter this error : "Request Admin to check `SHIELD` env var settings".
-```
-Connecting your wallet
-Unknown error: Error: failed to create account or device: Error: [AxiosError] Request failed with status code 401, code=ERR_BAD_REQUEST, status=401, body={"message":"Invalid token","code":"A_INVALID"}
-```
+i think we still have for some reason `src/components/auth/auth-session-provider.tsx` uncomitted. can you commit and push
