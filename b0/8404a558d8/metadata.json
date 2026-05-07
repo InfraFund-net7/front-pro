@@ -3,7 +3,7 @@
   "checkpoint_id": "b08404a558d8",
   "strategy": "manual-commit",
   "branch": "develop",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": null,
   "sessions": [
     {
