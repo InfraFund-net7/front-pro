@@ -46,19 +46,19 @@ In **Vercel → Project Settings → Environment Variables**, add all variables 
 
 Key variables:
 
-| Variable | Where to get it |
-|---|---|
-| `DATABASE_URL` | Injected by Neon integration (or from Neon console) |
-| `APP_JWT_SECRET` | Generate: `openssl rand -hex 32` |
-| `APP_REFRESH_TOKEN_SECRET` | Generate: `openssl rand -hex 32` |
-| `OPENFORT_SECRET_KEY` | Openfort dashboard → API Keys |
-| `OPENFORT_PUBLISHABLE_KEY` | Openfort dashboard → API Keys |
-| `NEXT_PUBLIC_OPENFORT_PUBLISHABLE_KEY` | Same as above |
-| `RECAPTCHA_SECRET_KEY` | Google reCAPTCHA admin console |
-| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Google reCAPTCHA admin console |
-| `SENTRY_DSN` | Sentry project settings |
-| `NEXT_PUBLIC_SENTRY_DSN` | Same as above |
-| `CRON_SECRET` | Generate: `openssl rand -hex 32` |
+| Variable                               | Where to get it                                     |
+|----------------------------------------|-----------------------------------------------------|
+| `DATABASE_URL`                         | Injected by Neon integration (or from Neon console) |
+| `APP_JWT_SECRET`                       | Generate: `openssl rand -hex 32`                    |
+| `APP_REFRESH_TOKEN_SECRET`             | Generate: `openssl rand -hex 32`                    |
+| `OPENFORT_SECRET_KEY`                  | Openfort dashboard → API Keys                       |
+| `OPENFORT_PUBLISHABLE_KEY`             | Openfort dashboard → API Keys                       |
+| `NEXT_PUBLIC_OPENFORT_PUBLISHABLE_KEY` | Same as above                                       |
+| `RECAPTCHA_SECRET_KEY`                 | Google reCAPTCHA admin console                      |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`       | Google reCAPTCHA admin console                      |
+| `SENTRY_DSN`                           | Sentry project settings                             |
+| `NEXT_PUBLIC_SENTRY_DSN`               | Same as above                                       |
+| `CRON_SECRET`                          | Generate: `openssl rand -hex 32`                    |
 
 Set variables for all relevant environments (Preview and/or Production).
 
@@ -85,6 +85,7 @@ prisma generate && node scripts/setup-neon-db.mjs
 ```
 
 This script:
+
 1. Installs the `pg_uuidv7` extension (Neon runs Postgres 17; `uuidv7()` is not
    built-in until Postgres 18)
 2. Creates a `uuidv7()` alias pointing to `uuid_generate_v7()`
@@ -110,10 +111,10 @@ progress modal should complete all five steps:
 
 ## Postgres version note
 
-| Environment | Postgres | `uuidv7()` source |
-|---|---|---|
-| Local Docker (`npm run dev:local`) | 18.x | Built-in `pg_catalog` |
-| Neon (Vercel) | 17.x | `pg_uuidv7` extension + alias |
+| Environment                        | Postgres | `uuidv7()` source             |
+|------------------------------------|----------|-------------------------------|
+| Local Docker (`npm run dev:local`) | 18.x     | Built-in `pg_catalog`         |
+| Neon (Vercel)                      | 17.x     | `pg_uuidv7` extension + alias |
 
 The `setup-neon-db.mjs` script detects the Postgres version automatically and skips
 the extension step on Postgres 18+.
