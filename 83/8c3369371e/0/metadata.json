@@ -1,0 +1,102 @@
+{
+  "cli_version": "0.6.0",
+  "checkpoint_id": "838c3369371e",
+  "session_id": "ebbf5985-96ad-4bca-876e-7fbfabd9080d",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-07T13:09:50.385064036Z",
+  "branch": "develop",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "next.config.ts",
+    "package.json",
+    "src/components/auth/auth-progress-modal.tsx",
+    "src/components/build-info.tsx",
+    "src/components/main-layout.tsx",
+    "src/components/ui/modal.tsx"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "bdca069c3d0c",
+  "checkpoint_transcript_start": 234,
+  "transcript_lines_at_start": 234,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-07T13:09:50.339312984Z",
+    "agent_lines": 38,
+    "agent_removed": 2,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 1,
+    "total_committed": 38,
+    "total_lines_changed": 41,
+    "agent_percentage": 97.5609756097561,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 186,
+      "user_lines_removed": 1,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "docs-dev/openfort/google-login-prod-403-investigation-2.md": 49,
+        "docs-dev/openfort/google-login-prod-403-investigation.md": 120,
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16,
+        "package.json": 1
+      },
+      "user_removed_per_file": {
+        "package.json": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 170,
+      "agent_lines_removed": 1,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 170,
+      "agent_lines_removed": 1,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 209,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 209,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        "node_modules/@openfort/openfort-node/examples/.env.example": 16
+      }
+    }
+  ]
+}

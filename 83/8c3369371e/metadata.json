@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.6.0",
+  "checkpoint_id": "838c3369371e",
+  "strategy": "manual-commit",
+  "branch": "develop",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "next.config.ts",
+    "package.json",
+    "src/components/auth/auth-progress-modal.tsx",
+    "src/components/build-info.tsx",
+    "src/components/main-layout.tsx",
+    "src/components/ui/modal.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/83/8c3369371e/0/metadata.json",
+      "transcript": "/83/8c3369371e/0/full.jsonl",
+      "content_hash": "/83/8c3369371e/0/content_hash.txt",
+      "prompt": "/83/8c3369371e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
