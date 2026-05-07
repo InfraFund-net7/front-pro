@@ -4,3 +4,7 @@ You have `gh` , `gh auth status` should work if you want to check
 ---
 
 just exclude `.entire/settings.json` from `.gitignore` and commit and push it
+
+---
+
+can we delete `.vercel-bak` from the push
