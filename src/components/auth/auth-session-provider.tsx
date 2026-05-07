@@ -151,8 +151,12 @@ function getUserFacingErrorMessage(message: string) {
     return "We couldn't connect to the wallet service. Please check your connection and try again.";
   }
 
-  if (/openfort shield rejected the wallet setup request/i.test(message)) {
-    return 'Wallet setup is currently misconfigured on the server. Please contact support; retrying will not fix it.';
+  if (
+    /openfort shield rejected the wallet setup request|failed to create account or device|a_invalid|invalid token/i.test(
+      message
+    )
+  ) {
+    return 'Wallet setup is currently misconfigured on the server. Request Admin to check SHIELD env var settings; retrying will not fix it.';
   }
 
   if (
@@ -160,7 +164,7 @@ function getUserFacingErrorMessage(message: string) {
       message
     )
   ) {
-    return 'Wallet setup is unavailable because a required Openfort Shield configuration value is missing or invalid. Please contact support.';
+    return 'Wallet setup is unavailable because a required Openfort Shield configuration value is missing or invalid. Request Admin to check SHIELD env var settings.';
   }
 
   if (
