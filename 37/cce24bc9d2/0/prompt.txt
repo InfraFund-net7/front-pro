@@ -150,3 +150,7 @@ Changes to be committed:
   (use "git restore --staged <file>..." to unstage)
         modified:   docs/deployment-neon-vercel.md
 ```
+
+---
+
+do option 3.
