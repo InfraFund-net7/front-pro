@@ -3,6 +3,7 @@
 import { Check, Circle, Loader2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { CustomButton } from '@/components/ui/custom-button';
+import { BuildInfo } from '@/components/build-info';
 import { useAuthSession, type AuthProgressStep } from './auth-session-provider';
 
 const DEFAULT_STEP_TIMER_SECONDS = 5;
@@ -120,7 +121,7 @@ export function AuthProgressModal() {
           type="button"
           onClick={() => void cancelAuthFlow()}
           aria-label="Close authentication flow"
-          className="absolute right-4 top-4 text-[#8087A3] transition hover:text-white"
+          className="absolute right-4 top-4 text-[#808080] transition hover:text-white"
         >
           <X className="h-5 w-5" />
         </button>
@@ -185,6 +186,8 @@ export function AuthProgressModal() {
             </CustomButton>
           </div>
         ) : null}
+
+        <BuildInfo className="mt-6 w-full text-center" />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react';
 import React from 'react';
+import { BuildInfo } from '@/components/build-info';
 
 interface ModalProps {
   isOpen: boolean;
@@ -37,12 +38,13 @@ export function Modal({
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="cursor-pointer"
+            className="cursor-pointer text-[#808080] transition hover:text-white"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
         {children}
+        <BuildInfo className="mt-6 w-full text-center" />
       </div>
     </div>
   );
