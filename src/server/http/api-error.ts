@@ -20,6 +20,18 @@ export interface ApiErrorBody {
   fields?: Record<string, string>;
 }
 
+const statusByCode: Record<ApiErrorCode, number> = {
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  TOO_MANY_REQUESTS: 429,
+  VALIDATION_ERROR: 422,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
+};
+
 export class ApiError extends Error {
   readonly code: ApiErrorCode;
   readonly status: number;
@@ -44,18 +56,6 @@ export class ApiError extends Error {
     this.fields = options.fields;
   }
 }
-
-const statusByCode: Record<ApiErrorCode, number> = {
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  TOO_MANY_REQUESTS: 429,
-  VALIDATION_ERROR: 422,
-  INTERNAL_SERVER_ERROR: 500,
-  SERVICE_UNAVAILABLE: 503,
-};
 
 export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;

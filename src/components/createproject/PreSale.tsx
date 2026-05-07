@@ -1,6 +1,10 @@
-import React from 'react';
-import PreSaleSection from './PreSale/pre-sale-section';
+import CrowdfundingDetails from './crowdfunding-details';
+import CrowdfundingSymbolSection from './crowdfunding-symbol-section';
+
+function PreSaleProject() {
+  return <CrowdfundingDetails title="Security Token Crowdfunding Details" />;
+}
 
 export default function PreSale() {
-  return <PreSaleSection />;
+  return <CrowdfundingSymbolSection CrowdfundingComponent={PreSaleProject} />;
 }
