@@ -5,6 +5,7 @@ import { Check, Copy, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
+import { useCopyToClipboard } from '@/lib/use-copy-to-clipboard';
 
 function shortenAddress(address: string) {
   if (address.length <= 10) return address;
@@ -19,7 +20,7 @@ export function AvatarMenu() {
   const address = isWalletConnected ? wallet.address : undefined;
 
   const [isOpen, setIsOpen] = useState(false);
-  const [justCopied, setJustCopied] = useState(false);
+  const { justCopied, copy } = useCopyToClipboard();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const displayName = useMemo(() => {
@@ -62,15 +63,8 @@ export function AvatarMenu() {
     };
   }, [isOpen]);
 
-  const handleCopy = async () => {
-    if (!address) return;
-    try {
-      await navigator.clipboard.writeText(address);
-      setJustCopied(true);
-      window.setTimeout(() => setJustCopied(false), 1500);
-    } catch {
-      // Clipboard API can fail in non-secure contexts; ignore silently.
-    }
+  const handleCopy = () => {
+    void copy(address);
   };
 
   const handleAccount = () => {

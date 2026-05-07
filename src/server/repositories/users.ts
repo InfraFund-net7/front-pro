@@ -35,15 +35,20 @@ export function findUserByOpenfortId(openfortUserId: string) {
   });
 }
 
-export async function openfortUserExists(openfortUserId: string) {
-  const count = await getDb().user.count({
+export function findUserByEmail(email: string) {
+  return getDb().user.findFirst({
     where: {
-      openfortUserId,
+      email,
       deletedAt: null,
     },
   });
+}
 
-  return count > 0;
+export function attachOpenfortUserId(userId: string, openfortUserId: string) {
+  return getDb().user.update({
+    where: { id: userId },
+    data: { openfortUserId },
+  });
 }
 
 export async function createUser(record: CreateUserRecord) {

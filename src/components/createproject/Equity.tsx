@@ -1,5 +1,10 @@
-import React from 'react';
-import EquitySection from './Equity/equity-section';
+import CrowdfundingDetails from './crowdfunding-details';
+import CrowdfundingSymbolSection from './crowdfunding-symbol-section';
+
+function EquityProject() {
+  return <CrowdfundingDetails title="Security Token Crowdfunding Details" />;
+}
+
 export default function Equity() {
-  return <EquitySection />;
+  return <CrowdfundingSymbolSection CrowdfundingComponent={EquityProject} />;
 }
