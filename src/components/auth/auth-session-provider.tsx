@@ -31,6 +31,7 @@ import type { User } from '@openfort/openfort-js';
 import {
   RecoveryMethod,
   useOpenfortCore,
+  useOpenfortUIContext,
   useUI,
   useUser,
 } from '@openfort/react';
@@ -58,7 +59,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { reportError } from '@/lib/error-reporting';
 
 type AppSessionStatus =
@@ -224,8 +225,14 @@ function clearOnboardingDraft() {
 }
 
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
   const { logout: openfortLogout } = useOpenfortCore();
+  const {
+    setOpen: setOpenfortModalOpen,
+    setConnector,
+    setRoute,
+  } = useOpenfortUIContext();
   const { close: closeOpenfortModal } = useUI();
   const { create, wallets } = useEthereumEmbeddedWallet();
   const openfortUserId = user?.id ?? null;
@@ -723,13 +730,25 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       window.history.replaceState({}, document.title, url.toString());
     }
 
+    setOpenfortModalOpen(false);
+    setConnector({ id: '' });
+    setRoute('providers');
     closeOpenfortModal();
     clearSession();
     setStatus('unauthenticated');
+    router.replace('/');
 
     await logoutBackendSession().catch(() => undefined);
     await openfortLogout().catch(() => undefined);
-  }, [clearSession, closeOpenfortModal, openfortLogout]);
+  }, [
+    clearSession,
+    closeOpenfortModal,
+    openfortLogout,
+    router,
+    setConnector,
+    setOpenfortModalOpen,
+    setRoute,
+  ]);
 
   const deleteAccount = useCallback(async () => {
     setStatus('loading');
