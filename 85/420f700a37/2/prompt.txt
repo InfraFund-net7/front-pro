@@ -67,3 +67,33 @@ now we have a slightly different behavior :
 ---
 
 no change , same behaviour
+
+---
+
+that did not deploy and we got this error:
+```
+./src/components/auth/auth-session-provider.tsx:31:1
+Export useOpenfortUIContext doesn't exist in target module
+  29 |
+  30 | import type { User } from '@openfort/openfort-js';
+> 31 | import {
+     | ^^^^^^^
+> 32 |   RecoveryMethod,
+     | ^^^^^^^^^^^^^^^^^
+> 33 |   useOpenfortCore,
+     | ^^^^^^^^^^^^^^^^^^
+> 34 |   useOpenfortUIContext,
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 35 |   useUI,
+     | ^^^^^^^^
+> 36 |   useUser,
+     | ^^^^^^^^^^
+> 37 | } from '@openfort/react';
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
+  39 | import {
+  40 |   checkOpenfortUser,
+```
+
+Also whenever we push , an additional push is done for a `entire` branch which captures our session. vercel also pick this up tries to deploy it, which always creates an error because it is just test files, no code. Can we disable that before the next push.
+Let me know if you need access to the vercel CLI and I will provide it.
