@@ -713,6 +713,16 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, [cancelAuthFlow]);
 
   const logout = useCallback(async () => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      ['openfortAuthProviderUI', 'access_token', 'user_id', 'error'].forEach(
+        (key) => {
+          url.searchParams.delete(key);
+        }
+      );
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
     closeOpenfortModal();
     clearSession();
     setStatus('unauthenticated');
