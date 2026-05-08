@@ -1,0 +1,5 @@
+i just got this information - can you run an update.
+We’ve released Next.js versions 16.2.6 and 15.5.18 with important security fixes.
+
+These fixes address multiple vulnerabilities across high, moderate, and low severity, including one upstream React issue. We strongly recommend upgrading as soon as possible.
+once done , commit and push
