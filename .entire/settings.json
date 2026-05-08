@@ -1,11 +1,5 @@
 {
   "enabled": true,
   "log_level": "DEBUG",
-  "strategy_options": {
-    "checkpoint_remote": {
-      "provider": "github",
-      "repo": "SvenMeyer/Infrafund-front-pro-entire"
-    }
-  },
   "telemetry": true
 }
