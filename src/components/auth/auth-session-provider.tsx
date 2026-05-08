@@ -31,7 +31,6 @@ import type { User } from '@openfort/openfort-js';
 import {
   RecoveryMethod,
   useOpenfortCore,
-  useOpenfortUIContext,
   useUI,
   useUser,
 } from '@openfort/react';
@@ -228,12 +227,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
   const { logout: openfortLogout } = useOpenfortCore();
-  const {
-    setOpen: setOpenfortModalOpen,
-    setConnector,
-    setRoute,
-  } = useOpenfortUIContext();
-  const { close: closeOpenfortModal } = useUI();
+  const { close: closeOpenfortModal, setIsOpen: setOpenfortModalOpen } =
+    useUI();
   const { create, wallets } = useEthereumEmbeddedWallet();
   const openfortUserId = user?.id ?? null;
   const [status, setStatus] = useState<AppSessionStatus>('idle');
@@ -731,8 +726,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
 
     setOpenfortModalOpen(false);
-    setConnector({ id: '' });
-    setRoute('providers');
     closeOpenfortModal();
     clearSession();
     setStatus('unauthenticated');
@@ -745,9 +738,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     closeOpenfortModal,
     openfortLogout,
     router,
-    setConnector,
     setOpenfortModalOpen,
-    setRoute,
   ]);
 
   const deleteAccount = useCallback(async () => {
