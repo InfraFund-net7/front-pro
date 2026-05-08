@@ -1,0 +1,9 @@
+can you do a full code review , file for file in `src` , looks for errors, syntax or logical, unclean code, maybe some functions are repeated too often and should the consolidated, also components , are we reusing components and design ?
+write the result into `docs-dev/tasks/task-112-code-audit.md`
+
+---
+
+- create a new branch an then work through the suggested changes
+- do not break up `auth-session-provider` as the openforth section was too difficult to get to work , we do not want to break it with a large refactor
+- the main dashboard content is mostly mock, and will be updated with a new design later, altough we will keep the structure, so that can be done last
+- anyway stability and code clean up for the server and auth section is welcome if it brings real benefit, because testing manually the login/registration is tedious and it just currently is in a wrking state

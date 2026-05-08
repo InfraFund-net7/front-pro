@@ -1,0 +1,56 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "8bb63265921c",
+  "session_id": "9955e820-e41f-425a-a36c-2dddb8cc4270",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T05:52:01.117962678Z",
+  "branch": "chore/task-112-code-audit-cleanup",
+  "checkpoints_count": 2,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7",
+  "turn_id": "b47699cca05b",
+  "token_usage": {
+    "input_tokens": 173,
+    "cache_creation_tokens": 1356319,
+    "cache_read_tokens": 30270931,
+    "output_tokens": 68615,
+    "api_call_count": 158
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 192,
+      "user_lines_removed": 1,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".vercel-bak/README.txt": 11,
+        ".vercel-bak/project.json": 5,
+        "docs-dev/openfort/google-login-prod-403-investigation-2.md": 49,
+        "docs-dev/openfort/google-login-prod-403-investigation.md": 120,
+        "vercel.json": 7
+      },
+      "user_removed_per_file": {
+        "vercel.json": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 602,
+      "agent_lines_removed": 1
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 23,
+      "agent_lines_removed": 1
+    }
+  ]
+}
