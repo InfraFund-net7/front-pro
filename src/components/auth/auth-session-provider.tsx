@@ -28,7 +28,12 @@
 // because the embedded-wallet iframe is never loaded (connectOnLogin: false).
 
 import type { User } from '@openfort/openfort-js';
-import { RecoveryMethod, useSignOut, useUI, useUser } from '@openfort/react';
+import {
+  RecoveryMethod,
+  useOpenfortCore,
+  useUI,
+  useUser,
+} from '@openfort/react';
 import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
 import {
   checkOpenfortUser,
@@ -226,7 +231,7 @@ function clearOnboardingDraft() {
 
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
-  const { signOut } = useSignOut();
+  const { logout: openfortLogout } = useOpenfortCore();
   const { close: closeOpenfortModal } = useUI();
   const { create, wallets } = useEthereumEmbeddedWallet();
   const openfortUserId = user?.id ?? null;
@@ -355,12 +360,12 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
     await Promise.allSettled([
       logoutBackendSession().catch(() => undefined),
-      signOut().catch(() => undefined),
+      openfortLogout().catch(() => undefined),
     ]);
 
     clearSession();
     setStatus('unauthenticated');
-  }, [clearSession, signOut]);
+  }, [clearSession, openfortLogout]);
 
   const commitUserFacingError = useCallback((raw: string) => {
     const userMessage = getUserFacingErrorMessage(raw);
@@ -717,15 +722,14 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setStatus('loading');
     setError(null);
     markOpenfortLogoutInProgress();
+    closeOpenfortModal();
 
-    await Promise.allSettled([
-      logoutBackendSession().catch(() => undefined),
-      signOut().catch(() => undefined),
-    ]);
+    await logoutBackendSession().catch(() => undefined);
+    await openfortLogout().catch(() => undefined);
 
     clearSession();
     setStatus('unauthenticated');
-  }, [clearSession, signOut]);
+  }, [clearSession, closeOpenfortModal, openfortLogout]);
 
   const deleteAccount = useCallback(async () => {
     setStatus('loading');
@@ -748,7 +752,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
     await Promise.allSettled([
       logoutBackendSession().catch(() => undefined),
-      signOut().catch(() => undefined),
+      openfortLogout().catch(() => undefined),
     ]);
 
     clearSession();
@@ -758,7 +762,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     baseReportExtras,
     clearSession,
     commitUserFacingError,
-    signOut,
+    openfortLogout,
   ]);
 
   const retry = useCallback(() => {
