@@ -1,0 +1,22 @@
+work on @docs-dev/tasks/task-113-fix-disconnect-logout.md
+
+---
+
+you should also have openfort MCP and SKILL.md at your disposal or check https://www.openfort.io/docs/overview
+There is also an example apps which may help :
+https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample
+https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/wallet-libraries/next-wagmi
+
+---
+
+Not sure if it was mentioned in the document, it worked fine on localhost, just not when deployed on vercel
+Now we have the same problem even on localhost : I click disconnect and it goes back into a "Loading..." popup, then into login process going through the 5 step list
+
+---
+
+ok, that is better now on localhost. I also did a `rm -rf .next` and restarted the local dev server. I think it was stuck in a previous version.
+Maybe it would have even work in the version before that, but the local dev server was just stuck ?
+Now , I click [Disconnect] , for a second the popup with the 5 login steps shows up, but then we are back on the homepage "Welcome to InfraFund".
+Can we optimize that , not showing the 5 step login steps midway ?
+Maybe we could even revert the change and try the version before ?
+what do you think ?
