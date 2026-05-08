@@ -5,6 +5,7 @@ import { Check, Copy, ExternalLink } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import { getAddressExplorerUrl, getChainName } from '@/lib/block-explorer';
+import { useCopyToClipboard } from '@/lib/use-copy-to-clipboard';
 import { Modal } from '@/components/ui/modal';
 import { CustomButton } from '@/components/ui/custom-button';
 
@@ -39,18 +40,12 @@ function WalletAddressRow({
   address: string;
   chainId: number | undefined;
 }) {
-  const [justCopied, setJustCopied] = useState(false);
+  const { justCopied, copy } = useCopyToClipboard();
   const explorerUrl = getAddressExplorerUrl(chainId, address);
   const chainName = getChainName(chainId);
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(address);
-      setJustCopied(true);
-      window.setTimeout(() => setJustCopied(false), 1500);
-    } catch {
-      // Clipboard API can fail in non-secure contexts; ignore silently.
-    }
+  const handleCopy = () => {
+    void copy(address);
   };
 
   return (
