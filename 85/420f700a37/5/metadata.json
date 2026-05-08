@@ -1,0 +1,48 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "85420f700a37",
+  "session_id": "ebbf5985-96ad-4bca-876e-7fbfabd9080d",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T14:02:02.729909716Z",
+  "branch": "develop",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "vercel.json"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "28b7a538d145",
+  "checkpoint_transcript_start": 346,
+  "transcript_lines_at_start": 346,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 20
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T14:02:02.693178437Z",
+    "agent_lines": 6,
+    "agent_removed": 1,
+    "human_added": 2,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 9,
+    "total_lines_changed": 21,
+    "agent_percentage": 33.33333333333333,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

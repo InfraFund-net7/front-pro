@@ -3,7 +3,7 @@
   "checkpoint_id": "85420f700a37",
   "strategy": "manual-commit",
   "branch": "develop",
-  "checkpoints_count": 4,
+  "checkpoints_count": 5,
   "files_touched": [
     "vercel.json"
   ],
@@ -37,6 +37,12 @@
       "transcript": "/85/420f700a37/4/full.jsonl",
       "content_hash": "/85/420f700a37/4/content_hash.txt",
       "prompt": "/85/420f700a37/4/prompt.txt"
+    },
+    {
+      "metadata": "/85/420f700a37/5/metadata.json",
+      "transcript": "/85/420f700a37/5/full.jsonl",
+      "content_hash": "/85/420f700a37/5/content_hash.txt",
+      "prompt": "/85/420f700a37/5/prompt.txt"
     }
   ],
   "token_usage": {

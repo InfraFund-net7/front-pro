@@ -1,0 +1,1 @@
+i think we still have for some reason `src/components/auth/auth-session-provider.tsx` uncomitted. can you commit and push
