@@ -20,3 +20,13 @@ Now , I click [Disconnect] , for a second the popup with the 5 login steps shows
 Can we optimize that , not showing the 5 step login steps midway ?
 Maybe we could even revert the change and try the version before ?
 what do you think ?
+
+---
+
+On local host it looks better now, only for a second the "Loading..." popup shows up then we are back on the homepage with "Welcome to InfraFund".
+When commit and pushing, a `entire` branch with session history also gets pushed, vercel picks it up, and fails because its all just text. I tried to fix it, but it does not work. We can exclude all branches which start with 'entire/'
+then commit and push
+
+---
+
+I just deleted `.vercel-bak/` there was naothing valuable in there
