@@ -1,0 +1,123 @@
+openfort integration works well now, the only strange thing is that :
+## on localhost:3000
+
+---
+
+- I click on the top right account circle and select [Disconnect] and within a second Im back on the home page which shows "Welcome to InfraFund"
+
+## vercel deployments 
+preview : https://dash-dev.infrafund.net/
+- I click on the top right account circle and select [Disconnect] and I end up on a blank screen showing this URL `https://dash-dev.infrafund.net/?openfortAuthProviderUI=google&REDACTED.IY9lPB1urvR%REDACTED%2FPPWuM%3D&REDACTED`
+
+DO you have any explanation for that? 
+How can we fix it?
+You also have access to openfort MCP and SKILLS.md to retrieve and search for documentation.
+
+---
+
+If I do a page reload on the blank screen, I will be logged in again (showing the 5 step list)
+
+---
+
+i bumped the version in @package.json to v1.1.3
+write a release notes file `docs-dev/release-notes/v1.1.3-fix-disconnect-logout.md`
+commit and push it - you may want to use an option for the spell and linter to only output if everything is ok, otherwise you get close to 200 lines all just saying 'ok' - only if you get errors then do it again with default , more verbose mode.
+
+---
+
+i just checked the new v1.1.3 disconnet behaviour , and nothing has changed !
+It shouldn't be too difficult to disconnect from a session , that should be a very standard procedure which previously worked. Actually it worked very well until "very recently".
+If I click on the openfort button, left of the account icon, that brings up the openfort modal, which also has an icon top left , if i click it , i get to a small popup, which also has already the [Disconnect] built in. So it is a working feature, out of the box from openfort, which worked before.
+I would suggest to access the openfort documentation, use the openfort MCP or the SKILL.md you have available, or check https://www.openfort.io/docs
+or sample code here : https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample
+https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/wallet-libraries/next-wagmi
+There must be a very easy standard solution for that ! Find it !
+
+---
+
+ok do it
+
+---
+
+commit and push
+
+---
+
+The problem is still there. The only difference is that after clicking [Disconnect], 
+- I briefly (1 sec) see a blank page
+- now (what has not been there before), the popup shows up with "loading ..."
+- then it ends up in a blank screen again.
+
+can you maybe look a few versions / commits back , like v1.0.9
+maybe look into `docs-dev/release-notes/v1.0.9-backend-next-migration-openfort-simplification.md` and the following release-notes files. They may contain information, or guide you to the related commit.
+
+Otherwise, you may check the documentation again. It is weird that such a simple built in version needs so much extra code and work to make it work. Can you explain why this is all needed and not a simple function call ?
+
+---
+
+ok, thanks for the explanantion. Move on and apply the changes you think are best to resolve it and simplyfy the process and code. When done commit and push and i will test it.
+
+---
+
+now we have a slightly different behavior :
+- click [Disconect]
+- instead of the popup with "Loading ...", the popup with our 5 login steps shows up for a second
+- endstate again , a black screen and the long URL in the browser URL field
+
+---
+
+no change , same behaviour
+
+---
+
+that did not deploy and we got this error:
+```
+./src/components/auth/auth-session-provider.tsx:31:1
+Export useOpenfortUIContext doesn't exist in target module
+  29 |
+  30 | import type { User } from '@openfort/openfort-js';
+> 31 | import {
+     | ^^^^^^^
+> 32 |   RecoveryMethod,
+     | ^^^^^^^^^^^^^^^^^
+> 33 |   useOpenfortCore,
+     | ^^^^^^^^^^^^^^^^^^
+> 34 |   useOpenfortUIContext,
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 35 |   useUI,
+     | ^^^^^^^^
+> 36 |   useUser,
+     | ^^^^^^^^^^
+> 37 | } from '@openfort/react';
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
+  39 | import {
+  40 |   checkOpenfortUser,
+```
+
+Also whenever we push , an additional push is done for a `entire` branch which captures our session. vercel also pick this up tries to deploy it, which always creates an error because it is just test files, no code. Can we disable that before the next push.
+Let me know if you need access to the vercel CLI and I will provide it.
+
+---
+
+no change :-(
+can we take a step back : Write a task description so that we can pick it up another day, just the problem descrition mainly  
+- a problem description , just the user experience
+- what we need to implement to make the two ways to disconnect work
+- what needs to be considered when implementing this 
+- why it worked before , maybe even up to v1.1.1 and suddenly not any more.
+- I think the big code refactor/clean up v1.1.2 as described in `docs-dev/release-notes/v1.1.2-code-audit-cleanup.md` and `docs-dev/tasks/task-112-code-audit.md` has likely broken it
+- we may mention what we tried and did not work.
+
+As all our efforts did not work, me may as well delete all the past commits as there is no point in having a long lists of commits which all did not work ?
+
+This file should serve as providing all context so that we can start fresh.
+
+---
+
+lets not rewrite history, what about suggesting (in the document) to go back before we start fixing it. Create a fix branch (what we should have done anyway) , try for there, and then merge it back to `develop` branch only when it works.
+Looking at the past commit, we had 2 major changes :
+- 6c501b4 Merge pull request #19 from InfraFund-net7/chore/task-112-code-audit-cleanup
+- d80ded7 fix: upgrade Next.js security patch
+and i think it worked before and definitely not thereafter as after the security patch we started trying to fix the disconnet.
+I think this is valuable information which may even need to go at the top of the document and might even be enough or at least pretty helpful in fixing this.
