@@ -7,3 +7,10 @@ write the result into `docs-dev/tasks/task-112-code-audit.md`
 - do not break up `auth-session-provider` as the openforth section was too difficult to get to work , we do not want to break it with a large refactor
 - the main dashboard content is mostly mock, and will be updated with a new design later, altough we will keep the structure, so that can be done last
 - anyway stability and code clean up for the server and auth section is welcome if it brings real benefit, because testing manually the login/registration is tedious and it just currently is in a wrking state
+
+---
+
+We got some comments on our PR , can you review and fix them.
+DO you know how to best extract the comments and act on them ?
+If not here is some guidance @/home/sum/1_DATA/MACHINE_LEARNING/AI/AI-APPLICATIONS/7_programming/0-prompts/AGENTS-PR-review.md 
+I also mentions an add-on which allows to request a new review from Copilot on github once you are done.
