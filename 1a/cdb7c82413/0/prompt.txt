@@ -1,0 +1,54 @@
+openfort integration works well now, the only strange thing is that :
+## on localhost:3000
+
+---
+
+- I click on the top right account circle and select [Disconnect] and within a second Im back on the home page which shows "Welcome to InfraFund"
+
+## vercel deployments 
+preview : https://dash-dev.infrafund.net/
+- I click on the top right account circle and select [Disconnect] and I end up on a blank screen showing this URL `https://dash-dev.infrafund.net/?openfortAuthProviderUI=google&REDACTED.IY9lPB1urvR%REDACTED%2FPPWuM%3D&REDACTED`
+
+DO you have any explanation for that? 
+How can we fix it?
+You also have access to openfort MCP and SKILLS.md to retrieve and search for documentation.
+
+---
+
+If I do a page reload on the blank screen, I will be logged in again (showing the 5 step list)
+
+---
+
+i bumped the version in @package.json to v1.1.3
+write a release notes file `docs-dev/release-notes/v1.1.3-fix-disconnect-logout.md`
+commit and push it - you may want to use an option for the spell and linter to only output if everything is ok, otherwise you get close to 200 lines all just saying 'ok' - only if you get errors then do it again with default , more verbose mode.
+
+---
+
+i just checked the new v1.1.3 disconnet behaviour , and nothing has changed !
+It shouldn't be too difficult to disconnect from a session , that should be a very standard procedure which previously worked. Actually it worked very well until "very recently".
+If I click on the openfort button, left of the account icon, that brings up the openfort modal, which also has an icon top left , if i click it , i get to a small popup, which also has already the [Disconnect] built in. So it is a working feature, out of the box from openfort, which worked before.
+I would suggest to access the openfort documentation, use the openfort MCP or the SKILL.md you have available, or check https://www.openfort.io/docs
+or sample code here : https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/auth-sample
+https://github.com/openfort-xyz/openfort-js/tree/main/examples/apps/wallet-libraries/next-wagmi
+There must be a very easy standard solution for that ! Find it !
+
+---
+
+ok do it
+
+---
+
+commit and push
+
+---
+
+The problem is still there. The only difference is that after clicking [Disconnect], 
+- I briefly (1 sec) see a blank page
+- now (what has not been there before), the popup shows up with "loading ..."
+- then it ends up in a blank screen again.
+
+can you maybe look a few versions / commits back , like v1.0.9
+maybe look into `docs-dev/release-notes/v1.0.9-backend-next-migration-openfort-simplification.md` and the following release-notes files. They may contain information, or guide you to the related commit.
+
+Otherwise, you may check the documentation again. It is weird that such a simple built in version needs so much extra code and work to make it work. Can you explain why this is all needed and not a simple function call ?
