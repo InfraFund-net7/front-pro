@@ -63,3 +63,7 @@ now we have a slightly different behavior :
 - click [Disconect]
 - instead of the popup with "Loading ...", the popup with our 5 login steps shows up for a second
 - endstate again , a black screen and the long URL in the browser URL field
+
+---
+
+no change , same behaviour
