@@ -56,3 +56,10 @@ Otherwise, you may check the documentation again. It is weird that such a simple
 ---
 
 ok, thanks for the explanantion. Move on and apply the changes you think are best to resolve it and simplyfy the process and code. When done commit and push and i will test it.
+
+---
+
+now we have a slightly different behavior :
+- click [Disconect]
+- instead of the popup with "Loading ...", the popup with our 5 login steps shows up for a second
+- endstate again , a black screen and the long URL in the browser URL field
