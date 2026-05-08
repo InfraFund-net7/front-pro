@@ -52,3 +52,7 @@ can you maybe look a few versions / commits back , like v1.0.9
 maybe look into `docs-dev/release-notes/v1.0.9-backend-next-migration-openfort-simplification.md` and the following release-notes files. They may contain information, or guide you to the related commit.
 
 Otherwise, you may check the documentation again. It is weird that such a simple built in version needs so much extra code and work to make it work. Can you explain why this is all needed and not a simple function call ?
+
+---
+
+ok, thanks for the explanantion. Move on and apply the changes you think are best to resolve it and simplyfy the process and code. When done commit and push and i will test it.
