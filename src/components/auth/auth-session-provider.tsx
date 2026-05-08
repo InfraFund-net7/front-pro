@@ -60,12 +60,6 @@ import {
 } from 'react';
 import { usePathname } from 'next/navigation';
 import { reportError } from '@/lib/error-reporting';
-import {
-  classifyOpenfortOAuthCallback,
-  clearOpenfortLogoutInProgress,
-  markOpenfortLogoutInProgress,
-  sanitizeOpenfortOAuthCallbackUrl,
-} from '@/lib/openfort-oauth-state';
 
 type AppSessionStatus =
   | 'idle'
@@ -719,16 +713,12 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, [cancelAuthFlow]);
 
   const logout = useCallback(async () => {
-    setStatus('loading');
-    setError(null);
-    markOpenfortLogoutInProgress();
     closeOpenfortModal();
+    clearSession();
+    setStatus('unauthenticated');
 
     await logoutBackendSession().catch(() => undefined);
     await openfortLogout().catch(() => undefined);
-
-    clearSession();
-    setStatus('unauthenticated');
   }, [clearSession, closeOpenfortModal, openfortLogout]);
 
   const deleteAccount = useCallback(async () => {
@@ -789,19 +779,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   // done when bootstrapSession runs and overwrites the plan.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    const callbackState = classifyOpenfortOAuthCallback();
-
-    if (callbackState === 'stale_oauth_params') {
-      sanitizeOpenfortOAuthCallbackUrl();
-      clearOpenfortLogoutInProgress();
-      clearSession();
-      setStatus('unauthenticated');
-      closeOpenfortModal();
-      return;
-    }
-
-    if (callbackState !== 'oauth_login_callback') return;
+    if (!window.location.search.includes('openfortAuthProviderUI')) return;
 
     setStepPlan([
       'signing_in',
@@ -832,13 +810,10 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
 
     if (!isAuthenticated || !openfortUserId) {
-      clearOpenfortLogoutInProgress();
       clearSession();
       setStatus('unauthenticated');
       return;
     }
-
-    clearOpenfortLogoutInProgress();
 
     const bootstrapAttemptKey = `${openfortUserId}:${retryCount}`;
 

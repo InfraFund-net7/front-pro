@@ -8,7 +8,6 @@ import { AuthLoadingState } from './auth/auth-state';
 import { useAuthSession } from './auth/auth-session-provider';
 import { AuthProgressModal } from './auth/auth-progress-modal';
 import { BuildInfo } from './build-info';
-import { classifyOpenfortOAuthCallback } from '@/lib/openfort-oauth-state';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -57,7 +56,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   // Read the URL synchronously to avoid the flash on first render.
   const isHandlingOAuthCallback =
     typeof window !== 'undefined' &&
-    classifyOpenfortOAuthCallback() === 'oauth_login_callback';
+    window.location.search.includes('openfortAuthProviderUI');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">
