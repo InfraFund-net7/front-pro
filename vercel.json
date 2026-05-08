@@ -1,5 +1,5 @@
 {
-  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"entire/checkpoints/v1\" ]; then echo 'Skipping Vercel build for Entire checkpoint branch'; exit 0; else exit 1; fi",
+  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in entire/*) echo 'Skipping Vercel build for Entire branch'; exit 0 ;; *) exit 1 ;; esac",
   "experimentalServices": {
     "web": {
       "routePrefix": "/",
