@@ -1,0 +1,73 @@
+i ran the `headroom` update script but the instance for Azure did not start cleanly - investigate and fix.
+```
+=====================================
+Headroom Update
+=====================================
+Headroom Update
+Fetching latest version from GitHub...
+Latest version: 0.21.6
+Current version: 0.21.4
+Update required: 0.21.4 -> 0.21.6
+Stopping Azure proxy on port 8788...
+Killing headroom (PID 4112245) on port 8788...
+✓ Headroom (azure) stopped, port 8788 is free
+Stopping manifest profile 'init-aertura-blockchain-frontend-d0cc58e9'...
+Stopped deployment 'init-aertura-blockchain-frontend-d0cc58e9'.
+✓ Port 8787 is free
+Selecting compatible Headroom install plan...
+Probing install spec 'headroom-ai[all]==0.21.6' with Python 3.13.13...
+Selected Python: /usr/bin/python3.13 (3.13.13)
+Selected install spec: headroom-ai[all]==0.21.6
+Removing existing pipx package 'headroom-ai' before reinstall...
+Installing headroom-ai[all]==0.21.6 via pipx...
+  installed package headroom-ai 0.21.6, installed using Python 3.13.13
+  These apps are now available
+    - headroom
+done! ✨ 🌟 ✨
+Syncing MCP configuration...
+
+✓ Headroom MCP server installed!
+
+Registered via: claude mcp add (scope: user)
+
+Next steps:
+  1. Start the Headroom proxy (if not running):
+     headroom proxy
+
+  2. Start Claude Code WITH the proxy base URL:
+     ANTHROPIC_BASE_URL=http://127.0.0.1:8787 claude
+
+  3. Claude Code now has:
+     - All requests compressed through the proxy (saves tokens & cost)
+     - Access to headroom_retrieve tool for CCR retrieval
+     - Stats visible at http://127.0.0.1:8787/stats
+
+NOTE: The MCP server provides on-demand compression tools
+(headroom_compress, headroom_retrieve, headroom_stats). For automatic
+compression of ALL traffic, also set ANTHROPIC_BASE_URL as shown above.
+
+Proxy URL: http://127.0.0.1:8787
+
+Applying local PR #391 patch...
+✓ PR #391 patches already applied — skipping.
+✓ PR #391 patches applied to /home/sum/.local/share/pipx/venvs/headroom-ai/lib/python3.13/site-packages/headroom/proxy/handlers/
+Installed version: headroom, version 0.21.6
+Restarting manifest profile 'init-aertura-blockchain-frontend-d0cc58e9' in background...
+Started deployment 'init-aertura-blockchain-frontend-d0cc58e9'.
+Waiting for proxy health on port 8787...
+✓ Proxy is healthy (http://127.0.0.1:8787/readyz)
+Restarting Azure proxy on port 8788...
+/home/sum/Scripts/aidev_update/headroom_azure_start.sh: line 19: AZURE_API_KEY: AZURE_API_KEY must be set
+⚠ Azure proxy did not restart cleanly. Run /home/sum/Scripts/aidev_update/headroom_azure_start.sh manually.
+✓ Headroom update completed (0.21.4 -> 0.21.6)
+✓ Headroom Update completed successfully
+```
+
+---
+
+i interrupted as I noticed that I had not set the AZURE env vars. Now you should be able to just start the headroom instance for Azure on port 8788
+
+---
+
+The azure instance of headroom is working , reporting all the total number , but `Recent Requests` does not show anything anymore (it worked) with v0.21.4 (afaik), but not now on v.0.21.6
+Can you create an issue : https://github.com/chopratejas/headroom
