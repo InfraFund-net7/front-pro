@@ -1,0 +1,71 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "8a1392f31bd5",
+  "session_id": "3ef72871-9a53-42b4-9bf8-933564ea4b5f",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T15:14:15.771089511Z",
+  "branch": "develop",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "package-lock.json"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "7b08f71aaf89",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 12
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T15:14:15.742726184Z",
+    "agent_lines": 4,
+    "agent_removed": 3,
+    "human_added": 113,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 117,
+    "total_lines_changed": 163,
+    "agent_percentage": 4.294478527607362,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 16,
+      "user_lines_removed": 118,
+      "agent_lines_added": 122,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        ".vercel-bak/README.txt": 11,
+        ".vercel-bak/project.json": 5
+      },
+      "user_removed_per_file": {
+        "docs-dev/tasks/task-113-fix-disconnect-logout.md": 118
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 230,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        ".vercel-bak/README.txt": 11,
+        ".vercel-bak/project.json": 5
+      }
+    }
+  ]
+}
