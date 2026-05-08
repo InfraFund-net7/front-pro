@@ -1,0 +1,73 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "a77ebb5ed58f",
+  "session_id": "3ef72871-9a53-42b4-9bf8-933564ea4b5f",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T12:43:18.920235076Z",
+  "branch": "develop",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "package.json",
+    "src/components/auth/auth-session-provider.tsx",
+    "src/components/main-layout.tsx",
+    "src/lib/openfort-oauth-state.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "9489829a4272",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T12:43:18.9077484Z",
+    "agent_lines": 113,
+    "agent_removed": 4,
+    "human_added": 114,
+    "human_modified": 2,
+    "human_removed": 0,
+    "total_committed": 228,
+    "total_lines_changed": 233,
+    "agent_percentage": 50.21459227467812,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 28,
+      "user_lines_removed": 4,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".vercel-bak/README.txt": 11,
+        ".vercel-bak/project.json": 5,
+        "package-lock.json": 4,
+        "package.json": 1,
+        "vercel.json": 7
+      },
+      "user_removed_per_file": {
+        "package-lock.json": 3,
+        "vercel.json": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 1,
+      "user_lines_removed": 1,
+      "agent_lines_added": 261,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "package.json": 1
+      },
+      "user_removed_per_file": {
+        "package.json": 1
+      }
+    }
+  ]
+}

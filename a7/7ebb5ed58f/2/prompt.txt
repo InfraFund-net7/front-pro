@@ -1,0 +1,18 @@
+openfort integration works well now, the only strange thing is that :
+## on localhost:3000
+
+---
+
+- I click on the top right account circle and select [Disconnect] and within a second Im back on the home page which shows "Welcome to InfraFund"
+
+## vercel deployments 
+preview : https://dash-dev.infrafund.net/
+- I click on the top right account circle and select [Disconnect] and I end up on a blank screen showing this URL `https://dash-dev.infrafund.net/?openfortAuthProviderUI=google&REDACTED.IY9lPB1urvR%REDACTED%2FPPWuM%3D&REDACTED`
+
+DO you have any explanation for that? 
+How can we fix it?
+You also have access to openfort MCP and SKILLS.md to retrieve and search for documentation.
+
+---
+
+If I do a page reload on the blank screen, I will be logged in again (showing the 5 step list)
