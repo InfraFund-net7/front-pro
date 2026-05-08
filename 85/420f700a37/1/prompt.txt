@@ -1,0 +1,12 @@
+I need to re-generate the openfort "Embedded wallet keys (Shield)" because i did not store or download the encryption share key. How can I do that ? Use your openfort MCP and SKILL.md, or start here https://www.openfort.io/docs/overview/building-with-cli#embedded-wallet-keys-shield
+Is that even possible? If not, then I would need to create a new project?
+
+---
+
+I know we have `SHIELD_ENCRYPTION_SHARE` env var in this project, but do we actually need it for daily operation or just in case of an emergency where user's wallets need to be recovered or migrated ?
+
+---
+
+can you have a look at : https://www.openfort.io/docs/configuration/api-keys
+it says "Shield encryption share key: Only used whenever you're using the automatic recovery to encrypt the recovery share." , so , sounds to me it is only used in the case of a recovery , which as fas as i understand would not be normal operation.
+The provided link [automatic recovery](https://www.openfort.io/docs/configuration/recovery-methods)
