@@ -1,3 +1,9 @@
 {
-  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" = \"entire/checkpoints/v1\" ] && exit 0 || exit 1"
+  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"entire/checkpoints/v1\" ]; then echo 'Skipping Vercel build for Entire checkpoint branch'; exit 0; else exit 1; fi",
+  "experimentalServices": {
+    "web": {
+      "routePrefix": "/",
+      "framework": "nextjs"
+    }
+  }
 }
