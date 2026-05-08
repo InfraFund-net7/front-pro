@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "7d13ed29709a",
+  "strategy": "manual-commit",
+  "branch": "chore/task-112-code-audit-cleanup",
+  "checkpoints_count": 2,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/7d/13ed29709a/0/metadata.json",
+      "transcript": "/7d/13ed29709a/0/full.jsonl",
+      "content_hash": "/7d/13ed29709a/0/content_hash.txt",
+      "prompt": "/7d/13ed29709a/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 188,
+    "cache_creation_tokens": 1755874,
+    "cache_read_tokens": 32426477,
+    "output_tokens": 76614,
+    "api_call_count": 168
+  }
+}
