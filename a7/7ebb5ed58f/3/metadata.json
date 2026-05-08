@@ -1,0 +1,69 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "a77ebb5ed58f",
+  "session_id": "a5e569ec-f889-4a50-aa84-c18cd77b64c9",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T12:43:19.009222317Z",
+  "branch": "develop",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "package.json"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.3-codex",
+  "turn_id": "0c489bca2b66",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T12:43:19.003476959Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 230,
+    "human_modified": 3,
+    "human_removed": 0,
+    "total_committed": 230,
+    "total_lines_changed": 238,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 23,
+      "user_lines_removed": 1,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".vercel-bak/README.txt": 11,
+        ".vercel-bak/project.json": 5,
+        "vercel.json": 7
+      },
+      "user_removed_per_file": {
+        "vercel.json": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 55,
+      "user_lines_removed": 53,
+      "agent_lines_added": 73,
+      "agent_lines_removed": 51,
+      "user_added_per_file": {
+        "package-lock.json": 52,
+        "package.json": 3
+      },
+      "user_removed_per_file": {
+        "package-lock.json": 51,
+        "package.json": 2
+      }
+    }
+  ]
+}

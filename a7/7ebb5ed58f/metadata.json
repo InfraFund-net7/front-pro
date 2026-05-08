@@ -3,7 +3,7 @@
   "checkpoint_id": "a77ebb5ed58f",
   "strategy": "manual-commit",
   "branch": "develop",
-  "checkpoints_count": 6,
+  "checkpoints_count": 8,
   "files_touched": [
     "package.json",
     "src/components/auth/auth-session-provider.tsx",
@@ -28,6 +28,12 @@
       "transcript": "/a7/7ebb5ed58f/2/full.jsonl",
       "content_hash": "/a7/7ebb5ed58f/2/content_hash.txt",
       "prompt": "/a7/7ebb5ed58f/2/prompt.txt"
+    },
+    {
+      "metadata": "/a7/7ebb5ed58f/3/metadata.json",
+      "transcript": "/a7/7ebb5ed58f/3/full.jsonl",
+      "content_hash": "/a7/7ebb5ed58f/3/content_hash.txt",
+      "prompt": "/a7/7ebb5ed58f/3/prompt.txt"
     }
   ],
   "token_usage": {
