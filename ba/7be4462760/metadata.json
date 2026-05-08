@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "ba7be4462760",
+  "strategy": "manual-commit",
+  "branch": "feat/task-113-salvage-pr-18-settings-page",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "docs-dev/tasks/task-113-code-audit-PR-18.md",
+    "src/app/globals.css",
+    "src/app/settings/page.tsx",
+    "src/components/settings/main-settings.tsx",
+    "src/components/settings/profile-detail/investment-preferences.tsx",
+    "src/components/settings/profile-detail/personal-information.tsx",
+    "src/components/settings/profile-detail/profile-detail.tsx",
+    "src/components/settings/profile-detail/role-access.tsx",
+    "src/components/ui/form-input.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ba/7be4462760/0/metadata.json",
+      "transcript": "/ba/7be4462760/0/full.jsonl",
+      "content_hash": "/ba/7be4462760/0/content_hash.txt",
+      "prompt": "/ba/7be4462760/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 63,
+    "cache_creation_tokens": 627491,
+    "cache_read_tokens": 4411632,
+    "output_tokens": 25285,
+    "api_call_count": 48
+  }
+}

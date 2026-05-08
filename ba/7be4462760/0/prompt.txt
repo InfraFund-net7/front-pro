@@ -1,0 +1,8 @@
+can you review https://github.com/InfraFund-net7/front-pro/pull/18
+The new code was based on a very old commit (maybe ~90 commits ago afaik, so it might be challenging to merge this, although it might also be very easy if it addresses totally different sections. Check what the impact is (does it touch any of the pages or areas where we now have `openfort` and not `particle` as auth solution - that would be problematic and would need much more carefull review and make it ready to be merged.
+I have already made some comments regarding this here : https://github.com/InfraFund-net7/front-pro/pull/18#issuecomment-4380625007
+Write the result of the review into a new file `docs-dev/tasks/task-113-code-audit-PR-18.md`
+
+---
+
+can you create a new branch and try to salvage what @shervin210 tries to implement but now based on the current openfort implementation. Maybe we can give him a start with that

@@ -1,0 +1,76 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "ba7be4462760",
+  "session_id": "3bb1c77c-7ac1-4423-b80c-dc8d4fa2c817",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T06:50:30.391393463Z",
+  "branch": "feat/task-113-salvage-pr-18-settings-page",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "docs-dev/tasks/task-113-code-audit-PR-18.md",
+    "src/app/globals.css",
+    "src/app/settings/page.tsx",
+    "src/components/settings/main-settings.tsx",
+    "src/components/settings/profile-detail/investment-preferences.tsx",
+    "src/components/settings/profile-detail/personal-information.tsx",
+    "src/components/settings/profile-detail/profile-detail.tsx",
+    "src/components/settings/profile-detail/role-access.tsx",
+    "src/components/ui/form-input.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7",
+  "turn_id": "e7d7c84806b9",
+  "token_usage": {
+    "input_tokens": 63,
+    "cache_creation_tokens": 627491,
+    "cache_read_tokens": 4411632,
+    "output_tokens": 25285,
+    "api_call_count": 48
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T06:50:30.381891857Z",
+    "agent_lines": 581,
+    "agent_removed": 5,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 581,
+    "total_lines_changed": 586,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 23,
+      "user_lines_removed": 1,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".vercel-bak/README.txt": 11,
+        ".vercel-bak/project.json": 5,
+        "vercel.json": 7
+      },
+      "user_removed_per_file": {
+        "vercel.json": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 192,
+      "agent_lines_removed": 1
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 604,
+      "agent_lines_removed": 6
+    }
+  ]
+}
