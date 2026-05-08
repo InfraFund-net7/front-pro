@@ -51,17 +51,6 @@ export function attachOpenfortUserId(userId: string, openfortUserId: string) {
   });
 }
 
-export async function openfortUserExists(openfortUserId: string) {
-  const count = await getDb().user.count({
-    where: {
-      openfortUserId,
-      deletedAt: null,
-    },
-  });
-
-  return count > 0;
-}
-
 export async function createUser(record: CreateUserRecord) {
   return getDb().$transaction(async (tx) => {
     const user = await tx.user.create({

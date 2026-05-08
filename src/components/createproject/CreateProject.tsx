@@ -12,7 +12,7 @@ import {
 import PreSale from './PreSale';
 import Equity from './Equity';
 import Debt from './Debt';
-import Charity from './Charity/Charity';
+import Charity from './Charity';
 
 export default function CreateProject() {
   const ProjectData = [

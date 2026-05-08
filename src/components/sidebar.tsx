@@ -4,64 +4,24 @@ import type React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
-
-const Home = dynamic(() => import('lucide-react').then((mod) => mod.Home), {
-  ssr: false,
-});
-const Layers = dynamic(() => import('lucide-react').then((mod) => mod.Layers), {
-  ssr: false,
-});
-const Building = dynamic(
-  () => import('lucide-react').then((mod) => mod.Building),
-  { ssr: false }
-);
-const Grid3X3 = dynamic(
-  () => import('lucide-react').then((mod) => mod.Grid3X3),
-  { ssr: false }
-);
-const Users = dynamic(() => import('lucide-react').then((mod) => mod.Users), {
-  ssr: false,
-});
-const TrendingUp = dynamic(
-  () => import('lucide-react').then((mod) => mod.TrendingUp),
-  { ssr: false }
-);
-const Folder = dynamic(() => import('lucide-react').then((mod) => mod.Folder), {
-  ssr: false,
-});
-const Compass = dynamic(
-  () => import('lucide-react').then((mod) => mod.Compass),
-  { ssr: false }
-);
-const ArrowUpDown = dynamic(
-  () => import('lucide-react').then((mod) => mod.ArrowUpDown),
-  { ssr: false }
-);
-const FileText = dynamic(
-  () => import('lucide-react').then((mod) => mod.FileText),
-  { ssr: false }
-);
-const Lock = dynamic(() => import('lucide-react').then((mod) => mod.Lock), {
-  ssr: false,
-});
-const Rocket = dynamic(() => import('lucide-react').then((mod) => mod.Rocket), {
-  ssr: false,
-});
-const Magnet = dynamic(() => import('lucide-react').then((mod) => mod.Magnet), {
-  ssr: false,
-});
-const Landmark = dynamic(
-  () => import('lucide-react').then((mod) => mod.Landmark),
-  { ssr: false }
-);
-const IdCard = dynamic(() => import('lucide-react').then((mod) => mod.IdCard), {
-  ssr: false,
-});
-const UserCircle = dynamic(
-  () => import('lucide-react').then((mod) => mod.UserCircle),
-  { ssr: false }
-);
+import {
+  ArrowUpDown,
+  Building,
+  Compass,
+  FileText,
+  Folder,
+  Grid3X3,
+  Home,
+  IdCard,
+  Landmark,
+  Layers,
+  Lock,
+  Magnet,
+  Rocket,
+  TrendingUp,
+  UserCircle,
+  Users,
+} from 'lucide-react';
 
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 
@@ -148,12 +108,12 @@ function Navigation({ items }: { items: NavigationItem[] }) {
 
   return (
     <nav className="space-y-2">
-      {items.map((item, index) => {
+      {items.map((item) => {
         const IconComponent = item.icon;
         const isActive = pathname === item.url;
 
         return (
-          <div key={index} className="relative chakra-petch">
+          <div key={item.url} className="relative chakra-petch">
             <Link
               href={item.isDisabled ? '#' : item.url}
               onClick={(e) => handleItemClick(item, e)}

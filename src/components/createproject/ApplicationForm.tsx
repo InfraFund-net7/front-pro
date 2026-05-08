@@ -40,19 +40,16 @@ export default function ApplicationForm({
   const [raisedBefore, setRaisedBefore] = useState('no');
   const [showPaymentInput, setShowPaymentInput] = useState(false);
 
-  const handleInfrastructureChange = (value: string, key: string) => {
+  const handleInfrastructureChange = (value: string) => {
     setInfrastructureType(value);
-    console.log('Infrastructure changed:', { value, key });
   };
 
-  const handleProjectStatusChange = (value: string, key: string) => {
+  const handleProjectStatusChange = (value: string) => {
     setProjectStatus(value);
-    console.log('Project status changed:', { value, key });
   };
 
-  const handleRaisedBeforeChange = (value: string, key: string) => {
+  const handleRaisedBeforeChange = (value: string) => {
     setRaisedBefore(value);
-    console.log('Raised before changed:', { value, key });
   };
 
   return (
