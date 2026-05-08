@@ -55,6 +55,12 @@ import {
 } from 'react';
 import { usePathname } from 'next/navigation';
 import { reportError } from '@/lib/error-reporting';
+import {
+  classifyOpenfortOAuthCallback,
+  clearOpenfortLogoutInProgress,
+  markOpenfortLogoutInProgress,
+  sanitizeOpenfortOAuthCallbackUrl,
+} from '@/lib/openfort-oauth-state';
 
 type AppSessionStatus =
   | 'idle'
@@ -710,6 +716,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     setStatus('loading');
     setError(null);
+    markOpenfortLogoutInProgress();
 
     await Promise.allSettled([
       logoutBackendSession().catch(() => undefined),
@@ -778,7 +785,20 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   // done when bootstrapSession runs and overwrites the plan.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!window.location.search.includes('openfortAuthProviderUI')) return;
+
+    const callbackState = classifyOpenfortOAuthCallback();
+
+    if (callbackState === 'stale_oauth_params') {
+      sanitizeOpenfortOAuthCallbackUrl();
+      clearOpenfortLogoutInProgress();
+      clearSession();
+      setStatus('unauthenticated');
+      closeOpenfortModal();
+      return;
+    }
+
+    if (callbackState !== 'oauth_login_callback') return;
+
     setStepPlan([
       'signing_in',
       'checking_account',
@@ -787,9 +807,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       'connecting_wallet',
     ]);
     startStep('signing_in');
-    // Eagerly close the Openfort modal too — defensive, since the SDK reopens
-    // it on URL detection. Our bootstrap useEffect would do this once
-    // isAuthenticated flips, but doing it here closes the gap.
     closeOpenfortModal();
     // Mount-only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -811,10 +828,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
 
     if (!isAuthenticated || !openfortUserId) {
+      clearOpenfortLogoutInProgress();
       clearSession();
       setStatus('unauthenticated');
       return;
     }
+
+    clearOpenfortLogoutInProgress();
 
     const bootstrapAttemptKey = `${openfortUserId}:${retryCount}`;
 
