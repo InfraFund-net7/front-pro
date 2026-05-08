@@ -58,8 +58,46 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { reportError } from '@/lib/error-reporting';
+
+const OPENFORT_CALLBACK_PARAMS = [
+  'openfortAuthProviderUI',
+  'access_token',
+  'user_id',
+  'error',
+] as const;
+
+function stripOpenfortCallbackParams() {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  let mutated = false;
+  for (const key of OPENFORT_CALLBACK_PARAMS) {
+    if (url.searchParams.has(key)) {
+      url.searchParams.delete(key);
+      mutated = true;
+    }
+  }
+  if (mutated) {
+    window.history.replaceState({}, document.title, url.toString());
+  }
+}
+
+// Hard-navigate to the public landing page. Using window.location.assign
+// (instead of router.replace) forces a full document reload, which is the
+// canonical Openfort disconnect pattern (see docs: useSignOut + onSignOutSuccess
+// → window.location.href = "/"). Soft navigation leaves OpenfortProvider and
+// ConnectModal mounted, so any leftover OAuth callback params or in-memory
+// SDK state can re-arm the auth flow before the next mount.
+function hardNavigateToRoot() {
+  if (typeof window === 'undefined') return;
+  stripOpenfortCallbackParams();
+  if (window.location.pathname === '/') {
+    window.location.reload();
+  } else {
+    window.location.assign('/');
+  }
+}
 
 type AppSessionStatus =
   | 'idle'
@@ -224,13 +262,23 @@ function clearOnboardingDraft() {
 }
 
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
+  // We call logout() from useOpenfortCore (not useSignOut) because the latter
+  // dispatches logout() without awaiting it (see SDK source for useSignOut),
+  // so its returned promise resolves before openfort.auth.logout() actually
+  // clears the SDK's storage. We need to fully await the clear before doing
+  // the hard reload, otherwise OpenfortProvider re-mounts from still-populated
+  // storage and the user gets bounced straight back through the auth flow.
   const { logout: openfortLogout } = useOpenfortCore();
-  const { close: closeOpenfortModal, setIsOpen: setOpenfortModalOpen } =
-    useUI();
+  const { close: closeOpenfortModal } = useUI();
   const { create, wallets } = useEthereumEmbeddedWallet();
   const openfortUserId = user?.id ?? null;
+  // Set when any disconnect path starts so the secondary "signedOut" useEffect
+  // does not double-fire its own backend revocation + navigation. Both
+  // entry points (avatar-menu logout, Openfort built-in modal disconnect)
+  // ultimately drop isAuthenticated, but only the entry point that ran
+  // first should drive the cleanup + hard reload.
+  const logoutInProgressRef = useRef(false);
   const [status, setStatus] = useState<AppSessionStatus>('idle');
   const [backendAccessToken, setBackendAccessToken] = useState<string | null>(
     null
@@ -351,16 +399,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, [clearProgress]);
 
   const cancelAuthFlow = useCallback(async () => {
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
     clearSession();
     setStatus('loading');
 
-    await Promise.allSettled([
-      logoutBackendSession().catch(() => undefined),
-      openfortLogout().catch(() => undefined),
-    ]);
+    await logoutBackendSession().catch(() => undefined);
+    await openfortLogout().catch(() => undefined);
 
-    clearSession();
-    setStatus('unauthenticated');
+    hardNavigateToRoot();
   }, [clearSession, openfortLogout]);
 
   const commitUserFacingError = useCallback((raw: string) => {
@@ -714,32 +761,32 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     await cancelAuthFlow();
   }, [cancelAuthFlow]);
 
+  // Disconnect convergence point: both the avatar-menu Disconnect button and
+  // the Openfort built-in modal Disconnect end up here (the latter via the
+  // secondary "signedOut" useEffect below). We fully await the Openfort
+  // logout so the SDK clears its storage before hard-navigating; otherwise
+  // OpenfortProvider re-mounts from still-populated storage on reload and
+  // auto-restores the auth state, which kicks off the bootstrap flow.
+  //
+  // We do NOT touch React state (clearSession / setStatus) before awaiting,
+  // because state changes trigger re-renders and the bootstrap useEffect can
+  // re-fire mid-await (isAuthenticated is still true until openfortLogout
+  // synchronously resets the SDK store), seeding the 5-step modal which
+  // would flash for ~100ms before hardNavigateToRoot reloads. The
+  // logoutInProgressRef guard on the bootstrap useEffect already covers
+  // that race, but keeping React state untouched here is the cleanest
+  // belt-and-suspenders.
   const logout = useCallback(async () => {
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      ['openfortAuthProviderUI', 'access_token', 'user_id', 'error'].forEach(
-        (key) => {
-          url.searchParams.delete(key);
-        }
-      );
-      window.history.replaceState({}, document.title, url.toString());
-    }
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
 
-    setOpenfortModalOpen(false);
     closeOpenfortModal();
-    clearSession();
-    setStatus('unauthenticated');
-    router.replace('/');
 
     await logoutBackendSession().catch(() => undefined);
     await openfortLogout().catch(() => undefined);
-  }, [
-    clearSession,
-    closeOpenfortModal,
-    openfortLogout,
-    router,
-    setOpenfortModalOpen,
-  ]);
+
+    hardNavigateToRoot();
+  }, [closeOpenfortModal, openfortLogout]);
 
   const deleteAccount = useCallback(async () => {
     setStatus('loading');
@@ -760,13 +807,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    await Promise.allSettled([
-      logoutBackendSession().catch(() => undefined),
-      openfortLogout().catch(() => undefined),
-    ]);
-
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
     clearSession();
     setStatus('unauthenticated');
+
+    await logoutBackendSession().catch(() => undefined);
+    await openfortLogout().catch(() => undefined);
+
+    hardNavigateToRoot();
   }, [
     backendAccessToken,
     baseReportExtras,
@@ -819,6 +868,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   // per (user, retryCount) pair, even when the effect re-fires because a
   // callback was recreated due to dependency changes mid-flow.
   useEffect(() => {
+    // Don't run any bootstrap work while a disconnect is in flight. logout()
+    // calls clearSession() (which resets bootstrapAttemptKeyRef) and
+    // setStatus('unauthenticated') BEFORE awaiting openfortLogout, so for the
+    // brief window where openfortLogout's async storage clear is still pending,
+    // isAuthenticated is still true and the deduplication key is null — without
+    // this guard the bootstrap useEffect would re-fire and seed the 5-step
+    // modal, which then flashes for ~100ms before the hard reload.
+    if (logoutInProgressRef.current) return;
+
     if (isLoading) {
       setStatus((currentStatus) =>
         currentStatus === 'authenticated' ||
@@ -859,22 +917,33 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     retryCount,
   ]);
 
-  // Secondary driver: detect explicit sign-out. Openfort's own sign-out does
-  // not call our logout endpoint, so we must revoke the app session cookie here.
+  // Secondary driver: catch the Openfort built-in modal Disconnect path so it
+  // converges on the same exit state as the avatar-menu logout(). Openfort's
+  // own sign-out does not call our backend logout endpoint and does not strip
+  // OAuth callback params from the URL, so we own that cleanup here. We also
+  // re-await openfortLogout() (idempotent) to make sure storage is fully
+  // cleared before we hard-navigate; otherwise the SDK can re-hydrate from
+  // storage on the next mount and bounce the user back through bootstrap.
+  // The logoutInProgress ref prevents double-firing when the avatar-menu
+  // logout() ran first (it already does its own cleanup + navigation).
   useEffect(() => {
     const signedOut =
       previousAuthState.current && !isLoading && !isAuthenticated;
 
     previousAuthState.current = isAuthenticated;
 
-    if (!signedOut) {
-      return;
-    }
+    if (!signedOut) return;
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
 
     clearSession();
     setStatus('unauthenticated');
-    void logoutBackendSession().catch(() => undefined);
-  }, [clearSession, isAuthenticated, isLoading]);
+    void (async () => {
+      await logoutBackendSession().catch(() => undefined);
+      await openfortLogout().catch(() => undefined);
+      hardNavigateToRoot();
+    })();
+  }, [clearSession, isAuthenticated, isLoading, openfortLogout]);
 
   const value = useMemo<AuthSessionContextValue>(
     () => ({
