@@ -1,3 +1,7 @@
+Error: Your custom model "azure/gpt-5.4" appears to be an OpenAI model, but is configured with provider "generic-chat-completion-api". For GPT-5+, GPT-4o, o-series, and Codex models, use "provider": "openai" (Responses API). See https://docs.factory.ai/cli/byok/overview for details.
+
+---
+
 i just got this information - can you run an update.
 We’ve released Next.js versions 16.2.6 and 15.5.18 with important security fixes.
 
