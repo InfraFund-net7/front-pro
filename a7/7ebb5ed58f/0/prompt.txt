@@ -1,0 +1,15 @@
+Error: Your custom model "azure/gpt-5.4" appears to be an OpenAI model, but is configured with provider "generic-chat-completion-api". For GPT-5+, GPT-4o, o-series, and Codex models, use "provider": "openai" (Responses API). See https://docs.factory.ai/cli/byok/overview for details.
+
+---
+
+i just got this information - can you run an update.
+We’ve released Next.js versions 16.2.6 and 15.5.18 with important security fixes.
+
+These fixes address multiple vulnerabilities across high, moderate, and low severity, including one upstream React issue. We strongly recommend upgrading as soon as possible.
+once done , commit and push
+
+---
+
+github also reported quite a few high - med security issues 
+https://github.com/InfraFund-net7/front-pro/security/dependabot
+Looks like Axios definitely needs an update
