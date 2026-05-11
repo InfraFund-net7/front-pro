@@ -1,0 +1,58 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "88df0cea69ba",
+  "session_id": "99afbfaf-da21-4fd1-8686-e7eb655589b6",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-11T11:36:11.767094175Z",
+  "branch": "gltf",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md",
+    "docs-dev/tasks/task-120-glTF-dashboard/task-120.1-glTF-dashboard-plan.md"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "7bdd4b496f28",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-11T11:36:11.761472148Z",
+    "agent_lines": 780,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 780,
+    "total_lines_changed": 780,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 711,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "data/3D/glTF-models-sources.md": 40,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-dashboard-briefing.md": 671
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1491,
+      "agent_lines_removed": 0
+    }
+  ]
+}
