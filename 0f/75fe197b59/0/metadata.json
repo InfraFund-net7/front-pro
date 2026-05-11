@@ -1,0 +1,114 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "0f75fe197b59",
+  "session_id": "62c8e9b1-a5c9-4901-b8b0-bf1625cf8316",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-11T15:30:56.095396965Z",
+  "branch": "gltf",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "DESIGN.md"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "ee3f72b2a249",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-11T15:30:56.073495736Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 880,
+    "human_modified": 347,
+    "human_removed": 0,
+    "total_committed": 880,
+    "total_lines_changed": 1227,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 857,
+      "user_lines_removed": 20,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "CLAUDE.md": 7,
+        "DESIGN.md": 121,
+        "data/3D/glTF-models-sources.md": 40,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-dashboard-briefing.md": 669,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md": 20
+      },
+      "user_removed_per_file": {
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md": 20
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 857,
+      "agent_lines_removed": 20
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 397,
+      "user_lines_removed": 107,
+      "agent_lines_added": 857,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        "DESIGN.md": 397
+      },
+      "user_removed_per_file": {
+        "DESIGN.md": 107
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1134,
+      "agent_lines_removed": 20
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1134,
+      "agent_lines_removed": 20
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 631,
+      "user_lines_removed": 240,
+      "agent_lines_added": 1134,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        ".claude/skills/design/SKILL.md": 199,
+        "DESIGN.md": 432
+      },
+      "user_removed_per_file": {
+        "DESIGN.md": 240
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 199,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1326,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        ".claude/skills/design/SKILL.md": 199
+      }
+    }
+  ]
+}
