@@ -1,0 +1,66 @@
+I have installed the figma MCP. Also previous I also derived some guideline from the figma file `Infrafund-local` and stored it here :
+- `DESIGN.md`
+- `.claude/skills/design/SKILL.md`
+we want to implement the `dashboard` page for the role `contractor`
+Actually for demo and debugging , would it be possible to add a drop down to the left of the openfort buttin in the header, so that a user can take on different roles. It should not mess up our whole authentication system, if it is an invasive feature then I do not want it and rather create 4 different accounts with the 4 different roles.
+
+Can you access the dashboard page for a 'contractor' role : https://www.figma.com/design/Zq04RInLJpyFTA83nEdO4y/InfraFund-local?node-id=25140-14114&m=dev
+
+---
+
+ok, try again. I have remove all MCP tools for now, except the figma ones
+
+---
+
+lets skip the role switcher for now. 
+I also saw that you have a `create_design_system_rules` , `get_design_context` , and maybe other ones. Would that help to create a better and reusable design system than what we have currently in 
+- `DESIGN.md`
+- `.claude/skills/design/SKILL.md`
+
+---
+
+that sounds great - do it !
+
+---
+
+cab we disable the `markdownlint-cli` rule `line-length`
+
+---
+
+actually you can undo the last changes regarding line length
+
+---
+
+ok, good. The previous rules claimed to be the general design system for the whole project.
+Did we now base the update to the design system only on the single page for the contractor dashboard ?
+If yes, how can we get a consistent design system for the whole project.
+Also, important : the figma design has priority. There are pages already inplemented here in this repo, but the might slightly or even dramatically be different from the figma design. We do not want to use the currently implemented pages as guidance, figma will be the only source of truth, and we may need later (not in this session) go over the currently already implemented pages and refresh to to fully align with the figma design.
+
+---
+
+yws, please do that
+
+---
+
+ok, continue , i fixed the figma MCP access error, when fully done commit and push the `DESIGN.md` and `SKILL.md` files
+
+---
+
+try again
+
+---
+
+do not osuh
+
+---
+
+only commit , do not push !
+
+---
+
+does it actually make sense to have these 2 separate files ?
+is one more the general design skill and the other specific to Infrafund ?
+
+---
+
+yes, do it , then commit.

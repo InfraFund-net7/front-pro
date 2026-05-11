@@ -1,0 +1,65 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "09c816a4471c",
+  "session_id": "62c8e9b1-a5c9-4901-b8b0-bf1625cf8316",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-11T15:45:35.90105307Z",
+  "branch": "gltf",
+  "checkpoints_count": 4,
+  "files_touched": [],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "be2bb7df5c53",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 9
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 709,
+      "user_lines_removed": 0,
+      "agent_lines_added": 27,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        "data/3D/glTF-models-sources.md": 40,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-dashboard-briefing.md": 669
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 709,
+      "user_lines_removed": 0,
+      "agent_lines_added": 27,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        "data/3D/glTF-models-sources.md": 40,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-dashboard-briefing.md": 669
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 709,
+      "user_lines_removed": 0,
+      "agent_lines_added": 27,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        "data/3D/glTF-models-sources.md": 40,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-dashboard-briefing.md": 669
+      }
+    }
+  ]
+}
