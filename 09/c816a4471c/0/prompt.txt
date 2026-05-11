@@ -64,3 +64,7 @@ is one more the general design skill and the other specific to Infrafund ?
 ---
 
 yes, do it , then commit.
+
+---
+
+any idea why this error was triggert, can you maybe rephrase your request ?
