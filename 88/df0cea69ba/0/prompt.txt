@@ -1,3 +1,1 @@
-read the bried in @/home/sum/DEV/ETH/InfraFund/front-pro/docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-dashboard-briefing.md and make a high level plan write it into `task-120.1-glTF-dashboard-plan.md` Ask me anything which may need further clarification, however as I have also limited knowdledge of `glTF` and the rendering pipleline, I trust you to reasearch it or make suggestions based on your internal knowledge.
-
-We do not have to deal with the actual construction of the glTF file as that will be provided, bit we should create a separate file with all the guidance needed for a provider of a data model, write into `task-120.0-glTF-data-model-provider-guidance.md`
+commit and push both files you have created to the current branch, which should be `gltf`
