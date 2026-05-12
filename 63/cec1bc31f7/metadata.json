@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "63cec1bc31f7",
+  "strategy": "manual-commit",
+  "branch": "gltf",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs-dev/resources/sitemap/README.md",
+    "docs-dev/resources/sitemap/admin-panel.md",
+    "docs-dev/resources/sitemap/advanced-optional.md",
+    "docs-dev/resources/sitemap/auth-access.md",
+    "docs-dev/resources/sitemap/client-flow.md",
+    "docs-dev/resources/sitemap/dao.md",
+    "docs-dev/resources/sitemap/gc.md",
+    "docs-dev/resources/sitemap/investor-flow.md",
+    "docs-dev/resources/sitemap/settings.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/63/cec1bc31f7/0/metadata.json",
+      "transcript": "/63/cec1bc31f7/0/full.jsonl",
+      "content_hash": "/63/cec1bc31f7/0/content_hash.txt",
+      "prompt": "/63/cec1bc31f7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "63cec1bc31f7",
+  "session_id": "74ff7652-8400-42fb-982f-0718862a6941",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-12T05:00:03.312051613Z",
+  "branch": "gltf",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs-dev/resources/sitemap/README.md",
+    "docs-dev/resources/sitemap/admin-panel.md",
+    "docs-dev/resources/sitemap/advanced-optional.md",
+    "docs-dev/resources/sitemap/auth-access.md",
+    "docs-dev/resources/sitemap/client-flow.md",
+    "docs-dev/resources/sitemap/dao.md",
+    "docs-dev/resources/sitemap/gc.md",
+    "docs-dev/resources/sitemap/investor-flow.md",
+    "docs-dev/resources/sitemap/settings.md"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "c11fe98c832e",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-12T05:00:03.301656198Z",
+    "agent_lines": 133,
+    "agent_removed": 0,
+    "human_added": 7,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 140,
+    "total_lines_changed": 140,
+    "agent_percentage": 95,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 736,
+      "user_lines_removed": 20,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "CLAUDE.md": 7,
+        "data/3D/glTF-models-sources.md": 40,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-dashboard-briefing.md": 669,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md": 20
+      },
+      "user_removed_per_file": {
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md": 20
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 10,
+      "user_lines_removed": 1,
+      "agent_lines_added": 869,
+      "agent_lines_removed": 20,
+      "user_added_per_file": {
+        "CLAUDE.md": 10
+      },
+      "user_removed_per_file": {
+        "CLAUDE.md": 1
+      }
+    }
+  ]
+}
