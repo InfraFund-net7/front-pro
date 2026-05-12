@@ -1,0 +1,15 @@
+great work ! Make it version v1.2.1 , create release notes, commit and push it
+
+---
+
+ok, looks like it all working fine. 
+- what do we need to tell the model provider what he has to do so that we can assign an individual status to components of the model and can implement the vision we have to visualize the construction status directly as shown/hidden/colored elements ?
+- would you be able to modify either of the 2 models we have to support this ? The simpler model is in a `glb` format which apparently has the `gltf` json and the bin file all in one. Maybe you would have to unpack that first to be able to mofify the json separately ?
+
+---
+
+create a PR and then request a review from copilot
+
+---
+
+ok, merge into develop branch, keep the gltf branch
