@@ -32,10 +32,10 @@ const digitalTwinProjects: Record<string, DigitalTwinProject> = {
     title: 'Cornwall Wind turbine Pilot #1',
     statusLabel: 'Operational',
     mode: 'operational',
-    modelUrl: '/models/digital-twin/wind-turbine/Wind-turbine.glb',
-    modelFormat: 'glb',
+    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf',
+    modelFormat: 'gltf',
     modelNotes:
-      'This GLB is suitable for MVP rendering, but currently appears to be one merged mesh without stable per-element IDs.',
+      'This derived glTF exposes manual component nodes for tower, generator house, and rotor blades so the viewer can move off the merged GLB asset.',
     // TODO: replace generated operational metrics with database-backed sensor readings.
     energyMetrics: [
       { label: 'Past day', value: '8.4 MWh', helper: '+6.2% vs previous day' },
@@ -53,11 +53,42 @@ const digitalTwinProjects: Record<string, DigitalTwinProject> = {
     title: 'Cornwall Wind turbine Pilot #2',
     statusLabel: 'Construction',
     mode: 'construction',
-    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 2.gltf',
+    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf',
     modelFormat: 'gltf',
     modelNotes:
-      'This glTF has multiple nodes and meshes, but names are generic or duplicated and need stable provider IDs before robust status mapping.',
+      'This derived glTF exposes manual component nodes for tower, generator house, and rotor blades for construction-stage status mapping.',
     // TODO: replace local milestone state with persisted construction status data.
+    milestones: [
+      {
+        id: 'concrete-foundation',
+        label: 'concrete foundation',
+        completed: true,
+      },
+      {
+        id: 'tower-lower-sections',
+        label: 'tower lower sections',
+        completed: true,
+      },
+      {
+        id: 'tower-higher-section',
+        label: 'tower higher section',
+        completed: false,
+      },
+      { id: 'generator', label: 'generator', completed: false },
+      { id: 'blade-1', label: 'blade 1', completed: false },
+      { id: 'blade-2', label: 'blade 2', completed: false },
+      { id: 'blade-3', label: 'blade 3', completed: false },
+    ],
+  },
+  '3': {
+    id: '3',
+    title: 'Cornwall Wind turbine Pilot #3',
+    statusLabel: 'Construction',
+    mode: 'construction',
+    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf',
+    modelFormat: 'gltf',
+    modelNotes:
+      'This derived glTF exposes manual component nodes for tower, generator house, and rotor blades for construction-stage status mapping.',
     milestones: [
       {
         id: 'concrete-foundation',
