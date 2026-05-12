@@ -58,6 +58,7 @@ Layered top-down, dependencies flow downward only:
 ### Auth model
 
 Two-layer auth:
+
 - **Openfort** issues identity (email/SMS OTP, social, etc.) and owns wallets. Server verifies the Openfort access token at `/api/v1/auth/openfort/exchange` and `/check`.
 - **App session** is issued by this app: short-lived JWT access token + httpOnly refresh cookie. `/refresh` rotates, `/logout` revokes the row in `sessions`. Lockouts and audit logs gate repeated failures.
 
@@ -86,3 +87,18 @@ PostgreSQL via Prisma 7 with the `pg` adapter. Schema lives in `prisma/schema.pr
 ## Definition of Done (per CONTRIBUTING.md)
 
 PRs require: green CI (lint/build/deps), tests for new logic, no coverage regression, SAST clean, self-review, peer review, then Tech Lead (Homayoun) approval before merge. Sven is auto-notified post-merge. The default branch for PRs is `develop`.
+
+## Resources
+
+### Sitemap (from figma)
+
+directory : `docs-dev/resources/sitemap`
+
+### Design
+
+Design guidelines can be found here :
+
+- `DESIGN.md`
+- `.claude/skills/design/SKILL.md`
+
+figma project : "Infrafund-local"
