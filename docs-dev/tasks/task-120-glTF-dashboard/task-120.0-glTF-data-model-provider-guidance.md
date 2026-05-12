@@ -116,12 +116,12 @@ Use this principle:
 
 Examples:
 
-| Project type | Trackable examples |
-| --- | --- |
-| Wind | Turbine, tower section, nacelle, blade set, foundation, transformer, access road segment, substation component |
-| Solar | Panel/string/block, inverter, combiner box, tracker row, foundation/pile group, substation component |
-| Geothermal | Well pad, well head, pipe segment, pump, separator, heat exchanger, turbine/generator, cooling component |
-| Buildings/support | Foundation, wall/section, floor/zone, window, door, roof segment, MEP component |
+| Project type      | Trackable examples                                                                                             |
+|-------------------|----------------------------------------------------------------------------------------------------------------|
+| Wind              | Turbine, tower section, nacelle, blade set, foundation, transformer, access road segment, substation component |
+| Solar             | Panel/string/block, inverter, combiner box, tracker row, foundation/pile group, substation component           |
+| Geothermal        | Well pad, well head, pipe segment, pump, separator, heat exchanger, turbine/generator, cooling component       |
+| Buildings/support | Foundation, wall/section, floor/zone, window, door, roof segment, MEP component                                |
 
 For early MVP delivery, grouping is acceptable if agreed upfront. For example, a solar plant may track a row or block instead of every individual panel.
 
@@ -131,20 +131,20 @@ The manifest is the bridge between the model and InfraFund's database. It should
 
 ### Required fields
 
-| Field | Required | Description |
-| --- | --- | --- |
-| `externalId` | Yes | Stable ID used in the glTF node/mesh name. Prefer IFC `GlobalId` or Revit `UniqueId`. |
-| `displayName` | Yes | Human-readable label for UI lists and selection panels. |
-| `category` | Yes | Element category, such as `turbine`, `foundation`, `window`, `solar_panel`, `inverter`. |
-| `modelNodeName` | Yes | Exact glTF node or mesh name that contains or equals the `externalId`. |
-| `trackable` | Yes | Boolean indicating whether the app should style/select this element. |
-| `parentExternalId` | No | Parent element or assembly ID. |
-| `level` | No | Level, floor, elevation band, or site layer. |
-| `zone` | No | Site area, construction zone, block, row, pad, or building zone. |
-| `system` | No | Electrical, civil, mechanical, structural, access, grid, etc. |
-| `constructionPackage` | No | Work package or contractor package. |
-| `defaultStatus` | No | Initial status if known. Example: `not_started`, `in_progress`, `installed`. |
-| `metadata` | No | Extra model/provider data as JSON. |
+| Field                 | Required | Description                                                                             |
+|-----------------------|----------|-----------------------------------------------------------------------------------------|
+| `externalId`          | Yes      | Stable ID used in the glTF node/mesh name. Prefer IFC `GlobalId` or Revit `UniqueId`.   |
+| `displayName`         | Yes      | Human-readable label for UI lists and selection panels.                                 |
+| `category`            | Yes      | Element category, such as `turbine`, `foundation`, `window`, `solar_panel`, `inverter`. |
+| `modelNodeName`       | Yes      | Exact glTF node or mesh name that contains or equals the `externalId`.                  |
+| `trackable`           | Yes      | Boolean indicating whether the app should style/select this element.                    |
+| `parentExternalId`    | No       | Parent element or assembly ID.                                                          |
+| `level`               | No       | Level, floor, elevation band, or site layer.                                            |
+| `zone`                | No       | Site area, construction zone, block, row, pad, or building zone.                        |
+| `system`              | No       | Electrical, civil, mechanical, structural, access, grid, etc.                           |
+| `constructionPackage` | No       | Work package or contractor package.                                                     |
+| `defaultStatus`       | No       | Initial status if known. Example: `not_started`, `in_progress`, `installed`.            |
+| `metadata`            | No       | Extra model/provider data as JSON.                                                      |
 
 ### Recommended JSON shape
 

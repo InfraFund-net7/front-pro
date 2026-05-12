@@ -3,6 +3,7 @@ import solarProject2 from '@/../public/assets/image/solar-project-2-1024w.webp';
 import wind from '@/../public/assets/image/wind-default-2000w.webp';
 import windProject2 from '@/../public/assets/image/wind-project-2-1024w.webp';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function DeveloperHome() {
   return (
@@ -97,7 +98,10 @@ export default function DeveloperHome() {
                       </span>
                     </div>
 
-                    <button className="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                    <Link
+                      href="/projects/1/digital-twin"
+                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
+                    >
                       <svg
                         className="w-5 h-5"
                         fill="currentColor"
@@ -106,7 +110,7 @@ export default function DeveloperHome() {
                         <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
                       </svg>
                       <span className="text-sm">View AI-Digital Twin</span>
-                    </button>
+                    </Link>
                   </div>
                 </div>
 
@@ -234,7 +238,10 @@ export default function DeveloperHome() {
                       </span>
                     </div>
 
-                    <button className="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                    <Link
+                      href="/projects/2/digital-twin"
+                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
+                    >
                       <svg
                         className="w-5 h-5"
                         fill="currentColor"
@@ -243,7 +250,7 @@ export default function DeveloperHome() {
                         <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
                       </svg>
                       <span className="text-sm">View AI-Digital Twin</span>
-                    </button>
+                    </Link>
                   </div>
                 </div>
 
