@@ -3,10 +3,21 @@
   "checkpoint_id": "dfd0a3bd88c1",
   "strategy": "manual-commit",
   "branch": "gltf",
-  "checkpoints_count": 4,
+  "checkpoints_count": 6,
   "files_touched": [
     "CLAUDE.md",
-    "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md"
+    "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md",
+    "package-lock.json",
+    "package.json",
+    "public/models/digital-twin/wind-turbine/Wind-turbine.glb",
+    "public/models/digital-twin/wind-turbine/Wind_Turbine 2.bin",
+    "public/models/digital-twin/wind-turbine/Wind_Turbine 2.gltf",
+    "src/app/projects/[id]/digital-twin/page.tsx",
+    "src/components/developer/developer-home.tsx",
+    "src/components/digital-twin/milestone-checklist.tsx",
+    "src/components/digital-twin/model-viewer.tsx",
+    "src/components/kyc/kyc-page.tsx",
+    "src/lib/digital-twin-projects.ts"
   ],
   "sessions": [
     {
@@ -20,6 +31,12 @@
       "transcript": "/df/d0a3bd88c1/1/full.jsonl",
       "content_hash": "/df/d0a3bd88c1/1/content_hash.txt",
       "prompt": "/df/d0a3bd88c1/1/prompt.txt"
+    },
+    {
+      "metadata": "/df/d0a3bd88c1/2/metadata.json",
+      "transcript": "/df/d0a3bd88c1/2/full.jsonl",
+      "content_hash": "/df/d0a3bd88c1/2/content_hash.txt",
+      "prompt": "/df/d0a3bd88c1/2/prompt.txt"
     }
   ],
   "token_usage": {

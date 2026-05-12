@@ -1,0 +1,25 @@
+we just updated the dashboard for developers `src/components/developer/developer-home.tsx and now want to create 2 detail pages for the project where we will render 3d IMAGES in  glTF format.
+We should have pages which later get a dynamic project-id, but for now we will just have id 1 and 2.
+On the dashboard the link with label "View AI-Digital Twin" shall link to the project detail page with the 3d rendering. 
+- "Cornwall Wind turbine Pilot #1" : porjectId = 1
+- "Cornwall Wind turbine Pilot #2" : projectId = 2
+Then we need a path to these project detail pages. For now we will just implement the "digital-twin" pages, so a pathe like '/projects/{id}/digital-twin' might suit
+For the 3d model we have `data/3D/wind-turbine/Wind-turbine.glb` for project 1 , and `data/3D/wind-turbine/Wind_Turbine 2.gltf` with `data/3D/wind-turbine/Wind_Turbine 2.bin` for project 2. For now we can hardwire this with a comment in the code so that we can find it easily later to update.
+@docs-dev/tasks/task-120-glTF-dashboard/task-120.1-glTF-dashboard-plan.md should contain all information how to implement the 3D rendering pipileline. For now we do not have a data source for the status (i.e. milestones for the project under construction) , but we should be prepared to accept that at a later point. Maybe the 3D model is not yet suited to implement this properly, let me know what the status of the 3d glTF image files is , how usable they are for our purpose.
+- Project 1 "Cornwall Wind turbine Pilot #1" which is "operational" should have lets say 4 box component showing generated energy of the past day , week , for the current month, past month. For now we can hard wire some numbers, but soon we want to get these number from a database. 
+- Project 2 "Cornwall Wind turbine Pilot #2" shall also have the rendered 3d model on top, but below a list of milestones, with a checkbox right alinged, which can be switched on/off to reflect "completed" or not status. The mile stones shall be :
+  - concrete foundation
+  - tower lower sections
+
+---
+
+- tower higher section
+ - generator 
+ - blade 1,2,3 (separate milestones)
+
+---
+
+that looks great, 
+- just remove the component "Model readiness note" from both project pages
+- remove the label "Construction milestones" from the construction page, change the label text "Build status checklist" "Construction Milestones"
+- remove the text "Orbit, pan, and zoom the turbine model. Element-level status overlays will plug into this viewer once stable model IDs are available." on both page types

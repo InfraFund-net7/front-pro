@@ -1,0 +1,89 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "dfd0a3bd88c1",
+  "session_id": "b6d9e70c-1432-4839-bd33-b2e8846303af",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-12T06:43:53.261154824Z",
+  "branch": "gltf",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CLAUDE.md",
+    "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md",
+    "package-lock.json",
+    "package.json",
+    "public/models/digital-twin/wind-turbine/Wind-turbine.glb",
+    "public/models/digital-twin/wind-turbine/Wind_Turbine 2.bin",
+    "public/models/digital-twin/wind-turbine/Wind_Turbine 2.gltf",
+    "src/app/projects/[id]/digital-twin/page.tsx",
+    "src/components/developer/developer-home.tsx",
+    "src/components/digital-twin/milestone-checklist.tsx",
+    "src/components/digital-twin/model-viewer.tsx",
+    "src/components/kyc/kyc-page.tsx",
+    "src/lib/digital-twin-projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "b9707afe7b69",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-12T06:43:53.252561981Z",
+    "agent_lines": 1098,
+    "agent_removed": 10,
+    "human_added": 41,
+    "human_modified": 26,
+    "human_removed": 0,
+    "total_committed": 1162,
+    "total_lines_changed": 1175,
+    "agent_percentage": 94.29787234042554,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 417,
+      "user_lines_removed": 20,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "CLAUDE.md": 16,
+        "data/3D/wind-turbine/Wind_Turbine 2.gltf": 381,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md": 20
+      },
+      "user_removed_per_file": {
+        "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md": 20
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1479,
+      "agent_lines_removed": 33
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 64,
+      "user_lines_removed": 3,
+      "agent_lines_added": 1467,
+      "agent_lines_removed": 33,
+      "user_added_per_file": {
+        "docs-dev/release-notes/v1.2.0-digital-twin-pages-with-glTF-3d-model.md": 61,
+        "package-lock.json": 2,
+        "package.json": 1
+      },
+      "user_removed_per_file": {
+        "package-lock.json": 2,
+        "package.json": 1
+      }
+    }
+  ]
+}
