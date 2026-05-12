@@ -10,6 +10,7 @@ import {
   ScanFace,
   MapPinHouse,
   History,
+  type LucideIcon,
 } from 'lucide-react';
 import { CustomButton } from '../ui/custom-button';
 import BasicSection from './basic-section-kyc';
@@ -41,7 +42,7 @@ const advancedDetails = [
 
 type DetailItem = {
   text: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
 };
 
 type KycCardProps = {
