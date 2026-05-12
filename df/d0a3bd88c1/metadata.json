@@ -3,7 +3,7 @@
   "checkpoint_id": "dfd0a3bd88c1",
   "strategy": "manual-commit",
   "branch": "gltf",
-  "checkpoints_count": 6,
+  "checkpoints_count": 7,
   "files_touched": [
     "CLAUDE.md",
     "docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md",
@@ -37,6 +37,12 @@
       "transcript": "/df/d0a3bd88c1/2/full.jsonl",
       "content_hash": "/df/d0a3bd88c1/2/content_hash.txt",
       "prompt": "/df/d0a3bd88c1/2/prompt.txt"
+    },
+    {
+      "metadata": "/df/d0a3bd88c1/3/metadata.json",
+      "transcript": "/df/d0a3bd88c1/3/full.jsonl",
+      "content_hash": "/df/d0a3bd88c1/3/content_hash.txt",
+      "prompt": "/df/d0a3bd88c1/3/prompt.txt"
     }
   ],
   "token_usage": {
