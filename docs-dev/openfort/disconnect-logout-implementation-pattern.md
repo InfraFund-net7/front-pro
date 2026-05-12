@@ -1,4 +1,4 @@
-<!-- cspell:words openfortAuthProviderUI Openfort openfort Penpal -->
+<!-- cspell:words openfortAuthProviderUI Openfort openfort Penpal iframe -->
 
 # Openfort Disconnect / Logout — Implementation Pattern
 
@@ -216,6 +216,80 @@ Net effect: a ~100 ms flash of the wrong UI right before the reload. Cosmetic bu
    ```
 
 2. Don't touch React state mid-disconnect. Move any state-clearing calls (`setStatus`, `clearSession`, etc.) **after** the awaits, or remove them entirely if you're hard-reloading anyway. Hard-reload throws away all React state, so there's no value in mutating it first.
+
+## Trap 5 — don't treat refresh restore like interactive login
+
+A browser refresh by an already signed-in user is not the same as an OAuth return or a fresh login. If your app has its own refresh cookie, use that as the first restore path and keep it quiet:
+
+1. Wait for Openfort identity to finish loading.
+2. If Openfort still has a user, try your backend refresh-cookie endpoint first.
+3. If the refresh cookie succeeds, load your backend profile and mark the app session authenticated immediately.
+4. Only fall back to Openfort token exchange / account check if the backend refresh cookie is absent or invalid.
+5. Only seed visible login/bootstrap progress UI for that fallback path, not for the refresh-cookie fast path.
+
+If you seed the login progress UI before trying the refresh cookie, every normal page refresh looks like a new login. If you also block rendering on wallet reconnect, a simple refresh can turn into a 10+ second black/loading screen.
+
+Good refresh flow:
+
+```ts
+const refreshed = await refreshBackendSession().catch(() => null);
+
+if (refreshed) {
+  const me = await getBackendMe(refreshed.access_token);
+  finalizeAuthenticatedSession(refreshed.access_token, me);
+  void reconnectWalletInBackground();
+  return;
+}
+
+// No app refresh cookie: now this is an interactive Openfort bootstrap.
+setStepPlan([...]);
+const openfortAccessToken = await getAccessToken();
+```
+
+## Trap 6 — embedded wallet reconnect is runtime state, not route auth
+
+Openfort auth and the embedded wallet connection have different lifetimes:
+
+- Openfort identity/auth can survive refresh via SDK storage.
+- Your backend app session can survive refresh via an HTTP-only refresh cookie.
+- The embedded wallet iframe/bridge is in-memory browser runtime state. A full page refresh tears down the React tree, Openfort provider, hidden iframe, Penpal bridge, and live wallet connection.
+
+With `connectOnLogin: false`, calling `create()` is still needed for returning users if the app needs wallet signing, because it reloads/reconnects the embedded wallet iframe. But reconnecting the wallet should not be a prerequisite for rendering normal authenticated pages that only need profile/session data.
+
+Recommended policy:
+
+- For first login, onboarding completion, or routes/actions that immediately require signing: await `create()` and show explicit progress/errors.
+- For refresh-cookie restore: render after backend session/profile restore, then start wallet reconnect in the background.
+- UI that displays the wallet should tolerate a temporary `Not connected` state and update when reconnect completes.
+- Log background reconnect failures for diagnostics, but do not downgrade the whole app session to `error` unless the current user action requires the wallet.
+
+## Trap 7 — preserve private deep links during transient restore states
+
+Route guards must distinguish between "not authenticated yet" and "confirmed unauthenticated". During refresh, auth state commonly passes through `idle` / `loading` before the refresh-cookie path finalizes. Redirecting private routes during those transient states causes deep links to be lost.
+
+Bad guard:
+
+```ts
+if (!isPublicRoute && status !== 'authenticated') {
+  router.replace('/');
+}
+```
+
+On `/projects/1/digital-twin`, this can produce:
+
+```text
+refresh private route → status loading → replace('/') → session restored → public-route authenticated guard → replace('/home')
+```
+
+Good guard:
+
+```ts
+if (!isPublicRoute && status === 'unauthenticated') {
+  router.replace('/');
+}
+```
+
+Keep private route content hidden behind a loading surface while auth is settling, but do not mutate the URL until the user is definitively logged out.
 
 ## The full pattern
 
