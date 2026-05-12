@@ -94,3 +94,7 @@ would it make sense to change `"format:cspell": "cspell",` in @package.json  to 
 ---
 
 do it
+
+---
+
+ok, commit and push
