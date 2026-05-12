@@ -28,7 +28,12 @@
 // because the embedded-wallet iframe is never loaded (connectOnLogin: false).
 
 import type { User } from '@openfort/openfort-js';
-import { RecoveryMethod, useSignOut, useUI, useUser } from '@openfort/react';
+import {
+  RecoveryMethod,
+  useOpenfortCore,
+  useUI,
+  useUser,
+} from '@openfort/react';
 import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
 import {
   checkOpenfortUser,
@@ -55,6 +60,44 @@ import {
 } from 'react';
 import { usePathname } from 'next/navigation';
 import { reportError } from '@/lib/error-reporting';
+
+const OPENFORT_CALLBACK_PARAMS = [
+  'openfortAuthProviderUI',
+  'access_token',
+  'user_id',
+  'error',
+] as const;
+
+function stripOpenfortCallbackParams() {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  let mutated = false;
+  for (const key of OPENFORT_CALLBACK_PARAMS) {
+    if (url.searchParams.has(key)) {
+      url.searchParams.delete(key);
+      mutated = true;
+    }
+  }
+  if (mutated) {
+    window.history.replaceState({}, document.title, url.toString());
+  }
+}
+
+// Hard-navigate to the public landing page. Using window.location.assign
+// (instead of router.replace) forces a full document reload, which is the
+// canonical Openfort disconnect pattern (see docs: useSignOut + onSignOutSuccess
+// → window.location.href = "/"). Soft navigation leaves OpenfortProvider and
+// ConnectModal mounted, so any leftover OAuth callback params or in-memory
+// SDK state can re-arm the auth flow before the next mount.
+function hardNavigateToRoot() {
+  if (typeof window === 'undefined') return;
+  stripOpenfortCallbackParams();
+  if (window.location.pathname === '/') {
+    window.location.reload();
+  } else {
+    window.location.assign('/');
+  }
+}
 
 type AppSessionStatus =
   | 'idle'
@@ -220,10 +263,22 @@ function clearOnboardingDraft() {
 
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
-  const { signOut } = useSignOut();
+  // We call logout() from useOpenfortCore (not useSignOut) because the latter
+  // dispatches logout() without awaiting it (see SDK source for useSignOut),
+  // so its returned promise resolves before openfort.auth.logout() actually
+  // clears the SDK's storage. We need to fully await the clear before doing
+  // the hard reload, otherwise OpenfortProvider re-mounts from still-populated
+  // storage and the user gets bounced straight back through the auth flow.
+  const { logout: openfortLogout } = useOpenfortCore();
   const { close: closeOpenfortModal } = useUI();
   const { create, wallets } = useEthereumEmbeddedWallet();
   const openfortUserId = user?.id ?? null;
+  // Set when any disconnect path starts so the secondary "signedOut" useEffect
+  // does not double-fire its own backend revocation + navigation. Both
+  // entry points (avatar-menu logout, Openfort built-in modal disconnect)
+  // ultimately drop isAuthenticated, but only the entry point that ran
+  // first should drive the cleanup + hard reload.
+  const logoutInProgressRef = useRef(false);
   const [status, setStatus] = useState<AppSessionStatus>('idle');
   const [backendAccessToken, setBackendAccessToken] = useState<string | null>(
     null
@@ -344,17 +399,16 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, [clearProgress]);
 
   const cancelAuthFlow = useCallback(async () => {
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
     clearSession();
     setStatus('loading');
 
-    await Promise.allSettled([
-      logoutBackendSession().catch(() => undefined),
-      signOut().catch(() => undefined),
-    ]);
+    await logoutBackendSession().catch(() => undefined);
+    await openfortLogout().catch(() => undefined);
 
-    clearSession();
-    setStatus('unauthenticated');
-  }, [clearSession, signOut]);
+    hardNavigateToRoot();
+  }, [clearSession, openfortLogout]);
 
   const commitUserFacingError = useCallback((raw: string) => {
     const userMessage = getUserFacingErrorMessage(raw);
@@ -407,6 +461,27 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   //                    connected] and cannot sign transactions. Skipping create()
   //                    when wallets.length > 0 was the original bug causing
   //                    returning users to see [Not connected] on every login.
+  const connectWallet = useCallback(async () => {
+    await create({
+      recoveryMethod: RecoveryMethod.AUTOMATIC,
+    });
+  }, [create]);
+
+  const reconnectWalletInBackground = useCallback(async () => {
+    try {
+      await connectWallet();
+    } catch (walletError) {
+      reportError(walletError, {
+        area: 'wallet',
+        tags: { stage: 'restore-background' },
+        extra: {
+          ...baseReportExtras(),
+          hasExistingWallet: wallets.length > 0,
+        },
+      });
+    }
+  }, [baseReportExtras, connectWallet, wallets.length]);
+
   const createWalletIfNeeded = useCallback(
     async (
       accessToken: string,
@@ -429,9 +504,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       startStep(walletStepId);
 
       try {
-        await create({
-          recoveryMethod: RecoveryMethod.AUTOMATIC,
-        });
+        await connectWallet();
         completeStep(walletStepId);
         finalizeAuthenticatedSession(accessToken, currentUser);
       } catch (walletError) {
@@ -453,7 +526,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       baseReportExtras,
       commitUserFacingError,
       completeStep,
-      create,
+      connectWallet,
       failStep,
       finalizeAuthenticatedSession,
       startStep,
@@ -481,59 +554,36 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setStatus('loading');
     setError(null);
 
-    // Single fixed-length plan covering the union of both returning-user
-    // sub-paths. The cookie short-circuit (Path 1) skips checking_account by
-    // marking it 'done' alongside signing_in. The exchange path (Path 2) walks
-    // through it normally. The list never grows or shrinks mid-flight.
-    setStepPlan([
-      'signing_in',
-      'checking_account',
-      'restoring_session',
-      'loading_profile',
-      'connecting_wallet',
-    ]);
-    completeStep('signing_in');
-
     try {
       // Path 1: try to restore an existing app session via the refresh cookie.
-      // This is the fast path for page reloads and returning sessions.
-      // The cookie attempt is silent (no UI change) — typically resolves in
-      // <50 ms. Showing a spinner for it would tick step 3 active before
-      // step 2, which looks out-of-order.
+      // This is the fast path for page reloads and returning sessions. Keep it
+      // silent: a normal browser refresh should not look like a fresh login.
       const refreshedSession = await refreshBackendSession().catch(() => null);
 
       if (refreshedSession) {
         try {
-          // Cookie path succeeded. Tick steps 2 and 3 in order: the cookie
-          // makes both 'checking_account' (we know who you are) and
-          // 'restoring_session' (your session is restored) effectively true.
-          completeStep('checking_account');
-          completeStep('restoring_session');
-          startStep('loading_profile');
           const me = await getBackendMe(refreshedSession.access_token);
-          completeStep('loading_profile');
-          // Route through createWalletIfNeeded (not finalizeAuthenticatedSession
-          // directly) so the embedded-wallet iframe is loaded and the wallet
-          // becomes usable for signing — even on session restore.
-          await createWalletIfNeeded(
-            refreshedSession.access_token,
-            me,
-            'connecting_wallet'
-          );
+          finalizeAuthenticatedSession(refreshedSession.access_token, me);
+          void reconnectWalletInBackground();
           return;
         } catch {
           // Refresh token was valid but user is inaccessible (e.g. soft-deleted).
-          // Clear the stale cookie and fall through to Openfort re-auth. Reset
-          // the steps we already ticked in the cookie branch so the exchange
-          // path can re-walk them in order.
+          // Clear the stale cookie and fall through to Openfort re-auth.
           await logoutBackendSession().catch(() => undefined);
-          updateStep('checking_account', { status: 'pending' });
-          updateStep('restoring_session', { status: 'pending' });
-          updateStep('loading_profile', { status: 'pending' });
         }
       }
 
       // Paths 2 & 3: no valid refresh cookie; re-authenticate via Openfort token.
+      // Only this path represents an interactive login/bootstrap, so this is
+      // where the visible 5-step progress modal starts.
+      setStepPlan([
+        'signing_in',
+        'checking_account',
+        'restoring_session',
+        'loading_profile',
+        'connecting_wallet',
+      ]);
+      completeStep('signing_in');
       startStep('checking_account');
       const openfortAccessToken = await getAccessToken();
 
@@ -606,12 +656,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     commitUserFacingError,
     completeStep,
     createWalletIfNeeded,
+    finalizeAuthenticatedSession,
     getAccessToken,
     hideProgress,
     openfortUserId,
+    reconnectWalletInBackground,
     setStepPlan,
     startStep,
-    updateStep,
   ]);
 
   // Called when the user submits the qualification questionnaire.
@@ -707,18 +758,32 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     await cancelAuthFlow();
   }, [cancelAuthFlow]);
 
+  // Disconnect convergence point: both the avatar-menu Disconnect button and
+  // the Openfort built-in modal Disconnect end up here (the latter via the
+  // secondary "signedOut" useEffect below). We fully await the Openfort
+  // logout so the SDK clears its storage before hard-navigating; otherwise
+  // OpenfortProvider re-mounts from still-populated storage on reload and
+  // auto-restores the auth state, which kicks off the bootstrap flow.
+  //
+  // We do NOT touch React state (clearSession / setStatus) before awaiting,
+  // because state changes trigger re-renders and the bootstrap useEffect can
+  // re-fire mid-await (isAuthenticated is still true until openfortLogout
+  // synchronously resets the SDK store), seeding the 5-step modal which
+  // would flash for ~100ms before hardNavigateToRoot reloads. The
+  // logoutInProgressRef guard on the bootstrap useEffect already covers
+  // that race, but keeping React state untouched here is the cleanest
+  // belt-and-suspenders.
   const logout = useCallback(async () => {
-    setStatus('loading');
-    setError(null);
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
 
-    await Promise.allSettled([
-      logoutBackendSession().catch(() => undefined),
-      signOut().catch(() => undefined),
-    ]);
+    closeOpenfortModal();
 
-    clearSession();
-    setStatus('unauthenticated');
-  }, [clearSession, signOut]);
+    await logoutBackendSession().catch(() => undefined);
+    await openfortLogout().catch(() => undefined);
+
+    hardNavigateToRoot();
+  }, [closeOpenfortModal, openfortLogout]);
 
   const deleteAccount = useCallback(async () => {
     setStatus('loading');
@@ -739,19 +804,21 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    await Promise.allSettled([
-      logoutBackendSession().catch(() => undefined),
-      signOut().catch(() => undefined),
-    ]);
-
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
     clearSession();
     setStatus('unauthenticated');
+
+    await logoutBackendSession().catch(() => undefined);
+    await openfortLogout().catch(() => undefined);
+
+    hardNavigateToRoot();
   }, [
     backendAccessToken,
     baseReportExtras,
     clearSession,
     commitUserFacingError,
-    signOut,
+    openfortLogout,
   ]);
 
   const retry = useCallback(() => {
@@ -779,6 +846,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!window.location.search.includes('openfortAuthProviderUI')) return;
+
     setStepPlan([
       'signing_in',
       'checking_account',
@@ -787,9 +855,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       'connecting_wallet',
     ]);
     startStep('signing_in');
-    // Eagerly close the Openfort modal too — defensive, since the SDK reopens
-    // it on URL detection. Our bootstrap useEffect would do this once
-    // isAuthenticated flips, but doing it here closes the gap.
     closeOpenfortModal();
     // Mount-only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -800,6 +865,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   // per (user, retryCount) pair, even when the effect re-fires because a
   // callback was recreated due to dependency changes mid-flow.
   useEffect(() => {
+    // Don't run any bootstrap work while a disconnect is in flight. logout()
+    // calls clearSession() (which resets bootstrapAttemptKeyRef) and
+    // setStatus('unauthenticated') BEFORE awaiting openfortLogout, so for the
+    // brief window where openfortLogout's async storage clear is still pending,
+    // isAuthenticated is still true and the deduplication key is null — without
+    // this guard the bootstrap useEffect would re-fire and seed the 5-step
+    // modal, which then flashes for ~100ms before the hard reload.
+    if (logoutInProgressRef.current) return;
+
     if (isLoading) {
       setStatus((currentStatus) =>
         currentStatus === 'authenticated' ||
@@ -840,22 +914,33 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     retryCount,
   ]);
 
-  // Secondary driver: detect explicit sign-out. Openfort's own sign-out does
-  // not call our logout endpoint, so we must revoke the app session cookie here.
+  // Secondary driver: catch the Openfort built-in modal Disconnect path so it
+  // converges on the same exit state as the avatar-menu logout(). Openfort's
+  // own sign-out does not call our backend logout endpoint and does not strip
+  // OAuth callback params from the URL, so we own that cleanup here. We also
+  // re-await openfortLogout() (idempotent) to make sure storage is fully
+  // cleared before we hard-navigate; otherwise the SDK can re-hydrate from
+  // storage on the next mount and bounce the user back through bootstrap.
+  // The logoutInProgress ref prevents double-firing when the avatar-menu
+  // logout() ran first (it already does its own cleanup + navigation).
   useEffect(() => {
     const signedOut =
       previousAuthState.current && !isLoading && !isAuthenticated;
 
     previousAuthState.current = isAuthenticated;
 
-    if (!signedOut) {
-      return;
-    }
+    if (!signedOut) return;
+    if (logoutInProgressRef.current) return;
+    logoutInProgressRef.current = true;
 
     clearSession();
     setStatus('unauthenticated');
-    void logoutBackendSession().catch(() => undefined);
-  }, [clearSession, isAuthenticated, isLoading]);
+    void (async () => {
+      await logoutBackendSession().catch(() => undefined);
+      await openfortLogout().catch(() => undefined);
+      hardNavigateToRoot();
+    })();
+  }, [clearSession, isAuthenticated, isLoading, openfortLogout]);
 
   const value = useMemo<AuthSessionContextValue>(
     () => ({

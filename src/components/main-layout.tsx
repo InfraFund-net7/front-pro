@@ -32,7 +32,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       return;
     }
 
-    if (status !== 'authenticated') {
+    if (status === 'unauthenticated') {
       router.replace('/');
     }
   }, [isOpenfortLoading, isPublicRoute, pathname, router, status]);
