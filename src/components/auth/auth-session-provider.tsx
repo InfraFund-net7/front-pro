@@ -461,6 +461,27 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   //                    connected] and cannot sign transactions. Skipping create()
   //                    when wallets.length > 0 was the original bug causing
   //                    returning users to see [Not connected] on every login.
+  const connectWallet = useCallback(async () => {
+    await create({
+      recoveryMethod: RecoveryMethod.AUTOMATIC,
+    });
+  }, [create]);
+
+  const reconnectWalletInBackground = useCallback(async () => {
+    try {
+      await connectWallet();
+    } catch (walletError) {
+      reportError(walletError, {
+        area: 'wallet',
+        tags: { stage: 'restore-background' },
+        extra: {
+          ...baseReportExtras(),
+          hasExistingWallet: wallets.length > 0,
+        },
+      });
+    }
+  }, [baseReportExtras, connectWallet, wallets.length]);
+
   const createWalletIfNeeded = useCallback(
     async (
       accessToken: string,
@@ -483,9 +504,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       startStep(walletStepId);
 
       try {
-        await create({
-          recoveryMethod: RecoveryMethod.AUTOMATIC,
-        });
+        await connectWallet();
         completeStep(walletStepId);
         finalizeAuthenticatedSession(accessToken, currentUser);
       } catch (walletError) {
@@ -507,7 +526,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       baseReportExtras,
       commitUserFacingError,
       completeStep,
-      create,
+      connectWallet,
       failStep,
       finalizeAuthenticatedSession,
       startStep,
@@ -535,59 +554,36 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setStatus('loading');
     setError(null);
 
-    // Single fixed-length plan covering the union of both returning-user
-    // sub-paths. The cookie short-circuit (Path 1) skips checking_account by
-    // marking it 'done' alongside signing_in. The exchange path (Path 2) walks
-    // through it normally. The list never grows or shrinks mid-flight.
-    setStepPlan([
-      'signing_in',
-      'checking_account',
-      'restoring_session',
-      'loading_profile',
-      'connecting_wallet',
-    ]);
-    completeStep('signing_in');
-
     try {
       // Path 1: try to restore an existing app session via the refresh cookie.
-      // This is the fast path for page reloads and returning sessions.
-      // The cookie attempt is silent (no UI change) — typically resolves in
-      // <50 ms. Showing a spinner for it would tick step 3 active before
-      // step 2, which looks out-of-order.
+      // This is the fast path for page reloads and returning sessions. Keep it
+      // silent: a normal browser refresh should not look like a fresh login.
       const refreshedSession = await refreshBackendSession().catch(() => null);
 
       if (refreshedSession) {
         try {
-          // Cookie path succeeded. Tick steps 2 and 3 in order: the cookie
-          // makes both 'checking_account' (we know who you are) and
-          // 'restoring_session' (your session is restored) effectively true.
-          completeStep('checking_account');
-          completeStep('restoring_session');
-          startStep('loading_profile');
           const me = await getBackendMe(refreshedSession.access_token);
-          completeStep('loading_profile');
-          // Route through createWalletIfNeeded (not finalizeAuthenticatedSession
-          // directly) so the embedded-wallet iframe is loaded and the wallet
-          // becomes usable for signing — even on session restore.
-          await createWalletIfNeeded(
-            refreshedSession.access_token,
-            me,
-            'connecting_wallet'
-          );
+          finalizeAuthenticatedSession(refreshedSession.access_token, me);
+          void reconnectWalletInBackground();
           return;
         } catch {
           // Refresh token was valid but user is inaccessible (e.g. soft-deleted).
-          // Clear the stale cookie and fall through to Openfort re-auth. Reset
-          // the steps we already ticked in the cookie branch so the exchange
-          // path can re-walk them in order.
+          // Clear the stale cookie and fall through to Openfort re-auth.
           await logoutBackendSession().catch(() => undefined);
-          updateStep('checking_account', { status: 'pending' });
-          updateStep('restoring_session', { status: 'pending' });
-          updateStep('loading_profile', { status: 'pending' });
         }
       }
 
       // Paths 2 & 3: no valid refresh cookie; re-authenticate via Openfort token.
+      // Only this path represents an interactive login/bootstrap, so this is
+      // where the visible 5-step progress modal starts.
+      setStepPlan([
+        'signing_in',
+        'checking_account',
+        'restoring_session',
+        'loading_profile',
+        'connecting_wallet',
+      ]);
+      completeStep('signing_in');
       startStep('checking_account');
       const openfortAccessToken = await getAccessToken();
 
@@ -660,12 +656,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     commitUserFacingError,
     completeStep,
     createWalletIfNeeded,
+    finalizeAuthenticatedSession,
     getAccessToken,
     hideProgress,
     openfortUserId,
+    reconnectWalletInBackground,
     setStepPlan,
     startStep,
-    updateStep,
   ]);
 
   // Called when the user submits the qualification questionnaire.
