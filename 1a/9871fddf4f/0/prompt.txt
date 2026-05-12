@@ -17,3 +17,7 @@ assign these images to the projects in the list depending if its a solar or wind
 
 - for "Cornwall Wind turbine Pilot #2" use image `./public/assets/image/wind-project-2-1024w.webp`
 - "rename "Cornwall Wind turbine Pilot" to "Cornwall Solar Farm " and use image `./public/assets/image/solar-project-2-1024w.webp`
+
+---
+
+commit and push with message "update dashboard project images", include the images used
