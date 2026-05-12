@@ -1,3 +1,4 @@
+<!-- cspell:words affordances subheaders WCAG -->
 ---
 name: infrafund-front-pro-design-system
 source_file: InfraFund-local
