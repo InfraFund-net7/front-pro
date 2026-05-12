@@ -1,0 +1,12 @@
+Use the figma MCP to access `Infrafund-local` and create a structured sitemap. We have various high level structures to define various topics and pages for certain user roles:
+- Auth & Access
+- Client Flow
+- Investor Flow
+- DAO
+- GC (General Contractor)
+- Admin Panel
+- Advanced / Optional 
+- Settings
+Maybe we want to have different files for each of them , to not make the individual files too big and do not have other stuff in there if we want to focus on a certain area.
+What would be the be way to represent this ?
+We should also copy figma IDs into the sitemap so that we can search for a specific page or functionality in the sitemap, then get the figma ID to pass that on as a reference when we actually want to implement the design into code.
