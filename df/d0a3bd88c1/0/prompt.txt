@@ -1,0 +1,23 @@
+Do we already have code to create a new project and get the data for it out of the database ?
+On the `explore-projects` page , is it all fake , hard coded data ?
+On the home page , there is a [Create New Project] button , but that does nothing, I assume we have no code yet to do that ?
+
+---
+
+we need to have some quick project pages for demo purpose , no time to create a database at the moment.
+- on the dashboard page (where we also have the button [Create New Project] we want 2 windfarm projects at the top. Just move the 2 from the bottom. 
+1) project 1 : Cornwall Wind turbine Pilot (Operational)  > rename to "Cornwall Wind turbine Pilot #1" and move to the top
+2) project 2 : Cornwall Wind turbine Pilot (Construction) > rename to "Cornwall Wind turbine Pilot #2" and move to 2nd place in the list.
+I have added images 
+- `./public/assets/image/solar-default-1024w.webp`
+- `./public/assets/image/wind-default-2000w.webp`
+assign these images to the projects in the list depending if its a solar or wind project
+
+---
+
+- for "Cornwall Wind turbine Pilot #2" use image `./public/assets/image/wind-project-2-1024w.webp`
+- "rename "Cornwall Wind turbine Pilot" to "Cornwall Solar Farm " and use image `./public/assets/image/solar-project-2-1024w.webp`
+
+---
+
+commit and push with message "update dashboard project images", include the images used
