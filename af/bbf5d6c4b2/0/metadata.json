@@ -1,0 +1,99 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "afbbf5d6c4b2",
+  "session_id": "c3d13828-4d3e-42e1-870a-c80a314f9d8d",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-12T11:15:23.160522889Z",
+  "branch": "develop",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "src/components/auth/auth-session-provider.tsx",
+    "src/components/main-layout.tsx"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "98a68201c59e",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 5
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-12T11:15:23.146168581Z",
+    "agent_lines": 0,
+    "agent_removed": 13,
+    "human_added": 98,
+    "human_modified": 35,
+    "human_removed": 0,
+    "total_committed": 126,
+    "total_lines_changed": 150,
+    "agent_percentage": 8.666666666666668,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 13,
+      "user_lines_removed": 31,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "src/components/auth/auth-session-provider.tsx": 13
+      },
+      "user_removed_per_file": {
+        "src/components/auth/auth-session-provider.tsx": 31
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 13,
+      "agent_lines_removed": 31
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 40,
+      "agent_lines_removed": 43
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 40,
+      "agent_lines_removed": 43
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 120,
+      "user_lines_removed": 4,
+      "agent_lines_added": 41,
+      "agent_lines_removed": 44,
+      "user_added_per_file": {
+        "docs-dev/openfort/disconnect-logout-implementation-pattern.md": 75,
+        "docs-dev/release-notes/v1.2.2-auth-refresh-route-preservation.md": 42,
+        "package-lock.json": 2,
+        "package.json": 1
+      },
+      "user_removed_per_file": {
+        "docs-dev/openfort/disconnect-logout-implementation-pattern.md": 1,
+        "package-lock.json": 2,
+        "package.json": 1
+      }
+    }
+  ]
+}
