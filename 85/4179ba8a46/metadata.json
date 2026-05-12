@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "854179ba8a46",
+  "strategy": "manual-commit",
+  "branch": "create-pre-sale-project",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "docs-dev/tasks/task-130-Project-Management/task-130.01-Create-Pre-Sale-Project.md",
+    "prisma/schema.prisma",
+    "src/app/api/v1/projects/[id]/milestones/route.ts",
+    "src/components/createproject/ApplicationForm.tsx",
+    "src/components/createproject/Charity.tsx",
+    "src/components/createproject/CreateProject.tsx",
+    "src/components/createproject/Debt.tsx",
+    "src/components/createproject/Equity.tsx",
+    "src/components/createproject/PreSale.tsx",
+    "src/components/createproject/crowdfunding-details.tsx",
+    "src/components/createproject/crowdfunding-symbol-section.tsx",
+    "src/components/createproject/personal-modal.tsx",
+    "src/components/sidebar.tsx",
+    "src/components/ui/MilestoneCard.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/server/repositories/projects.ts",
+    "src/server/services/projects.ts",
+    "src/server/validation/projects.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/85/4179ba8a46/0/metadata.json",
+      "transcript": "/85/4179ba8a46/0/full.jsonl",
+      "content_hash": "/85/4179ba8a46/0/content_hash.txt",
+      "prompt": "/85/4179ba8a46/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
