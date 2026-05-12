@@ -1,0 +1,14 @@
+Our available glTF model is `public/models/digital-twin/wind-turbine/Wind_Turbine 2.gltf`, but that is still one 
+   large mesh and does not have separate component. To not be blocked by this , it would be great if we could derive
+    a new file `public/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf` (anc copy corresponding `bin` file) and
+    "manually" create components : concrete base (not visible, not included in model yet), tower, generator house,  
+   rotor blades.
+can you do that ?
+
+---
+
+currently on page `/projects/1/digital-twin` we use another model, can we use this one now
+
+---
+
+on the "My Projects Dashboard" home page, can you make a copy of the project (component) "Cornwall Wind turbine Pilot #2" add it behind as #3 and also use the new model

@@ -1,0 +1,70 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "9a5fb3c3654d",
+  "session_id": "226de5af-b810-45b5-81d0-cdc1ceb8a9ba",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-12T14:16:48.210146355Z",
+  "branch": "create-pre-sale-project",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "public/models/digital-twin/wind-turbine/Wind_Turbine 1.bin",
+    "public/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf",
+    "src/components/developer/developer-home.tsx",
+    "src/lib/digital-twin-projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "5aaf730267e4",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-12T14:16:48.205172319Z",
+    "agent_lines": 388,
+    "agent_removed": 6,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 388,
+    "total_lines_changed": 394,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 209,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 212,
+      "agent_lines_removed": 3
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 388,
+      "agent_lines_removed": 6
+    }
+  ]
+}
