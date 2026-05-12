@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 
 import infrafund from '@/../public/assets/svg/infrafund.svg';
+import { useAuthSession } from '@/components/auth/auth-session-provider';
 
 interface NavigationItem {
   title: string;
@@ -38,7 +39,10 @@ interface AppSidebarProps {
   model?: 'client' | 'full';
 }
 
-function getNavigationItems(model: 'client' | 'full' = 'client') {
+function getNavigationItems(
+  model: 'client' | 'full' = 'client',
+  options: { canCreateProject: boolean } = { canCreateProject: false }
+) {
   const fullItems: NavigationItem[] = [
     { title: 'Home', url: '/home', icon: Home },
     { title: 'Create Project', url: '/create-project', icon: Rocket },
@@ -77,7 +81,7 @@ function getNavigationItems(model: 'client' | 'full' = 'client') {
       title: 'Create Project',
       url: '/create-project',
       icon: Rocket,
-      isDisabled: true,
+      isDisabled: !options.canCreateProject,
     },
     {
       title: 'Tokenization',
@@ -146,7 +150,10 @@ export default function AppSidebar({
   className = '',
   model = 'client',
 }: AppSidebarProps) {
-  const navigationItems = getNavigationItems(model);
+  const { backendUser } = useAuthSession();
+  const navigationItems = getNavigationItems(model, {
+    canCreateProject: backendUser?.role === 'project_owner',
+  });
 
   return (
     <div
