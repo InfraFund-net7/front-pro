@@ -2,26 +2,44 @@
 
 // cspell:words Cesium tileset
 import { useEffect, useRef, useState } from 'react';
-import type { Viewer as CesiumViewer } from 'cesium';
 
 type CesiumIonViewerProps = {
   assetId: number;
 };
 
+type CesiumViewer =
+  NonNullable<typeof window.Cesium> extends {
+    Viewer: new (...args: never[]) => infer Viewer;
+  }
+    ? Viewer
+    : never;
+
+type CesiumNamespace = NonNullable<typeof window.Cesium>;
+
 type ViewerState =
   | 'checking-token'
+  | 'loading-runtime'
   | 'loading'
   | 'ready'
   | 'missing-token'
   | 'token-rejected'
   | 'asset-access-error'
+  | 'runtime-error'
   | 'error';
 
 type IonPreflightResult =
   | { ok: true; warning?: string }
   | { ok: false; state: ViewerState; message: string };
 
+const CESIUM_VERSION = '1.141';
+const CESIUM_BASE_URL = `https://cesium.com/downloads/cesiumjs/releases/${CESIUM_VERSION}/Build/Cesium`;
+const CESIUM_SCRIPT_URL = `${CESIUM_BASE_URL}/Cesium.js`;
+const CESIUM_WIDGETS_CSS_URL = `${CESIUM_BASE_URL}/Widgets/widgets.css`;
 const CESIUM_ION_API_BASE_URL = 'https://api.cesium.com/v1';
+
+function getCesium() {
+  return window.Cesium;
+}
 
 function getTokenFormatWarning(accessToken: string) {
   if (/\s/.test(accessToken)) {
@@ -37,6 +55,66 @@ function getTokenFormatWarning(accessToken: string) {
   }
 
   return undefined;
+}
+
+function ensureCesiumStylesheet() {
+  if (document.querySelector(`link[href="${CESIUM_WIDGETS_CSS_URL}"]`)) {
+    return;
+  }
+
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = CESIUM_WIDGETS_CSS_URL;
+  document.head.appendChild(link);
+}
+
+function loadCesiumRuntime() {
+  const existingCesium = getCesium();
+
+  if (existingCesium) {
+    return Promise.resolve(existingCesium);
+  }
+
+  const existingScript = document.querySelector<HTMLScriptElement>(
+    `script[src="${CESIUM_SCRIPT_URL}"]`
+  );
+
+  if (existingScript?.dataset.loaded === 'true') {
+    const cesium = getCesium();
+
+    if (cesium) {
+      return Promise.resolve(cesium);
+    }
+  }
+
+  return new Promise<CesiumNamespace>((resolve, reject) => {
+    const script = existingScript ?? document.createElement('script');
+
+    function handleLoad() {
+      script.dataset.loaded = 'true';
+      const cesium = getCesium();
+
+      if (cesium) {
+        resolve(cesium);
+        return;
+      }
+
+      reject(new Error('Cesium loaded, but window.Cesium is unavailable.'));
+    }
+
+    function handleError() {
+      reject(new Error(`Failed to load CesiumJS from ${CESIUM_SCRIPT_URL}`));
+    }
+
+    script.addEventListener('load', handleLoad, { once: true });
+    script.addEventListener('error', handleError, { once: true });
+
+    if (!existingScript) {
+      script.async = true;
+      script.src = CESIUM_SCRIPT_URL;
+      document.head.appendChild(script);
+    }
+  });
 }
 
 async function preflightIonAsset(
@@ -84,6 +162,8 @@ function getStateTitle(viewerState: ViewerState) {
   switch (viewerState) {
     case 'checking-token':
       return 'Checking Cesium token...';
+    case 'loading-runtime':
+      return 'Loading Cesium runtime...';
     case 'loading':
       return 'Loading Cesium model...';
     case 'missing-token':
@@ -92,6 +172,8 @@ function getStateTitle(viewerState: ViewerState) {
       return 'Cesium token was rejected';
     case 'asset-access-error':
       return 'Cesium asset is not accessible';
+    case 'runtime-error':
+      return 'Cesium runtime failed to load';
     case 'error':
       return 'Cesium model failed to load';
     case 'ready':
@@ -103,16 +185,20 @@ function getDefaultStateMessage(viewerState: ViewerState) {
   switch (viewerState) {
     case 'checking-token':
       return 'Verifying that the token can access the configured Cesium Ion asset.';
+    case 'loading-runtime':
+      return 'Loading CesiumJS from the official Cesium CDN.';
     case 'loading':
       return 'Fetching terrain and the Ion 3D Tiles asset.';
     case 'missing-token':
       return 'Set NEXT_PUBLIC_CESIUM_ION_ACCESS_TOKEN in the deployment environment and redeploy.';
     case 'token-rejected':
-      return 'Check that the token is complete, enabled, and allowed to access this asset and Cesium World Terrain.';
+      return 'Check that the token is complete, enabled, allowed for this domain, and allowed to access this asset and Cesium World Terrain.';
     case 'asset-access-error':
       return 'Check the asset ID, token asset permissions, network access, and browser console details.';
+    case 'runtime-error':
+      return 'Check whether the browser or deployment policy is blocking cesium.com script or CSS resources.';
     case 'error':
-      return 'Check the Cesium Ion token, asset permissions, static Cesium assets, and network access.';
+      return 'Check the Cesium Ion token, asset permissions, Cesium CDN access, and network access.';
     case 'ready':
       return '';
   }
@@ -160,12 +246,19 @@ export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
         console.warn(preflight.warning);
       }
 
-      setViewerState('loading');
+      setViewerState('loading-runtime');
       setStateMessage(preflight.warning);
 
       try {
-        window.CESIUM_BASE_URL = '/cesium';
-        const Cesium = await import('cesium');
+        window.CESIUM_BASE_URL = CESIUM_BASE_URL;
+        ensureCesiumStylesheet();
+        const Cesium = await loadCesiumRuntime();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setViewerState('loading');
         Cesium.Ion.defaultAccessToken = cesiumAccessToken;
 
         const viewer = new Cesium.Viewer(containerRef.current!, {
@@ -197,7 +290,7 @@ export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
       } catch (error) {
         console.error('Failed to initialize Cesium digital twin viewer', error);
         if (isMounted) {
-          setViewerState('error');
+          setViewerState(getCesium() ? 'error' : 'runtime-error');
           setStateMessage(String(error));
         }
       }

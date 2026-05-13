@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "prebuild": "prisma generate && node scripts/prepare-cesium-assets.mjs",
+    "prebuild": "prisma generate",
     "build": "next build",
     "vercel-build": "node scripts/vercel-build.mjs",
     "start": "next start -p 3000",
@@ -46,7 +46,6 @@
     "@sentry/nextjs": "^10.50.0",
     "@tanstack/react-query": "^5.100.5",
     "@types/three": "^0.184.1",
-    "cesium": "^1.141.0",
     "clsx": "^2.1.1",
     "jose": "^6.2.3",
     "lucide-react": "^1.11.0",

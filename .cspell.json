@@ -186,8 +186,9 @@
     "recaptcha",
     "lokijs",
     "solana",
-    "turbopack"
+    "turbopack",
+    "Tileset"
   ],
-  "ignorePaths": ["node_modules", "build", ".next", "public/cesium"],
+  "ignorePaths": ["node_modules", "build", ".next"],
   "files": ["**/*.{js,jsx,ts,tsx,md}"]
 }
