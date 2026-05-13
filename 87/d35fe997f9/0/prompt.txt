@@ -1,0 +1,1 @@
+on path `/` we have the "Welcome to InfraFund" message. Can we have the current version and deployment short hash displayed below the [login/Register] button as well, like we have at the bottom of most popup and pages
