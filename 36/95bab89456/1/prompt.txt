@@ -1,0 +1,44 @@
+we need to separate the component of this glTF 3D model so that we can assign visibility and color individually to the components @data/3D/wind-turbine/Wind_Turbine 2.gltf 
+Write a new model file `data/3D/wind-turbine/Wind_Turbine 3.gltf". I think we can copy the `bin` file.
+Detailed instructions @docs-dev/tasks/task-120-glTF-dashboard/task-120.0-glTF-data-model-provider-guidance.md
+
+---
+
+previously we wired the components of another model to page `projects/3/digital-twin` , with the goal be be able to select the various milestones which in this case represent one component and show/hide them. Strangely it only worked for the `tower` component so I hope with the new `Wind_Turbine 3.gltf` it works, Can you update that page
+
+---
+
+great, that works !
+From the last session we had writtin a long document after we did not succeed : @docs-dev/tasks/task-120-glTF-dashboard/task-121-glTF-model-visibility.md`. Looks like you achieved it without even looking at it. Maybe worth a (whole) rewrite , just summarize the goal: initial test with hard wired component and milestone<1:1>component to test concept.
+
+## Phase 2 (mayebe even a new separate task - `docs-dev/tasks/task-120-glTF-dashboard/task-122-glTF-model-visibility-from-database.md`) : on the milestone page user can upload or select a model file (hardcoded to our new v3 model), then create milestone which map to one or more components. On the page glTf 3d render  page we would for now be able to update the status of each milestone into the database and render the image from the status of the milestone-component in the database.
+
+---
+
+in task-122 , cou can either reference the parent plan @docs-dev/tasks/task-120-glTF-dashboard/task-120.1-glTF-dashboard-plan.md  , or maybe even better , extract what you need so we have everything in tash-122 document
+
+---
+
+write some release notes into `docs-dev/release-notes/v1.2.3-digital-twin-rendering-component-state.md`
+
+rename task-122 to task-124
+
+comiit it all
+
+tag it with v1.2.4
+
+merge it into `develop` branch
+
+push it
+
+---
+
+try again
+
+---
+
+try again
+
+---
+
+continue, try again
