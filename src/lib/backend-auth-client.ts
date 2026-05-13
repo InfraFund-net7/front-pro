@@ -57,10 +57,21 @@ interface NonResidentCompanyPayload {
   country_id: number;
 }
 
+interface ProjectMilestoneComponentPayload {
+  id: string;
+  external_id: string;
+  display_name: string;
+  node_name: string | null;
+  category: string;
+  sort_order: number;
+  is_visible: boolean;
+}
+
 interface ProjectMilestonePayload {
   name: string;
   cost?: string;
   end_date?: string;
+  component_external_ids?: string[];
 }
 
 interface ProjectDocumentPayload {
@@ -107,12 +118,21 @@ export interface ProjectResponse {
     pledge_address: string | null;
   } | null;
   documents: Array<ProjectDocumentPayload & { id: string; kind: string }>;
+  digital_twin_model: {
+    id: string;
+    name: string;
+    asset_url: string;
+    format: string;
+    source: string;
+    components: ProjectMilestoneComponentPayload[];
+  } | null;
   milestones: Array<{
     id: string;
     name: string;
     cost: string | null;
     end_date: string | null;
     sort_order: number;
+    components: ProjectMilestoneComponentPayload[];
   }>;
 }
 

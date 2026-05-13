@@ -1,14 +1,23 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ConstructionMilestone } from '@/lib/digital-twin-projects';
 
 type MilestoneChecklistProps = {
   milestones: ConstructionMilestone[];
+  onChange?: (milestones: ConstructionMilestone[]) => void;
 };
 
-export function MilestoneChecklist({ milestones }: MilestoneChecklistProps) {
+export function MilestoneChecklist({
+  milestones,
+  onChange,
+}: MilestoneChecklistProps) {
   const [items, setItems] = useState(milestones);
+
+  useEffect(() => {
+    setItems(milestones);
+  }, [milestones]);
+
   const completedCount = useMemo(
     () => items.filter((item) => item.completed).length,
     [items]
@@ -42,31 +51,40 @@ export function MilestoneChecklist({ milestones }: MilestoneChecklistProps) {
         {items.map((item) => (
           <li
             key={item.id}
-            className="flex items-center justify-between gap-4 rounded-xl border border-card-border bg-[#0C0C0D]/45 px-4 py-3"
+            className="rounded-xl border border-card-border bg-[#0C0C0D]/45 px-4 py-3"
           >
-            <span
-              className={`text-sm capitalize ${
-                item.completed ? 'text-gray-100' : 'text-gray-400'
-              }`}
-            >
-              {item.label}
-            </span>
-            <input
-              type="checkbox"
-              checked={item.completed}
-              aria-label={`Mark ${item.label} complete`}
-              className="h-5 w-5 accent-primary"
-              onChange={(event) => {
-                const completed = event.target.checked;
-                setItems((currentItems) =>
-                  currentItems.map((currentItem) =>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <span
+                  className={`text-sm capitalize ${
+                    item.completed ? 'text-gray-100' : 'text-gray-400'
+                  }`}
+                >
+                  {item.label}
+                </span>
+                <span className="font-mono text-xs text-gray-500">
+                  {item.components
+                    .map((component) => component.displayName)
+                    .join(', ')}
+                </span>
+              </div>
+              <input
+                type="checkbox"
+                checked={item.completed}
+                aria-label={`Mark ${item.label} complete`}
+                className="h-5 w-5 accent-primary"
+                onChange={(event) => {
+                  const completed = event.target.checked;
+                  const nextItems = items.map((currentItem) =>
                     currentItem.id === item.id
                       ? { ...currentItem, completed }
                       : currentItem
-                  )
-                );
-              }}
-            />
+                  );
+                  setItems(nextItems);
+                  onChange?.(nextItems);
+                }}
+              />
+            </div>
           </li>
         ))}
       </ul>
