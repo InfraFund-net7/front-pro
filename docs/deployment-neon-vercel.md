@@ -85,7 +85,9 @@ If you prefer to provision Neon manually, create a project at
 
 Important:
 
-- Preview and Production can point to different databases if required
+- Neon calls the isolated database environments used by Vercel `branches`
+- with Neon Preview Branching enabled, Production points at the production branch and Preview deployments get their own isolated preview branch
+- if you manually set a shared `DATABASE_URL` for all Vercel environments, that can override isolation and make Preview migrations hit the wrong database
 - for the current working setup, Preview is the primary target environment
 - `prisma migrate deploy` will run against whichever `DATABASE_URL` is present for that environment
 
@@ -127,6 +129,8 @@ In **Vercel → Project Settings → Build & Development Settings**:
 
 - confirm **Build Command** is set to `npm run vercel-build`
 - leave the output directory blank unless your Vercel setup explicitly requires otherwise
+- if using the Neon-managed Vercel integration, enable **Branch-per-Preview** so each Preview deployment receives an isolated Neon branch
+- if the integration supports cleanup settings, enable automatic deletion of obsolete preview branches when the related PR/deployment is closed
 
 CLI verification:
 
@@ -160,6 +164,13 @@ This means:
 - a direct push to `develop` triggers Preview schema sync
 - a direct push to `main` triggers Production schema sync
 - a Vercel redeploy also re-runs the migration step
+
+If you use Neon Preview Branching, the safer long-term workflow is still:
+
+- open PRs for schema changes so each Preview deployment gets its own isolated Neon branch
+- validate migrations on that preview branch
+- merge to `main` for the production build to run migrations against the production branch
+- avoid relying on Vercel "Promote to Production" for schema-changing releases, because a fresh production build is the safer path
 
 ---
 
@@ -410,12 +421,22 @@ After resetting the database and redeploying:
 
 ### Separate Preview and Production databases
 
-Needs clarification: the current docs and UI behavior did not conclusively prove
-whether selecting both Preview and Production in the Neon/Vercel integration
-always yields separate persistent database instances by default.
+Neon/Vercel isolation is based on Neon branches, not separate physical database
+servers. With Preview Branching enabled:
 
-Until that is confirmed, the safest recommendation is:
+- Production uses the production Neon branch
+- Preview deployments can receive their own temporary Neon preview branch
+- closing the related PR or preview deployment can clean up the preview branch if cleanup is enabled
 
-- treat Preview and Production as needing explicit separation
-- prefer separate persistent Neon branches or databases for each environment
-- do not assume separation from the Vercel environment checkboxes alone
+The main operational risks are still:
+
+- assuming isolation without confirming Preview Branching is enabled
+- leaving a manually defined shared `DATABASE_URL` in Vercel that overrides the integration-managed value
+- treating Vercel "Promote to Production" as equivalent to a fresh production build after schema changes
+
+Safest recommendation:
+
+- confirm Preview Branching is enabled in the Neon/Vercel integration settings
+- verify which env vars the integration injects for Preview and Production
+- prefer separate persistent Neon branches or databases when you need stronger guarantees than ephemeral PR previews
+- use merge-to-`main` as the production path for schema-changing releases
