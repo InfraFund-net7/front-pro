@@ -25,9 +25,6 @@ const nextConfig: NextConfig = {
     ];
   },
   outputFileTracingRoot: projectRoot,
-  outputFileTracingIncludes: {
-    '/cesium/[...path]': ['./node_modules/cesium/Build/Cesium/**/*'],
-  },
   turbopack: {
     resolveAlias: {
       '@solana/kit': './src/lib/solana-kit-unavailable.ts',
