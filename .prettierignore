@@ -4,5 +4,4 @@ docker-compose.traefik.yml
 build
 .next
 node_modules
-public/cesium
 *.md
