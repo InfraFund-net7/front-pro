@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "prebuild": "prisma generate",
+    "prebuild": "prisma generate && node scripts/prepare-cesium-assets.mjs",
     "build": "next build",
     "vercel-build": "node scripts/vercel-build.mjs",
     "start": "next start -p 3000",

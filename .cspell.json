@@ -188,6 +188,6 @@
     "solana",
     "turbopack"
   ],
-  "ignorePaths": ["node_modules", "build", ".next"],
+  "ignorePaths": ["node_modules", "build", ".next", "public/cesium"],
   "files": ["**/*.{js,jsx,ts,tsx,md}"]
 }
