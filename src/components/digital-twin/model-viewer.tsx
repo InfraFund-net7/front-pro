@@ -16,7 +16,6 @@ import type { ConstructionMilestone } from '@/lib/digital-twin-projects';
 
 type DigitalTwinModelViewerProps = {
   modelUrl: string;
-  title: string;
   statusLabel: string;
   milestones?: ConstructionMilestone[];
 };
@@ -108,7 +107,6 @@ function LoadingModel() {
 
 export function DigitalTwinModelViewer({
   modelUrl,
-  title,
   statusLabel,
   milestones,
 }: DigitalTwinModelViewerProps) {
@@ -117,17 +115,6 @@ export function DigitalTwinModelViewer({
 
   return (
     <section className="overflow-hidden rounded-[28px] border border-card-border bg-card-bg shadow-2xl backdrop-blur-xl">
-      <div className="flex flex-col gap-1 border-b border-card-border px-6 py-5 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-primary">
-            AI-Digital Twin
-          </p>
-          <h1 className="chakra-petch mt-2 text-3xl font-bold text-white md:text-4xl">
-            {title}
-          </h1>
-        </div>
-      </div>
-
       <div
         className={`relative h-[520px] ${showGroundPlane ? 'bg-[#6f6f6f]' : 'bg-[#808080]'}`}
       >

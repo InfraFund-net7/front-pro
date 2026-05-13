@@ -3,6 +3,7 @@
 import { Bell, Headset } from 'lucide-react';
 import { OpenfortButton } from '@openfort/react';
 import { usePathname } from 'next/navigation';
+import { getDigitalTwinProject } from '@/lib/digital-twin-projects';
 import { AvatarMenu } from './header/avatar-menu';
 
 const routeTitles: Record<string, string> = {
@@ -21,9 +22,21 @@ const routeTitles: Record<string, string> = {
   '/account': 'Account',
 };
 
+function getPageTitle(pathname: string) {
+  const digitalTwinMatch = pathname.match(
+    /^\/projects\/([^/]+)\/digital-twin$/
+  );
+
+  if (digitalTwinMatch) {
+    return getDigitalTwinProject(digitalTwinMatch[1])?.title ?? 'Digital Twin';
+  }
+
+  return routeTitles[pathname] || 'Page';
+}
+
 export default function Header() {
   const pathname = usePathname();
-  const pageTitle = routeTitles[pathname] || 'Page';
+  const pageTitle = getPageTitle(pathname);
 
   return (
     <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">
