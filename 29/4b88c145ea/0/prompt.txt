@@ -1,0 +1,405 @@
+ok, commit and push it all
+
+---
+
+unfortunately we got an error, can you check vercel build log
+
+---
+
+i have connected the neon db within vercel to the project and vercel has automatically populated (i thing 14) environment varibales related to neon, including `DATABASE_URL` .
+Maybe I still need to select the nean db and do 'connect to this project' ?
+Can you check yourself using `vercel` CLI. Otherwise I could just do the connection and see if there is a change thereafter.
+
+---
+
+it asks me if I want "Create database branch for deployment"
+
+---
+
+I have the option to select / unselect , separately `preview` and/or `production`
+If i check any of them , would i get a new branch of the DB whenever I make  a new deployment ? 
+What would i do with all the branches , just roll back if needed, would i need to merge them like in git ?
+
+I also have currently selected under 'Environments' : "Production, Preview" , would that result in a joint DB for both or would I get separate DB instances for both anyway. What is the recommended setup for development (where I am ok to wipe the DB once in a while) vers production ?
+
+---
+
+ok, I will not select "Create database branch for deployment' for preview or production , because in most cases i want to build and maintain a dataset with test data even on the preview instance , and I do not want to populate the preview db each time again.
+However, I can not find an option to select one joint DB for preview/production or separate ones, but maybe the later is the default anyway? Can you check vercel docs ?
+
+---
+
+yes check it
+
+---
+
+ok, I will go with what i shared before and actually check if data shows up in production if I wrote it in preview, but for now I will use preview only.
+Update @docs/deployment-neon-vercel.md if needed and make a note at the end that separate DB instance for preview and production needs clarification.
+
+---
+
+see what I got when I clicked [Connect Project]
+"This project is already connected to the target store in one of the chosen environments"
+
+---
+
+ok, check again
+
+---
+
+you saw this - maybe the problem is that the DB is not empty ?
+```
+16:19:11.243 Running build in Washington, D.C., USA (East) – iad1
+16:19:11.243 Build machine configuration: 4 cores, 8 GB
+16:19:11.367 Cloning github.com/InfraFund-net7/front-pro (Branch: develop, Commit: b93c21b)
+16:19:12.043 Cloning completed: 676.000ms
+16:19:14.380 Restored build cache from previous deployment (8z466g2tauSgp1NJY2a29MrmuUXp)
+16:19:14.520 Running "case "$VERCEL_GIT_COMMIT_REF" in entire/*) echo 'Skipping Vercel build for Entire branch'; exit 0 ;; *) exit 1 ;; esac"
+16:19:14.641 Running "vercel build"
+16:19:15.391 Vercel CLI 53.3.2
+16:19:15.697 Installing dependencies...
+16:19:18.197 npm warn ERESOLVE overriding peer dependency
+16:19:18.198 npm warn While resolving: eslint-plugin-import@2.32.0
+16:19:18.198 npm warn Found: eslint@10.2.1
+16:19:18.199 npm warn node_modules/eslint
+16:19:18.199 npm warn   dev eslint@"^10.2.1" from the root project
+16:19:18.199 npm warn   9 more (@eslint-community/eslint-utils, ...)
+16:19:18.199 npm warn
+16:19:18.199 npm warn Could not resolve dependency:
+16:19:18.199 npm warn peer eslint@"^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9" from eslint-plugin-import@2.32.0
+16:19:18.199 npm warn node_modules/eslint-config-next/node_modules/eslint-plugin-import
+16:19:18.199 npm warn   eslint-plugin-import@"^2.32.0" from eslint-config-next@16.2.6
+16:19:18.199 npm warn   node_modules/eslint-config-next
+16:19:18.200 npm warn   1 more (eslint-import-resolver-typescript)
+16:19:18.200 npm warn
+16:19:18.200 npm warn Conflicting peer dependency: eslint@9.39.4
+16:19:18.200 npm warn node_modules/eslint
+16:19:18.200 npm warn   peer eslint@"^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9" from eslint-plugin-import@2.32.0
+16:19:18.200 npm warn   node_modules/eslint-config-next/node_modules/eslint-plugin-import
+16:19:18.201 npm warn     eslint-plugin-import@"^2.32.0" from eslint-config-next@16.2.6
+16:19:18.201 npm warn     node_modules/eslint-config-next
+16:19:18.201 npm warn     1 more (eslint-import-resolver-typescript)
+16:19:18.240 npm warn ERESOLVE overriding peer dependency
+16:19:18.241 npm warn While resolving: eslint-plugin-jsx-a11y@6.10.2
+16:19:18.241 npm warn Found: eslint@10.2.1
+16:19:18.241 npm warn node_modules/eslint
+16:19:18.241 npm warn   dev eslint@"^10.2.1" from the root project
+16:19:18.241 npm warn   9 more (@eslint-community/eslint-utils, ...)
+16:19:18.241 npm warn
+16:19:18.241 npm warn Could not resolve dependency:
+16:19:18.241 npm warn peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9" from eslint-plugin-jsx-a11y@6.10.2
+16:19:18.241 npm warn node_modules/eslint-config-next/node_modules/eslint-plugin-jsx-a11y
+16:19:18.241 npm warn   eslint-plugin-jsx-a11y@"^6.10.0" from eslint-config-next@16.2.6
+16:19:18.242 npm warn   node_modules/eslint-config-next
+16:19:18.242 npm warn
+16:19:18.242 npm warn Conflicting peer dependency: eslint@9.39.4
+16:19:18.242 npm warn node_modules/eslint
+16:19:18.242 npm warn   peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9" from eslint-plugin-jsx-a11y@6.10.2
+16:19:18.242 npm warn   node_modules/eslint-config-next/node_modules/eslint-plugin-jsx-a11y
+16:19:18.242 npm warn     eslint-plugin-jsx-a11y@"^6.10.0" from eslint-config-next@16.2.6
+16:19:18.242 npm warn     node_modules/eslint-config-next
+16:19:18.277 npm warn ERESOLVE overriding peer dependency
+16:19:18.278 npm warn While resolving: eslint-plugin-react@7.37.5
+16:19:18.278 npm warn Found: eslint@10.2.1
+16:19:18.278 npm warn node_modules/eslint
+16:19:18.278 npm warn   dev eslint@"^10.2.1" from the root project
+16:19:18.278 npm warn   9 more (@eslint-community/eslint-utils, ...)
+16:19:18.278 npm warn
+16:19:18.278 npm warn Could not resolve dependency:
+16:19:18.278 npm warn peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7" from eslint-plugin-react@7.37.5
+16:19:18.279 npm warn node_modules/eslint-config-next/node_modules/eslint-plugin-react
+16:19:18.279 npm warn   eslint-plugin-react@"^7.37.0" from eslint-config-next@16.2.6
+16:19:18.279 npm warn   node_modules/eslint-config-next
+16:19:18.279 npm warn
+16:19:18.279 npm warn Conflicting peer dependency: eslint@9.39.4
+16:19:18.279 npm warn node_modules/eslint
+16:19:18.279 npm warn   peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7" from eslint-plugin-react@7.37.5
+16:19:18.279 npm warn   node_modules/eslint-config-next/node_modules/eslint-plugin-react
+16:19:18.279 npm warn     eslint-plugin-react@"^7.37.0" from eslint-config-next@16.2.6
+16:19:18.279 npm warn     node_modules/eslint-config-next
+16:19:18.537 npm warn ERESOLVE overriding peer dependency
+16:19:18.539 npm warn While resolving: use-sync-external-store@1.2.0
+16:19:18.539 npm warn Found: react@19.2.5
+16:19:18.539 npm warn node_modules/react
+16:19:18.539 npm warn   react@"^19.2.5" from the root project
+16:19:18.539 npm warn   34 more (zustand, zustand, @openfort/react, @prisma/studio-core, ...)
+16:19:18.539 npm warn
+16:19:18.539 npm warn Could not resolve dependency:
+16:19:18.539 npm warn peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from use-sync-external-store@1.2.0
+16:19:18.539 npm warn node_modules/valtio/node_modules/use-sync-external-store
+16:19:18.539 npm warn   use-sync-external-store@"1.2.0" from valtio@1.13.2
+16:19:18.539 npm warn   node_modules/valtio
+16:19:18.540 npm warn
+16:19:18.540 npm warn Conflicting peer dependency: react@18.3.1
+16:19:18.540 npm warn node_modules/react
+16:19:18.540 npm warn   peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from use-sync-external-store@1.2.0
+16:19:18.540 npm warn   node_modules/valtio/node_modules/use-sync-external-store
+16:19:18.540 npm warn     use-sync-external-store@"1.2.0" from valtio@1.13.2
+16:19:18.540 npm warn     node_modules/valtio
+16:19:19.107 
+16:19:19.107 > Infrafund/front-pro@1.2.3 prepare
+16:19:19.107 > husky
+16:19:19.107 
+16:19:19.179 
+16:19:19.179 up to date in 3s
+16:19:19.179 
+16:19:19.179 272 packages are looking for funding
+16:19:19.179   run `npm fund` for details
+16:19:19.216 Detected Next.js version: 16.2.6
+16:19:19.224 Running "npm run vercel-build"
+16:19:19.329 
+16:19:19.329 > Infrafund/front-pro@1.2.3 vercel-build
+16:19:19.330 > node scripts/vercel-build.mjs
+16:19:19.330 
+16:19:20.737 Loaded Prisma config from prisma.config.ts.
+16:19:20.738 
+16:19:20.807 Prisma schema loaded from prisma/schema.prisma.
+16:19:21.272 
+16:19:21.272 ✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 318ms
+16:19:21.272 
+16:19:21.272 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+16:19:21.272 
+16:19:21.272 
+16:19:21.369 (node:176) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+16:19:21.369 In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+16:19:21.369 
+16:19:21.369 To prepare for this change:
+16:19:21.369 - If you want the current behavior, explicitly use 'sslmode=verify-full'
+16:19:21.369 - If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+16:19:21.370 
+16:19:21.370 See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+16:19:21.370 (Use `node --trace-warnings ...` to show where the warning was created)
+16:19:23.394 Installing pg_uuidv7 extension...
+16:19:23.823 pg_uuidv7 installed and uuidv7() alias created.
+16:19:25.066 Loaded Prisma config from prisma.config.ts.
+16:19:25.066 
+16:19:25.099 Prisma schema loaded from prisma/schema.prisma.
+16:19:25.104 Datasource "db": PostgreSQL database "neondb", schema "public" at "ep-bold-pine-a7152n2s-pooler.ap-southeast-2.aws.neon.tech"
+16:19:27.404 
+16:19:27.404 1 migration found in prisma/migrations
+16:19:27.404 
+16:19:30.089 Error: P3005
+16:19:30.090 
+16:19:30.090 The database schema is not empty. Read more about how to baseline an existing production database: https://pris.ly/d/migrate-baseline
+16:19:30.090 
+16:19:30.109 file:///vercel/path0/scripts/vercel-build.mjs:25
+16:19:30.109     throw new Error(
+16:19:30.109           ^
+16:19:30.109 
+16:19:30.109 Error: npx prisma migrate deploy failed with exit code 1
+16:19:30.109     at run (file:///vercel/path0/scripts/vercel-build.mjs:25:11)
+16:19:30.109     at file:///vercel/path0/scripts/vercel-build.mjs:10:1
+16:19:30.109     at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+16:19:30.110     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+16:19:30.110     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+16:19:30.110 
+16:19:30.110 Node.js v24.14.1
+16:19:30.125 Error: Command "npm run vercel-build" exited with 1
+```
+
+---
+
+what if you wipe the whole nean DB and start from scratch ?
+It now and actually any migration should not need "manual" intervention.
+
+---
+
+docs from the neon website 
+```
+To fully wipe and reset your database in Neon, you have a couple of options depending on your branch setup:
+
+## Reset from Parent Branch
+
+If your branch has a parent branch, you can use the **Reset from parent** feature to completely overwrite your branch with the latest data and schema from its parent.[(1)](https://neon.com/docs/guides/reset-from-parent)
+
+**Using the Neon Console:**
+1. Go to the **Branches** page
+2. Select the branch you want to reset
+3. Click **Reset from parent** from the **Actions** menu or the **Last data reset** panel[(1)](https://neon.com/docs/guides/reset-from-parent)
+
+**Using the Neon CLI:**
+
+```bash
+neon branches reset <branch-id|name> --parent
+```
+[(1)](https://neon.com/docs/guides/reset-from-parent)
+
+For example:
+
+```bash
+neon branches reset br-divine-glade-19837478 --parent --project-id=raspy-water-84552850
+```
+[(2)](https://neon.com/blog/announcing-branch-reset)
+
+**Important notes:**
+- This is a complete overwrite, not a merge. Any local changes on your branch will be lost.[(1)](https://neon.com/docs/guides/reset-from-parent)
+- Existing connections will be temporarily interrupted but will automatically re-establish once the reset completes.[(1)](https://neon.com/docs/guides/reset-from-parent)[(2)](https://neon.com/blog/announcing-branch-reset)
+- Your connection details (hostname, connection string) remain the same.[(1)](https://neon.com/docs/guides/reset-from-parent)
+
+## Alternative: Manual Database Cleanup
+
+If you want to clean specific databases without resetting the entire branch, you can connect to your database and manually drop/recreate databases or truncate tables using standard PostgreSQL commands.
+```
+```
+To wipe your database for a fresh restart using the Neon CLI, use the **Reset from parent** command. This completely overwrites your branch with the latest data and schema from its parent branch.[(1)](https://neon.com/docs/guides/reset-from-parent)
+
+## Reset a Branch Using the CLI
+
+```bash
+neon branches reset <id|name> --parent
+```
+[(2)](https://neon.com/docs/guides/branching-neon-cli#branch-expiration)
+
+**Example:**
+
+```bash
+neon branches reset feature/user-auth --parent --project-id crimson-voice-12345678
+```
+[(2)](https://neon.com/docs/guides/branching-neon-cli#branch-expiration)
+
+This resets the `feature/user-auth` branch to match the latest state of its parent branch.[(2)](https://neon.com/docs/guides/branching-neon-cli#branch-expiration)
+
+**Output:**
+
+```
+┌────────────────────────────┬───────────────────┬─────────┬──────────────────────┬──────────────────────┐
+│ Id                         │ Name              │ Default │ Created At           │ Last Reset At        │
+├────────────────────────────┼───────────────────┼─────────┼──────────────────────┼──────────────────────┤
+│ br-twilight-smoke-123456   │ feature/user-auth │ false   │ 2024-04-23T17:01:49Z │ 2024-04-23T17:57:35Z │
+```
+[(2)](https://neon.com/docs/guides/branching-neon-cli#branch-expiration)
+
+## Important Notes
+
+- This is a **complete overwrite**, not a merge. Any local changes on your branch will be lost.[(1)](https://neon.com/docs/guides/reset-from-parent)
+- Your connection details (hostname, connection string) remain the same.[(1)](https://neon.com/docs/guides/reset-from-parent)
+- Existing connections will be temporarily interrupted during the reset but will automatically re-establish.[(1)](https://neon.com/docs/guides/reset-from-parent)
+
+## If Your Branch Has Child Branches
+
+If the branch you want to reset has child branches, you need to use the `--preserve-under-name` parameter to save the current state under a new name:[(2)](https://neon.com/docs/guides/branching-neon-cli#branch-expiration)
+
+```bash
+neon branches reset feature/user-auth --parent --preserve-under-name feature/user-auth-backup --project-id crimson-voice-12345678
+```
+[(2)](https://neon.com/docs/guides/branching-neon-cli#branch-expiration)
+
+This preserves the branch's latest state under `feature/user-auth-backup` before resetting, allowing child branches to maintain their parent relationship.[(2)](https://neon.com/docs/guides/branching-neon-cli#branch-expiration)
+```
+I have now installed `neon` CLI and authenticated it.
+```
+Since you only have a default main branch (root branch), you **cannot use Reset from parent** because root branches have no parent to reset from.[(1)](https://neon.com/docs/guides/reset-from-parent)
+
+However, you can **delete and recreate your databases** using the Neon CLI to achieve a fresh start:
+
+## Option 1: Delete and Recreate Your Database
+
+**1. List your databases:**[(2)](https://neon.com/docs/reference/cli-databases)
+
+```bash
+neon databases list --project-id <your-project-id>
+```
+[(2)](https://neon.com/docs/reference/cli-databases)
+
+**2. Delete the database:**[(2)](https://neon.com/docs/reference/cli-databases)
+
+```bash
+neon databases delete <database-name> --project-id <your-project-id>
+```
+[(2)](https://neon.com/docs/reference/cli-databases)
+
+For example:
+
+```bash
+neon databases delete neondb --project-id <your-project-id>
+```
+[(2)](https://neon.com/docs/reference/cli-databases)
+
+**3. Create a fresh database:**[(2)](https://neon.com/docs/reference/cli-databases)
+
+```bash
+neon databases create --name <database-name> --project-id <your-project-id>
+```
+[(2)](https://neon.com/docs/reference/cli-databases)
+
+For example:
+
+```bash
+neon databases create --name neondb --owner-name <your-role-name> --project-id <your-project-id>
+```
+[(2)](https://neon.com/docs/reference/cli-databases)
+
+## Option 2: Manual SQL Cleanup
+
+Alternatively, connect to your database using `psql` or another SQL client and manually drop all tables/schemas, then recreate them as needed.
+
+## Note About Root Branches
+
+Root branches (like your default `main` or `production` branch) cannot be reset because they have no parent branch to reset to.[(1)](https://neon.com/docs/guides/reset-from-parent) The Reset from parent feature only works for child branches that have a parent.[(1)](https://neon.com/docs/guides/reset-from-parent)
+```
+
+---
+
+this could be the id : `br-dawn-truth-a7yfso70`
+
+---
+
+for future use :
+```
+To get your project ID using the Neon CLI, use the `projects list` command:[(1)](https://neon.com/docs/reference/cli-projects#the-projects-command)
+
+```bash
+neon projects list
+```
+[(1)](https://neon.com/docs/reference/cli-projects#the-projects-command)
+
+This will display a table showing all your projects, including their IDs:[(1)](https://neon.com/docs/reference/cli-projects#the-projects-command)
+
+```
+Projects
+┌────────────────────────┬────────────────────┬───────────────┬──────────────────────┐
+│ Id                     │ Name               │ Region Id     │ Created At           │
+├────────────────────────┼────────────────────┼───────────────┼──────────────────────┤
+│ crimson-voice-12345678 │ frontend           │ aws-us-east-2 │ 2024-04-15T11:17:30Z │
+├────────────────────────┼────────────────────┼───────────────┼──────────────────────┤
+│ calm-thunder-12121212  │ backend            │ aws-us-east-2 │ 2024-04-10T15:21:01Z │
+├────────────────────────┼────────────────────┼───────────────┼──────────────────────┤
+│ nameless-hall-87654321 │ billing            │ aws-us-east-2 │ 2024-04-10T14:35:17Z │
+└────────────────────────┴────────────────────┴───────────────┴──────────────────────┘
+```
+[(1)](https://neon.com/docs/reference/cli-projects#the-projects-command)
+
+The first column shows your project IDs (like `crimson-voice-12345678`).[(1)](https://neon.com/docs/reference/cli-projects#the-projects-command)
+
+If you belong to multiple organizations, you can list projects for a specific organization:[(1)](https://neon.com/docs/reference/cli-projects#the-projects-command)[(2)](https://neon.com/docs/manage/orgs-cli)
+
+```bash
+neon projects list --org-id org-xxxx-xxxx
+```
+[(1)](https://neon.com/docs/reference/cli-projects#the-projects-command)
+```
+can you update `docs/deployment-neon-vercel.md` so that we have all information to handle it next time documented. Include the following lines (at the end)
+```
+## Neon Database Resources
+
+### neon CLI
+
+user needs to authenticate first executing `neon auth` then confirming in Web browser
+
+List Project IDs : `neon projects list`
+If user belongs to multiple organizations, you can list projects for a specific organization : `neon projects list --org-id org-xxxx-xxxx`
+```
+
+---
+
+Nothing else you find worth adding and preserving from what we learnt after we initially wrote it ?
+
+---
+
+I think the whole process, we just did. Reset the DB and restart fresh should be well documented as we do have to do that with another vercel account hereafter as well.
+Also, add whatever you think you would have liked to know upfront before starting this process/session.
+Once done, commit and push it
+
+---
+
+I got some valuable feedback , stored it in @../1-resources-config/vercel-neon/vercel-neon-database.md
