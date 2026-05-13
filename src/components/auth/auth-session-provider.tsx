@@ -153,6 +153,7 @@ interface AuthSessionContextValue {
   error: string | null;
   errorCategory: ErrorCategory | null;
   retry: () => void;
+  refreshSession: () => Promise<string | null>;
   deleteAccount: () => Promise<void>;
   logout: () => Promise<void>;
   authProgress: AuthProgress | null;
@@ -834,6 +835,27 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setRetryCount((count) => count + 1);
   }, [createWalletIfNeeded, pendingWalletCreation]);
 
+  const refreshSession = useCallback(async () => {
+    try {
+      const refreshedSession = await refreshBackendSession();
+      const me = await getBackendMe(refreshedSession.access_token);
+      setBackendAccessToken(refreshedSession.access_token);
+      setBackendUser(me);
+      setError(null);
+      setErrorCategory(null);
+      return refreshedSession.access_token;
+    } catch (refreshError) {
+      reportError(refreshError, {
+        area: 'auth',
+        tags: { stage: 'manual-refresh' },
+        extra: baseReportExtras(),
+      });
+      setBackendAccessToken(null);
+      setBackendUser(null);
+      return null;
+    }
+  }, [baseReportExtras]);
+
   // OAuth callback pre-emptive cover: when Openfort's redirect-based OAuth
   // returns the user to our app at `/?openfortAuthProviderUI=…`, the SDK's
   // ConnectModal auto-detects those params and reopens itself to run
@@ -953,6 +975,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       error,
       errorCategory,
       retry,
+      refreshSession,
       deleteAccount,
       logout,
       authProgress,
@@ -969,6 +992,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       error,
       errorCategory,
       retry,
+      refreshSession,
       deleteAccount,
       logout,
       authProgress,
