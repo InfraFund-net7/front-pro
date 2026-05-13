@@ -1,0 +1,70 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "a6cc6cfc933e",
+  "session_id": "9772d705-cc78-4614-b62a-6cf1738b6a3b",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-13T14:28:02.313738315Z",
+  "branch": "develop",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".cspell.json",
+    ".prettierignore",
+    "eslint.config.mjs",
+    "package-lock.json",
+    "package.json",
+    "scripts/prepare-cesium-assets.mjs",
+    "scripts/vercel-build.mjs",
+    "src/app/globals.css",
+    "src/components/digital-twin/cesium-ion-viewer.tsx",
+    "src/types/cesium-window.d.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "748a3b84ad58",
+  "checkpoint_transcript_start": 417,
+  "transcript_lines_at_start": 417,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-13T14:28:02.294565595Z",
+    "agent_lines": 124,
+    "agent_removed": 270,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 1,
+    "total_committed": 124,
+    "total_lines_changed": 395,
+    "agent_percentage": 99.74683544303798,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 1,
+      "user_lines_removed": 1,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "scripts/prepare-cesium-assets.mjs": 1
+      },
+      "user_removed_per_file": {
+        "scripts/prepare-cesium-assets.mjs": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 126,
+      "agent_lines_removed": 271
+    }
+  ]
+}
