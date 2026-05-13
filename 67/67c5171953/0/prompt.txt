@@ -1,0 +1,16 @@
+when done, create a release using the v1.2.5 release notes
+
+---
+
+the cesium viewer works well on localhost, but not when I deploy it on vercel. It just shows "Loading Cesium model...
+
+Fetching terrain and the Ion 3D Tiles asset."
+
+---
+
+can we add a check if `NEXT_PUBLIC_CESIUM_ION_ACCESS_TOKEN` has been set , the one I have is a very long string (258 chars), but maybe other versions are shorter, the format is like `36 chars , a '.' , then ~220 more chars , that maybe and API key with a reference to an object or other parameter separated by a '.' ?
+In any case I also have the full 257 char string in `.env.local` and here it works.
+
+Also, is there an endpoint where we can check the access token or do we get an error when we try to access assets with tells us that the access token is wrong ?
+
+I just would like to have a better reporting if something goes wrong, so that we know at least if it is an access token issue or something else.
