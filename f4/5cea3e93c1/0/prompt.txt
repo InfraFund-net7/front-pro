@@ -1,6 +1,1 @@
-ok, still working on localhost with some messages checking the API and access token showing up for less than second !
-commit and push
-
----
-
 great its working, write some v1.2.6 release notes, write into `docs-dev/release-notes/v1.2.5-integrate-caesium-3d-viewer-CDN.md` , commit it, tag it, push it , create a release
