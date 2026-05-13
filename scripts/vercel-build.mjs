@@ -6,7 +6,6 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 
 run('npx', ['prisma', 'generate']);
-run('node', ['scripts/prepare-cesium-assets.mjs']);
 run('node', ['scripts/bootstrap-neon-db.mjs']);
 run('npx', ['prisma', 'migrate', 'deploy']);
 run('node', ['scripts/seed-countries.mjs']);

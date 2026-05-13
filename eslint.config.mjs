@@ -19,7 +19,6 @@ const eslintConfig = [
       'out/**',
       'build/**',
       'node_modules/**',
-      'public/cesium/**',
       '.opencode/**',
       'next-env.d.ts',
       'eslint.config.mjs',
