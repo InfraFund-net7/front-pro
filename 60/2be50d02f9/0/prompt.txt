@@ -1,0 +1,129 @@
+we got a new suggestion for a model viewer as an alternative to our own glTF renderer. Can we use it for project "Cornwall Wind turbine Pilot #3" (which we need to rename to "London Wind turbine Pilot #3)  on page `projects/3/digital-twin`
+
+All I got to make it work within their sandbox was this code snippet:
+```
+import * as Cesium from "cesium";
+
+ 
+
+const viewer = new Cesium.Viewer("cesiumContainer", {
+
+  terrain: Cesium.Terrain.fromWorldTerrain(),
+
+});
+
+ 
+
+Cesium.Ion.defaultAccessToken = 'REDACTED';
+
+ 
+
+const tileset = viewer.scene.primitives.add(
+
+  await Cesium.Cesium3DTileset.fromIonAssetId(4764199),
+
+);
+
+ 
+
+viewer.zoomTo(tileset);
+```
+
+---
+
+i managed to copy the code into their sandbox and made it run : https://sandcastle.cesium.com/
+
+the HTML/CSS for the sandcaste was just
+```
+<style>
+  @import url(../templates/bucket.css);
+</style>
+<div id="cesiumContainer" class="fullSize"></div>
+<div id="loadingOverlay"><h1>Loading...</h1></div>
+<div id="toolbar"></div>
+```
+documentation link : https://cesium.com/learn/cesiumjs/ref-doc/index.html
+
+---
+
+you need to use the `headroom-azure` MCP to get a connection to the proxy we are using in this session
+
+---
+
+i have created the caesium access token in `.env.local` , do i need to restart the dev server ?
+
+---
+
+in the viewport i get "An error occurred while rendering. Rendering has stopped.
+[object Object]
+
+undefined"
+
+Looks like we need to have a static URL to their resources as I check the browser console :
+```
+Mouse.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/Mouse.svg 404 (Not Found)
+Touch.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/Touch.svg 404 (Not Found)
+MouseLeft.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/MouseLeft.svg 404 (Not Found)
+MouseRight.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/MouseRight.svg 404 (Not Found)
+MouseMiddle.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/MouseMiddle.svg 404 (Not Found)
+TouchDrag.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/TouchDrag.svg 404 (Not Found)
+TouchZoom.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/TouchZoom.svg 404 (Not Found)
+TouchTilt.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/TouchTilt.svg 404 (Not Found)
+TouchRotate.svg:1 
+ GET http://localhost:3000/_next/static/cesium/Widgets/Images/NavigationHelp/TouchRotate.svg 404 (Not Found)
+ion-credit.png:1 
+ GET http://localhost:3000/_next/static/cesium/Assets/Images/ion-credit.png 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/approximateTerrainHeights.json 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/IAU2006_XYS/IAU2006_XYS_18.json 404 (Not Found)
+digital-twin:1 Uncaught (in promise) 
+RequestErrorEvent {statusCode: 404, response: 'Not Found', responseHeaders: {…}}
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_px.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_mx.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_py.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_my.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_pz.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_mz.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 An error occurred while rendering.  Rendering has stopped.
+[object Object]
+undefined
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_px.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_mx.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_py.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_my.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_pz.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 An error occurred while rendering.  Rendering has stopped.
+[object Object]
+undefined
+moonSmall.jpg:1 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/moonSmall.jpg 404 (Not Found)
+cesium-ion-viewer.tsx:53 
+ GET http://localhost:3000/_next/static/cesium/Assets/Textures/SkyBox/tycho2t3_80_mz.jpg 404 (Not Found)
+```
+
+---
+
+Looks great , it is working, just some minor formatting things :
+- the title just says "Page" on all `digital-twin` pages, actually we can move the Project name there , like "Cornwall Wind turbine Pilot #2" , make the space below just hald,  and remove the header bar from all 3d view ports with everything which is currently in there.
+- for project 3 remove the "Construction Milestones" component and replave it with power generation boxes like we have for project #1
+- As project #3 is now an operational and not construction project , we have to update that on the `projects/3/digital-twin` page as well as on the Dashbord `home`.

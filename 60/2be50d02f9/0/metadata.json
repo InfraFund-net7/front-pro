@@ -1,0 +1,96 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "602be50d02f9",
+  "session_id": "9772d705-cc78-4614-b62a-6cf1738b6a3b",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-13T12:30:23.292502135Z",
+  "branch": "develop",
+  "checkpoints_count": 3,
+  "files_touched": [
+    ".env.example",
+    "next.config.ts",
+    "package-lock.json",
+    "package.json",
+    "src/app/cesium/[...path]/route.ts",
+    "src/app/globals.css",
+    "src/app/projects/[id]/digital-twin/page.tsx",
+    "src/components/developer/developer-home.tsx",
+    "src/components/digital-twin/cesium-ion-viewer.tsx",
+    "src/components/digital-twin/client-page.tsx",
+    "src/components/digital-twin/model-viewer.tsx",
+    "src/components/header.tsx",
+    "src/components/main-layout.tsx",
+    "src/lib/digital-twin-projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "b90f53024c64",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-13T12:30:23.276047213Z",
+    "agent_lines": 0,
+    "agent_removed": 51,
+    "human_added": 0,
+    "human_modified": 26,
+    "human_removed": 3399,
+    "total_committed": 0,
+    "total_lines_changed": 3476,
+    "agent_percentage": 1.467203682393556,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 505,
+      "user_lines_removed": 3422,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".env.example": 6,
+        "next.config.ts": 25,
+        "package-lock.json": 295,
+        "package.json": 2,
+        "src/app/globals.css": 1,
+        "src/components/digital-twin/cesium-ion-viewer.tsx": 145,
+        "src/components/digital-twin/client-page.tsx": 16,
+        "src/lib/digital-twin-projects.ts": 8,
+        "src/types/cesium-window.d.ts": 7
+      },
+      "user_removed_per_file": {
+        "package-lock.json": 3409,
+        "src/components/digital-twin/client-page.tsx": 6,
+        "src/lib/digital-twin-projects.ts": 7
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 506,
+      "agent_lines_removed": 3422
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 491,
+      "agent_lines_removed": 3419
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 495,
+      "agent_lines_removed": 3473
+    }
+  ]
+}

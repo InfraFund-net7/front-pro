@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "602be50d02f9",
+  "strategy": "manual-commit",
+  "branch": "develop",
+  "checkpoints_count": 3,
+  "files_touched": [
+    ".env.example",
+    "next.config.ts",
+    "package-lock.json",
+    "package.json",
+    "src/app/cesium/[...path]/route.ts",
+    "src/app/globals.css",
+    "src/app/projects/[id]/digital-twin/page.tsx",
+    "src/components/developer/developer-home.tsx",
+    "src/components/digital-twin/cesium-ion-viewer.tsx",
+    "src/components/digital-twin/client-page.tsx",
+    "src/components/digital-twin/model-viewer.tsx",
+    "src/components/header.tsx",
+    "src/components/main-layout.tsx",
+    "src/lib/digital-twin-projects.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/60/2be50d02f9/0/metadata.json",
+      "transcript": "/60/2be50d02f9/0/full.jsonl",
+      "content_hash": "/60/2be50d02f9/0/content_hash.txt",
+      "prompt": "/60/2be50d02f9/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
