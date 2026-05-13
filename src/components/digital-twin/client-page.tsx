@@ -26,6 +26,7 @@ export function DigitalTwinClientPage({ project }: DigitalTwinClientPageProps) {
       <DigitalTwinModelViewer
         modelUrl={project.modelUrl}
         title={project.title}
+        statusLabel={project.statusLabel}
         milestones={project.mode === 'construction' ? milestones : undefined}
       />
 

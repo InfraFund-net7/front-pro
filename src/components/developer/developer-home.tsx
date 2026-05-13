@@ -9,25 +9,25 @@ export default function DeveloperHome() {
   return (
     <div className="min-h-screen flex flex-col gap-12 text-white">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-card-bg rounded-lg p-6">
+        <div className="bg-card-bg rounded-lg p-6 text-center">
           <h3 className="text-gray-400 text-sm mb-2">Active Projects</h3>
-          <p className="text-4xl font-bold">3</p>
+          <p className="text-2xl font-bold">3</p>
         </div>
 
-        <div className="bg-card-bg rounded-lg p-6">
+        <div className="bg-card-bg rounded-lg p-6 text-center">
           <h3 className="text-gray-400 text-sm mb-2">Total Funding Raised</h3>
-          <p className="text-4xl font-bold">£1,120.30</p>
+          <p className="text-2xl font-bold">£9,500,000</p>
           <p className="text-green-500 text-sm mt-2">88.5% of Target</p>
         </div>
 
-        <div className="bg-card-bg rounded-lg p-6">
+        <div className="bg-card-bg rounded-lg p-6 text-center">
           <h3 className="text-gray-400 text-sm mb-2">Total Investors</h3>
-          <p className="text-4xl font-bold">185</p>
+          <p className="text-2xl font-bold">185</p>
         </div>
 
-        <div className="bg-card-bg rounded-lg p-6">
+        <div className="bg-card-bg rounded-lg p-6 text-center">
           <h3 className="text-gray-400 text-sm mb-2">Compliance Status</h3>
-          <p className="text-4xl font-bold text-green-500">Verified</p>
+          <p className="text-2xl font-bold text-green-500">Verified</p>
           <a
             href="#"
             className="text-blue-500 text-sm mt-2 inline-block hover:underline"
@@ -75,7 +75,7 @@ export default function DeveloperHome() {
                     <h3 className="text-xl font-bold mb-2">
                       Cornwall Wind turbine Pilot #1
                     </h3>
-                    <span className="inline-block bg-blue-600 text-blue-100 text-xs font-bold px-3 py-1 rounded-full">
+                    <span className="inline-block bg-lime-600 text-lime-100 text-xs font-bold px-3 py-1 rounded-full">
                       Operational
                     </span>
                   </div>
@@ -109,7 +109,7 @@ export default function DeveloperHome() {
                       >
                         <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
                       </svg>
-                      <span className="text-sm">View AI-Digital Twin</span>
+                      <span className="text-sm">AI Digital Twin ↗</span>
                     </Link>
                   </div>
                 </div>
@@ -118,7 +118,8 @@ export default function DeveloperHome() {
                   <p className="text-gray-400 text-sm mb-2">
                     Return Rate:{' '}
                     <span className="text-white font-bold">12%</span> |
-                    Investors: <span className="text-white">78</span> | Next
+                    Investors: <span className="text-white">78</span>
+                    <br />
                     Maintenance: <span className="text-white">02-03-2028</span>
                   </p>
 
@@ -215,7 +216,7 @@ export default function DeveloperHome() {
                     <h3 className="text-xl font-bold mb-2">
                       Cornwall Wind turbine Pilot #2
                     </h3>
-                    <span className="inline-block bg-lime-600 text-lime-100 text-xs font-bold px-3 py-1 rounded-full">
+                    <span className="inline-block bg-blue-600 text-blue-100 text-xs font-bold px-3 py-1 rounded-full">
                       Construction
                     </span>
                   </div>
@@ -249,7 +250,7 @@ export default function DeveloperHome() {
                       >
                         <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
                       </svg>
-                      <span className="text-sm">View AI-Digital Twin</span>
+                      <span className="text-sm">AI Digital Twin ↗</span>
                     </Link>
                   </div>
                 </div>
@@ -259,9 +260,12 @@ export default function DeveloperHome() {
                     Project Status:{' '}
                     <span className="text-white font-bold">Active</span> |
                     General Contractor:{' '}
-                    <span className="text-white">Solardeveloper.co</span> | Next
-                    Milestone:{' '}
-                    <span className="text-white">Panel Installation</span>
+                    <span className="text-white">Wind Power Ltd</span>
+                    <br />
+                    Next Milestone:{' '}
+                    <span className="text-white">
+                      Rotor Blades Installation
+                    </span>
                   </p>
 
                   <div className="mb-2">
@@ -357,7 +361,7 @@ export default function DeveloperHome() {
                     <h3 className="text-xl font-bold mb-2">
                       Cornwall Wind turbine Pilot #3
                     </h3>
-                    <span className="inline-block bg-lime-600 text-lime-100 text-xs font-bold px-3 py-1 rounded-full">
+                    <span className="inline-block bg-blue-600 text-blue-100 text-xs font-bold px-3 py-1 rounded-full">
                       Construction
                     </span>
                   </div>
@@ -391,7 +395,7 @@ export default function DeveloperHome() {
                       >
                         <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
                       </svg>
-                      <span className="text-sm">View AI-Digital Twin</span>
+                      <span className="text-sm">AI Digital Twin ↗</span>
                     </Link>
                   </div>
                 </div>
@@ -401,9 +405,12 @@ export default function DeveloperHome() {
                     Project Status:{' '}
                     <span className="text-white font-bold">Active</span> |
                     General Contractor:{' '}
-                    <span className="text-white">Solardeveloper.co</span> | Next
-                    Milestone:{' '}
-                    <span className="text-white">Panel Installation</span>
+                    <span className="text-white">Wind Power Ltd</span>
+                    <br />
+                    Next Milestone:{' '}
+                    <span className="text-white">
+                      Rotor Blades Installation
+                    </span>
                   </p>
 
                   <div className="mb-2">
@@ -531,7 +538,7 @@ export default function DeveloperHome() {
                       >
                         <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
                       </svg>
-                      <span className="text-sm">View AI-Digital Twin</span>
+                      <span className="text-sm">AI Digital Twin ↗</span>
                     </button>
                   </div>
                 </div>
@@ -638,7 +645,7 @@ export default function DeveloperHome() {
                     <h3 className="text-xl font-bold mb-2">
                       Exeter Community Solar Farm
                     </h3>
-                    <span className="inline-block bg-green-600 text-green-100 text-xs font-bold px-3 py-1 rounded-full">
+                    <span className="inline-block bg-yellow-400/10 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full">
                       FUNDING
                     </span>
                   </div>
@@ -669,7 +676,7 @@ export default function DeveloperHome() {
                       >
                         <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
                       </svg>
-                      <span className="text-sm">View AI-Digital Twin</span>
+                      <span className="text-sm">AI Digital Twin ↗</span>
                     </button>
                   </div>
                 </div>

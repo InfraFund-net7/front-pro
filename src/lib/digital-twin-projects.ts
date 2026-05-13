@@ -87,10 +87,11 @@ const digitalTwinProjects: Record<string, DigitalTwinProject> = {
     title: 'Cornwall Wind turbine Pilot #1',
     statusLabel: 'Operational',
     mode: 'operational',
-    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf',
+    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf',
     modelFormat: 'gltf',
     modelNotes:
-      'This derived glTF exposes manual component nodes for tower, generator house, and rotor blades so the viewer can move off the merged GLB asset.',
+      'Uses the component-ready Wind_Turbine 3.gltf asset with its paired Wind_Turbine 3.bin file.',
+    components: windTurbineComponents,
     energyMetrics: [
       { label: 'Past day', value: '8.4 MWh', helper: '+6.2% vs previous day' },
       { label: 'Past week', value: '57.8 MWh', helper: '92% availability' },
@@ -107,44 +108,81 @@ const digitalTwinProjects: Record<string, DigitalTwinProject> = {
     title: 'Cornwall Wind turbine Pilot #2',
     statusLabel: 'Construction',
     mode: 'construction',
-    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf',
+    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf',
     modelFormat: 'gltf',
     modelNotes:
-      'This derived glTF exposes manual component nodes for tower, generator house, and rotor blades for construction-stage status mapping.',
+      'Uses the component-ready Wind_Turbine 3.gltf asset with its paired Wind_Turbine 3.bin file for construction-stage status mapping.',
+    components: windTurbineComponents,
     milestones: [
       {
-        id: 'tower-erection',
-        label: 'tower erection',
-        completed: true,
+        id: 'tower-install',
+        label: 'tower install',
+        completed: false,
         components: [
           {
-            externalId: 'tower',
+            externalId: 'wind_turbine_T01_tower',
             displayName: 'Tower',
-            nodeNames: ['Tower'],
+            nodeNames: ['wind_turbine_T01_tower'],
           },
         ],
       },
       {
-        id: 'nacelle-installation',
-        label: 'nacelle installation',
+        id: 'platform-install',
+        label: 'access platform install',
         completed: false,
         components: [
           {
-            externalId: 'generator_house',
-            displayName: 'Generator house',
-            nodeNames: ['Generator House'],
+            externalId: 'wind_turbine_T01_access_platform',
+            displayName: 'Access platform',
+            nodeNames: ['wind_turbine_T01_access_platform'],
           },
         ],
       },
       {
-        id: 'blade-installation',
-        label: 'blade installation',
+        id: 'nacelle-hub-mount',
+        label: 'nacelle and hub mount',
         completed: false,
         components: [
           {
-            externalId: 'rotor_blades',
-            displayName: 'Rotor blades',
-            nodeNames: ['Rotor Blade A', 'Rotor Blade B', 'Rotor Blade C'],
+            externalId: 'wind_turbine_T01_nacelle_hub',
+            displayName: 'Nacelle and hub',
+            nodeNames: ['wind_turbine_T01_nacelle_hub'],
+          },
+        ],
+      },
+      {
+        id: 'blade-01-fitout',
+        label: 'blade 01 fitout',
+        completed: false,
+        components: [
+          {
+            externalId: 'wind_turbine_T01_blade_01',
+            displayName: 'Blade 01',
+            nodeNames: ['wind_turbine_T01_blade_01'],
+          },
+        ],
+      },
+      {
+        id: 'blade-02-fitout',
+        label: 'blade 02 fitout',
+        completed: false,
+        components: [
+          {
+            externalId: 'wind_turbine_T01_blade_02',
+            displayName: 'Blade 02',
+            nodeNames: ['wind_turbine_T01_blade_02'],
+          },
+        ],
+      },
+      {
+        id: 'blade-03-fitout',
+        label: 'blade 03 fitout',
+        completed: false,
+        components: [
+          {
+            externalId: 'wind_turbine_T01_blade_03',
+            displayName: 'Blade 03',
+            nodeNames: ['wind_turbine_T01_blade_03'],
           },
         ],
       },
