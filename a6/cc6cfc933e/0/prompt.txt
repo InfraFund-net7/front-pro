@@ -1,25 +1,2 @@
-ok, commit and push
-
----
-
-i got these errors in the console of the deployed version on vercel
-```
-Failed to load resource: the server responded with a status of 401 ()
-/_next/static/chunks…asfkbcm063q~.js:818 Uncaught SyntaxError: Octal escape sequences are not allowed in template strings.
-```
-
----
-
-and the browser still shows "Loading Cesium model...
-
-Fetching terrain and the Ion 3D Tiles asset."
-
----
-
-it is still working fine on localhost , loading the model in ~1 sec
-
----
-
-what could be different if we access the cesium viewer from an app we get from localhost compared to vercel ?
-I do not understand why this should behave much different, and the app on localhost load the model in 1 second. 
-I think it would be better if the cesium code comes from that cesium domain as they will likely updateit often, and we do not want to download updated copies again and again, and serve the cesium code files - why should we.
+ok, still working on localhost with some messages checking the API and access token showing up for less than second !
+commit and push
