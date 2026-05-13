@@ -393,3 +393,9 @@ If user belongs to multiple organizations, you can list projects for a specific 
 ---
 
 Nothing else you find worth adding and preserving from what we learnt after we initially wrote it ?
+
+---
+
+I think the whole process, we just did. Reset the DB and restart fresh should be well documented as we do have to do that with another vercel account hereafter as well.
+Also, add whatever you think you would have liked to know upfront before starting this process/session.
+Once done, commit and push it
