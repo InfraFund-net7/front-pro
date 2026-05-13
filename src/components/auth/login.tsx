@@ -2,6 +2,7 @@
 
 import { OpenfortButton } from '@openfort/react';
 import infrafund from '@/../public/assets/svg/infrafund.svg';
+import { BuildInfo } from '@/components/build-info';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 
@@ -24,7 +25,10 @@ export default function Login({
           <h1 className="text-3xl font-bold">{title}</h1>
           <p className="text-sm text-[#C7CAD5]">{description}</p>
         </div>
-        <OpenfortButton label={buttonLabel} />
+        <div className="flex w-full flex-col items-center gap-8">
+          <OpenfortButton label={buttonLabel} />
+          <BuildInfo className="w-full text-center" />
+        </div>
       </div>
     </div>
   );
