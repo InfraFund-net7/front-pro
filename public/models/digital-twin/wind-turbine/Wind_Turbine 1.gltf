@@ -1,7 +1,14 @@
 {
-  "asset": { "version": "2.0" },
+  "asset": {
+    "version": "2.0"
+  },
   "accessors": [
-    { "bufferView": 0, "componentType": 5123, "count": 3417, "type": "SCALAR" },
+    {
+      "bufferView": 0,
+      "componentType": 5123,
+      "count": 3417,
+      "type": "SCALAR"
+    },
     {
       "bufferView": 1,
       "componentType": 5126,
@@ -87,15 +94,55 @@
     }
   ],
   "bufferViews": [
-    { "buffer": 0, "byteOffset": 0, "byteLength": 6834, "target": 34963 },
-    { "buffer": 0, "byteOffset": 6836, "byteLength": 19452, "target": 34963 },
-    { "buffer": 0, "byteOffset": 26288, "byteLength": 12636, "target": 34963 },
-    { "buffer": 0, "byteOffset": 38924, "byteLength": 26430, "target": 34963 },
-    { "buffer": 0, "byteOffset": 65356, "byteLength": 53514, "target": 34963 },
-    { "buffer": 0, "byteOffset": 118872, "byteLength": 53550, "target": 34963 },
-    { "buffer": 0, "byteOffset": 172424, "byteLength": 27216, "target": 34963 }
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 6834,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 6836,
+      "byteLength": 19452,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 26288,
+      "byteLength": 12636,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 38924,
+      "byteLength": 26430,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 65356,
+      "byteLength": 53514,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 118872,
+      "byteLength": 53550,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 172424,
+      "byteLength": 27216,
+      "target": 34963
+    }
   ],
-  "buffers": [{ "byteLength": 199640, "uri": "Wind_Turbine 1.bin" }],
+  "buffers": [
+    {
+      "byteLength": 199640,
+      "uri": "Wind_Turbine 1.bin"
+    }
+  ],
   "cameras": [
     {
       "perspective": {
@@ -148,49 +195,96 @@
   "meshes": [
     {
       "primitives": [
-        { "attributes": { "POSITION": 1 }, "indices": 0, "material": 0 }
+        {
+          "attributes": {
+            "POSITION": 1
+          },
+          "indices": 0,
+          "material": 0
+        }
       ]
     },
     {
       "primitives": [
-        { "attributes": { "POSITION": 3 }, "indices": 2, "material": 1 }
+        {
+          "attributes": {
+            "POSITION": 3
+          },
+          "indices": 2,
+          "material": 1
+        }
       ]
     },
     {
       "primitives": [
-        { "attributes": { "POSITION": 5 }, "indices": 4, "material": 1 }
+        {
+          "attributes": {
+            "POSITION": 5
+          },
+          "indices": 4,
+          "material": 1
+        }
       ]
     },
     {
       "primitives": [
-        { "attributes": { "POSITION": 7 }, "indices": 6, "material": 2 }
+        {
+          "attributes": {
+            "POSITION": 7
+          },
+          "indices": 6,
+          "material": 1
+        }
       ]
     },
     {
       "primitives": [
-        { "attributes": { "POSITION": 9 }, "indices": 8, "material": 2 }
+        {
+          "attributes": {
+            "POSITION": 9
+          },
+          "indices": 8,
+          "material": 1
+        }
       ]
     },
     {
       "primitives": [
-        { "attributes": { "POSITION": 11 }, "indices": 10, "material": 2 }
+        {
+          "attributes": {
+            "POSITION": 11
+          },
+          "indices": 10,
+          "material": 1
+        }
       ]
     }
   ],
   "nodes": [
-    { "name": "Concrete Base" },
-    { "name": "Tower", "mesh": 1 },
     {
-      "name": "Generator House",
-      "children": [4, 5],
-      "extras": { "componentMeshes": ["nacelle", "hub"] }
+      "mesh": 0,
+      "name": "Generator House"
     },
-    { "name": "Rotor Blades", "children": [6, 7, 8] },
-    { "name": "Nacelle", "mesh": 0 },
-    { "name": "Hub", "mesh": 2 },
-    { "name": "Rotor Blade A", "mesh": 3 },
-    { "name": "Rotor Blade B", "mesh": 4 },
-    { "name": "Rotor Blade C", "mesh": 5 },
+    {
+      "mesh": 1,
+      "name": "Tower"
+    },
+    {
+      "mesh": 2,
+      "name": "Rotor Hub"
+    },
+    {
+      "mesh": 3,
+      "name": "Rotor Blade A"
+    },
+    {
+      "mesh": 4,
+      "name": "Rotor Blade B"
+    },
+    {
+      "mesh": 5,
+      "name": "Rotor Blade C"
+    },
     {
       "translation": [11.00635051727295, 6.493649005889893, 1.0063508749008179],
       "camera": 0,
@@ -204,6 +298,10 @@
       "name": "Export"
     }
   ],
-  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }],
+  "scenes": [
+    {
+      "nodes": [0, 1, 2, 3, 4, 5, 6, 7]
+    }
+  ],
   "scene": 0
 }

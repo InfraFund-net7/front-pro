@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -25,6 +25,7 @@ import {
   type ProjectInformationPayload,
   type ProjectResponse,
 } from '@/lib/backend-auth-client';
+import { HARDWIRED_PROJECT_MODEL } from '@/lib/project-digital-twin';
 
 type Step =
   | 'model'
@@ -38,7 +39,8 @@ type Step =
 type MilestoneDraft = {
   name: string;
   cost: string;
-  endDate: string;
+  end_date: string;
+  component_external_ids: string[];
 };
 
 const crowdfundingModels = [
@@ -84,6 +86,13 @@ const projectStatusOptions = [
   { value: 'on_hold', label: 'On Hold' },
   { value: 'completed', label: 'Completed' },
 ];
+
+const emptyMilestone = (): MilestoneDraft => ({
+  name: '',
+  cost: '',
+  end_date: '',
+  component_external_ids: [],
+});
 
 function SelectField({
   label,
@@ -169,8 +178,8 @@ export default function CreateProject() {
     website_url: '',
     social_url: '',
   });
-  const [milestones, setMilestones] = useState([
-    { name: '', cost: '', end_date: '' },
+  const [milestones, setMilestones] = useState<MilestoneDraft[]>([
+    emptyMilestone(),
   ]);
   const [campaign, setCampaign] = useState<ProjectCampaignPayload>({
     token_name: '',
@@ -190,6 +199,22 @@ export default function CreateProject() {
   const [isSaving, setIsSaving] = useState(false);
 
   const canCreateProject = backendUser?.role === 'project_owner';
+  const availableComponents =
+    project?.digital_twin_model?.components ??
+    HARDWIRED_PROJECT_MODEL.components.map((component, index) => ({
+      id: component.externalId,
+      external_id: component.externalId,
+      display_name: component.displayName,
+      node_name: component.nodeName,
+      category: component.category,
+      sort_order: index,
+      is_visible: component.isVisible,
+    }));
+  const visibleComponentCount = useMemo(
+    () =>
+      availableComponents.filter((component) => component.is_visible).length,
+    [availableComponents]
+  );
 
   async function persist<T>(
     action: () => Promise<T>,
@@ -244,10 +269,61 @@ export default function CreateProject() {
         currentIndex === index
           ? {
               ...milestone,
-              [field === 'endDate' ? 'end_date' : field]: value,
+              [field]: value,
             }
           : milestone
       )
+    );
+  }
+
+  function toggleMilestoneComponent(index: number, externalId: string) {
+    setMilestones((current) =>
+      current.map((milestone, currentIndex) => {
+        if (currentIndex !== index) {
+          return milestone;
+        }
+
+        const alreadySelected =
+          milestone.component_external_ids.includes(externalId);
+
+        return {
+          ...milestone,
+          component_external_ids: alreadySelected
+            ? milestone.component_external_ids.filter(
+                (value) => value !== externalId
+              )
+            : [...milestone.component_external_ids, externalId],
+        };
+      })
+    );
+  }
+
+  function addMilestone() {
+    setMilestones((current) => [...current, emptyMilestone()]);
+  }
+
+  function removeMilestone(index: number) {
+    setMilestones((current) => {
+      if (current.length === 1) {
+        return [emptyMilestone()];
+      }
+
+      return current.filter((_, currentIndex) => currentIndex !== index);
+    });
+  }
+
+  function hydrateMilestonesFromProject(nextProject: ProjectResponse) {
+    setMilestones(
+      nextProject.milestones.length > 0
+        ? nextProject.milestones.map((milestone) => ({
+            name: milestone.name,
+            cost: milestone.cost ?? '',
+            end_date: milestone.end_date?.slice(0, 10) ?? '',
+            component_external_ids: milestone.components.map(
+              (component) => component.external_id
+            ),
+          }))
+        : [emptyMilestone()]
     );
   }
 
@@ -307,6 +383,7 @@ export default function CreateProject() {
                     () => createProjectDraft(backendAccessToken!),
                     (draft) => {
                       setProject(draft);
+                      hydrateMilestonesFromProject(draft);
                       setStep('contact');
                     }
                   )
@@ -384,7 +461,7 @@ export default function CreateProject() {
             />
             <FormInput
               label="Phone Number(optional)"
-              placeholder="Phone Number"
+              placeholder="Phone Number(optional)"
               value={contact.phone_number}
               onChange={(event) =>
                 updateContact('phone_number', event.target.value)
@@ -515,7 +592,7 @@ export default function CreateProject() {
                     : undefined
                 );
               }}
-              className="rounded-lg border border-dashed border-card-border bg-[#131C2F] px-4 py-4 font-mono text-sm text-gray-300 file:mr-4 file:rounded file:border-0 file:bg-primary file:px-4 file:py-2 file:text-black"
+              className="rounded-lg border border-dashed border-card-border bg-[#131C2F] px-4 py-3 font-mono text-sm text-white file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-black"
             />
           </label>
           <WizardActions
@@ -538,6 +615,7 @@ export default function CreateProject() {
                 }),
               (updated) => {
                 setProject(updated);
+                hydrateMilestonesFromProject(updated);
                 setStep('campaign');
               }
             );
@@ -552,16 +630,56 @@ export default function CreateProject() {
               construction reporting.
             </p>
           </div>
+
+          <div className="rounded-[20px] border border-card-border bg-[#101827]/60 p-5">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary">
+                  Hardwired 3D model
+                </p>
+                <h3 className="chakra-petch mt-2 text-xl text-white">
+                  {project?.digital_twin_model?.name ??
+                    HARDWIRED_PROJECT_MODEL.name}
+                </h3>
+              </div>
+              <div className="font-mono text-xs text-gray-400">
+                {visibleComponentCount} visible components available
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 font-mono text-sm text-gray-300 md:grid-cols-2">
+              <span>
+                Asset:{' '}
+                {project?.digital_twin_model?.asset_url ??
+                  HARDWIRED_PROJECT_MODEL.assetUrl}
+              </span>
+              <span>
+                Format:{' '}
+                {project?.digital_twin_model?.format ??
+                  HARDWIRED_PROJECT_MODEL.format}
+              </span>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-4">
             {milestones.map((milestone, index) => (
               <div
                 key={index}
                 className="rounded-[20px] border border-card-border bg-[#101827]/60 p-4"
               >
-                <h3 className="chakra-petch mb-4 text-lg text-white">
-                  Milestone {index + 1}
-                </h3>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <h3 className="chakra-petch text-lg text-white">
+                    Milestone {index + 1}
+                  </h3>
+                  <button
+                    type="button"
+                    className="font-mono text-xs text-error transition hover:text-white"
+                    onClick={() => removeMilestone(index)}
+                    disabled={isSaving}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormInput
                     label="Name"
                     placeholder="Name"
@@ -584,25 +702,69 @@ export default function CreateProject() {
                     type="date"
                     value={milestone.end_date}
                     onChange={(event) =>
-                      updateMilestone(index, 'endDate', event.target.value)
+                      updateMilestone(index, 'end_date', event.target.value)
                     }
                   />
                 </div>
+                <div className="mt-5">
+                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-gray-400">
+                    Linked 3D components
+                  </p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    {availableComponents.map((component) => {
+                      const checked = milestone.component_external_ids.includes(
+                        component.external_id
+                      );
+
+                      return (
+                        <label
+                          key={component.external_id}
+                          className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition ${
+                            checked
+                              ? 'border-primary/50 bg-primary/10'
+                              : 'border-card-border bg-[#0C0C0D]/40 hover:border-primary/30'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              toggleMilestoneComponent(
+                                index,
+                                component.external_id
+                              )
+                            }
+                            className="mt-1 h-4 w-4 accent-primary"
+                          />
+                          <span className="flex flex-col gap-1">
+                            <span className="chakra-petch text-sm text-white">
+                              {component.display_name}
+                            </span>
+                            <span className="font-mono text-xs text-gray-400">
+                              {component.category}
+                              {component.node_name
+                                ? ` · Node ${component.node_name}`
+                                : ' · Logical component only'}
+                            </span>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={() =>
-                setMilestones((current) => [
-                  ...current,
-                  { name: '', cost: '', end_date: '' },
-                ])
-              }
-              className="w-fit font-mono text-sm text-primary transition hover:text-primary-hover"
-            >
-              + Add milestone
-            </button>
           </div>
+
+          <button
+            type="button"
+            className="w-fit rounded-lg border border-dashed border-primary/40 px-4 py-2 font-mono text-sm text-primary transition hover:bg-primary/10"
+            onClick={addMilestone}
+            disabled={isSaving}
+          >
+            + Add milestone
+          </button>
+
           <WizardActions
             onBack={() => setStep('project')}
             isSaving={isSaving}
@@ -630,41 +792,36 @@ export default function CreateProject() {
             <span className="chakra-petch text-3xl text-white">
               Crowdfunding Campaign Details
             </span>
-            <p className="mt-2 font-mono text-sm text-gray-400">
-              Set the token economics and campaign window for this Pre-Sale.
-            </p>
           </div>
+          <FormInput
+            label="Token Name"
+            placeholder="Token Name"
+            value={campaign.token_name}
+            onChange={(event) =>
+              updateCampaign('token_name', event.target.value)
+            }
+          />
+          <FormInput
+            label="Digital Asset Supply"
+            placeholder="Total supply"
+            value={campaign.digital_asset_supply}
+            onChange={(event) =>
+              updateCampaign('digital_asset_supply', event.target.value)
+            }
+          />
+          <FormInput
+            label="Price"
+            placeholder="Price"
+            value={campaign.price}
+            onChange={(event) => updateCampaign('price', event.target.value)}
+          />
+          <FormInput
+            label="Currency"
+            placeholder="USDC"
+            value={campaign.currency}
+            onChange={(event) => updateCampaign('currency', event.target.value)}
+          />
           <div className="grid grid-cols-2 gap-6">
-            <FormInput
-              label="Token Name"
-              placeholder="Token Name"
-              value={campaign.token_name}
-              onChange={(event) =>
-                updateCampaign('token_name', event.target.value)
-              }
-            />
-            <FormInput
-              label="Digital Asset Supply"
-              placeholder="Total supply"
-              value={campaign.digital_asset_supply}
-              onChange={(event) =>
-                updateCampaign('digital_asset_supply', event.target.value)
-              }
-            />
-            <FormInput
-              label="Price"
-              placeholder="Price"
-              value={campaign.price}
-              onChange={(event) => updateCampaign('price', event.target.value)}
-            />
-            <FormInput
-              label="Currency"
-              placeholder="USDC"
-              value={campaign.currency}
-              onChange={(event) =>
-                updateCampaign('currency', event.target.value.toUpperCase())
-              }
-            />
             <FormInput
               label="Min Raise"
               placeholder="Min Raise"
@@ -749,14 +906,17 @@ export default function CreateProject() {
               Review & confirm your project details
             </span>
             <p className="mt-2 font-mono text-sm text-gray-400">
-              Review your submission to make sure everything looks good.
+              Review submission
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-8 border-b border-card-border pb-8">
-            <FieldValue label="Project Name" value={project.name} />
+          <div className="grid grid-cols-3 gap-8 pb-8">
+            <FieldValue
+              label="Project Name"
+              value={project.name ?? undefined}
+            />
             <FieldValue
               label="Token Name"
-              value={project.campaign?.token_name}
+              value={project.campaign?.token_name ?? undefined}
             />
             <FieldValue label="Project Type" value="Renewable Energy" />
             <FieldValue
@@ -764,9 +924,18 @@ export default function CreateProject() {
               value={`${project.target_investment_amount ?? '—'} ${project.target_investment_currency}`}
             />
             <FieldValue label="Crowdfunding" value="Pre-Sale" />
+            <FieldValue
+              label="3D Model"
+              value={
+                project.digital_twin_model?.name ?? HARDWIRED_PROJECT_MODEL.name
+              }
+            />
           </div>
-          <FieldValue label="Project Description" value={project.description} />
-          <div className="grid grid-cols-4 gap-8 border-t border-card-border pt-8">
+          <FieldValue
+            label="Project Description"
+            value={project.description ?? undefined}
+          />
+          <div className="grid grid-cols-2 gap-6 pt-8">
             <FieldValue
               label="Name"
               value={
@@ -779,7 +948,40 @@ export default function CreateProject() {
             <FieldValue label="Phone" value={project.contact?.phone_number} />
             <FieldValue label="Title" value={project.contact?.title} />
           </div>
-          <p className="font-mono text-xs text-gray-400">
+          <div className="rounded-[20px] border border-card-border bg-[#101827]/60 p-5">
+            <h3 className="chakra-petch text-xl text-white">Milestones</h3>
+            <div className="mt-4 flex flex-col gap-4">
+              {project.milestones.map((milestone, index) => (
+                <div
+                  key={milestone.id}
+                  className="rounded-xl border border-card-border bg-[#0C0C0D]/45 p-4"
+                >
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <FieldValue
+                      label={`Milestone ${index + 1}`}
+                      value={milestone.name}
+                    />
+                    <FieldValue label="Cost" value={milestone.cost} />
+                    <FieldValue
+                      label="End Date"
+                      value={milestone.end_date?.slice(0, 10)}
+                    />
+                  </div>
+                  <FieldValue
+                    label="Linked Components"
+                    value={
+                      milestone.components.length > 0
+                        ? milestone.components
+                            .map((component) => component.display_name)
+                            .join(', ')
+                        : 'No linked components'
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="font-mono text-sm leading-7 text-[#C7CAD5]">
             Once submitted, payment is skipped for this implementation and the
             project is stored for review.
           </p>
