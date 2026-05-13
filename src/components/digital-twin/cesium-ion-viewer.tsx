@@ -3,26 +3,137 @@
 // cspell:words Cesium tileset
 import { useEffect, useRef, useState } from 'react';
 import type { Viewer as CesiumViewer } from 'cesium';
+
 type CesiumIonViewerProps = {
   assetId: number;
 };
 
-type ViewerState = 'loading' | 'ready' | 'missing-token' | 'error';
+type ViewerState =
+  | 'checking-token'
+  | 'loading'
+  | 'ready'
+  | 'missing-token'
+  | 'token-rejected'
+  | 'asset-access-error'
+  | 'error';
+
+type IonPreflightResult =
+  | { ok: true; warning?: string }
+  | { ok: false; state: ViewerState; message: string };
+
+const CESIUM_ION_API_BASE_URL = 'https://api.cesium.com/v1';
+
+function getTokenFormatWarning(accessToken: string) {
+  if (/\s/.test(accessToken)) {
+    return 'The Cesium token contains whitespace. Check for accidental line breaks or spaces in the Vercel environment variable.';
+  }
+
+  if (accessToken.length < 40) {
+    return 'The Cesium token is shorter than expected. Confirm the full token was copied into the environment variable.';
+  }
+
+  if (!accessToken.includes('.')) {
+    return 'The Cesium token format looks unusual because it does not contain a period separator.';
+  }
+
+  return undefined;
+}
+
+async function preflightIonAsset(
+  assetId: number,
+  accessToken: string
+): Promise<IonPreflightResult> {
+  const warning = getTokenFormatWarning(accessToken);
+  const endpointUrl = `${CESIUM_ION_API_BASE_URL}/assets/${assetId}/endpoint?access_token=${encodeURIComponent(accessToken)}`;
+
+  try {
+    const response = await fetch(endpointUrl, {
+      headers: { Accept: 'application/json' },
+    });
+
+    if (response.ok) {
+      return { ok: true, warning };
+    }
+
+    const responseText = await response.text();
+    const message = responseText.slice(0, 240) || response.statusText;
+
+    if (response.status === 401 || response.status === 403) {
+      return {
+        ok: false,
+        state: 'token-rejected',
+        message: `Cesium Ion rejected the access token for asset ${assetId} (${response.status}). ${message}`,
+      };
+    }
+
+    return {
+      ok: false,
+      state: 'asset-access-error',
+      message: `Cesium Ion could not provide an endpoint for asset ${assetId} (${response.status}). ${message}`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      state: 'asset-access-error',
+      message: `Could not reach the Cesium Ion endpoint check: ${String(error)}`,
+    };
+  }
+}
+
+function getStateTitle(viewerState: ViewerState) {
+  switch (viewerState) {
+    case 'checking-token':
+      return 'Checking Cesium token...';
+    case 'loading':
+      return 'Loading Cesium model...';
+    case 'missing-token':
+      return 'Cesium token is not configured';
+    case 'token-rejected':
+      return 'Cesium token was rejected';
+    case 'asset-access-error':
+      return 'Cesium asset is not accessible';
+    case 'error':
+      return 'Cesium model failed to load';
+    case 'ready':
+      return '';
+  }
+}
+
+function getDefaultStateMessage(viewerState: ViewerState) {
+  switch (viewerState) {
+    case 'checking-token':
+      return 'Verifying that the token can access the configured Cesium Ion asset.';
+    case 'loading':
+      return 'Fetching terrain and the Ion 3D Tiles asset.';
+    case 'missing-token':
+      return 'Set NEXT_PUBLIC_CESIUM_ION_ACCESS_TOKEN in the deployment environment and redeploy.';
+    case 'token-rejected':
+      return 'Check that the token is complete, enabled, and allowed to access this asset and Cesium World Terrain.';
+    case 'asset-access-error':
+      return 'Check the asset ID, token asset permissions, network access, and browser console details.';
+    case 'error':
+      return 'Check the Cesium Ion token, asset permissions, static Cesium assets, and network access.';
+    case 'ready':
+      return '';
+  }
+}
 
 export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CesiumViewer | null>(null);
-  const [viewerState, setViewerState] = useState<ViewerState>('loading');
+  const [viewerState, setViewerState] = useState<ViewerState>('checking-token');
+  const [stateMessage, setStateMessage] = useState<string>();
 
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) {
       return;
     }
 
-    const accessToken = process.env.NEXT_PUBLIC_CESIUM_ION_ACCESS_TOKEN;
+    const accessToken = process.env.NEXT_PUBLIC_CESIUM_ION_ACCESS_TOKEN?.trim();
 
     if (!accessToken) {
       setViewerState('missing-token');
+      setStateMessage(undefined);
       return;
     }
 
@@ -30,6 +141,28 @@ export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
     let isMounted = true;
 
     async function initializeViewer() {
+      setViewerState('checking-token');
+      setStateMessage(undefined);
+
+      const preflight = await preflightIonAsset(assetId, cesiumAccessToken);
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (!preflight.ok) {
+        setViewerState(preflight.state);
+        setStateMessage(preflight.message);
+        return;
+      }
+
+      if (preflight.warning) {
+        console.warn(preflight.warning);
+      }
+
+      setViewerState('loading');
+      setStateMessage(preflight.warning);
+
       try {
         window.CESIUM_BASE_URL = '/cesium';
         const Cesium = await import('cesium');
@@ -54,15 +187,18 @@ export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
           await Cesium.Cesium3DTileset.fromIonAssetId(assetId)
         );
 
-        await viewer.zoomTo(tileset);
-
         if (isMounted) {
           setViewerState('ready');
         }
+
+        void viewer.zoomTo(tileset).catch((error: unknown) => {
+          console.warn('Cesium zoomTo failed after tileset load', error);
+        });
       } catch (error) {
         console.error('Failed to initialize Cesium digital twin viewer', error);
         if (isMounted) {
           setViewerState('error');
+          setStateMessage(String(error));
         }
       }
     }
@@ -85,18 +221,10 @@ export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
           <div className="absolute inset-0 flex items-center justify-center bg-[#0C0C0D]/80 p-6 text-center backdrop-blur-sm">
             <div className="max-w-md rounded-2xl border border-card-border bg-[#151E2F]/90 p-5 shadow-xl">
               <p className="chakra-petch text-lg font-bold text-white">
-                {viewerState === 'loading'
-                  ? 'Loading Cesium model...'
-                  : viewerState === 'missing-token'
-                    ? 'Cesium token is not configured'
-                    : 'Cesium model failed to load'}
+                {getStateTitle(viewerState)}
               </p>
               <p className="mt-2 text-sm leading-6 text-gray-300">
-                {viewerState === 'missing-token'
-                  ? 'Set NEXT_PUBLIC_CESIUM_ION_ACCESS_TOKEN to enable this viewer.'
-                  : viewerState === 'error'
-                    ? 'Check the Cesium Ion token, asset permissions, and network access.'
-                    : 'Fetching terrain and the Ion 3D Tiles asset.'}
+                {stateMessage ?? getDefaultStateMessage(viewerState)}
               </p>
             </div>
           </div>

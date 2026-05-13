@@ -137,6 +137,13 @@ const sections = [
     ],
   },
   {
+    title: 'Cesium Ion Configuration',
+    rows: [
+      ['# Client-side Cesium Ion token for 3D Tiles digital twin assets'],
+      ['NEXT_PUBLIC_CESIUM_ION_ACCESS_TOKEN', '<cesium-ion-access-token>'],
+    ],
+  },
+  {
     title: 'Cleanup Cron Configuration',
     rows: [
       ['# Generate with: openssl rand -base64 32'],
