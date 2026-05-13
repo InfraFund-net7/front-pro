@@ -351,7 +351,7 @@ export default function DeveloperHome() {
               <div className="w-full lg:w-48 h-64 flex-shrink-0">
                 <Image
                   src={windProject2}
-                  alt="Cornwall Wind turbine Pilot #3"
+                  alt="London Wind turbine Pilot #3"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -359,10 +359,10 @@ export default function DeveloperHome() {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-bold mb-2">
-                      Cornwall Wind turbine Pilot #3
+                      London Wind turbine Pilot #3
                     </h3>
-                    <span className="inline-block bg-blue-600 text-blue-100 text-xs font-bold px-3 py-1 rounded-full">
-                      Construction
+                    <span className="inline-block bg-lime-600 text-lime-100 text-xs font-bold px-3 py-1 rounded-full">
+                      Operational
                     </span>
                   </div>
 
@@ -402,24 +402,20 @@ export default function DeveloperHome() {
 
                 <div className="mb-4">
                   <p className="text-gray-400 text-sm mb-2">
-                    Project Status:{' '}
-                    <span className="text-white font-bold">Active</span> |
-                    General Contractor:{' '}
-                    <span className="text-white">Wind Power Ltd</span>
+                    Return Rate:{' '}
+                    <span className="text-white font-bold">12%</span> |
+                    Investors: <span className="text-white">78</span>
                     <br />
-                    Next Milestone:{' '}
-                    <span className="text-white">
-                      Rotor Blades Installation
-                    </span>
+                    Maintenance: <span className="text-white">02-03-2028</span>
                   </p>
 
                   <div className="mb-2">
                     <p className="text-gray-400 text-sm mb-1">
-                      Construction Progress: 67%
+                      Return Progress: 67%
                     </p>
                     <div className="w-full bg-gray-800 rounded-full h-2">
                       <div
-                        className="bg-lime-500 h-2 rounded-full"
+                        className="bg-blue-500 h-2 rounded-full"
                         style={{ width: '67%' }}
                       ></div>
                     </div>

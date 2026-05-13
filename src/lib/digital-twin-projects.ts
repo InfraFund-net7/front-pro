@@ -1,4 +1,4 @@
-// cspell:words gltf fitout
+// cspell:words Cesium gltf fitout
 
 type DigitalTwinProjectMode = 'operational' | 'construction';
 
@@ -35,8 +35,9 @@ type DigitalTwinProject = {
   statusLabel: string;
   mode: DigitalTwinProjectMode;
   modelUrl: string;
-  modelFormat: 'glb' | 'gltf';
+  modelFormat: '3d-tiles' | 'glb' | 'gltf';
   modelNotes: string;
+  cesiumIonAssetId?: number;
   energyMetrics?: EnergyMetric[];
   milestones?: ConstructionMilestone[];
   components?: DigitalTwinComponentConfig[];
@@ -190,14 +191,24 @@ const digitalTwinProjects: Record<string, DigitalTwinProject> = {
   },
   '3': {
     id: '3',
-    title: 'Cornwall Wind turbine Pilot #3',
-    statusLabel: 'Construction Test',
-    mode: 'construction',
-    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf',
-    modelFormat: 'gltf',
+    title: 'London Wind turbine Pilot #3',
+    statusLabel: 'Operational',
+    mode: 'operational',
+    modelUrl: '',
+    modelFormat: '3d-tiles',
     modelNotes:
-      'Hardwired test page: milestones map directly to Wind_Turbine 3.gltf stable component IDs and toggle their visibility in the viewer.',
-    components: windTurbineComponents,
+      'Uses the Cesium Ion 3D Tiles asset suggested for the London operational test page.',
+    cesiumIonAssetId: 4764199,
+    energyMetrics: [
+      { label: 'Past day', value: '8.4 MWh', helper: '+6.2% vs previous day' },
+      { label: 'Past week', value: '57.8 MWh', helper: '92% availability' },
+      {
+        label: 'Current month',
+        value: '214.6 MWh',
+        helper: 'On track for target',
+      },
+      { label: 'Past month', value: '248.2 MWh', helper: 'Peak output 1.8 MW' },
+    ],
     milestones: [
       {
         id: 'tower-install',
