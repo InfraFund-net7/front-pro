@@ -108,12 +108,41 @@ function serializeProject(project: ProjectWithDetails) {
       checksum: document.checksum,
       storage_url: document.storageUrl,
     })),
+    digital_twin_model: project.digitalTwinModels[0]
+      ? {
+          id: project.digitalTwinModels[0].id,
+          name: project.digitalTwinModels[0].name,
+          asset_url: project.digitalTwinModels[0].assetUrl,
+          format: project.digitalTwinModels[0].format,
+          source: project.digitalTwinModels[0].source,
+          components: project.digitalTwinModels[0].components.map(
+            (component) => ({
+              id: component.id,
+              external_id: component.externalId,
+              display_name: component.displayName,
+              node_name: component.nodeName,
+              category: component.category,
+              sort_order: component.sortOrder,
+              is_visible: component.isVisible,
+            })
+          ),
+        }
+      : null,
     milestones: project.milestones.map((milestone) => ({
       id: milestone.id,
       name: milestone.name,
       cost: serializeDecimal(milestone.cost),
       end_date: serializeDate(milestone.endDate),
       sort_order: milestone.sortOrder,
+      components: milestone.components.map((mapping) => ({
+        id: mapping.component.id,
+        external_id: mapping.component.externalId,
+        display_name: mapping.component.displayName,
+        node_name: mapping.component.nodeName,
+        category: mapping.component.category,
+        sort_order: mapping.sortOrder,
+        is_visible: mapping.component.isVisible,
+      })),
     })),
   };
 }

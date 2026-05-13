@@ -55,6 +55,7 @@ interface CampaignMilestoneInput {
   name: string;
   cost?: string;
   endDate?: Date;
+  componentExternalIds: string[];
 }
 
 export interface MilestonesInput {
@@ -205,6 +206,72 @@ function readStringFromObject(
   options: { maxLength?: number } = {}
 ) {
   return readString(body, fields, field, options);
+}
+
+function readStringArrayFromObject(
+  body: JsonObject,
+  fields: Record<string, string>,
+  field: string,
+  options: {
+    required?: boolean;
+    maxLength?: number;
+    itemMaxLength?: number;
+  } = {}
+) {
+  const value = body[field];
+
+  if (value === undefined || value === null) {
+    if (options.required) {
+      addFieldError(fields, field, `${field} is required`);
+    }
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    addFieldError(fields, field, `${field} must be an array`);
+    return [];
+  }
+
+  if (options.maxLength !== undefined && value.length > options.maxLength) {
+    addFieldError(
+      fields,
+      field,
+      `${field} must contain at most ${options.maxLength} items`
+    );
+  }
+
+  return value.flatMap((item, index) => {
+    if (typeof item !== 'string') {
+      addFieldError(
+        fields,
+        `${field}.${index}`,
+        `${field}.${index} must be a string`
+      );
+      return [];
+    }
+
+    const trimmed = item.trim();
+
+    if (!trimmed) {
+      addFieldError(
+        fields,
+        `${field}.${index}`,
+        `${field}.${index} is required`
+      );
+      return [];
+    }
+
+    if (options.itemMaxLength && trimmed.length > options.itemMaxLength) {
+      addFieldError(
+        fields,
+        `${field}.${index}`,
+        `${field}.${index} must be at most ${options.itemMaxLength} characters`
+      );
+      return [];
+    }
+
+    return [trimmed];
+  });
 }
 
 export async function parseProjectContactRequest(request: Request) {
@@ -453,7 +520,7 @@ function parseMilestones(body: JsonObject, fields: Record<string, string>) {
         `milestones.${index}`,
         'Milestone must be an object'
       );
-      return { name: '' };
+      return { name: '', componentExternalIds: [] };
     }
 
     const milestone = item as JsonObject;
@@ -463,6 +530,15 @@ function parseMilestones(body: JsonObject, fields: Record<string, string>) {
     });
     const cost = readDecimalString(milestone, fields, 'cost');
     const endDate = readDate(milestone, fields, 'end_date');
+    const componentExternalIds = readStringArrayFromObject(
+      milestone,
+      fields,
+      'component_external_ids',
+      {
+        maxLength: 20,
+        itemMaxLength: 120,
+      }
+    );
 
     if (fields.name) {
       fields[`milestones.${index}.name`] = fields.name;
@@ -479,10 +555,17 @@ function parseMilestones(body: JsonObject, fields: Record<string, string>) {
       delete fields.end_date;
     }
 
+    if (fields.component_external_ids) {
+      fields[`milestones.${index}.component_external_ids`] =
+        fields.component_external_ids;
+      delete fields.component_external_ids;
+    }
+
     return {
       name: name ?? '',
       cost,
       endDate,
+      componentExternalIds,
     };
   });
 }

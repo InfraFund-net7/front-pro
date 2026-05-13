@@ -12,19 +12,61 @@ import {
 import { Canvas } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Box3, Vector3, type Mesh, type Object3D } from 'three';
+import type { ConstructionMilestone } from '@/lib/digital-twin-projects';
 
 type DigitalTwinModelViewerProps = {
   modelUrl: string;
   title: string;
+  milestones?: ConstructionMilestone[];
 };
 
 function isMesh(object: Object3D): object is Mesh {
   return 'isMesh' in object && object.isMesh === true;
 }
 
-function Model({ modelUrl }: { modelUrl: string }) {
+function buildEnabledNameSet(milestones: ConstructionMilestone[]) {
+  const names = new Set<string>();
+
+  milestones.forEach((milestone) => {
+    if (!milestone.completed) {
+      return;
+    }
+
+    milestone.components.forEach((component) => {
+      component.nodeNames.forEach((nodeName) => names.add(nodeName));
+    });
+  });
+
+  return names;
+}
+
+function hasEnabledName(object: Object3D, enabledNames: Set<string>) {
+  let current: Object3D | null = object;
+
+  while (current) {
+    if (enabledNames.has(current.name)) {
+      return true;
+    }
+
+    current = current.parent;
+  }
+
+  return false;
+}
+
+function Model({
+  modelUrl,
+  milestones = [],
+}: {
+  modelUrl: string;
+  milestones?: ConstructionMilestone[];
+}) {
   const gltf = useGLTF(modelUrl);
   const bounds = useBounds();
+  const enabledNames = useMemo(
+    () => buildEnabledNameSet(milestones),
+    [milestones]
+  );
   const modelOffset = useMemo(() => {
     const box = new Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new Vector3());
@@ -34,14 +76,18 @@ function Model({ modelUrl }: { modelUrl: string }) {
 
   useEffect(() => {
     gltf.scene.traverse((object) => {
-      if (isMesh(object)) {
-        object.castShadow = true;
-        object.receiveShadow = true;
+      if (!isMesh(object)) {
+        object.visible = true;
+        return;
       }
+
+      object.visible = hasEnabledName(object, enabledNames);
+      object.castShadow = object.visible;
+      object.receiveShadow = object.visible;
     });
 
     bounds.refresh(gltf.scene).fit();
-  }, [bounds, gltf.scene]);
+  }, [bounds, enabledNames, gltf.scene]);
 
   return <primitive object={gltf.scene} position={modelOffset} />;
 }
@@ -59,6 +105,7 @@ function LoadingModel() {
 export function DigitalTwinModelViewer({
   modelUrl,
   title,
+  milestones,
 }: DigitalTwinModelViewerProps) {
   const [showGroundPlane, setShowGroundPlane] = useState(true);
   const [showKeyLight, setShowKeyLight] = useState(true);
@@ -109,8 +156,8 @@ export function DigitalTwinModelViewer({
             attach="background"
             args={[showGroundPlane ? '#6f6f6f' : '#808080']}
           />
-          <ambientLight intensity={0.35} />
-          <hemisphereLight args={['#ffffff', '#303030', 0.7]} />
+          <ambientLight intensity={0.55} />
+          <hemisphereLight args={['#f7f7f7', '#2c2c2c', 0.85]} />
           {showKeyLight ? (
             <directionalLight
               position={[45, 90, 45]}
@@ -127,8 +174,7 @@ export function DigitalTwinModelViewer({
               shadow-normalBias={0.08}
             />
           ) : null}
-          <pointLight position={[-5, 4, -5]} intensity={0.6} color="#24FF8E" />
-          <Environment preset="city" environmentIntensity={0.45} />
+          <Environment preset="city" environmentIntensity={0.35} />
           <Suspense fallback={<LoadingModel />}>
             <Bounds clip margin={1.35}>
               <group>
@@ -145,7 +191,7 @@ export function DigitalTwinModelViewer({
                     </mesh>
                   </group>
                 ) : null}
-                <Model modelUrl={modelUrl} />
+                <Model modelUrl={modelUrl} milestones={milestones} />
               </group>
             </Bounds>
           </Suspense>
