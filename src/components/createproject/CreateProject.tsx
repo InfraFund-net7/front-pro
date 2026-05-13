@@ -158,7 +158,7 @@ function FieldValue({
 }
 
 export default function CreateProject() {
-  const { backendAccessToken, backendUser } = useAuthSession();
+  const { backendAccessToken, backendUser, refreshSession } = useAuthSession();
   const [step, setStep] = useState<Step>('model');
   const [project, setProject] = useState<ProjectResponse | null>(null);
   const [contact, setContact] = useState<ProjectContactPayload>({
@@ -217,10 +217,16 @@ export default function CreateProject() {
   );
 
   async function persist<T>(
-    action: () => Promise<T>,
+    action: (accessToken: string) => Promise<T>,
     onSuccess: (value: T) => void
   ) {
-    if (!backendAccessToken) {
+    let accessToken = backendAccessToken;
+
+    if (!accessToken) {
+      accessToken = await refreshSession();
+    }
+
+    if (!accessToken) {
       setError('Please sign in again before creating a project.');
       return;
     }
@@ -229,11 +235,35 @@ export default function CreateProject() {
     setError(null);
 
     try {
-      const result = await action();
+      const result = await action(accessToken);
       onSuccess(result);
     } catch (caughtError) {
       const message =
         caughtError instanceof Error ? caughtError.message : 'Request failed';
+
+      if (/invalid access token|session expired/i.test(message)) {
+        const refreshedToken = await refreshSession();
+
+        if (refreshedToken) {
+          try {
+            const retryResult = await action(refreshedToken);
+            onSuccess(retryResult);
+            return;
+          } catch (retryError) {
+            const retryMessage =
+              retryError instanceof Error
+                ? retryError.message
+                : 'Request failed';
+            setError(
+              retryMessage.startsWith('Validation failed')
+                ? 'Please complete the required fields before continuing.'
+                : retryMessage
+            );
+            return;
+          }
+        }
+      }
+
       setError(
         message.startsWith('Validation failed')
           ? 'Please complete the required fields before continuing.'
@@ -380,7 +410,7 @@ export default function CreateProject() {
                 disabled={item.disabled || isSaving}
                 onClick={() =>
                   persist(
-                    () => createProjectDraft(backendAccessToken!),
+                    (accessToken) => createProjectDraft(accessToken),
                     (draft) => {
                       setProject(draft);
                       hydrateMilestonesFromProject(draft);
@@ -417,8 +447,8 @@ export default function CreateProject() {
             event.preventDefault();
             if (!project) return;
             persist(
-              () =>
-                saveProjectContact(backendAccessToken!, project.id, contact),
+              (accessToken) =>
+                saveProjectContact(accessToken, project.id, contact),
               (updated) => {
                 setProject(updated);
                 setStep('project');
@@ -479,12 +509,8 @@ export default function CreateProject() {
             event.preventDefault();
             if (!project) return;
             persist(
-              () =>
-                saveProjectInformation(
-                  backendAccessToken!,
-                  project.id,
-                  projectInfo
-                ),
+              (accessToken) =>
+                saveProjectInformation(accessToken, project.id, projectInfo),
               (updated) => {
                 setProject(updated);
                 setStep('milestones');
@@ -609,8 +635,8 @@ export default function CreateProject() {
             event.preventDefault();
             if (!project) return;
             persist(
-              () =>
-                saveProjectMilestones(backendAccessToken!, project.id, {
+              (accessToken) =>
+                saveProjectMilestones(accessToken, project.id, {
                   milestones,
                 }),
               (updated) => {
@@ -779,8 +805,8 @@ export default function CreateProject() {
             event.preventDefault();
             if (!project) return;
             persist(
-              () =>
-                saveProjectCampaign(backendAccessToken!, project.id, campaign),
+              (accessToken) =>
+                saveProjectCampaign(accessToken, project.id, campaign),
               (updated) => {
                 setProject(updated);
                 setStep('review');
@@ -991,7 +1017,7 @@ export default function CreateProject() {
             nextLabel="Submit Project"
             onSubmit={() =>
               persist(
-                () => submitProjectDraft(backendAccessToken!, project.id),
+                (accessToken) => submitProjectDraft(accessToken, project.id),
                 (updated) => {
                   setProject(updated);
                   setStep('submitted');
