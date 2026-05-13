@@ -1,0 +1,153 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "3695bab89456",
+  "session_id": "57b10182-c52a-419f-807d-f0bbab097376",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-13T03:50:49.105384833Z",
+  "branch": "create-pre-sale-project",
+  "checkpoints_count": 10,
+  "files_touched": [
+    "docs-dev/tasks/task-120-glTF-dashboard/task-121-glTF-model-visibility.md",
+    "prisma/schema.prisma",
+    "public/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf",
+    "src/app/projects/[id]/digital-twin/page.tsx",
+    "src/components/createproject/CreateProject.tsx",
+    "src/components/digital-twin/client-page.tsx",
+    "src/components/digital-twin/milestone-checklist.tsx",
+    "src/components/digital-twin/model-viewer.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/lib/digital-twin-projects.ts",
+    "src/lib/project-digital-twin.ts",
+    "src/server/digital-twin/project-model.ts",
+    "src/server/repositories/projects.ts",
+    "src/server/services/projects.ts",
+    "src/server/validation/projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.4-(Headroom-Azure)-1",
+  "turn_id": "ac9e6ffc4a83",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 10
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-13T03:50:49.080600443Z",
+    "agent_lines": 1114,
+    "agent_removed": 190,
+    "human_added": 1738,
+    "human_modified": 5,
+    "human_removed": 0,
+    "total_committed": 2857,
+    "total_lines_changed": 3059,
+    "agent_percentage": 42.628309905197774,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 753,
+      "agent_lines_removed": 105
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1059,
+      "agent_lines_removed": 193
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1088,
+      "agent_lines_removed": 200
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1095,
+      "agent_lines_removed": 200
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 5,
+      "user_lines_removed": 1,
+      "agent_lines_added": 1099,
+      "agent_lines_removed": 197,
+      "user_added_per_file": {
+        "src/components/digital-twin/client-page.tsx": 5
+      },
+      "user_removed_per_file": {
+        "src/components/digital-twin/client-page.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 5,
+      "user_lines_removed": 1,
+      "agent_lines_added": 1061,
+      "agent_lines_removed": 201,
+      "user_added_per_file": {
+        "src/components/digital-twin/client-page.tsx": 5
+      },
+      "user_removed_per_file": {
+        "src/components/digital-twin/client-page.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 5,
+      "user_lines_removed": 1,
+      "agent_lines_added": 1061,
+      "agent_lines_removed": 201,
+      "user_added_per_file": {
+        "src/components/digital-twin/client-page.tsx": 5
+      },
+      "user_removed_per_file": {
+        "src/components/digital-twin/client-page.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 5,
+      "user_lines_removed": 1,
+      "agent_lines_added": 1051,
+      "agent_lines_removed": 203,
+      "user_added_per_file": {
+        "src/components/digital-twin/client-page.tsx": 5
+      },
+      "user_removed_per_file": {
+        "src/components/digital-twin/client-page.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 5,
+      "user_lines_removed": 1,
+      "agent_lines_added": 1020,
+      "agent_lines_removed": 196,
+      "user_added_per_file": {
+        "src/components/digital-twin/client-page.tsx": 5
+      },
+      "user_removed_per_file": {
+        "src/components/digital-twin/client-page.tsx": 1
+      }
+    }
+  ]
+}

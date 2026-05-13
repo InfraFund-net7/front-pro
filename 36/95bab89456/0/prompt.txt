@@ -1,0 +1,118 @@
+I have just implemented the initial version of the process to create a new crowd funding project : @docs-dev/tasks/task-130-Project-Management/task-130.01-Create-Pre-Sale-Project.md 
+
+We have to extend the `milestones` page to allow attaching a list of object references of a glTF 3D model. The intention is that a milestone refers to a list of components of the 3D model which we then can show/hide/color based on the status of the milestone. More detail is in @docs-dev/tasks/task-120-glTF-dashboard/task-120.1-glTF-dashboard-plan.md 
+
+We need to extend the database to have a 1:n mapping from a milestone to components of the 3D model.
+
+Before we can define the milestones we need to upload/chose (initially we can use one hard coded model) the glTF 3D Model file from which we can extract the various component. The user should be able to pick multiple component to be associated with a milestone.
+
+Our available glTF model is `public/models/digital-twin/wind-turbine/Wind_Turbine 2.gltf`, but that is still one large mesh and does not have separate component. To not be blocked by this , it would be great if we could derive a new file `public/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf` (anc copy corresponding `bin` file) and "manually" create components : concrete base (not visible, not included in model yet), tower, generator house, rotor blades.
+
+When creating the milestonefor now we just hardwire this model.
+
+---
+
+can we do a hardwired test on page `projects/3/digital-twin` where we adapt the milestones to the available components of the `public/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf` model which we hard wired for this page and show/hide the component depending on the state of the check box
+
+---
+
+ok, looks like that it is working in priciple. However, I think that either the manual extraction of components out of the model was not done properly or that we (less likely) have some rendering or mapping issue. The only component which is hidden is the tower, but if I click the "Tower Install" milestone, the tower shows up which proves that our approach is working in principle. 
+Also the model is green. I would like to have it back to shades of grey by default, unless - what will will later do - assign a component s special state (i.e. "installtion is blocked/delayed) and assign a component a specific color. Can you check if you can either improve the model or somehow improve our hide/show of components ?
+
+---
+
+model is grey now, but otherwise no change in functionality
+
+---
+
+`/home/sum/DEV/ETH/InfraFund/3-temp/REDACTED.png` this is how the image looks like at the start. All check boxes off, but everyting visible beside the tower.
+
+i clicked all boxes each multipl times, no different bahaviour and this is in the browser console now
+```
+milestone-checklist.tsx:84 Cannot update a component (`DigitalTwinClientPage`) while rendering a different component (`MilestoneChecklist`). To locate the bad setState() call inside `MilestoneChecklist`, follow the stack trace as described in https://react.dev/link/setstate-in-render
+error @ intercept-console-error.ts:48
+scheduleUpdateOnFiber @ react-dom-client.development.js:17712
+dispatchSetStateInternal @ react-dom-client.development.js:9437
+dispatchSetState @ react-dom-client.development.js:9394
+(anonymous) @ milestone-checklist.tsx:84
+basicStateReducer @ react-dom-client.development.js:8198
+updateReducerImpl @ react-dom-client.development.js:8308
+updateReducer @ react-dom-client.development.js:8231
+useState @ react-dom-client.development.js:28848
+(anonymous) @ react.development.js:1309
+MilestoneChecklist @ milestone-checklist.tsx:15
+react_stack_bottom_frame @ react-dom-client.development.js:28241
+renderWithHooks @ react-dom-client.development.js:7925
+updateFunctionComponent @ react-dom-client.development.js:10442
+beginWork @ react-dom-client.development.js:12112
+runWithFiberInDEV @ react-dom-client.development.js:986
+performUnitOfWork @ react-dom-client.development.js:18988
+workLoopSync @ react-dom-client.development.js:18816
+renderRootSync @ react-dom-client.development.js:18797
+performWorkOnRoot @ react-dom-client.development.js:17823
+performSyncWorkOnRoot @ react-dom-client.development.js:20486
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:20328
+flushSyncWork$1 @ react-dom-client.development.js:18243
+batchedUpdates$1 @ react-dom-client.development.js:3385
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:20814
+dispatchEvent @ react-dom-client.development.js:25817
+dispatchDiscreteEvent @ react-dom-client.development.js:25785
+18forward-logs-shared.ts:95 THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+```
+
+---
+
+now only the tower is visible when the checkbox is on
+all other components are not visible, no matter the state of the check boxes
+shadow is still like as if all components are there
+
+---
+
+shadow is now correct, but all but the tower is not visible, no matter the checkbox state
+tower is working fine and show/hides bedending on checkbox state
+
+---
+
+unfortunately still no change in behavior
+
+---
+
+i saw a few log messages in the dev server console
+```
+GET /api/v1/me 200 in 682ms (next.js: 667ms, application-code: 16ms)
+ POST /api/auth/encryption-session 200 in 2.4s (next.js: 711ms, application-code: 1703ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <unknown> (<anonymous>:1:68106) { context: 'AnalyticsSDKApiError' } (<anonymous>:1:49889)
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <unknown> (<anonymous>:1:68106) { context: 'AnalyticsSDKApiError' } (<anonymous>:1:49889)
+✓ Compiled in 96ms
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+✓ Compiled in 82ms
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+[browser] THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+```
+other wise i restarted the server, cleared `.next` cache directory, but no change in behavior
+
+---
+
+no, not working
+lets take a break
+write our task , what was the goal, what we have achieve, what we tried and did not work, and open sub-tasks into a new file `docs-dev/tasks/task-120-glTF-dashboard/task-121-glTF-model-visibility.md`
