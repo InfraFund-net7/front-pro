@@ -17,6 +17,7 @@ import type { ConstructionMilestone } from '@/lib/digital-twin-projects';
 type DigitalTwinModelViewerProps = {
   modelUrl: string;
   title: string;
+  statusLabel: string;
   milestones?: ConstructionMilestone[];
 };
 
@@ -56,13 +57,16 @@ function hasEnabledName(object: Object3D, enabledNames: Set<string>) {
 
 function Model({
   modelUrl,
+  statusLabel,
   milestones = [],
 }: {
   modelUrl: string;
+  statusLabel: string;
   milestones?: ConstructionMilestone[];
 }) {
   const gltf = useGLTF(modelUrl);
   const bounds = useBounds();
+  const isOperational = statusLabel === 'Operational';
   const enabledNames = useMemo(
     () => buildEnabledNameSet(milestones),
     [milestones]
@@ -81,13 +85,13 @@ function Model({
         return;
       }
 
-      object.visible = hasEnabledName(object, enabledNames);
+      object.visible = isOperational || hasEnabledName(object, enabledNames);
       object.castShadow = object.visible;
       object.receiveShadow = object.visible;
     });
 
     bounds.refresh(gltf.scene).fit();
-  }, [bounds, enabledNames, gltf.scene]);
+  }, [bounds, enabledNames, gltf.scene, isOperational]);
 
   return <primitive object={gltf.scene} position={modelOffset} />;
 }
@@ -105,6 +109,7 @@ function LoadingModel() {
 export function DigitalTwinModelViewer({
   modelUrl,
   title,
+  statusLabel,
   milestones,
 }: DigitalTwinModelViewerProps) {
   const [showGroundPlane, setShowGroundPlane] = useState(true);
@@ -191,7 +196,11 @@ export function DigitalTwinModelViewer({
                     </mesh>
                   </group>
                 ) : null}
-                <Model modelUrl={modelUrl} milestones={milestones} />
+                <Model
+                  modelUrl={modelUrl}
+                  statusLabel={statusLabel}
+                  milestones={milestones}
+                />
               </group>
             </Bounds>
           </Suspense>
