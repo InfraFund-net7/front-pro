@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { CesiumIonViewer } from '@/components/digital-twin/cesium-ion-viewer';
 import { DigitalTwinModelViewer } from '@/components/digital-twin/model-viewer';
 import { MilestoneChecklist } from '@/components/digital-twin/milestone-checklist';
 import type { ConstructionMilestone } from '@/lib/digital-twin-projects';
@@ -23,12 +24,15 @@ export function DigitalTwinClientPage({ project }: DigitalTwinClientPageProps) {
 
   return (
     <>
-      <DigitalTwinModelViewer
-        modelUrl={project.modelUrl}
-        title={project.title}
-        statusLabel={project.statusLabel}
-        milestones={project.mode === 'construction' ? milestones : undefined}
-      />
+      {project.cesiumIonAssetId ? (
+        <CesiumIonViewer assetId={project.cesiumIonAssetId} />
+      ) : (
+        <DigitalTwinModelViewer
+          modelUrl={project.modelUrl}
+          statusLabel={project.statusLabel}
+          milestones={project.mode === 'construction' ? milestones : undefined}
+        />
+      )}
 
       {project.mode === 'operational' && project.energyMetrics ? (
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
