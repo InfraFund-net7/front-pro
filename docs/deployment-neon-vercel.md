@@ -1,4 +1,4 @@
-<!-- cspell:words neondb Neon uuidv7 uuidv pooler sslmode prebuild UNPOOLED replayable -->
+<!-- cspell:words neondb Neon uuidv7 uuidv pooler sslmode prebuild UNPOOLED replayable baselined -->
 
 # Deploying InfraFund to Vercel with Neon Postgres
 
@@ -86,6 +86,7 @@ If you prefer to provision Neon manually, create a project at
 Important:
 
 - Preview and Production can point to different databases if required
+- for the current working setup, Preview is the primary target environment
 - `prisma migrate deploy` will run against whichever `DATABASE_URL` is present for that environment
 
 ---
@@ -115,6 +116,8 @@ Set variables for all relevant environments, especially:
 
 - **Preview** for the `develop` branch deployment path
 - **Production** for the `main` branch deployment path
+
+If you are only activating Preview initially, it is acceptable to configure Preview first and defer Production until the production rollout is ready.
 
 ---
 
@@ -323,3 +326,96 @@ The Neon bootstrap script detects whether `uuidv7()` already exists and only ins
 - verify the app loads and auth flow works
 
 If all of the above are done, the new Vercel account will use the same automatic Neon schema-sync process as this one.
+
+## Neon Database Resources
+
+### neon CLI
+
+user needs to authenticate first executing `neon auth` then confirming in Web browser
+
+List Project IDs : `neon projects list`
+If user belongs to multiple organizations, you can list projects for a specific organization : `neon projects list --org-id org-xxxx-xxxx`
+
+## Troubleshooting and lessons learned
+
+### What we would want to know up front
+
+- `prisma migrate deploy` assumes the target database is either empty or already
+  tracked by `_prisma_migrations`.
+- If the target Neon database was previously initialized by `prisma db push`, an
+  initial migration can fail with `P3005` because the schema is already present
+  but Prisma has no migration history recorded.
+- A Vercel project can appear to be connected to Neon in the UI while builds
+  still fail; build logs are the source of truth.
+- Preview and Production environment assignment in Vercel does not by itself
+  prove that those environments use separate persistent Neon databases.
+
+### If `prisma migrate deploy` fails with `P3005`
+
+Example failure:
+
+```text
+Error: P3005
+The database schema is not empty.
+```
+
+This means the database already contains tables but Prisma migrations have not
+been baselined there.
+
+For disposable Preview environments, the cleanest fix is usually to wipe the
+preview database and let Vercel rebuild it from scratch.
+
+### Reset Preview by deleting and recreating the Neon database
+
+Use this when:
+
+- Preview data is disposable
+- the database was previously created via `db push`
+- you want future Vercel deployments to work with `prisma migrate deploy`
+  without one-off manual migration fixes
+
+Typical flow:
+
+1. Identify the Neon project ID
+2. Identify the branch ID used by the Vercel Preview database
+3. Delete the database on that branch
+4. Recreate the same database name and owner
+5. Redeploy Preview from Vercel
+
+Commands:
+
+```sh
+neon projects list
+neon branches list --project-id <project-id>
+neon databases list --project-id <project-id> --branch-id <branch-id>
+neon databases delete <database-name> --project-id <project-id> --branch-id <branch-id>
+neon databases create --name <database-name> --owner-name <owner-name> --project-id <project-id> --branch-id <branch-id>
+npx vercel redeploy <deployment-id> --target preview
+```
+
+Notes:
+
+- Deleting the database removes all data in that database
+- Recreating the database keeps the branch but starts the database fresh
+- After redeploy, Vercel reruns bootstrap, migrations, seed, and app build
+
+### Verifying that the reset worked
+
+After resetting the database and redeploying:
+
+- inspect the new Vercel Preview deployment
+- confirm it reaches `Ready`
+- verify build logs no longer show `P3005`
+- confirm app data is recreated by migrations and seed scripts as expected
+
+### Separate Preview and Production databases
+
+Needs clarification: the current docs and UI behavior did not conclusively prove
+whether selecting both Preview and Production in the Neon/Vercel integration
+always yields separate persistent database instances by default.
+
+Until that is confirmed, the safest recommendation is:
+
+- treat Preview and Production as needing explicit separation
+- prefer separate persistent Neon branches or databases for each environment
+- do not assume separation from the Vercel environment checkboxes alone
