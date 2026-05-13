@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "af90345779de",
+  "strategy": "manual-commit",
+  "branch": "develop",
+  "checkpoints_count": 11,
+  "files_touched": [
+    ".github/workflows/prisma-migration-guard.yaml",
+    "docs/deployment-neon-vercel.md",
+    "knip.json",
+    "package-lock.json",
+    "package.json",
+    "prisma/migrations/20260513143000_init/migration.sql",
+    "prisma/migrations/migration_lock.toml",
+    "scripts/bootstrap-neon-db.mjs",
+    "scripts/check-prisma-migration-sync.mjs",
+    "scripts/setup-neon-db.mjs",
+    "scripts/vercel-build.mjs"
+  ],
+  "sessions": [
+    {
+      "metadata": "/af/90345779de/0/metadata.json",
+      "transcript": "/af/90345779de/0/full.jsonl",
+      "content_hash": "/af/90345779de/0/content_hash.txt",
+      "prompt": "/af/90345779de/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}

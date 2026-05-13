@@ -1,0 +1,50 @@
+you will see an error , ignore it , it is not relevant, i will thereafter send instructions
+
+---
+
+when i push a commit to the `develop` branch , vercel automatically oicks it up and creates a preview deployment. How can we make sure that any database migration will be re-played on vercel for the connected 'neon' database.
+
+---
+
+so , it now should all work automatically , i just push to develop and everything will be automatically been taken care of ?
+
+---
+
+how can I ensure that
+- Vercel is configured to use npm run vercel-build
+- future schema changes will be committed as Prisma migration files
+
+---
+
+can you do both
+
+---
+
+will it work for a normal commit to `develop` branch as well or would it need to be a PR ?
+
+---
+
+ok, do it
+
+---
+
+can we now trigger a migration for the `preview` deployment on vercel which is linked to our `develop` branch so that 'neon' db on vercel is in sync with our local db schema
+
+---
+
+great. can you verify that the neon schema is now in sync with our local db schema
+
+---
+
+our local instance is this `DATABASE_URL=REDACTED` , taken from `.env.local`
+
+---
+
+i gave you the `DATABASE_URL` from `.env.local` , you wrote "pulled preview DATABASE_URL is empty locally". Do you mean that 
+- there is no DB running on that URI ?
+- our local dev server instance is not using that DB ?
+... or anything else. Please explain.
+
+---
+
+we already have this file with deployment instructions , can you extend that to cover the schema sync process. We also need that as documentation as we have to configure another vercel account at a later stage, so we would need all context, what we have available here in this repo , how to use it : @docs/deployment-neon-vercel.md
