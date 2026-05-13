@@ -1,5 +1,1 @@
 commit and push
-
----
-
-can we make the "construction Milestone" list for projects under construction (#2 and #3) single line. The labels are pretty redundat and I want to save some vertical space belows the rendered image
