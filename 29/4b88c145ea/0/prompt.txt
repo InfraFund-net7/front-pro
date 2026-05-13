@@ -403,3 +403,7 @@ Once done, commit and push it
 ---
 
 I got some valuable feedback , stored it in @../1-resources-config/vercel-neon/vercel-neon-database.md
+
+---
+
+yes, commit and push
