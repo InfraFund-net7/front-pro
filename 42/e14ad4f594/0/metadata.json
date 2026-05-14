@@ -1,0 +1,70 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "42e14ad4f594",
+  "session_id": "315df540-f2a3-49a8-88bd-59dd97bbc16b",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-14T08:46:43.912200931Z",
+  "branch": "feature/gltf-metadata",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "src/lib/project-digital-twin.ts",
+    "src/lib/digital-twin-projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "",
+  "turn_id": "2262899785e2",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-14T08:46:43.909047222Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 2151,
+    "total_committed": 0,
+    "total_lines_changed": 4297,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 2152,
+      "user_lines_removed": 2152,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "data/3D/wind-turbine/Wind_Turbine_2.gltf": 307,
+        "data/3D/wind-turbine/Wind_Turbine_3.gltf": 604,
+        "docs-dev/release-notes/v1.2.0-digital-twin-pages-with-glTF-3d-model.md": 1,
+        "docs-dev/release-notes/v1.2.3-digital-twin-rendering-component-state.md": 1,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-121-glTF-model-visibility.md": 3,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-124-glTF-model-visibility-from-database.md": 13,
+        "public/models/digital-twin/wind-turbine/Wind_Turbine_1.gltf": 307,
+        "public/models/digital-twin/wind-turbine/Wind_Turbine_2.gltf": 307,
+        "public/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf": 604,
+        "src/lib/digital-twin-projects.ts": 4,
+        "src/lib/project-digital-twin.ts": 1
+      },
+      "user_removed_per_file": {
+        "data/3D/wind-turbine/Wind_Turbine 2.gltf": 307,
+        "data/3D/wind-turbine/Wind_Turbine 3.gltf": 604,
+        "docs-dev/release-notes/v1.2.0-digital-twin-pages-with-glTF-3d-model.md": 1,
+        "docs-dev/release-notes/v1.2.3-digital-twin-rendering-component-state.md": 1,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-121-glTF-model-visibility.md": 3,
+        "docs-dev/tasks/task-120-glTF-dashboard/task-124-glTF-model-visibility-from-database.md": 13,
+        "public/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf": 307,
+        "public/models/digital-twin/wind-turbine/Wind_Turbine 2.gltf": 307,
+        "public/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf": 604,
+        "src/lib/digital-twin-projects.ts": 4,
+        "src/lib/project-digital-twin.ts": 1
+      }
+    }
+  ]
+}
