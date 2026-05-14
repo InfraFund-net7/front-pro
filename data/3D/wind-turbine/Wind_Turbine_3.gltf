@@ -141,7 +141,7 @@
   "buffers": [
     {
       "byteLength": 199640,
-      "uri": "Wind_Turbine 3.bin"
+      "uri": "Wind_Turbine_3.bin"
     }
   ],
   "cameras": [
@@ -515,7 +515,7 @@
     "model": {
       "projectName": "Example Wind Turbine Digital Twin",
       "modelVersion": "2026-05-13-v3-componentized",
-      "sourceModel": "Wind_Turbine 2.gltf",
+      "sourceModel": "Wind_Turbine_2.gltf",
       "unit": "model units from source asset",
       "upAxis": "Y",
       "exportedAt": "2026-05-13T00:00:00Z"
