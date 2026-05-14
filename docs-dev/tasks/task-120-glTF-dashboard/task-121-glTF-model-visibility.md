@@ -27,8 +27,8 @@ This task was only meant to validate the interaction model before building uploa
 
 The working model is:
 
-- `public/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf`
-- `public/models/digital-twin/wind-turbine/Wind_Turbine 3.bin`
+- `public/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf`
+- `public/models/digital-twin/wind-turbine/Wind_Turbine_3.bin`
 
 It was derived from the provided wind turbine glTF package and updated so trackable components have stable, unique node names.
 
@@ -48,7 +48,7 @@ Each component has its own mesh node and material instance so the viewer can tog
 Project `3` in `src/lib/digital-twin-projects.ts` now points to:
 
 ```ts
-modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf'
+modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf'
 ```
 
 Its milestones are hardcoded and map directly to the stable component node names in the model.
