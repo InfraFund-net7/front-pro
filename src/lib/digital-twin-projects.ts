@@ -88,10 +88,10 @@ const digitalTwinProjects: Record<string, DigitalTwinProject> = {
     title: 'Cornwall Wind turbine Pilot #1',
     statusLabel: 'Operational',
     mode: 'operational',
-    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf',
+    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf',
     modelFormat: 'gltf',
     modelNotes:
-      'Uses the component-ready Wind_Turbine 3.gltf asset with its paired Wind_Turbine 3.bin file.',
+      'Uses the component-ready Wind_Turbine_3.gltf asset with its paired Wind_Turbine_3.bin file.',
     components: windTurbineComponents,
     energyMetrics: [
       { label: 'Past day', value: '8.4 MWh', helper: '+6.2% vs previous day' },
@@ -109,10 +109,10 @@ const digitalTwinProjects: Record<string, DigitalTwinProject> = {
     title: 'Cornwall Wind turbine Pilot #2',
     statusLabel: 'Construction',
     mode: 'construction',
-    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf',
+    modelUrl: '/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf',
     modelFormat: 'gltf',
     modelNotes:
-      'Uses the component-ready Wind_Turbine 3.gltf asset with its paired Wind_Turbine 3.bin file for construction-stage status mapping.',
+      'Uses the component-ready Wind_Turbine_3.gltf asset with its paired Wind_Turbine_3.bin file for construction-stage status mapping.',
     components: windTurbineComponents,
     milestones: [
       {
