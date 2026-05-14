@@ -31,6 +31,7 @@ export function DigitalTwinClientPage({ project }: DigitalTwinClientPageProps) {
           modelUrl={project.modelUrl}
           statusLabel={project.statusLabel}
           milestones={project.mode === 'construction' ? milestones : undefined}
+          components={project.components}
         />
       )}
 
