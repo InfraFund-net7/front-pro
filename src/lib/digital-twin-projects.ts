@@ -8,6 +8,16 @@ type EnergyMetric = {
   helper: string;
 };
 
+export type MetadataValue =
+  | string
+  | number
+  | boolean
+  | null
+  | MetadataValue[]
+  | { [key: string]: MetadataValue };
+
+export type MetadataRecord = Record<string, MetadataValue>;
+
 type MilestoneComponentRef = {
   externalId: string;
   displayName: string;
@@ -22,7 +32,7 @@ export type ConstructionMilestone = {
   components: MilestoneComponentRef[];
 };
 
-type DigitalTwinComponentConfig = {
+export type DigitalTwinComponentConfig = {
   externalId: string;
   displayName: string;
   nodeNames: string[];
