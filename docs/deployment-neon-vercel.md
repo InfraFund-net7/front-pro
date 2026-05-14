@@ -1,30 +1,56 @@
-<!-- cspell:words neondb Neon uuidv7 uuidv pooler sslmode prebuild UNPOOLED replayable baselined -->
+<!-- cspell:words neondb Neon uuidv7 uuidv pooler sslmode prebuild UNPOOLED replayable baselined branch-scoped devops infrafunds -->
 
 # Deploying InfraFund to Vercel with Neon Postgres
 
-Step-by-step guide to deploy this project on a new Vercel account with a custom
- domain. The application build, database bootstrap, Prisma migrations, and seed
- data are applied automatically when Vercel runs the configured build command.
+This project is deployed as a single Vercel project backed by Neon Postgres. The
+recommended setup is to keep Preview and Production isolated by using separate
+Neon branches and branch-scoped Vercel environment variables.
+
+## Recommended topology
+
+Use one Neon project with separate branches for the Vercel environments:
+
+```mermaid
+flowchart LR
+  DEV[develop] --> VP[Preview]
+  MAIN[main] --> PROD[Production]
+  VP --> NB2[Neon preview]
+  PROD --> NB1[Neon main]
+  NB2 --> DB2[neondb]
+  NB1 --> DB1[neondb]
+```
+
+Recommended mapping:
+
+| Git / Vercel target | Neon branch       | Database | Owner          | Purpose                         |
+| ------------------- | ----------------- | -------- | -------------- | ------------------------------- |
+| `develop` / Preview | `preview/develop` | `neondb` | `neondb_owner` | Test preview schema and app     |
+| `main` / Production | `main`            | `neondb` | `neondb_owner` | Production schema and live data |
+
+This is still one Vercel project and one Neon project, but Preview and Production
+must resolve to different Neon branch hosts. Do not let Preview and Production
+share the same `DATABASE_URL` unless you intentionally want migrations from both
+environments to run against the same database.
 
 ## Current repo state
 
-This repository already contains the Vercel/Neon schema-sync pieces:
+This repository contains the Vercel/Neon schema-sync pieces:
 
 - `prisma/schema.prisma` — source-of-truth Prisma data model
 - `prisma/migrations/` — committed Prisma migrations that Vercel replays
 - `scripts/bootstrap-neon-db.mjs` — ensures `uuidv7()` works on Neon/Postgres 17
-- `scripts/vercel-build.mjs` — the Vercel build entrypoint for schema sync
+- `scripts/vercel-build.mjs` — Vercel build entrypoint for schema sync
 - `scripts/seed-countries.mjs` — idempotent country seed
 - `scripts/check-prisma-migration-sync.mjs` — CI guard for schema-without-migration drift
 - `.github/workflows/prisma-migration-guard.yaml` — enforces committed migrations on PRs and pushes to `develop` and `main`
 
-The intended deployment behavior is:
+Expected deployment behavior:
 
-- push to `develop` → Vercel Preview deploy
-- push to `main` → Vercel Production deploy
+- push to `develop` → Vercel Preview deploy → Neon `preview/develop`
+- push to `main` → Vercel Production deploy → Neon `main`
 - each deploy runs the schema-sync pipeline before `next build`
 
-## Build pipeline used by Vercel
+## Vercel build pipeline
 
 Vercel must use this build command:
 
@@ -44,324 +70,199 @@ next build
 
 What each step does:
 
-1. `prisma generate` refreshes the Prisma client
-2. `bootstrap-neon-db.mjs` installs `pg_uuidv7` if needed and creates the `uuidv7()` alias
-3. `prisma migrate deploy` replays any unapplied committed migrations against the target database
-4. `seed-countries.mjs` seeds countries only if missing
-5. `next build` builds the app only after the DB is ready
-
----
+1. `prisma generate` refreshes the Prisma client.
+2. `bootstrap-neon-db.mjs` installs `pg_uuidv7` if needed and creates the `uuidv7()` alias.
+3. `prisma migrate deploy` replays unapplied committed migrations against the target database.
+4. `seed-countries.mjs` seeds countries only if missing.
+5. `next build` builds the app only after the database is ready.
 
 ## Prerequisites
 
-- A Vercel account with access to add a project
-- The GitHub repo connected (or ready to connect) to Vercel
-- A domain you control (for DNS configuration)
-- Credentials for all third-party services (Openfort, reCAPTCHA, Sentry, etc.)
-  See `config-operation/environment-variables.md` for the full list.
+- Vercel account/team with access to the `front-pro` project
+- GitHub repo connected to Vercel
+- Neon account/org connected to the Vercel account/team
+- Third-party credentials listed in `config-operation/environment-variables.md`
 
----
+## Step 1 — Create or connect the Vercel project
 
-## Step 1 — Create the Vercel project
-
-1. In the Vercel dashboard, click **Add New → Project**
-2. Import the `front-pro` GitHub repository
-3. Set **Root Directory** to `/` (default)
-4. Use the detected project settings
-5. Do **not** click Deploy yet — set env vars first
-
----
-
-## Step 2 — Add the Neon Postgres integration
-
-1. In your Vercel project, go to **Storage → Connect Store**
-2. Select **Neon** and follow the OAuth flow
-3. Create a new Neon project (or connect an existing one)
-4. Vercel automatically injects `DATABASE_URL` and related Postgres variables
-
-If you prefer to provision Neon manually, create a project at
-[console.neon.tech](https://console.neon.tech), copy the connection string, and add
-`DATABASE_URL` manually in Vercel.
-
-Important:
-
-- Neon calls the isolated database environments used by Vercel `branches`
-- with Neon Preview Branching enabled, Production points at the production branch and Preview deployments get their own isolated preview branch
-- if you manually set a shared `DATABASE_URL` for all Vercel environments, that can override isolation and make Preview migrations hit the wrong database
-- for the current working setup, Preview is the primary target environment
-- `prisma migrate deploy` will run against whichever `DATABASE_URL` is present for that environment
-
----
-
-## Step 3 — Set environment variables
-
-In **Vercel → Project Settings → Environment Variables**, add all variables listed in
-`config-operation/environment-variables.md`.
-
-Key variables:
-
-| Variable                               | Where to get it                                     |
-|----------------------------------------|-----------------------------------------------------|
-| `DATABASE_URL`                         | Injected by Neon integration (or from Neon console) |
-| `APP_JWT_SECRET`                       | Generate: `openssl rand -hex 32`                    |
-| `APP_REFRESH_TOKEN_SECRET`             | Generate: `openssl rand -hex 32`                    |
-| `OPENFORT_SECRET_KEY`                  | Openfort dashboard → API Keys                       |
-| `OPENFORT_PUBLISHABLE_KEY`             | Openfort dashboard → API Keys                       |
-| `NEXT_PUBLIC_OPENFORT_PUBLISHABLE_KEY` | Same as above                                       |
-| `RECAPTCHA_SECRET_KEY`                 | Google reCAPTCHA admin console                      |
-| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`       | Google reCAPTCHA admin console                      |
-| `SENTRY_DSN`                           | Sentry project settings                             |
-| `NEXT_PUBLIC_SENTRY_DSN`               | Same as above                                       |
-| `CRON_SECRET`                          | Generate: `openssl rand -hex 32`                    |
-
-Set variables for all relevant environments, especially:
-
-- **Preview** for the `develop` branch deployment path
-- **Production** for the `main` branch deployment path
-
-If you are only activating Preview initially, it is acceptable to configure Preview first and defer Production until the production rollout is ready.
-
----
-
-## Step 4 — Configure Vercel build settings
-
-In **Vercel → Project Settings → Build & Development Settings**:
-
-- confirm **Build Command** is set to `npm run vercel-build`
-- leave the output directory blank unless your Vercel setup explicitly requires otherwise
-- if using the Neon-managed Vercel integration, enable **Branch-per-Preview** so each Preview deployment receives an isolated Neon branch
-- if the integration supports cleanup settings, enable automatic deletion of obsolete preview branches when the related PR/deployment is closed
+1. In Vercel, click **Add New → Project**.
+2. Import the `front-pro` GitHub repository.
+3. Set **Root Directory** to `/`.
+4. Configure env vars before relying on deployments.
+5. Confirm the project build command is `npm run vercel-build`.
 
 CLI verification:
 
 ```sh
-npx vercel project inspect front-pro
+npx vercel project inspect front-pro --scope <vercel-team-slug>
 ```
 
-Expected output should show:
+## Step 2 — Create or connect the Neon project
 
-```text
-Build Command    npm run vercel-build
-```
+Use a Neon project with at least these branches:
 
-If needed, set it with the Vercel API/CLI or in the dashboard before the first deployment.
+- `main`
+- `preview/develop`
 
----
+Each branch should contain a `neondb` database owned by `neondb_owner`.
 
-## Step 5 — Configure branch-to-environment behavior
-
-Recommended convention in this repo:
-
-- `develop` → Preview deployment
-- `main` → Production deployment
-
-Vercel will create a new deployment when you push to the connected repo/branch.
-Because the build command runs `prisma migrate deploy`, each deployment automatically
-applies pending migrations for that environment before the app build completes.
-
-This means:
-
-- a direct push to `develop` triggers Preview schema sync
-- a direct push to `main` triggers Production schema sync
-- a Vercel redeploy also re-runs the migration step
-
-If you use Neon Preview Branching, the safer long-term workflow is still:
-
-- open PRs for schema changes so each Preview deployment gets its own isolated Neon branch
-- validate migrations on that preview branch
-- merge to `main` for the production build to run migrations against the production branch
-- avoid relying on Vercel "Promote to Production" for schema-changing releases, because a fresh production build is the safer path
-
----
-
-## Step 6 — Configure the custom domain
-
-1. In **Vercel → Project Settings → Domains**, add your domain (e.g. `infrafund.dev`)
-2. Vercel shows the DNS records to add (usually an A record or CNAME)
-3. In your DNS provider, add those records
-4. Wait for DNS propagation (usually under 5 minutes on Cloudflare)
-
----
-
-## Step 7 — Deploy
-
-Trigger a deployment by pushing to the branch connected to your environment, or click
-**Redeploy** in the Vercel dashboard.
-
-On each deploy, Vercel will run:
+Useful read-only checks:
 
 ```sh
-npm run vercel-build
+neon projects list --org-id <neon-org-id>
+neon branches list --project-id <neon-project-id>
+neon databases list --project-id <neon-project-id> --branch <branch-id-or-name>
 ```
 
-This gives automatic schema sync for Neon because `prisma migrate deploy` is part of the build pipeline.
+If `preview/develop` does not exist, create it from `main` in the Neon console or
+with the Neon CLI. Then verify `neondb` exists on that branch.
 
-Build time is approximately 60–90 seconds depending on cache state.
+## Step 3 — Configure Vercel environment variables
 
----
+Add all required application variables from `config-operation/environment-variables.md`.
+The database variable must be scoped correctly:
 
-## Step 8 — Verify the app
+| Vercel environment | Git branch | `DATABASE_URL` target         |
+| ------------------ | ---------- | ----------------------------- |
+| Production         | `main`     | Neon `main` branch            |
+| Preview            | `develop`  | Neon `preview/develop` branch |
 
-Once the deployment is green, open the site and click **Login / Register**. The
-progress modal should complete all five steps:
+Production should use the Neon `main` branch connection string. The `develop`
+Preview should have a branch-scoped override that points to the Neon
+`preview/develop` branch.
 
-1. Authenticating with Openfort ✓
-2. Checking your account ✓
-3. Restoring your session ✓
-4. Loading your profile ✓
-5. Connecting your wallet ✓
-
----
-
-## Schema sync workflow for developers
-
-### Local development database
-
-Local development typically uses:
+Example for the `develop` Preview override:
 
 ```sh
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/infra_dev?sslmode=disable
+url=$(neon connection-string preview/develop \
+  --project-id <neon-project-id> \
+  --database-name neondb \
+  --role-name neondb_owner \
+  --pooled \
+  -o json | tr -d '"')
+
+printf '%s\n' "$url" | npx vercel env add DATABASE_URL preview develop \
+  --scope <vercel-team-slug> \
+  --sensitive \
+  --force \
+  --yes
 ```
 
-That local DB is separate from the Vercel Preview/Production Neon databases.
+Use the Neon `main` branch connection string for Vercel Production.
 
-### When changing the schema
+Important:
 
-Whenever `prisma/schema.prisma` changes:
+- Preview and Production must not resolve to the same Neon host.
+- A manually defined shared `DATABASE_URL` can override the Neon integration and defeat isolation.
+- Vercel environment labels alone do not prove database isolation; verify the actual resolved host.
 
-1. generate a migration locally
-2. commit both the schema change and the migration files
-3. push to the target branch
-4. let Vercel replay the migrations with `prisma migrate deploy`
+## Step 4 — Verify Preview and Production isolation
 
-Typical command:
+Sanitize outputs before sharing them. You only need to compare host/database/user;
+do not print passwords.
+
+Example sanitized check:
 
 ```sh
-npx prisma migrate dev --name <change-name>
+neon connection-string main \
+  --project-id <neon-project-id> \
+  --database-name neondb \
+  --role-name neondb_owner \
+  --pooled
+
+neon connection-string preview/develop \
+  --project-id <neon-project-id> \
+  --database-name neondb \
+  --role-name neondb_owner \
+  --pooled
 ```
 
-Commit all of:
+Expected result:
 
-- `prisma/schema.prisma`
-- the new folder under `prisma/migrations/`
-- any generated code changes that belong with the migration
+- Production resolves to the Neon `main` branch host.
+- `develop` Preview resolves to the Neon `preview/develop` branch host.
+- Both can use database name `neondb` and owner `neondb_owner`, because branch isolation separates them.
 
-### What not to do
+## Step 5 — Deploy Preview
 
-Do not rely on editing `prisma/schema.prisma` alone and pushing it.
-If no migration file is committed, `prisma migrate deploy` has nothing to apply.
-
----
-
-## Guardrails already present in the repo
-
-This repo includes a migration guard script and workflow:
-
-- command: `npm run check:prisma-migrations`
-- script: `scripts/check-prisma-migration-sync.mjs`
-- workflow: `.github/workflows/prisma-migration-guard.yaml`
-
-The workflow runs on:
-
-- pull requests to `develop` and `main`
-- direct pushes to `develop` and `main`
-
-The guard fails if:
-
-- `prisma/schema.prisma` changed
-- but no file under `prisma/migrations/` was committed
-
-This helps ensure Vercel deployments always have replayable migrations available.
-
----
-
-## How to force schema sync without a new code change
-
-If the schema migrations are already committed and you just want Vercel to replay them again for an environment:
-
-- use **Redeploy** in the Vercel dashboard, or
-- run a Vercel redeploy from the CLI
-
-Example:
+Push or redeploy `develop`:
 
 ```sh
-npx vercel redeploy <deployment-id> --target preview
+npx vercel redeploy <deployment-id-or-url> --target preview --scope <vercel-team-slug>
 ```
 
-That will re-run `npm run vercel-build`, including:
+Then inspect the logs:
 
-- Neon bootstrap
-- `prisma migrate deploy`
-- country seed
-- app build
+```sh
+npx vercel inspect <preview-url> --logs --wait --timeout 6m --scope <vercel-team-slug>
+```
 
----
+Confirm the logs show:
 
-## How to reason about schema sync status
+- `Running "npm run vercel-build"`
+- datasource host is the Neon `preview/develop` host
+- `Applying migration ...` or `All migrations have been successfully applied`
+- `Deployment completed`
+- final status is `Ready`
 
-The safest mental model is:
+## Step 6 — Promote tested schema changes to Production
 
-- local schema authority = `prisma/schema.prisma` + committed `prisma/migrations/`
-- deployed schema authority = whatever `prisma migrate deploy` successfully applied in that Vercel environment
+Use merge-to-`main` as the production path for schema-changing releases.
 
-If a Vercel deployment succeeds while connected to the intended Neon database, that is a strong signal the committed migrations were applied successfully.
+Recommended workflow:
 
-For stricter verification on a future account:
+1. Change `prisma/schema.prisma` locally.
+2. Generate a migration:
 
-- inspect Vercel build logs for the migration step
-- confirm the deployment used the intended `DATABASE_URL`
-- optionally run `npx prisma migrate status` against the actual environment database connection string
+   ```sh
+   npx prisma migrate dev --name <change-name>
+   ```
 
----
+3. Commit all schema artifacts:
+   - `prisma/schema.prisma`
+   - the new folder under `prisma/migrations/`
+   - any generated code changes that belong with the migration
+4. Push to `develop` and let Vercel Preview run `npm run vercel-build`.
+5. Verify Preview succeeds against Neon `preview/develop`.
+6. Review whether the migration is destructive.
+7. Before destructive or high-risk production migrations, create a Neon backup/snapshot branch from `main`.
+8. Merge `develop` into `main`.
+9. Let Vercel Production run a fresh build, including `prisma migrate deploy`, against Neon `main`.
+10. Inspect Production logs and verify the app.
 
-## Postgres version note
+Do not rely on Vercel **Promote to Production** for schema-changing releases. A
+promotion can reuse Preview build output and is not the same as running a fresh
+Production build/migration against the Neon `main` branch.
 
-| Environment                        | Postgres | `uuidv7()` source             |
-|------------------------------------|----------|-------------------------------|
-| Local Docker (`npm run dev:local`) | 18.x     | Built-in `pg_catalog`         |
-| Neon (Vercel)                      | 17.x     | `pg_uuidv7` extension + alias |
+## Account alignment notes
 
-The Neon bootstrap script detects whether `uuidv7()` already exists and only installs the extension/alias when needed.
+### Current InfraFund Vercel account
 
----
+The current `infrafunds-projects/front-pro` setup should follow this mapping:
 
-## Quick checklist for setting up another Vercel account later
+- Vercel Production → Neon `main`
+- Vercel `develop` Preview → Neon `preview/develop`
 
-- connect the repo
-- connect or create the Neon database
-- add all required environment variables
-- set **Build Command** to `npm run vercel-build`
-- verify the target branch/environment mapping
-- deploy once
-- inspect build logs to confirm bootstrap + migrations ran
-- verify the app loads and auth flow works
+The `develop` Preview database can be reset independently without touching
+Production.
 
-If all of the above are done, the new Vercel account will use the same automatic Neon schema-sync process as this one.
+### `sum` Vercel account
 
-## Neon Database Resources
+The earlier `sum` account reset process is still valid. Also verify the final
+configuration there:
 
-### neon CLI
+- If Preview and Production already use separate Neon branches, no change is needed.
+- If Preview and Production share one `DATABASE_URL`, update the `develop` Preview to use a branch-scoped Neon `preview/develop` override.
+- Keep Production pointed at Neon `main`.
 
-user needs to authenticate first executing `neon auth` then confirming in Web browser
+The goal for both accounts is the same: Preview and Production deployments should
+use separate Neon branch hosts.
 
-List Project IDs : `neon projects list`
-If user belongs to multiple organizations, you can list projects for a specific organization : `neon projects list --org-id org-xxxx-xxxx`
+## Resetting a broken Preview database
 
-## Troubleshooting and lessons learned
-
-### What we would want to know up front
-
-- `prisma migrate deploy` assumes the target database is either empty or already
-  tracked by `_prisma_migrations`.
-- If the target Neon database was previously initialized by `prisma db push`, an
-  initial migration can fail with `P3005` because the schema is already present
-  but Prisma has no migration history recorded.
-- A Vercel project can appear to be connected to Neon in the UI while builds
-  still fail; build logs are the source of truth.
-- Preview and Production environment assignment in Vercel does not by itself
-  prove that those environments use separate persistent Neon databases.
-
-### If `prisma migrate deploy` fails with `P3005`
+Use this when Preview data is disposable and `prisma migrate deploy` fails with
+`P3005` because the database already contains tables but lacks Prisma migration
+history.
 
 Example failure:
 
@@ -370,73 +271,71 @@ Error: P3005
 The database schema is not empty.
 ```
 
-This means the database already contains tables but Prisma migrations have not
-been baselined there.
+Reset flow:
 
-For disposable Preview environments, the cleanest fix is usually to wipe the
-preview database and let Vercel rebuild it from scratch.
-
-### Reset Preview by deleting and recreating the Neon database
-
-Use this when:
-
-- Preview data is disposable
-- the database was previously created via `db push`
-- you want future Vercel deployments to work with `prisma migrate deploy`
-  without one-off manual migration fixes
-
-Typical flow:
-
-1. Identify the Neon project ID
-2. Identify the branch ID used by the Vercel Preview database
-3. Delete the database on that branch
-4. Recreate the same database name and owner
-5. Redeploy Preview from Vercel
+1. Identify the Neon project ID.
+2. Identify the `preview/develop` branch ID.
+3. Confirm the database name and owner.
+4. Delete the database on the preview branch.
+5. Recreate the same database name and owner.
+6. Redeploy Preview from Vercel.
 
 Commands:
 
 ```sh
-neon projects list
-neon branches list --project-id <project-id>
-neon databases list --project-id <project-id> --branch-id <branch-id>
-neon databases delete <database-name> --project-id <project-id> --branch-id <branch-id>
-neon databases create --name <database-name> --owner-name <owner-name> --project-id <project-id> --branch-id <branch-id>
-npx vercel redeploy <deployment-id> --target preview
+neon projects list --org-id <neon-org-id>
+neon branches list --project-id <neon-project-id>
+neon databases list --project-id <neon-project-id> --branch <preview-branch-id>
+
+neon databases delete neondb \
+  --project-id <neon-project-id> \
+  --branch <preview-branch-id>
+
+neon databases create \
+  --project-id <neon-project-id> \
+  --branch <preview-branch-id> \
+  --name neondb \
+  --owner-name neondb_owner
+
+npx vercel redeploy <deployment-id-or-url> --target preview --scope <vercel-team-slug>
 ```
 
 Notes:
 
-- Deleting the database removes all data in that database
-- Recreating the database keeps the branch but starts the database fresh
-- After redeploy, Vercel reruns bootstrap, migrations, seed, and app build
+- Deleting the database removes all data in that preview database.
+- Recreating the database keeps the Neon branch but starts the database fresh.
+- Production is untouched as long as the branch is `preview/develop`, not `main`.
+- After redeploy, Vercel reruns bootstrap, migrations, seed, and app build.
 
-### Verifying that the reset worked
+## Troubleshooting checklist
 
-After resetting the database and redeploying:
+If deployment fails:
 
-- inspect the new Vercel Preview deployment
-- confirm it reaches `Ready`
-- verify build logs no longer show `P3005`
-- confirm app data is recreated by migrations and seed scripts as expected
+1. Inspect Vercel build logs first.
+2. Confirm the deployment used the intended Neon host.
+3. Confirm the Vercel build command is `npm run vercel-build`.
+4. Confirm `prisma/migrations/` contains a committed migration for schema changes.
+5. Run `prisma migrate status` against the actual target database if needed.
+6. If Preview fails with `P3005`, reset only the Preview database.
+7. If Production fails with `P3005`, stop and decide whether to baseline, restore, or manually migrate; do not wipe Production unless explicitly planned.
 
-### Separate Preview and Production databases
+## Postgres version note
 
-Neon/Vercel isolation is based on Neon branches, not separate physical database
-servers. With Preview Branching enabled:
+`uuidv7()` availability differs by Postgres version:
 
-- Production uses the production Neon branch
-- Preview deployments can receive their own temporary Neon preview branch
-- closing the related PR or preview deployment can clean up the preview branch if cleanup is enabled
+| Environment                        | Postgres version | `uuidv7()` source                |
+| ---------------------------------- | ---------------- | -------------------------------- |
+| Local Docker (`npm run dev:local`) | 18.x             | Built-in `pg_catalog`            |
+| Neon / Vercel                      | 17.x             | `pg_uuidv7` extension plus alias |
 
-The main operational risks are still:
+`bootstrap-neon-db.mjs` detects whether `uuidv7()` already exists and only
+installs the extension/alias when needed.
 
-- assuming isolation without confirming Preview Branching is enabled
-- leaving a manually defined shared `DATABASE_URL` in Vercel that overrides the integration-managed value
-- treating Vercel "Promote to Production" as equivalent to a fresh production build after schema changes
+## Summary
 
-Safest recommendation:
+The safe deployment model is:
 
-- confirm Preview Branching is enabled in the Neon/Vercel integration settings
-- verify which env vars the integration injects for Preview and Production
-- prefer separate persistent Neon branches or databases when you need stronger guarantees than ephemeral PR previews
-- use merge-to-`main` as the production path for schema-changing releases
+- `develop` Preview tests schema changes on Neon `preview/develop`.
+- `main` Production applies tested committed migrations on Neon `main`.
+- Preview resets are allowed when disposable.
+- Production schema changes happen through a fresh Production build after merge to `main`.
