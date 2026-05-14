@@ -6,10 +6,9 @@ import {
   Environment,
   Html,
   OrbitControls,
-  useBounds,
   useGLTF,
 } from '@react-three/drei';
-import { Canvas, type ThreeEvent } from '@react-three/fiber';
+import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber';
 import {
   Suspense,
   useEffect,
@@ -42,8 +41,22 @@ type GltfCatalogElement = MetadataRecord & {
   modelNodeName?: MetadataValue;
 };
 
+type OrbitControlsLike = {
+  target: Vector3;
+  update: () => void;
+};
+
 function isMesh(object: Object3D): object is Mesh {
   return 'isMesh' in object && object.isMesh === true;
+}
+
+function isOrbitControlsLike(value: unknown): value is OrbitControlsLike {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    'target' in value &&
+    'update' in value
+  );
 }
 
 function buildEnabledNameSet(milestones: ConstructionMilestone[]) {
@@ -237,7 +250,8 @@ function Model({
   onSelectMetadata: (metadata: MetadataRecord) => void;
 }) {
   const gltf = useGLTF(modelUrl);
-  const bounds = useBounds();
+  const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls);
   const isOperational = statusLabel === 'Operational';
   const enabledNames = useMemo(
     () => buildEnabledNameSet(milestones),
@@ -271,8 +285,23 @@ function Model({
       object.receiveShadow = object.visible;
     });
 
-    bounds.refresh(gltf.scene).fit();
-  }, [bounds, enabledNames, gltf.scene, isOperational]);
+    const box = new Box3().setFromObject(gltf.scene);
+    const size = box.getSize(new Vector3());
+    const height = Math.max(size.y, 1);
+    const distance = Math.max(size.x, size.y, size.z, 1) * 0.9;
+    const target = new Vector3(0, height * 0.45, 0);
+
+    camera.position.set(distance, height * 0.65, distance);
+
+    if (isOrbitControlsLike(controls)) {
+      controls.target.copy(target);
+      controls.update();
+    } else {
+      camera.lookAt(target);
+    }
+
+    camera.updateProjectionMatrix();
+  }, [camera, controls, enabledNames, gltf.scene, isOperational]);
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -369,7 +398,7 @@ export function DigitalTwinModelViewer({
           className={`relative h-[520px] ${showGroundPlane ? 'bg-[#6f6f6f]' : 'bg-[#808080]'}`}
         >
           <Canvas
-            camera={{ position: [5, 4, 8], fov: 45 }}
+            camera={{ position: [10, 12, 10], fov: 45 }}
             shadows
             gl={{ antialias: true }}
           >
