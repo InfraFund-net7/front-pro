@@ -31,8 +31,8 @@ For the first database-backed implementation, do not build arbitrary model uploa
 
 Use the known working componentized asset:
 
-- `public/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf`
-- `public/models/digital-twin/wind-turbine/Wind_Turbine 3.bin`
+- `public/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf`
+- `public/models/digital-twin/wind-turbine/Wind_Turbine_3.bin`
 
 The UI can present this as a selected model, but the implementation may hardcode it as the only selectable model for now.
 
@@ -71,7 +71,7 @@ Keep geometry and state separate.
 
 ```mermaid
 flowchart LR
-  ModelAsset[Wind_Turbine 3.gltf] --> Viewer[3D Viewer]
+  ModelAsset[Wind_Turbine_3.gltf] --> Viewer[3D Viewer]
   ProjectModel[Project Model Row] --> API[Render State API]
   Components[Model Components] --> API
   Milestones[Milestones + Status] --> API
@@ -86,7 +86,7 @@ flowchart LR
 
 On the milestone management page, a user can:
 
-1. attach/select the project model, initially fixed to `Wind_Turbine 3.gltf`
+1. attach/select the project model, initially fixed to `Wind_Turbine_3.gltf`
 2. see the model's available trackable components
 3. create construction milestones
 4. assign one or more components to each milestone
@@ -161,7 +161,7 @@ MVP seed/example:
 
 ```text
 name: Wind Turbine 3
-assetUrl: /models/digital-twin/wind-turbine/Wind_Turbine 3.gltf
+assetUrl: /models/digital-twin/wind-turbine/Wind_Turbine_3.gltf
 format: gltf
 version: 2026-05-13-v3-componentized
 source: hardcoded_wind_turbine
@@ -195,7 +195,7 @@ Constraints:
 - `nodeName` should match the glTF node name for MVP.
 - Do not use array indices, mesh order, or display labels as stable handles.
 
-Seed components from `Wind_Turbine 3.gltf`:
+Seed components from `Wind_Turbine_3.gltf`:
 
 | externalId | displayName | category | nodeName |
 |---|---|---|---|
@@ -290,7 +290,7 @@ The exact route shape can be adjusted to match existing API conventions, but thi
 | `PATCH /api/v1/digital-twin/milestones/:milestoneId` | Update label, status, sort order, or mapped components. |
 | `DELETE /api/v1/digital-twin/milestones/:milestoneId` | Delete a milestone and mappings. |
 | `GET /api/v1/digital-twin/projects/:projectId/model-components` | List selectable components for the selected project model. |
-| `POST /api/v1/digital-twin/projects/:projectId/seed-demo-model` | Optional dev-only/admin endpoint to attach `Wind_Turbine 3.gltf` and seed components. |
+| `POST /api/v1/digital-twin/projects/:projectId/seed-demo-model` | Optional dev-only/admin endpoint to attach `Wind_Turbine_3.gltf` and seed components. |
 
 The render-state endpoint should be optimized for the viewer so the client does not reconstruct joins.
 
@@ -300,7 +300,7 @@ Example render-state response:
 {
   "model": {
     "id": "model-id",
-    "assetUrl": "/models/digital-twin/wind-turbine/Wind_Turbine 3.gltf",
+    "assetUrl": "/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf",
     "format": "gltf",
     "version": "2026-05-13-v3-componentized"
   },
@@ -332,7 +332,7 @@ Example render-state response:
 
 The management UI should support:
 
-- selected model display, initially fixed to `Wind_Turbine 3.gltf`
+- selected model display, initially fixed to `Wind_Turbine_3.gltf`
 - component list with display name, category, and external ID
 - milestone creation
 - milestone status editing
@@ -404,7 +404,7 @@ Do not expose mutation endpoints without authentication/authorization checks.
 
 ### Phase 2 — Demo model seeding
 
-- Attach `Wind_Turbine 3.gltf` to project `3`.
+- Attach `Wind_Turbine_3.gltf` to project `3`.
 - Seed the six known trackable components.
 - Seed default milestones and mappings.
 - Ensure seed/upsert behavior is idempotent.
@@ -441,7 +441,7 @@ Do not expose mutation endpoints without authentication/authorization checks.
 
 ## Acceptance criteria
 
-- Project `3` can be associated with `Wind_Turbine 3.gltf` in persisted data.
+- Project `3` can be associated with `Wind_Turbine_3.gltf` in persisted data.
 - The six known trackable model components are stored with stable external IDs.
 - A user can create milestones and map them to one or more components.
 - At least one milestone maps to a single component.
@@ -456,12 +456,12 @@ Do not expose mutation endpoints without authentication/authorization checks.
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Model component IDs drift from database rows | Viewer cannot map status to meshes | Keep `externalId` and `nodeName` seeded from `Wind_Turbine 3.gltf`; validate missing names. |
+| Model component IDs drift from database rows | Viewer cannot map status to meshes | Keep `externalId` and `nodeName` seeded from `Wind_Turbine_3.gltf`; validate missing names. |
 | Shared glTF materials affect multiple components when colored | Wrong visual state | Clone/replace material per mesh before applying status color. |
 | Milestone-to-component mapping becomes project-specific | Hard to reuse | Store generic model components and join rows, not project-specific columns. |
 | API returns raw joins that the client must reconstruct | Fragile viewer logic | Add a render-state service that resolves visual state server-side. |
 | Mutation endpoints are too permissive | Unauthorized status edits | Reuse existing auth/session and role checks. |
-| Arbitrary upload scope creeps into MVP | Delays proof | Hardcode/select only `Wind_Turbine 3.gltf` for this task. |
+| Arbitrary upload scope creeps into MVP | Delays proof | Hardcode/select only `Wind_Turbine_3.gltf` for this task. |
 
 ## Open decisions
 
