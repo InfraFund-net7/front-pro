@@ -65,3 +65,13 @@ menu slide in works, just not the header component stacking. In case we switch t
 [ menu button (left aligned) / headphone, bell, openfort button, avator circle (right aligned) ]
 [ Title/Projectname (left aligned) ]
 ---
+
+---
+
+looks great 
+-  write release notes file `docs-dev/tasks/v1.2.7-gltf-get-metadata-from-model-click.md` put it into `docs-dev/release-notes`
+- rename our taskfile to v1.2.7 , and i think we can mark phase 1 as completed
+- update version in package.json 
+- commit
+- tag with v1.2.7
+- push it
