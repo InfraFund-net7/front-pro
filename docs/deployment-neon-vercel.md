@@ -83,6 +83,32 @@ What each step does:
 - Neon account/org connected to the Vercel account/team
 - Third-party credentials listed in `config-operation/environment-variables.md`
 
+## CLI access for agent-run operations
+
+If you want an agent to inspect or change Vercel/Neon configuration, provide a
+terminal where both CLIs are already authenticated to the intended accounts:
+
+```sh
+vercel whoami
+neon me
+```
+
+The agent should use the authenticated Neon CLI to inspect branches, databases,
+roles, and connection strings. Do not try to recover the Neon database URL or
+password from Vercel; that is unnecessary and may not work. The Neon CLI can
+derive the needed connection string for the selected Neon project, branch,
+database, and role.
+
+If `neon me` shows the wrong account, or Neon auth fails, stop automation and ask
+the user to complete the OAuth login flow manually:
+
+```sh
+neon login
+```
+
+After the user confirms login completed, rerun `neon me` and continue only if it
+shows the expected Neon account/org.
+
 ## Step 1 — Create or connect the Vercel project
 
 1. In Vercel, click **Add New → Project**.
