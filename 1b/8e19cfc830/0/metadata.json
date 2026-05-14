@@ -1,0 +1,123 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "1b8e19cfc830",
+  "session_id": "4c6d75b6-0dd2-4f60-8227-0289123f4c42",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-14T10:36:13.158524841Z",
+  "branch": "feature/gltf-metadata",
+  "checkpoints_count": 10,
+  "files_touched": [
+    "src/app/projects/[id]/digital-twin/page.tsx",
+    "src/components/digital-twin/client-page.tsx",
+    "src/components/digital-twin/component-inspector.tsx",
+    "src/components/digital-twin/model-viewer.tsx",
+    "src/components/header.tsx",
+    "src/components/layout/app-page-header.tsx",
+    "src/components/main-layout.tsx",
+    "src/lib/digital-twin-projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "eee70e2b9978",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 11
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-14T10:36:13.128360665Z",
+    "agent_lines": 549,
+    "agent_removed": 100,
+    "human_added": 237,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 786,
+    "total_lines_changed": 889,
+    "agent_percentage": 73.00337457817773,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 147,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 197,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 602,
+      "agent_lines_removed": 79
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 631,
+      "agent_lines_removed": 80
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 644,
+      "agent_lines_removed": 80
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 645,
+      "agent_lines_removed": 78
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 645,
+      "agent_lines_removed": 78
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 678,
+      "agent_lines_removed": 90
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 744,
+      "agent_lines_removed": 100
+    },
+    {
+      "checkpoint_number": 11,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 746,
+      "agent_lines_removed": 100
+    }
+  ]
+}
