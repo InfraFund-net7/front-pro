@@ -2,10 +2,9 @@
 
 import { execFileSync } from 'node:child_process';
 
-const baseRef =
-  process.env.GITHUB_BASE_REF ||
-  process.env.MIGRATION_CHECK_BASE ||
-  'origin/develop';
+const requestedBaseRef =
+  process.env.GITHUB_BASE_REF || process.env.MIGRATION_CHECK_BASE || 'develop';
+const baseRef = resolveBaseRef(requestedBaseRef);
 
 const diffOutput = execGit(['diff', '--name-only', `${baseRef}...HEAD`]);
 const changedFiles = diffOutput
@@ -39,4 +38,19 @@ function execGit(args) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+}
+
+function resolveBaseRef(ref) {
+  const candidates = ref.startsWith('origin/') ? [ref] : [`origin/${ref}`, ref];
+
+  for (const candidate of candidates) {
+    try {
+      execGit(['rev-parse', '--verify', candidate]);
+      return candidate;
+    } catch {}
+  }
+
+  throw new Error(
+    `Could not resolve a git base ref for migration checks from ${ref}. Tried: ${candidates.join(', ')}`
+  );
 }
