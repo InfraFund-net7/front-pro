@@ -1,7 +1,7 @@
 // cspell:words gltf
 export const HARDWIRED_PROJECT_MODEL = {
   name: 'Wind Turbine 1',
-  assetUrl: '/models/digital-twin/wind-turbine/Wind_Turbine 1.gltf',
+  assetUrl: '/models/digital-twin/wind-turbine/Wind_Turbine_1.gltf',
   format: 'gltf',
   source: 'hardcoded_wind_turbine',
   components: [

@@ -21,7 +21,7 @@ export default async function DigitalTwinPage({ params }: PageProps) {
     : 'border-info/40 bg-info/10 text-info';
 
   return (
-    <div className="flex flex-col gap-8 text-white">
+    <div className="flex flex-col gap-6 text-white">
       <div className="flex flex-wrap items-center gap-3">
         <span className="rounded-full border border-primary/40 bg-primary-selected px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-primary">
           Project ID {project.id}
