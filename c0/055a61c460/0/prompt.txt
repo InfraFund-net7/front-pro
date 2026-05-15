@@ -1,0 +1,63 @@
+can you do that.
+
+---
+
+this is a copy from the rules page, however, I might not have the access rights to change anything - I also do not see anything even where i could do anything. You should have the same rights inherited from me, so i would assume that there would be a way for you to do it if it would be possible ?
+```
+Rulesets
+/
+main
+Active
+Name
+main
+Enforcement status
+Active - This ruleset will be enforced
+Target branches
+Branch targeting criteria
+main
+Applies to 1 target: 
+main
+.
+Rules
+Which rules should be applied?
+Branch rules
+Restrict deletions
+Only allow users with bypass permissions to delete matching refs.
+Require a pull request before merging
+Require all commits be made to a non-target branch and submitted via a pull request before they can be merged.
+Required approvals: 1
+The number of approving reviews that are required before a pull request can be merged.
+Require review from Code Owners
+Require an approving review in pull requests that modify files that have a designated code owner.
+Allowed merge methods: Merge, Squash, Rebase
+When merging pull requests, you can allow any combination of merge commits, squashing, or rebasing. At least one option must be enabled.
+Block force pushes
+Prevent users with push access from force pushing to refs.
+Require code scanning results
+Choose which tools must provide code scanning results before the reference is updated. When configured, code scanning must be enabled and have results for both the commit and the reference being updated.
+Code scanning tools
+Required tools and alert thresholds
+CodeQL
+Security alerts threshold:
+High or higher
+Alerts threshold:
+Errors
+Tools that must provide code scanning results for this rule to pass. Learn more about enabling code scanning.
+Require code quality results
+Choose which severity levels of code quality results should block pull request merges. When configured, a code quality analysis must be done on the pull request before the changes can be merged.
+Severity: errors
+The lowest severity level at which code quality reviews need to be resolved before commits can be merged.
+Automatically request Copilot code review
+Request Copilot code review for new pull requests automatically if the author has access to Copilot code review and their premium requests quota has not reached the limit.
+Review new pushes
+Copilot automatically reviews each new push to the pull request.
+Restrictions
+No restrictions have been added
+```
+
+---
+
+yes , you could try the browser access, but would it be any different than if I would try ?
+you said it did not rule because the ruke was missing ? Can we add it ?
+Otherwise write a message we have to send to the code owner to ask him to do it, if we have confirmed that we just lack the access right to do it.
+Maybe we can also check what role and access rights we have to confirm it
