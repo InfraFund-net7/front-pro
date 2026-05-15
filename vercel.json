@@ -1,0 +1,9 @@
+{
+  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in entire/*) echo 'Skipping Vercel build for Entire branch'; exit 0 ;; *) exit 1 ;; esac",
+  "experimentalServices": {
+    "web": {
+      "routePrefix": "/",
+      "framework": "nextjs"
+    }
+  }
+}

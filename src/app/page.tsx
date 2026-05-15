@@ -1,10 +1,17 @@
-import React from "react";
+import Login from '@/components/auth/login';
 
-export default function page() {
+export default function Page() {
   return (
-    <div>
-      <h1 className="ibm-plex-mono">این تیتر با IBM Plex Mono</h1>
-      <p className="chakra-petch">این متن با Chakra Petch</p>
-    </div>
+    <Login
+      title="Welcome to InfraFund"
+      description={
+        <>
+          Existing users can login directly.
+          <br />
+          New users will see our questionnaire first.
+        </>
+      }
+      buttonLabel="Login / Register"
+    />
   );
 }

@@ -1,0 +1,13 @@
+name: Legacy Docker deploy to Production Environment
+on:
+  workflow_dispatch:
+
+jobs:
+  disabled:
+    name: Legacy Docker deploy disabled
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain disabled status
+        run: |
+          echo "Legacy Docker deployment workflow is disabled."
+          echo "InfraFund now deploys via Vercel, so this workflow only remains for manual fallback reference."

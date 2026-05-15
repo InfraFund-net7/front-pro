@@ -12,25 +12,25 @@ interface HorizontalProgressBarProps {
 export function HorizontalProgressBar({
   steps,
   currentStep,
-  className = "",
-  stepClassName = "",
-  completedColor = "bg-primary",
-  inProgressColor = "bg-primary-300",
-  notStartedColor = "bg-[#151E2F]",
-  gap = "gap-2",
+  className = '',
+  stepClassName = '',
+  completedColor = 'bg-primary',
+  inProgressColor = 'bg-primary-300',
+  notStartedColor = 'bg-[#151E2F]',
+  gap = 'gap-2',
 }: HorizontalProgressBarProps) {
   return (
     <div className={`flex items-center ${gap} ${className}`}>
       {Array.from({ length: steps }, (_, index) => {
         const stepNumber = index + 1;
-        let stepState: "completed" | "in-progress" | "not-started";
+        let stepState: 'completed' | 'in-progress' | 'not-started';
 
         if (stepNumber < currentStep) {
-          stepState = "completed";
+          stepState = 'completed';
         } else if (stepNumber === currentStep) {
-          stepState = "in-progress";
+          stepState = 'in-progress';
         } else {
-          stepState = "not-started";
+          stepState = 'not-started';
         }
 
         return (
@@ -40,19 +40,19 @@ export function HorizontalProgressBar({
           >
             <div
               className={`h-full rounded-full transition-all duration-300 ease-in-out ${
-                stepState === "completed"
+                stepState === 'completed'
                   ? completedColor
-                  : stepState === "in-progress"
-                  ? inProgressColor
-                  : "w-0"
+                  : stepState === 'in-progress'
+                    ? inProgressColor
+                    : 'w-0'
               }`}
               style={{
                 width:
-                  stepState === "completed"
-                    ? "100%"
-                    : stepState === "in-progress"
-                    ? "50%"
-                    : "0%",
+                  stepState === 'completed'
+                    ? '100%'
+                    : stepState === 'in-progress'
+                      ? '50%'
+                      : '0%',
               }}
             />
           </div>

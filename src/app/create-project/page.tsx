@@ -1,6 +1,7 @@
-import CreateProject from "@/components/createproject/CreateProject";
-import React from "react";
+import CreateProject from '@/components/createproject/CreateProject';
 
-export default function page() {
+export const dynamic = 'force-dynamic';
+
+export default function Page() {
   return <CreateProject />;
 }

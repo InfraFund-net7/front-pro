@@ -1,16 +1,16 @@
-"use client";
-import { TabSelect } from "@/components/ui/tab-select";
-import React, { useState } from "react";
-import TransferBank from "./transfer/transfer-bank";
-import TransferCrypto from "./transfer/transfer-crypto";
+'use client';
+import { TabSelect } from '@/components/ui/tab-select';
+import React, { useState } from 'react';
+import TransferBank from './transfer/transfer-bank';
+import TransferCrypto from './transfer/transfer-crypto';
 
 export default function Transfer() {
   const createsection = [
-    { title: "Bank", component: TransferBank },
-    { title: "Crypto", component: TransferCrypto },
+    { title: 'Bank', component: TransferBank },
+    { title: 'Crypto', component: TransferCrypto },
   ];
 
-  const [selected, setSelected] = useState("Bank");
+  const [selected, setSelected] = useState('Bank');
 
   const activeSection = createsection.find(
     (section) => section.title === selected
@@ -22,7 +22,7 @@ export default function Transfer() {
         selectedItem={selected}
         onSelect={setSelected}
       />
-      {activeSection ? <activeSection.component /> : "No section found"}
+      {activeSection ? <activeSection.component /> : 'No section found'}
     </div>
   );
 }

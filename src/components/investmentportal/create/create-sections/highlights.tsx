@@ -1,8 +1,8 @@
-"use client";
-import { FileUploadWithPreview } from "@/components/ui/file-upload-with-preview";
-import { FormInput } from "@/components/ui/form-input";
-import { Plus, Trash } from "lucide-react";
-import React, { useState } from "react";
+'use client';
+import { FileUploadWithPreview } from '@/components/ui/file-upload-with-preview';
+import { FormInput } from '@/components/ui/form-input';
+import { Plus, Trash } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface HighlightData {
   id: string;
@@ -10,12 +10,12 @@ interface HighlightData {
   itemDescription: string;
 }
 
-export function HighlightForm() {
+function HighlightForm() {
   const [highlights, setHighlights] = useState<HighlightData[]>([
     {
-      id: "1",
-      itemTitle: "",
-      itemDescription: "",
+      id: '1',
+      itemTitle: '',
+      itemDescription: '',
     },
   ]);
 
@@ -28,8 +28,8 @@ export function HighlightForm() {
         : 0;
     const newHighlight: HighlightData = {
       id: (lastId + 1).toString(),
-      itemTitle: "",
-      itemDescription: "",
+      itemTitle: '',
+      itemDescription: '',
     };
     setHighlights([...highlights, newHighlight]);
   };
@@ -61,7 +61,7 @@ export function HighlightForm() {
           key={highlight.id}
           className={`w-full relative rounded-2xl border border-border-card p-6 transition-all duration-300 ease-in-out
           ${
-            removingId === highlight.id ? "animate-fadeOut" : "animate-fadeIn"
+            removingId === highlight.id ? 'animate-fadeOut' : 'animate-fadeIn'
           }`}
           style={{
             animationDelay: `${index * 0.05}s`,
@@ -141,14 +141,14 @@ function HighlightFormSection({
         label={`Item ${highlight.id} title`}
         value={highlight.itemTitle}
         placeholder={`Item ${highlight.id} title`}
-        onChange={(e) => onUpdate(highlight.id, "itemTitle", e.target.value)}
+        onChange={(e) => onUpdate(highlight.id, 'itemTitle', e.target.value)}
       />
       <FormInput
         label={`Item ${highlight.id} description`}
         value={highlight.itemDescription}
         placeholder={`Item ${highlight.id} description`}
         onChange={(e) =>
-          onUpdate(highlight.id, "itemDescription", e.target.value)
+          onUpdate(highlight.id, 'itemDescription', e.target.value)
         }
       />
       <div className="w-full flex flex-col gap-3">

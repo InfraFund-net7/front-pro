@@ -1,8 +1,8 @@
-"use client";
-import { FileUploadWithPreview } from "@/components/ui/file-upload-with-preview";
-import { FormInput } from "@/components/ui/form-input";
-import { Plus, Trash } from "lucide-react";
-import React, { useState } from "react";
+'use client';
+import { FileUploadWithPreview } from '@/components/ui/file-upload-with-preview';
+import { FormInput } from '@/components/ui/form-input';
+import { Plus, Trash } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface TechnologyData {
   id: string;
@@ -10,12 +10,12 @@ interface TechnologyData {
   itemDescription: string;
 }
 
-export function TechnologyForm() {
+function TechnologyForm() {
   const [technologies, setTechnologies] = useState<TechnologyData[]>([
     {
-      id: "1",
-      itemTitle: "",
-      itemDescription: "",
+      id: '1',
+      itemTitle: '',
+      itemDescription: '',
     },
   ]);
 
@@ -28,8 +28,8 @@ export function TechnologyForm() {
         : 0;
     const newTechnology: TechnologyData = {
       id: (lastId + 1).toString(),
-      itemTitle: "",
-      itemDescription: "",
+      itemTitle: '',
+      itemDescription: '',
     };
     setTechnologies([...technologies, newTechnology]);
   };
@@ -63,7 +63,7 @@ export function TechnologyForm() {
           key={technology.id}
           className={`w-full relative rounded-2xl border border-border-card p-6 transition-all duration-300 ease-in-out
           ${
-            removingId === technology.id ? "animate-fadeOut" : "animate-fadeIn"
+            removingId === technology.id ? 'animate-fadeOut' : 'animate-fadeIn'
           }`}
           style={{
             animationDelay: `${index * 0.05}s`,
@@ -143,14 +143,14 @@ function TechnologyFormSection({
         label={`Item ${technology.id} title`}
         value={technology.itemTitle}
         placeholder={`Item ${technology.id} title`}
-        onChange={(e) => onUpdate(technology.id, "itemTitle", e.target.value)}
+        onChange={(e) => onUpdate(technology.id, 'itemTitle', e.target.value)}
       />
       <FormInput
         label={`Item ${technology.id} description`}
         value={technology.itemDescription}
         placeholder={`Item ${technology.id} description`}
         onChange={(e) =>
-          onUpdate(technology.id, "itemDescription", e.target.value)
+          onUpdate(technology.id, 'itemDescription', e.target.value)
         }
       />
       <div className="w-full flex flex-col gap-3">

@@ -1,0 +1,432 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserType {
+  individual
+  organization
+
+  @@map("user_type")
+}
+
+enum UserRole {
+  admin
+  moderator
+  support
+  project_owner
+  investor
+  contractor
+  governance
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  active
+  inactive
+  suspended
+  pending_kyc
+
+  @@map("user_status")
+}
+
+enum ContactStatus {
+  new
+  in_progress
+  answered
+  waiting_customer
+  resolved
+  closed
+  spam
+
+  @@map("contact_status")
+}
+
+enum NonResidentWaitlistType {
+  individual
+  company
+
+  @@map("non_resident_waitlist_type")
+}
+
+enum ProjectDraftStep {
+  crowdfunding_model
+  asset_symbol
+  contact_information
+  project_information
+  project_milestones
+  campaign_details
+  review
+  submitted
+
+  @@map("project_draft_step")
+}
+
+enum ProjectStatus {
+  planning
+  in_development
+  ready_to_launch
+  on_hold
+  completed
+
+  @@map("project_status")
+}
+
+enum ProjectType {
+  renewable_energy
+
+  @@map("project_type")
+}
+
+enum ProjectInfrastructureType {
+  wind_energy
+  solar_power
+  hydroelectric
+  geothermal
+  nuclear
+  other
+
+  @@map("project_infrastructure_type")
+}
+
+enum ProjectCrowdfundingModel {
+  pre_sale
+
+  @@map("project_crowdfunding_model")
+}
+
+enum ProjectSubmissionStatus {
+  draft
+  submitted
+
+  @@map("project_submission_status")
+}
+
+model User {
+  id                      String            @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  openfortUserId          String            @unique @map("openfort_user_id") @db.VarChar(255)
+  email                   String?           @unique @db.VarChar(255)
+  firstName               String?           @map("first_name") @db.VarChar(100)
+  lastName                String?           @map("last_name") @db.VarChar(100)
+  phoneNumber             String?           @unique @map("phone_number") @db.VarChar(20)
+  kycVerified             Boolean?          @default(false) @map("kyc_verified")
+  kycVerifiedAt           DateTime?         @map("kyc_verified_at") @db.Timestamptz(6)
+  kybVerified             Boolean?          @default(false) @map("kyb_verified")
+  kybVerifiedAt           DateTime?         @map("kyb_verified_at") @db.Timestamptz(6)
+  type                    UserType
+  role                    UserRole          @default(investor)
+  status                  UserStatus        @default(pending_kyc)
+  dataDeletionRequestedAt DateTime?         @map("data_deletion_requested_at") @db.Timestamptz(6)
+  dataDeletionScheduledAt DateTime?         @map("data_deletion_scheduled_at") @db.Timestamptz(6)
+  createdAt               DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt               DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  accountLockout          AccountLockout?
+  lockoutAuditLogs        LockoutAuditLog[]
+  organization            UserOrganization?
+  ownedProjects           Project[]
+  sessions                Session[]
+  wallets                 Wallet[]
+
+  @@index([type], map: "idx_users_type")
+  @@index([role], map: "idx_users_role")
+  @@index([status], map: "idx_users_status")
+  @@index([createdAt], map: "idx_users_created_at")
+  @@index([updatedAt], map: "idx_users_updated_at")
+  @@map("users")
+}
+
+model UserOrganization {
+  userId String  @unique @map("user_id") @db.Uuid
+  name   String? @db.VarChar(255)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([name], map: "idx_user_organizations_name")
+  @@map("user_organizations")
+}
+
+model Wallet {
+  userId        String   @map("user_id") @db.Uuid
+  chain         String   @db.VarChar(100)
+  publicAddress String   @unique @map("public_address") @db.VarChar(255)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, chain, publicAddress])
+  @@index([chain], map: "idx_wallets_chain")
+  @@index([createdAt], map: "idx_wallets_created_at")
+  @@map("wallets")
+}
+
+model Session {
+  id                String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId            String?   @map("user_id") @db.Uuid
+  refreshTokenHash  Bytes     @unique @map("refresh_token_hash") @db.ByteA
+  userAgent         String?   @map("user_agent")
+  ipAddress         String?   @map("ip_address")
+  platform          String?   @db.VarChar(50)
+  browser           String?   @db.VarChar(100)
+  device            String?   @db.VarChar(100)
+  isTrusted         Boolean?  @default(false) @map("is_trusted")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastActivityAt    DateTime  @default(now()) @map("last_activity_at") @db.Timestamptz(6)
+  activityTimeoutAt DateTime  @map("activity_timeout_at") @db.Timestamptz(6)
+  absoluteExpiresAt DateTime  @map("absolute_expires_at") @db.Timestamptz(6)
+  revokedAt         DateTime? @map("revoked_at") @db.Timestamptz(6)
+  revokedReason     String?   @map("revoked_reason") @db.VarChar(100)
+  revokedByUserId   String?   @map("revoked_by_user_id") @db.Uuid
+  user              User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)], map: "idx_sessions_user_created")
+  @@map("sessions")
+}
+
+model AccountLockout {
+  userId              String    @id @map("user_id") @db.Uuid
+  failedAttempts      Int       @default(0) @map("failed_attempts") @db.SmallInt
+  lastFailedAttemptAt DateTime  @default(now()) @map("last_failed_attempt_at") @db.Timestamptz(6)
+  lockedAt            DateTime? @map("locked_at") @db.Timestamptz(6)
+  lockedUntil         DateTime? @map("locked_until") @db.Timestamptz(6)
+  lockedReason        String?   @map("locked_reason") @db.VarChar(50)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([lastFailedAttemptAt], map: "idx_account_lockouts_last_failed_attempt")
+  @@map("account_lockouts")
+}
+
+model LockoutAuditLog {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  eventType    String   @map("event_type") @db.VarChar(50)
+  attemptCount Int?     @map("attempt_count") @db.SmallInt
+  lockedReason String?  @map("locked_reason") @db.VarChar(50)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_lockout_audit_logs_user_id")
+  @@index([createdAt], map: "idx_lockout_audit_logs_created_at")
+  @@map("lockout_audit_logs")
+}
+
+model Waitlist {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([createdAt], map: "idx_waitlist_created_at")
+  @@map("waitlist")
+}
+
+model ContactForm {
+  id        String        @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  firstName String        @map("first_name") @db.VarChar(100)
+  lastName  String        @map("last_name") @db.VarChar(100)
+  email     String        @db.VarChar(255)
+  subject   String        @db.VarChar(255)
+  message   String
+  status    ContactStatus @default(new)
+  ip        String?
+  userAgent String?       @map("user_agent")
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status], map: "idx_contact_forms_status")
+  @@index([createdAt], map: "idx_contact_forms_created_at")
+  @@index([email], map: "idx_contact_forms_email")
+  @@map("contact_forms")
+}
+
+model Country {
+  id                       Int                   @id @default(autoincrement())
+  name                     String                @db.VarChar(80)
+  iso                      String                @db.VarChar(2)
+  iso3                     String?               @db.VarChar(3)
+  code                     Int?                  @db.SmallInt
+  phoneCode                Int                   @map("phone_code")
+  nonResidentWaitlistItems NonResidentWaitlist[]
+
+  @@index([name], map: "idx_countries_name")
+  @@index([iso], map: "idx_countries_iso")
+  @@index([iso3], map: "idx_countries_iso3")
+  @@index([code], map: "idx_countries_code")
+  @@index([phoneCode], map: "idx_countries_phone_code")
+  @@map("countries")
+}
+
+model NonResidentWaitlist {
+  id          String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  firstName   String                  @map("first_name") @db.VarChar(100)
+  lastName    String                  @map("last_name") @db.VarChar(100)
+  companyName String?                 @map("company_name") @db.VarChar(255)
+  email       String                  @unique @db.VarChar(255)
+  countryId   Int?                    @map("country_id")
+  type        NonResidentWaitlistType @default(individual)
+  createdAt   DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  country     Country?                @relation(fields: [countryId], references: [id], onDelete: SetNull)
+
+  @@index([type], map: "idx_non_resident_waitlists_type")
+  @@index([countryId], map: "idx_non_resident_waitlists_country_id")
+  @@index([createdAt(sort: Desc), id], map: "idx_non_resident_waitlists_created_at_id")
+  @@map("non_resident_waitlists")
+}
+
+model Project {
+  id                       String                       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  ownerUserId              String                       @map("owner_user_id") @db.Uuid
+  name                     String?                      @db.VarChar(255)
+  description              String?
+  type                     ProjectType                  @default(renewable_energy)
+  infrastructureType       ProjectInfrastructureType?   @map("infrastructure_type")
+  projectStatus            ProjectStatus?               @map("project_status")
+  crowdfundingModel        ProjectCrowdfundingModel     @default(pre_sale) @map("crowdfunding_model")
+  submissionStatus         ProjectSubmissionStatus      @default(draft) @map("submission_status")
+  currentStep              ProjectDraftStep             @default(crowdfunding_model) @map("current_step")
+  digitalAssetSymbol       String?                      @map("digital_asset_symbol") @db.VarChar(12)
+  targetInvestmentAmount   Decimal?                     @map("target_investment_amount") @db.Decimal(18, 2)
+  targetInvestmentCurrency String                       @default("GBP") @map("target_investment_currency") @db.VarChar(3)
+  raisedBefore             Boolean?                     @map("raised_before")
+  websiteUrl               String?                      @map("website_url") @db.VarChar(2048)
+  socialUrl                String?                      @map("social_url") @db.VarChar(2048)
+  submittedAt              DateTime?                    @map("submitted_at") @db.Timestamptz(6)
+  createdAt                DateTime                     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime                     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  campaign                 ProjectCrowdfundingCampaign?
+  contact                  ProjectContact?
+  documents                ProjectDocument[]
+  milestones               ProjectCreationMilestone[]
+  digitalTwinModels        ProjectDigitalTwinModel[]
+  owner                    User                         @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  @@index([ownerUserId, createdAt(sort: Desc)], map: "idx_projects_owner_created")
+  @@index([submissionStatus], map: "idx_projects_submission_status")
+  @@index([crowdfundingModel], map: "idx_projects_crowdfunding_model")
+  @@index([digitalAssetSymbol], map: "idx_projects_digital_asset_symbol")
+  @@map("projects")
+}
+
+model ProjectContact {
+  projectId   String   @id @map("project_id") @db.Uuid
+  firstName   String   @map("first_name") @db.VarChar(100)
+  lastName    String   @map("last_name") @db.VarChar(100)
+  email       String   @db.VarChar(255)
+  title       String   @db.VarChar(120)
+  phoneNumber String?  @map("phone_number") @db.VarChar(30)
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([email], map: "idx_project_contacts_email")
+  @@map("project_contacts")
+}
+
+model ProjectCrowdfundingCampaign {
+  projectId                      String    @id @map("project_id") @db.Uuid
+  tokenName                      String?   @map("token_name") @db.VarChar(120)
+  digitalAssetSupply             Decimal?  @map("digital_asset_supply") @db.Decimal(30, 8)
+  price                          Decimal?  @db.Decimal(18, 8)
+  currency                       String    @default("USDC") @db.VarChar(12)
+  minRaise                       Decimal?  @map("min_raise") @db.Decimal(18, 2)
+  maxRaise                       Decimal?  @map("max_raise") @db.Decimal(18, 2)
+  minContribution                Decimal?  @map("min_contribution") @db.Decimal(18, 2)
+  maxContribution                Decimal?  @map("max_contribution") @db.Decimal(18, 2)
+  startDate                      DateTime? @map("start_date") @db.Timestamptz(6)
+  endDate                        DateTime? @map("end_date") @db.Timestamptz(6)
+  generalContractorWalletAddress String?   @map("general_contractor_wallet_address") @db.VarChar(255)
+  pledgeAddress                  String?   @map("pledge_address") @db.VarChar(255)
+  updatedAt                      DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  project                        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([startDate], map: "idx_project_campaigns_start_date")
+  @@index([endDate], map: "idx_project_campaigns_end_date")
+  @@map("project_crowdfunding_campaigns")
+}
+
+model ProjectCreationMilestone {
+  id          String                               @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  projectId   String                               @map("project_id") @db.Uuid
+  name        String                               @db.VarChar(180)
+  cost        Decimal?                             @db.Decimal(18, 2)
+  endDate     DateTime?                            @map("end_date") @db.Timestamptz(6)
+  sortOrder   Int                                  @default(0) @map("sort_order")
+  createdAt   DateTime                             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime                             @default(now()) @map("updated_at") @db.Timestamptz(6)
+  components  ProjectCreationMilestoneComponent[]
+  project     Project                              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, sortOrder], map: "idx_project_creation_milestones_project_order")
+  @@map("project_creation_milestones")
+}
+
+model ProjectDigitalTwinModel {
+  id          String                      @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  projectId   String                      @unique @map("project_id") @db.Uuid
+  name        String                      @db.VarChar(180)
+  assetUrl    String                      @map("asset_url") @db.VarChar(2048)
+  format      String                      @db.VarChar(20)
+  source      String                      @db.VarChar(50)
+  isActive    Boolean                     @default(true) @map("is_active")
+  createdAt   DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime                    @default(now()) @map("updated_at") @db.Timestamptz(6)
+  components  ProjectDigitalTwinComponent[]
+  project     Project                     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, isActive], map: "idx_project_digital_twin_models_project_active")
+  @@map("project_digital_twin_models")
+}
+
+model ProjectDigitalTwinComponent {
+  id          String                               @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  modelId      String                              @map("model_id") @db.Uuid
+  externalId   String                              @map("external_id") @db.VarChar(120)
+  displayName  String                              @map("display_name") @db.VarChar(180)
+  nodeName     String?                             @map("node_name") @db.VarChar(180)
+  category     String                              @db.VarChar(80)
+  sortOrder    Int                                 @default(0) @map("sort_order")
+  isVisible    Boolean                             @default(true) @map("is_visible")
+  createdAt    DateTime                            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime                            @default(now()) @map("updated_at") @db.Timestamptz(6)
+  milestoneMappings ProjectCreationMilestoneComponent[]
+  model        ProjectDigitalTwinModel             @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@unique([modelId, externalId], map: "uniq_project_digital_twin_components_model_external")
+  @@index([modelId, sortOrder], map: "idx_project_digital_twin_components_model_order")
+  @@map("project_digital_twin_components")
+}
+
+model ProjectCreationMilestoneComponent {
+  id          String                     @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  milestoneId  String                    @map("milestone_id") @db.Uuid
+  componentId  String                    @map("component_id") @db.Uuid
+  sortOrder    Int                       @default(0) @map("sort_order")
+  createdAt    DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime                  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  component    ProjectDigitalTwinComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  milestone    ProjectCreationMilestone  @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+
+  @@unique([milestoneId, componentId], map: "uniq_project_creation_milestone_components_milestone_component")
+  @@index([componentId], map: "idx_project_creation_milestone_components_component_id")
+  @@index([milestoneId, sortOrder], map: "idx_project_creation_milestone_components_milestone_order")
+  @@map("project_creation_milestone_components")
+}
+
+model ProjectDocument {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  projectId  String   @map("project_id") @db.Uuid
+  kind       String   @db.VarChar(50)
+  fileName   String?  @map("file_name") @db.VarChar(255)
+  mimeType   String?  @map("mime_type") @db.VarChar(100)
+  sizeBytes  Int?     @map("size_bytes")
+  checksum   String?  @db.VarChar(128)
+  storageUrl String?  @map("storage_url") @db.VarChar(2048)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, kind], map: "idx_project_documents_project_kind")
+  @@map("project_documents")
+}

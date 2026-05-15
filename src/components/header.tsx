@@ -1,53 +1,69 @@
-"use client";
+'use client';
 
-import { Bell, Headset, Wallet } from "lucide-react";
-import React, { useState } from "react";
-import { usePathname } from "next/navigation";
-import { CustomButton } from "./ui/custom-button";
-import { ConnectWallet } from "./connectwallet/connect-wallet-modal";
+import { Bell, Headset, Menu } from 'lucide-react';
+import { OpenfortButton } from '@openfort/react';
+import { usePathname } from 'next/navigation';
+import { AppPageHeader } from '@/components/layout/app-page-header';
+import { getDigitalTwinProject } from '@/lib/digital-twin-projects';
+import { AvatarMenu } from './header/avatar-menu';
 
 const routeTitles: Record<string, string> = {
-  "/": "Dashboard",
-  "/kyc": "KYC",
-  "/explore-projects": "Explore Projects",
-  "/projects": "Projects",
-  "/settings": "Settings",
+  '/': 'Dashboard',
+  '/home': 'Dashboard',
+  '/explore-projects': 'Explore Projects',
+  '/create-project': 'Create Project',
+  '/tokenization': 'Tokenization',
+  '/investment-portal': 'Investment Portal',
+  '/digital-assets': 'Digital Assets',
+  '/investor-management': 'Investor Management',
+  '/investment-requests': 'Investment Requests',
+  '/asset-management': 'Asset Management',
+  '/swap': 'Swap',
+  '/kyc': 'KYC',
+  '/account': 'Account',
 };
 
-export default function Header() {
+function getPageTitle(pathname: string) {
+  const digitalTwinMatch = pathname.match(
+    /^\/projects\/([^/]+)\/digital-twin$/
+  );
+
+  if (digitalTwinMatch) {
+    return getDigitalTwinProject(digitalTwinMatch[1])?.title ?? 'Digital Twin';
+  }
+
+  return routeTitles[pathname] || 'Page';
+}
+
+type HeaderProps = {
+  onMenuClick?: () => void;
+};
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const pageTitle = routeTitles[pathname] || "Page";
+  const pageTitle = getPageTitle(pathname);
 
   return (
-    <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-normal text-white leading-2">
-          Hi sherv
-          <span className="text-[#8087A3] text-base font-normal"> - Guest</span>
-        </span>
-        <span className="text-[40px] font-bold text-white">{pageTitle}</span>
-      </div>
-
-      <div className="flex justify-center items-center gap-4">
-        <Headset size={24} className="text-white cursor-pointer" />
-        <Bell size={24} className="text-white cursor-pointer" />
-        <CustomButton
-          variant="outlined"
-          className="w-fit h-[40px] flex justify-center items-center gap-2 text-primary"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Wallet size={24} />
-          <span className="text-sm font-semibold">Connect Wallet</span>
-        </CustomButton>
-        <div className="w-12 h-12 rounded-full bg-[#263247] flex justify-center items-center text-white">
-          S
-        </div>
-      </div>
-      <ConnectWallet
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-    </div>
+    <AppPageHeader
+      title={pageTitle}
+      actions={
+        <>
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            onClick={onMenuClick}
+            className="rounded-full border border-white/15 p-2 text-white transition hover:border-primary/50 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="flex items-center gap-3">
+            <Headset size={24} className="cursor-pointer text-white" />
+            <Bell size={24} className="cursor-pointer text-white" />
+            <OpenfortButton label="Wallet" showAvatar />
+            <AvatarMenu />
+          </span>
+        </>
+      }
+    />
   );
 }
