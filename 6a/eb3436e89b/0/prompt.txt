@@ -1,0 +1,3 @@
+Our large PR #20 got signed off but merge is still blocked. Maybe becuase of the docker built? We do
+    not need that anyway as we from now on only deploy on vercel. It should not execute anymore,       
+   however we may keep the code somewhere should we need it again some time in the future.
