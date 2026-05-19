@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   ArrowRight,
@@ -15,17 +16,21 @@ import { FormInput } from '../ui/form-input';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import {
   createProjectDraft,
+  getProject,
   saveProjectCampaign,
   saveProjectContact,
   saveProjectInformation,
   saveProjectMilestones,
   submitProjectDraft,
+  uploadProjectDocument,
+  ApiClientError,
   type ProjectCampaignPayload,
   type ProjectContactPayload,
   type ProjectInformationPayload,
   type ProjectResponse,
 } from '@/lib/backend-auth-client';
 import { HARDWIRED_PROJECT_MODEL } from '@/lib/project-digital-twin';
+import { SegmentedStepProgress } from '@/components/ui/segmented-step-progress';
 
 type Step =
   | 'model'
@@ -42,6 +47,16 @@ type MilestoneDraft = {
   end_date: string;
   component_external_ids: string[];
 };
+
+const wizardSteps: Array<{ id: Step; label: string }> = [
+  { id: 'model', label: 'Funding Model' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'project', label: 'Project Info' },
+  { id: 'milestones', label: 'Milestones' },
+  { id: 'campaign', label: 'Campaign' },
+  { id: 'review', label: 'Review' },
+  { id: 'submitted', label: 'Submitted' },
+];
 
 const crowdfundingModels = [
   {
@@ -87,6 +102,25 @@ const projectStatusOptions = [
   { value: 'completed', label: 'Completed' },
 ];
 
+function formatRoleLabel(role: string | null | undefined) {
+  if (!role) {
+    return '';
+  }
+
+  if (role === 'project_owner') {
+    return 'Client';
+  }
+
+  if (role === 'governance') {
+    return 'DAO';
+  }
+
+  return role
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 const emptyMilestone = (): MilestoneDraft => ({
   name: '',
   cost: '',
@@ -94,16 +128,40 @@ const emptyMilestone = (): MilestoneDraft => ({
   component_external_ids: [],
 });
 
+function stepFromProject(project: ProjectResponse): Step {
+  if (project.submission_status === 'submitted') {
+    return 'review';
+  }
+
+  switch (project.current_step) {
+    case 'project_information':
+      return 'project';
+    case 'project_milestones':
+      return 'milestones';
+    case 'campaign_details':
+      return 'campaign';
+    case 'review':
+      return 'review';
+    case 'submitted':
+      return 'submitted';
+    case 'contact_information':
+    default:
+      return 'contact';
+  }
+}
+
 function SelectField({
   label,
   value,
   onChange,
   children,
+  invalid = false,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   children: React.ReactNode;
+  invalid?: boolean;
 }) {
   return (
     <label className="flex flex-col gap-2 text-sm font-medium text-white">
@@ -111,7 +169,12 @@ function SelectField({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-12 rounded-lg border border-transparent bg-[#131C2F] px-4 font-mono text-sm text-white outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/40"
+        aria-invalid={invalid || undefined}
+        className={`h-12 rounded-lg border bg-[#131C2F] px-4 font-mono text-sm text-white outline-none transition focus:ring-2 ${
+          invalid
+            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/40'
+            : 'border-transparent focus:border-primary focus:ring-primary/40'
+        }`}
       >
         {children}
       </select>
@@ -123,10 +186,12 @@ function TextareaField({
   label,
   value,
   onChange,
+  invalid = false,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  invalid?: boolean;
 }) {
   return (
     <label className="flex flex-col gap-2 text-sm font-medium text-white">
@@ -136,7 +201,12 @@ function TextareaField({
         onChange={(event) => onChange(event.target.value)}
         rows={4}
         placeholder={label}
-        className="rounded-lg border border-transparent bg-[#131C2F] px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-[#51515E] focus:border-primary focus:ring-2 focus:ring-primary/40"
+        aria-invalid={invalid || undefined}
+        className={`rounded-lg border bg-[#131C2F] px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-[#51515E] focus:ring-2 ${
+          invalid
+            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/40'
+            : 'border-transparent focus:border-primary focus:ring-primary/40'
+        }`}
       />
     </label>
   );
@@ -158,6 +228,8 @@ function FieldValue({
 }
 
 export default function CreateProject() {
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('projectId');
   const { backendAccessToken, backendUser, refreshSession } = useAuthSession();
   const [step, setStep] = useState<Step>('model');
   const [project, setProject] = useState<ProjectResponse | null>(null);
@@ -196,7 +268,24 @@ export default function CreateProject() {
     pledge_address: '',
   });
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingProject, setIsLoadingProject] = useState(Boolean(projectId));
+  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+
+  useEffect(() => {
+    if (!backendUser || projectId) {
+      return;
+    }
+
+    setContact((current) => ({
+      first_name: current.first_name || backendUser.first_name || '',
+      last_name: current.last_name || backendUser.last_name || '',
+      email: current.email || backendUser.email || '',
+      title: current.title || formatRoleLabel(backendUser.role),
+      phone_number: current.phone_number || backendUser.phone_number || '',
+    }));
+  }, [backendUser, projectId]);
 
   const canCreateProject = backendUser?.role === 'project_owner';
   const availableComponents =
@@ -216,6 +305,62 @@ export default function CreateProject() {
     [availableComponents]
   );
 
+  const hydrateProjectDraft = useCallback(
+    (nextProject: ProjectResponse) => {
+      setProject(nextProject);
+      setContact({
+        first_name: nextProject.contact?.first_name ?? contact.first_name,
+        last_name: nextProject.contact?.last_name ?? contact.last_name,
+        email: nextProject.contact?.email ?? contact.email,
+        title: nextProject.contact?.title ?? contact.title,
+        phone_number: nextProject.contact?.phone_number ?? contact.phone_number,
+      });
+      setProjectInfo({
+        name: nextProject.name ?? '',
+        description: nextProject.description ?? '',
+        target_investment_amount: nextProject.target_investment_amount ?? '',
+        infrastructure_type: nextProject.infrastructure_type ?? 'wind_energy',
+        project_status: nextProject.project_status ?? 'ready_to_launch',
+        raised_before: Boolean(nextProject.raised_before),
+        website_url: nextProject.website_url ?? '',
+        social_url: nextProject.social_url ?? '',
+        proposal_document: nextProject.documents[0]
+          ? {
+              file_name: nextProject.documents[0].file_name,
+              mime_type: nextProject.documents[0].mime_type,
+              size_bytes: nextProject.documents[0].size_bytes,
+              checksum: nextProject.documents[0].checksum,
+              storage_url: nextProject.documents[0].storage_url,
+            }
+          : undefined,
+      });
+      hydrateMilestonesFromProject(nextProject);
+      setCampaign({
+        token_name: nextProject.campaign?.token_name ?? '',
+        digital_asset_supply: nextProject.campaign?.digital_asset_supply ?? '',
+        price: nextProject.campaign?.price ?? '',
+        currency: nextProject.campaign?.currency ?? 'USDC',
+        min_raise: nextProject.campaign?.min_raise ?? '',
+        max_raise: nextProject.campaign?.max_raise ?? '',
+        min_contribution: nextProject.campaign?.min_contribution ?? '',
+        max_contribution: nextProject.campaign?.max_contribution ?? '',
+        start_date: nextProject.campaign?.start_date?.slice(0, 10) ?? '',
+        end_date: nextProject.campaign?.end_date?.slice(0, 10) ?? '',
+        general_contractor_wallet_address:
+          nextProject.campaign?.general_contractor_wallet_address ?? '',
+        pledge_address: nextProject.campaign?.pledge_address ?? '',
+      });
+      setStep(stepFromProject(nextProject));
+    },
+    [
+      contact.email,
+      contact.first_name,
+      contact.last_name,
+      contact.phone_number,
+      contact.title,
+    ]
+  );
+
   async function persist<T>(
     action: (accessToken: string) => Promise<T>,
     onSuccess: (value: T) => void
@@ -233,6 +378,7 @@ export default function CreateProject() {
 
     setIsSaving(true);
     setError(null);
+    setFieldErrors({});
 
     try {
       const result = await action(accessToken);
@@ -254,9 +400,12 @@ export default function CreateProject() {
               retryError instanceof Error
                 ? retryError.message
                 : 'Request failed';
+            if (retryError instanceof ApiClientError && retryError.fields) {
+              setFieldErrors(retryError.fields);
+            }
             setError(
               retryMessage.startsWith('Validation failed')
-                ? 'Please complete the required fields before continuing.'
+                ? 'Please complete the highlighted fields before continuing.'
                 : retryMessage
             );
             return;
@@ -264,14 +413,29 @@ export default function CreateProject() {
         }
       }
 
+      if (caughtError instanceof ApiClientError && caughtError.fields) {
+        setFieldErrors(caughtError.fields);
+      }
       setError(
         message.startsWith('Validation failed')
-          ? 'Please complete the required fields before continuing.'
+          ? 'Please complete the highlighted fields before continuing.'
           : message
       );
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function clearFieldError(field: string) {
+    setFieldErrors((current) => {
+      if (!current[field]) {
+        return current;
+      }
+
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
   }
 
   function updateContact(field: keyof ProjectContactPayload, value: string) {
@@ -282,11 +446,51 @@ export default function CreateProject() {
     field: keyof ProjectInformationPayload,
     value: string | boolean | ProjectInformationPayload['proposal_document']
   ) {
+    clearFieldError(field);
     setProjectInfo((current) => ({ ...current, [field]: value }));
   }
 
   function updateCampaign(field: keyof ProjectCampaignPayload, value: string) {
     setCampaign((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handleProposalFileChange(file: File | undefined) {
+    if (!file) {
+      updateProjectInfo('proposal_document', undefined);
+      setFieldErrors((current) => ({
+        ...current,
+        proposal_document: 'Proposal file is required',
+      }));
+      return;
+    }
+
+    let accessToken = backendAccessToken;
+
+    if (!accessToken) {
+      accessToken = await refreshSession();
+    }
+
+    if (!accessToken) {
+      setError('Please sign in again before uploading a proposal file.');
+      return;
+    }
+
+    setIsUploadingDocument(true);
+    setError(null);
+
+    try {
+      const document = await uploadProjectDocument(accessToken, file);
+      updateProjectInfo('proposal_document', document);
+    } catch (uploadError) {
+      const message =
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'Proposal upload failed.';
+      updateProjectInfo('proposal_document', undefined);
+      setError(message);
+    } finally {
+      setIsUploadingDocument(false);
+    }
   }
 
   function updateMilestone(
@@ -357,6 +561,66 @@ export default function CreateProject() {
     );
   }
 
+  useEffect(() => {
+    if (!projectId) {
+      setIsLoadingProject(false);
+      return;
+    }
+
+    const currentProjectId = projectId;
+    let isMounted = true;
+
+    async function loadProject() {
+      let accessToken = backendAccessToken;
+
+      if (!accessToken) {
+        accessToken = await refreshSession();
+      }
+
+      if (!accessToken) {
+        if (isMounted) {
+          setError('Please sign in again before opening this project.');
+          setIsLoadingProject(false);
+        }
+        return;
+      }
+
+      try {
+        const existingProject = await getProject(accessToken, currentProjectId);
+
+        if (isMounted) {
+          hydrateProjectDraft(existingProject);
+          setIsLoadingProject(false);
+        }
+      } catch (loadError) {
+        if (isMounted) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : 'Failed to open project.'
+          );
+          setIsLoadingProject(false);
+        }
+      }
+    }
+
+    void loadProject();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [backendAccessToken, hydrateProjectDraft, projectId, refreshSession]);
+
+  if (isLoadingProject) {
+    return (
+      <CardView width="1015px" height="728px" padding="p-12" className="gap-6">
+        <span className="chakra-petch text-3xl text-white">
+          Opening project…
+        </span>
+      </CardView>
+    );
+  }
+
   if (!canCreateProject) {
     return (
       <CardView width="1015px" height="728px" padding="p-12" className="gap-6">
@@ -381,16 +645,13 @@ export default function CreateProject() {
       padding="p-12"
       className="min-h-[728px] gap-8"
     >
-      <div className="flex w-full flex-col gap-2">
-        <span className="chakra-petch text-4xl font-semibold text-white">
-          {step === 'model' ? 'Choose crowdfunding models' : 'Create Project'}
-        </span>
-        {step === 'model' ? (
-          <span className="font-mono text-sm leading-7 text-[#C7CAD5]">
-            The next step is choosing the right funding model. Let’s get you
-            started!
+      <div className="flex w-full flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <span className="chakra-petch text-4xl font-semibold text-white">
+            {step === 'model' ? 'Choose crowdfunding models' : 'Create Project'}
           </span>
-        ) : null}
+        </div>
+        <SegmentedStepProgress steps={wizardSteps} currentStep={step} />
         {error ? (
           <div className="mt-2 rounded-lg border border-error/50 bg-error/10 px-4 py-3 font-mono text-xs text-error">
             {error}
@@ -527,11 +788,13 @@ export default function CreateProject() {
             value={projectInfo.name}
             onChange={(event) => updateProjectInfo('name', event.target.value)}
             className="w-[302px]"
+            invalid={Boolean(fieldErrors.name)}
           />
           <TextareaField
             label="Project Description"
             value={projectInfo.description}
             onChange={(value) => updateProjectInfo('description', value)}
+            invalid={Boolean(fieldErrors.description)}
           />
           <FormInput
             label="Target Investment Amount(£)"
@@ -540,6 +803,7 @@ export default function CreateProject() {
             onChange={(event) =>
               updateProjectInfo('target_investment_amount', event.target.value)
             }
+            invalid={Boolean(fieldErrors.target_investment_amount)}
           />
           <div className="grid grid-cols-2 gap-6">
             <SelectField
@@ -555,6 +819,7 @@ export default function CreateProject() {
               onChange={(value) =>
                 updateProjectInfo('infrastructure_type', value)
               }
+              invalid={Boolean(fieldErrors.infrastructure_type)}
             >
               {infrastructureOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -566,6 +831,7 @@ export default function CreateProject() {
               label="Project Status"
               value={projectInfo.project_status}
               onChange={(value) => updateProjectInfo('project_status', value)}
+              invalid={Boolean(fieldErrors.project_status)}
             >
               {projectStatusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -579,6 +845,7 @@ export default function CreateProject() {
               onChange={(value) =>
                 updateProjectInfo('raised_before', value === 'yes')
               }
+              invalid={Boolean(fieldErrors.raised_before)}
             >
               <option value="no">No</option>
               <option value="yes">Yes</option>
@@ -591,6 +858,7 @@ export default function CreateProject() {
             onChange={(event) =>
               updateProjectInfo('website_url', event.target.value)
             }
+            invalid={Boolean(fieldErrors.website_url)}
           />
           <FormInput
             label="Social Media Link"
@@ -599,31 +867,35 @@ export default function CreateProject() {
             onChange={(event) =>
               updateProjectInfo('social_url', event.target.value)
             }
+            invalid={Boolean(fieldErrors.social_url)}
           />
           <label className="flex flex-col gap-2 text-sm font-medium text-white">
             Proposal File
             <input
               type="file"
               accept="application/pdf"
+              disabled={isUploadingDocument || isSaving}
               onChange={(event) => {
-                const file = event.target.files?.[0];
-                updateProjectInfo(
-                  'proposal_document',
-                  file
-                    ? {
-                        file_name: file.name,
-                        mime_type: file.type || 'application/pdf',
-                        size_bytes: file.size,
-                      }
-                    : undefined
-                );
+                void handleProposalFileChange(event.target.files?.[0]);
               }}
-              className="rounded-lg border border-dashed border-card-border bg-[#131C2F] px-4 py-3 font-mono text-sm text-white file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-black"
+              aria-invalid={Boolean(fieldErrors.proposal_document) || undefined}
+              className={`rounded-lg border border-dashed bg-[#131C2F] px-4 py-3 font-mono text-sm text-white file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-black disabled:cursor-not-allowed disabled:opacity-60 ${
+                fieldErrors.proposal_document
+                  ? 'border-red-500'
+                  : 'border-card-border'
+              }`}
             />
+            <span className="font-mono text-xs text-gray-400">
+              {isUploadingDocument
+                ? 'Uploading proposal…'
+                : projectInfo.proposal_document?.storage_url
+                  ? `Uploaded: ${projectInfo.proposal_document.file_name ?? 'proposal.pdf'}`
+                  : 'PDF, max 10MB.'}
+            </span>
           </label>
           <WizardActions
             onBack={() => setStep('contact')}
-            isSaving={isSaving}
+            isSaving={isSaving || isUploadingDocument}
           />
         </form>
       ) : null}
