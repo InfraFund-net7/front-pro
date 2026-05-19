@@ -1,9 +1,1 @@
-ok, it deployed, already in step 1 , when i click on "Pre-Sale" I get "Internal server error". This actually happended before the changes we made in this session, ...
-
----
-
-can you create a v1.3.0 release, write release notes, tag it, push it create release on github
-
----
-
 can you create a v1.3.0 release, write release notes, tag it, push it create release on github
