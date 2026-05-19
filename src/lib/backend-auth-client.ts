@@ -14,6 +14,10 @@ interface BackendCountriesResponse {
   items: BackendCountryRecord[];
 }
 
+interface ProjectsResponse {
+  items: ProjectResponse[];
+}
+
 interface BackendCountryRecord {
   ID: number;
   Name: string;
@@ -82,6 +86,7 @@ interface ProjectDocumentPayload {
 
 export interface ProjectResponse {
   id: string;
+  owner_user_id: string;
   name: string | null;
   description: string | null;
   type: string;
@@ -96,6 +101,10 @@ export interface ProjectResponse {
   raised_before: boolean | null;
   website_url: string | null;
   social_url: string | null;
+  submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  account_roles: string[];
   contact: {
     first_name: string;
     last_name: string;
@@ -334,6 +343,13 @@ export async function submitNonResidentCompany(
       'X-Captcha-Token': captchaToken,
     },
     body: JSON.stringify(payload),
+  });
+}
+
+export async function listMyProjects(accessToken: string) {
+  return request<ProjectsResponse>('projects', {
+    method: 'GET',
+    accessToken,
   });
 }
 

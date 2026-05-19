@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { Prisma } from '@prisma/client';
+import { Prisma, type UserRole } from '@prisma/client';
 
 import { HARDWIRED_PROJECT_MODEL } from '@/server/digital-twin/project-model';
 import { getDb } from '@/server/db';
@@ -15,6 +15,7 @@ const projectInclude = {
   campaign: true,
   contact: true,
   documents: true,
+  accountRoles: true,
   digitalTwinModels: {
     where: {
       isActive: true,
@@ -51,12 +52,18 @@ export type ProjectWithDetails = Prisma.ProjectGetPayload<{
   include: typeof projectInclude;
 }>;
 
-export async function createProjectDraft(ownerUserId: string) {
+export async function createProjectDraft(ownerUserId: string, role: UserRole) {
   const project = await getDb().project.create({
     data: {
       ownerUserId,
       crowdfundingModel: 'pre_sale',
       currentStep: 'contact_information',
+      accountRoles: {
+        create: {
+          userId: ownerUserId,
+          role,
+        },
+      },
     },
     include: projectInclude,
   });
@@ -71,6 +78,22 @@ export function findProjectForOwner(projectId: string, ownerUserId: string) {
       ownerUserId,
     },
     include: projectInclude,
+  });
+}
+
+export function findProjectsForAccount(userId: string) {
+  return getDb().project.findMany({
+    where: {
+      accountRoles: {
+        some: {
+          userId,
+        },
+      },
+    },
+    include: projectInclude,
+    orderBy: {
+      updatedAt: 'desc',
+    },
   });
 }
 

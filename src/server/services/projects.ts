@@ -4,6 +4,7 @@ import { ApiError } from '@/server/http';
 import {
   createProjectDraft,
   findProjectForOwner,
+  findProjectsForAccount,
   replaceProjectMilestones,
   submitProject,
   updateProjectInformation,
@@ -19,12 +20,18 @@ import type {
   ProjectInformationInput,
 } from '@/server/validation/projects';
 
-async function getAuthenticatedProjectOwnerId(accessToken: string) {
+async function getAuthenticatedProjectOwner(accessToken: string) {
   const { user } = await authenticateAppRequest(accessToken);
 
   if (user.role !== 'project_owner') {
     throw new ApiError('FORBIDDEN', 'Project owner account required.');
   }
+
+  return user;
+}
+
+async function getAuthenticatedProjectOwnerId(accessToken: string) {
+  const user = await getAuthenticatedProjectOwner(accessToken);
 
   return user.id;
 }
@@ -50,7 +57,16 @@ function serializeDate(value: Date | null | undefined) {
   return value?.toISOString() ?? null;
 }
 
-function serializeProject(project: ProjectWithDetails) {
+function serializeProject(
+  project: ProjectWithDetails,
+  options: { currentUserId?: string } = {}
+) {
+  const accountRoles = options.currentUserId
+    ? project.accountRoles
+        .filter((accountRole) => accountRole.userId === options.currentUserId)
+        .map((accountRole) => accountRole.role)
+    : project.accountRoles.map((accountRole) => accountRole.role);
+
   return {
     id: project.id,
     owner_user_id: project.ownerUserId,
@@ -71,6 +87,7 @@ function serializeProject(project: ProjectWithDetails) {
     submitted_at: serializeDate(project.submittedAt),
     created_at: project.createdAt.toISOString(),
     updated_at: project.updatedAt.toISOString(),
+    account_roles: accountRoles,
     contact: project.contact
       ? {
           first_name: project.contact.firstName,
@@ -148,10 +165,21 @@ function serializeProject(project: ProjectWithDetails) {
 }
 
 export async function createPreSaleProjectDraft(accessToken: string) {
-  const ownerUserId = await getAuthenticatedProjectOwnerId(accessToken);
-  const project = await createProjectDraft(ownerUserId);
+  const owner = await getAuthenticatedProjectOwner(accessToken);
+  const project = await createProjectDraft(owner.id, owner.role);
 
-  return serializeProject(project);
+  return serializeProject(project, { currentUserId: owner.id });
+}
+
+export async function listMyProjects(accessToken: string) {
+  const { user } = await authenticateAppRequest(accessToken);
+  const projects = await findProjectsForAccount(user.id);
+
+  return {
+    items: projects.map((project) =>
+      serializeProject(project, { currentUserId: user.id })
+    ),
+  };
 }
 
 export async function getProject(accessToken: string, projectId: string) {
