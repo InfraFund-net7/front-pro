@@ -1,0 +1,78 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "3a455cc2b73b",
+  "session_id": "0060042a-1ade-4172-8079-f7fcb2f15c12",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-19T12:52:21.391909101Z",
+  "branch": "develop",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "prisma/migrations/20260519120000_add_project_account_roles/migration.sql",
+    "prisma/schema.prisma",
+    "src/app/ai-competition/page.tsx",
+    "src/app/api/v1/projects/route.ts",
+    "src/app/claim-proposal/page.tsx",
+    "src/app/create-approval/page.tsx",
+    "src/app/my-projects/page.tsx",
+    "src/app/plan-approval/page.tsx",
+    "src/app/proposal-approval/page.tsx",
+    "src/app/vote/page.tsx",
+    "src/components/header.tsx",
+    "src/components/layout/app-page-header.tsx",
+    "src/components/layout/feature-placeholder.tsx",
+    "src/components/my-projects/my-projects.tsx",
+    "src/components/sidebar.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/server/repositories/projects.ts",
+    "src/server/services/auth.ts",
+    "src/server/services/projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "a70927c52973",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-19T12:52:21.369721549Z",
+    "agent_lines": 700,
+    "agent_removed": 102,
+    "human_added": 48,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 748,
+    "total_lines_changed": 853,
+    "agent_percentage": 94.02110199296601,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 675,
+      "agent_lines_removed": 98
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 700,
+      "agent_lines_removed": 102
+    }
+  ]
+}

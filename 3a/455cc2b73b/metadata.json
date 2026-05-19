@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "3a455cc2b73b",
+  "strategy": "manual-commit",
+  "branch": "develop",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "prisma/migrations/20260519120000_add_project_account_roles/migration.sql",
+    "prisma/schema.prisma",
+    "src/app/ai-competition/page.tsx",
+    "src/app/api/v1/projects/route.ts",
+    "src/app/claim-proposal/page.tsx",
+    "src/app/create-approval/page.tsx",
+    "src/app/my-projects/page.tsx",
+    "src/app/plan-approval/page.tsx",
+    "src/app/proposal-approval/page.tsx",
+    "src/app/vote/page.tsx",
+    "src/components/header.tsx",
+    "src/components/layout/app-page-header.tsx",
+    "src/components/layout/feature-placeholder.tsx",
+    "src/components/my-projects/my-projects.tsx",
+    "src/components/sidebar.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/server/repositories/projects.ts",
+    "src/server/services/auth.ts",
+    "src/server/services/projects.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/3a/455cc2b73b/0/metadata.json",
+      "transcript": "/3a/455cc2b73b/0/full.jsonl",
+      "content_hash": "/3a/455cc2b73b/0/content_hash.txt",
+      "prompt": "/3a/455cc2b73b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}

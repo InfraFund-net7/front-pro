@@ -1,0 +1,77 @@
+What is the current logic and where is defined what role (4 different ones) combined with either individual or organization , what menu items will be shown.
+
+I would like to create a new menu item entry "My Projects" just below "Home"
+
+Then it should lead to a new page `my-projects` which only shows the projects the current logged in account has an interest in by any of the roles.
+
+---
+
+What is the current logic and where is defined what role (4 different ones) combined with either individual or organization , what menu items will be shown.
+
+I would like to create a new menu item entry "My Projects" just below "Home"
+
+Then it should lead to a new page `my-projects` which only shows the projects the current logged in account has an interest in by any of the roles.
+
+---
+
+ignore the error - it is not relevant, all is good
+
+---
+
+you need to use `headroom-azure` MCP in this session if you want to access the current proxy we use.
+Actually, if we need to make a change to the database schema anyway, we may want a releations link table, which links account-role-project, to allow a account have different roles in different project, although for now we would assign the role of the account by default to any new account-project connection
+
+---
+
+you need to use `headroom-azure` MCP in this session if you want to access the current proxy we use.
+Actually, if we need to make a change to the database schema anyway, we may want a releations link table, which links account-role-project, to allow a account have different roles in different project, although for now we would assign the role of the account by default to any new account-project connection
+
+---
+
+- what would be the best way to implement full role/type menu matrix ?
+- would like, maybe we have it already , partially , one sorted list of menu entries which can easily be re-arranged (order) should we want to move the postion of a menu item in the list. It is ok to have that "hardcoded" in code , as we rarely will change it once the code is solid
+- would it make sense to have a link as the entry in the 'full role/type menu matrix' which would allow us to individually define to which page to go , maybe even with parameters once a user with a certain role clicks a menu item - or would we direct to the same page anyway , connect the menu item directly to the page to go and then decide on that page what to show regarding the role of the user , yes actually I think that makes more sense. wdyt ?
+
+---
+
+- what would be the best way to implement full role/type menu matrix ?
+- would like, maybe we have it already , partially , one sorted list of menu entries which can easily be re-arranged (order) should we want to move the postion of a menu item in the list. It is ok to have that "hardcoded" in code , as we rarely will change it once the code is solid
+- would it make sense to have a link as the entry in the 'full role/type menu matrix' which would allow us to individually define to which page to go , maybe even with parameters once a user with a certain role clicks a menu item - or would we direct to the same page anyway , connect the menu item directly to the page to go and then decide on that page what to show regarding the role of the user , yes actually I think that makes more sense. wdyt ?
+
+---
+
+have a look at this menu for `project_owner` (aka "Client")
+https://www.figma.com/design/Zq04RInLJpyFTA83nEdO4y/InfraFund-local?node-id=1070-29571&m=dev&t=XrIU1ZYau4ZO4mg9-1
+yiu have figma MCP at your disposal for access
+use this to make sure that we already have the menu items and the visibility mapping for a project owner properly populated in the matrix. First "Home Dashboard" , add a "My Projects" below "Explore Projects", then "Create Project" , "Tokenization" ,  then the rest.
+
+For user role "DAO" we have "Home Dashboard" , "AI Competition" , "Proposal Approval"  , "Create Approval" , "Plan Approval" , "Account Settings" - put them at the end of our global menu list.
+
+For user role "Contractor" we have : "Home Dashboard" , "Explore Projects" , "Swap" , "Asset Management" , "Claim Proposal" , "Vote" , "Account Settings"
+
+For user role "Auditor" we have : "Home Dashboard" , "AI Competition" , "Proposal Approval" , "Create Approval" , "Plan Approval" , "Account Settings"
+
+---
+
+have a look at this menu for `project_owner` (aka "Client")
+https://www.figma.com/design/Zq04RInLJpyFTA83nEdO4y/InfraFund-local?node-id=1070-29571&m=dev&t=XrIU1ZYau4ZO4mg9-1
+yiu have figma MCP at your disposal for access
+use this to make sure that we already have the menu items and the visibility mapping for a project owner properly populated in the matrix. First "Home Dashboard" , add a "My Projects" below "Explore Projects", then "Create Project" , "Tokenization" ,  then the rest.
+
+For user role "DAO" we have "Home Dashboard" , "AI Competition" , "Proposal Approval"  , "Create Approval" , "Plan Approval" , "Account Settings" - put them at the end of our global menu list.
+
+For user role "Contractor" we have : "Home Dashboard" , "Explore Projects" , "Swap" , "Asset Management" , "Claim Proposal" , "Vote" , "Account Settings"
+
+For user role "Auditor" we have : "Home Dashboard" , "AI Competition" , "Proposal Approval" , "Create Approval" , "Plan Approval" , "Account Settings"
+
+---
+
+menu is already looking good. On the `my-projects` page we should have the normal list of projects, but just stating "No Projects found" instead of giving an error message.
+
+In the header , after the page title , we should show the role as well , maybe the font a bit smaller than the title and some elipse border around , so some design not just the text.
+
+---
+
+menu is already looking good. On the `my-projects` page we should have the normal list of projects, but just stating "No Projects found" instead of giving an error message.
+
+In the header , after the page title , we should show the role as well , maybe the font a bit smaller than the title and some elipse border around , so some design not just the text.
