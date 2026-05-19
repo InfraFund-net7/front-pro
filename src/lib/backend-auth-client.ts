@@ -82,6 +82,8 @@ interface ProjectDocumentPayload {
   file_name?: string;
   mime_type?: string;
   size_bytes?: number;
+  checksum?: string;
+  storage_url?: string;
 }
 
 export interface ProjectResponse {
@@ -205,9 +207,31 @@ interface SuccessResponse<T> {
 }
 
 interface ErrorResponse {
+  code?: string;
   message?: string;
   detail?: string;
   fields?: Record<string, unknown>;
+}
+
+export class ApiClientError extends Error {
+  readonly code?: string;
+  readonly detail?: string;
+  readonly fields?: Record<string, string>;
+
+  constructor(
+    message: string,
+    options: {
+      code?: string;
+      detail?: string;
+      fields?: Record<string, string>;
+    } = {}
+  ) {
+    super(message);
+    this.name = 'ApiClientError';
+    this.code = options.code;
+    this.detail = options.detail;
+    this.fields = options.fields;
+  }
 }
 
 function buildUrl(path: string) {
@@ -222,7 +246,11 @@ async function request<T>(
 ) {
   const headers = new Headers(init.headers);
 
-  if (init.body && !headers.has('Content-Type')) {
+  if (
+    init.body &&
+    !(init.body instanceof FormData) &&
+    !headers.has('Content-Type')
+  ) {
     headers.set('Content-Type', 'application/json');
   }
 
@@ -242,15 +270,33 @@ async function request<T>(
     try {
       const errorBody = (await response.json()) as ErrorResponse;
       const baseMessage = errorBody.message || errorBody.detail || message;
-      const fieldMessages = errorBody.fields
-        ? Object.entries(errorBody.fields)
-            .map(([key, value]) => `${key}: ${String(value)}`)
+      const fields = errorBody.fields
+        ? Object.fromEntries(
+            Object.entries(errorBody.fields).map(([key, value]) => [
+              key,
+              String(value),
+            ])
+          )
+        : undefined;
+      const fieldMessages = fields
+        ? Object.entries(fields)
+            .map(([key, value]) => `${key}: ${value}`)
             .join(', ')
         : '';
       message = [baseMessage, errorBody.detail, fieldMessages]
         .filter(Boolean)
         .join(' — ');
-    } catch {}
+
+      throw new ApiClientError(message, {
+        code: errorBody.code,
+        detail: errorBody.detail,
+        fields,
+      });
+    } catch (parseError) {
+      if (parseError instanceof ApiClientError) {
+        throw parseError;
+      }
+    }
 
     throw new Error(message);
   }
@@ -346,6 +392,17 @@ export async function submitNonResidentCompany(
   });
 }
 
+export async function uploadProjectDocument(accessToken: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return request<ProjectDocumentPayload>('uploads/project-documents', {
+    method: 'POST',
+    accessToken,
+    body: formData,
+  });
+}
+
 export async function listMyProjects(accessToken: string) {
   return request<ProjectsResponse>('projects', {
     method: 'GET',
@@ -356,6 +413,13 @@ export async function listMyProjects(accessToken: string) {
 export async function createProjectDraft(accessToken: string) {
   return request<ProjectResponse>('projects', {
     method: 'POST',
+    accessToken,
+  });
+}
+
+export async function getProject(accessToken: string, projectId: string) {
+  return request<ProjectResponse>(`projects/${projectId}`, {
+    method: 'GET',
     accessToken,
   });
 }

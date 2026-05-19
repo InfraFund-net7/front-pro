@@ -51,7 +51,8 @@ function roleLabel(role: string) {
 
 function ProjectCard({ project }: { project: ProjectResponse }) {
   const title = project.name ?? 'Untitled Project';
-  const detailHref = `/projects/${project.id}/digital-twin`;
+  const isDraft = project.submission_status === 'draft';
+  const detailHref = `/create-project?projectId=${project.id}`;
 
   return (
     <article className="rounded-[28px] border border-card-bg-border bg-card-bg p-6 text-white backdrop-blur-3xl">
@@ -82,10 +83,7 @@ function ProjectCard({ project }: { project: ProjectResponse }) {
             label="Project Status"
             value={formatLabel(project.project_status)}
           />
-          <Field
-            label="Submission"
-            value={formatLabel(project.submission_status)}
-          />
+          <Field label="Submission" value={isDraft ? 'DRAFT' : 'Submitted'} />
           <Field label="Target Amount" value={formatAmount(project)} />
           <Field label="Updated" value={formatDate(project.updated_at)} />
         </div>

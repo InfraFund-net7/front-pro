@@ -6,7 +6,7 @@ import { ApiError } from '@/server/http';
 import { readJsonObject } from '@/server/validation/public-forms';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const urlPattern = /^https?:\/\/.+/i;
+const urlPattern = /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}(?:[/?#:].*)?$/i;
 const infrastructureTypes = new Set<ProjectInfrastructureType>([
   'wind_energy',
   'solar_power',
@@ -194,6 +194,10 @@ function readOptionalUrl(
 
   if (value && !urlPattern.test(value)) {
     addFieldError(fields, field, `${field} must be a valid URL`);
+  }
+
+  if (value && !/^https?:\/\//i.test(value)) {
+    return `https://${value}`;
   }
 
   return value;
@@ -391,6 +395,11 @@ function parseProposalDocument(
     maxLength: 128,
   });
   const storageUrl = readOptionalUrl(document, fields, 'storage_url');
+
+  if (fields.storage_url) {
+    fields.proposal_document = fields.storage_url;
+    delete fields.storage_url;
+  }
   const sizeBytes = document.size_bytes;
 
   if (
