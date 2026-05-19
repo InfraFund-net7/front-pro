@@ -1,0 +1,189 @@
+create a new sub-dire `knowledge-base` in `docs-dev/resources` and add a short description how the role mapping and menu show/hide works. write some release notes, then bump version in `package.json` to v1.2.8 , commit , tag it with v1.2.8 , then push it - we should be on `develop` branch.
+
+---
+
+if I now click on "Create Project" as a "Client", I get 'Internal server error", it worked before , also we should try to make our error messages more informative so that we get an idea what to look for.
+
+---
+
+if I now click on "Create Project" as a "Client", I get 'Internal server error", it worked before , also we should try to make our error messages more informative so that we get an idea what to look for.
+
+---
+
+All good, i just had to restart the dev server. I just have a problem at step 2 (Actually we should have a 1/n info in the header, or even vusual display , maybe a horizontal thin progress bar with sections representing each step.maybe we have that already somewhere in which case we should define it once as a component which we can reuse.
+
+... and the problem is that I get an error if I can not upload a file - what currently does not work as we do not have any filestorage setup as of now. Maybe add vercel/blob as a quick fix ?
+```
+Yes, Vercel offers a dedicated object storage solution exactly for this use case called **Vercel Blob**.
+
+It is designed to handle unstructured data like user-generated uploads (avatars, documents, images, and videos) without forcing you to manually configure external cloud buckets like AWS S3 or Google Cloud Storage.
+
+---
+
+## Key Features
+
+* **Framework Integration:** It has a highly intuitive, promise-based API (`@vercel/blob`) that feels native if you are using frameworks like Next.js, SvelteKit, or Nuxt.
+* **Edge/CDN Powered:** Uploaded files are served from a global network via unique, secure URLs and benefit from automatic caching.
+* **Client vs. Server Uploads:**
+* **Server Uploads:** You can forward files through a backend API route. However, keep in mind that Vercel’s Serverless Functions have a request body size limit of **4.5MB**.
+* **Client Uploads:** For larger files (it supports up to 5TB via multipart uploads), you can bypass the serverless payload limit by generating a token on the server and uploading the file **directly from the client browser** to Vercel Blob.
+
+---
+
+## Quick Example (Serverless Route Handler)
+
+If you are handling smaller files or avatars in a TypeScript backend route, it looks like this:
+
+```typescript
+import { put } from '@vercel/blob';
+
+export async function PUT(request: Request) {
+  const form = await request.formData();
+  const file = form.get('file') as File;
+  
+  // Uploads the file and handles cache/naming automatically
+  const blob = await put(`avatars/${file.name}`, file, { 
+    access: 'public',
+    addRandomSuffix: true // Prevents accidental overwrites
+  });
+
+  return Response.json(blob);
+}
+
+```
+
+## Free vs. Paid Tier Allowances
+
+Vercel provides a generous starting tier for its storage products:
+
+| Feature | Hobby (Free) | Pro Plan |
+| --- | --- | --- |
+| **Storage Capacity** | 1 GB / month | 5 GB / month (then $0.023/GB) |
+| **Data Transfer** | 10 GB / month | 100 GB / month |
+| **Upload Operations** | 2,000 / month | 10,000 / month |
+
+## Alternatives on the Vercel Marketplace
+
+If your app outgrows Vercel Blob's pricing tier, or if you need robust access control policies (like complex private/public user permissions) right out of the box, Vercel’s dashboard integrates natively with third-party providers like **Supabase Storage** or **Upstash** in just a few clicks.
+```
+
+---
+
+All good, i just had to restart the dev server. I just have a problem at step 2 (Actually we should have a 1/n info in the header, or even vusual display , maybe a horizontal thin progress bar with sections representing each step.maybe we have that already somewhere in which case we should define it once as a component which we can reuse.
+
+... and the problem is that I get an error if I can not upload a file - what currently does not work as we do not have any filestorage setup as of now. Maybe add vercel/blob as a quick fix ?
+```
+Yes, Vercel offers a dedicated object storage solution exactly for this use case called **Vercel Blob**.
+
+It is designed to handle unstructured data like user-generated uploads (avatars, documents, images, and videos) without forcing you to manually configure external cloud buckets like AWS S3 or Google Cloud Storage.
+
+---
+
+## Key Features
+
+* **Framework Integration:** It has a highly intuitive, promise-based API (`@vercel/blob`) that feels native if you are using frameworks like Next.js, SvelteKit, or Nuxt.
+* **Edge/CDN Powered:** Uploaded files are served from a global network via unique, secure URLs and benefit from automatic caching.
+* **Client vs. Server Uploads:**
+* **Server Uploads:** You can forward files through a backend API route. However, keep in mind that Vercel’s Serverless Functions have a request body size limit of **4.5MB**.
+* **Client Uploads:** For larger files (it supports up to 5TB via multipart uploads), you can bypass the serverless payload limit by generating a token on the server and uploading the file **directly from the client browser** to Vercel Blob.
+
+---
+
+## Quick Example (Serverless Route Handler)
+
+If you are handling smaller files or avatars in a TypeScript backend route, it looks like this:
+
+```typescript
+import { put } from '@vercel/blob';
+
+export async function PUT(request: Request) {
+  const form = await request.formData();
+  const file = form.get('file') as File;
+  
+  // Uploads the file and handles cache/naming automatically
+  const blob = await put(`avatars/${file.name}`, file, { 
+    access: 'public',
+    addRandomSuffix: true // Prevents accidental overwrites
+  });
+
+  return Response.json(blob);
+}
+
+```
+
+## Free vs. Paid Tier Allowances
+
+Vercel provides a generous starting tier for its storage products:
+
+| Feature | Hobby (Free) | Pro Plan |
+| --- | --- | --- |
+| **Storage Capacity** | 1 GB / month | 5 GB / month (then $0.023/GB) |
+| **Data Transfer** | 10 GB / month | 100 GB / month |
+| **Upload Operations** | 2,000 / month | 10,000 / month |
+
+## Alternatives on the Vercel Marketplace
+
+If your app outgrows Vercel Blob's pricing tier, or if you need robust access control policies (like complex private/public user permissions) right out of the box, Vercel’s dashboard integrates natively with third-party providers like **Supabase Storage** or **Upstash** in just a few clicks.
+```
+
+---
+
+at step 2, can we pre-populate the input field from the account information, title could be the role
+
+oh we got an "Internal server error" in step 3, when i tired to uplaod a file. Looking at the vercel dashboard, nothing has been uploaded. Also remove ". Upload requires Vercel Blob storage." I set the `BLOB_READ_WRITE_TOKEN` in `.env.local` , also on vercel.
+
+---
+
+at step 2, can we pre-populate the input field from the account information, title could be the role
+
+oh we got an "Internal server error" in step 3, when i tired to uplaod a file. Looking at the vercel dashboard, nothing has been uploaded. Also remove ". Upload requires Vercel Blob storage." I set the `BLOB_READ_WRITE_TOKEN` in `.env.local` , also on vercel.
+
+---
+
+- step 1 : remove the line with "The next step is choosing the right funding model. Let’s get you started!"
+
+upload file : "Proposal upload failed. — Vercel Blob: Cannot use public access on a private store. The store is configured with private access."
+
+---
+
+- step 1 : remove the line with "The next step is choosing the right funding model. Let’s get you started!"
+
+upload file : "Proposal upload failed. — Vercel Blob: Cannot use public access on a private store. The store is configured with private access."
+
+---
+
+vercel says that Private blob storage "Blobs require a token to read. Use this for sensitive data." , so we should be able to uplaod into a private blob if we provide the token , are you sending the token along with the upload ?
+
+---
+
+vercel says that Private blob storage "Blobs require a token to read. Use this for sensitive data." , so we should be able to uplaod into a private blob if we provide the token , are you sending the token along with the upload ?
+
+---
+
+step 3 , i have filled out all fields , file is uploaded , still get a "Please complete the required fields before continuing.", actually in this case , the input filed should be indicated with a thin red border. use the default if we have it already for a input with missing data
+
+---
+
+step 3 , i have filled out all fields , file is uploaded , still get a "Please complete the required fields before continuing.", actually in this case , the input filed should be indicated with a thin red border. use the default if we have it already for a input with missing data
+
+---
+
+step 3 : the fields which should contain links (website, social) complained, because a leading `http://` was missing, bit we should not require that
+
+step 3 : use `/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf` , not `/models/digital-twin/wind-turbine/Wind_Turbine_1.gltf`
+
+do we store all input data , after each form submission ? we should be able the see the project as soon as we have filled out the first form and sent it off. when we click on it in `my-projects` page we should be able to resume
+
+if I click on [View Project] on the `my-projects` page, I get '404
+This page could not be found.` Maybe we can add a "DRAFT" project status which indicates that the project creation process has not been completed, show that on the `my-projects` page. [View Project] would then jump back into the start of the create project process (contact page to be exact), while if the process had been completed, we show the final summary page.
+
+---
+
+step 3 : the fields which should contain links (website, social) complained, because a leading `http://` was missing, bit we should not require that
+
+step 3 : use `/models/digital-twin/wind-turbine/Wind_Turbine_3.gltf` , not `/models/digital-twin/wind-turbine/Wind_Turbine_1.gltf`
+
+do we store all input data , after each form submission ? we should be able the see the project as soon as we have filled out the first form and sent it off. when we click on it in `my-projects` page we should be able to resume
+
+if I click on [View Project] on the `my-projects` page, I get '404
+This page could not be found.` Maybe we can add a "DRAFT" project status which indicates that the project creation process has not been completed, show that on the `my-projects` page. [View Project] would then jump back into the start of the create project process (contact page to be exact), while if the process had been completed, we show the final summary page.

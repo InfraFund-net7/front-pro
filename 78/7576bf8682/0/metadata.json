@@ -1,0 +1,99 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "787576bf8682",
+  "session_id": "0060042a-1ade-4172-8079-f7fcb2f15c12",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-19T14:46:30.51966241Z",
+  "branch": "develop",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "package-lock.json",
+    "package.json",
+    "src/app/api/v1/uploads/project-documents/route.ts",
+    "src/app/create-project/page.tsx",
+    "src/components/createproject/CreateProject.tsx",
+    "src/components/my-projects/my-projects.tsx",
+    "src/components/ui/segmented-step-progress.tsx",
+    "src/lib/backend-auth-client.ts",
+    "src/lib/project-digital-twin.ts",
+    "src/server/validation/projects.ts"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "b416f1f66355",
+  "checkpoint_transcript_start": 247,
+  "transcript_lines_at_start": 247,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 11
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-19T14:46:30.47834126Z",
+    "agent_lines": 593,
+    "agent_removed": 40,
+    "human_added": 0,
+    "human_modified": 3,
+    "human_removed": 0,
+    "total_committed": 596,
+    "total_lines_changed": 636,
+    "agent_percentage": 99.52830188679245,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 285,
+      "agent_lines_removed": 23
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 331,
+      "agent_lines_removed": 24
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 325,
+      "agent_lines_removed": 24
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 325,
+      "agent_lines_removed": 24
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 431,
+      "agent_lines_removed": 32
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 596,
+      "agent_lines_removed": 40
+    }
+  ]
+}
