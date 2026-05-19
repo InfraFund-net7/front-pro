@@ -72,6 +72,7 @@ function normalizeUserRole(role: string | undefined): CreateUserRecord['role'] {
     case 'investor':
     case 'contractor':
     case 'governance':
+    case 'auditor':
       return role;
     case 'client':
       return 'project_owner';
