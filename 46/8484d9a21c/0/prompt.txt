@@ -1,0 +1,73 @@
+great , update version to v1.2.9 , commit and push
+
+---
+
+during deployment to vercel we got errors
+```
+A migration failed to apply. New migrations cannot be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve
+Migration name: 20260519120000_add_project_account_roles
+Database error code: 42P01
+Database error:
+ERROR: relation "projects" does not exist
+Position:
+ 14 );
+ 15
+ 16 -- Backfill existing project owners
+ 17 INSERT INTO "project_account_roles" ("project_id", "user_id", "role", "created_at", "updated_at")
+ 18 SELECT "projects"."id", "projects"."owner_user_id", "users"."role", "projects"."created_at", CURRENT_TIMESTAMP
+ 19 FROM "projects"
+DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E42P01), message: "relation \"projects\" does not exist", detail: None, hint: None, position: Some(Original(253)), where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("parse_relation.c"), line: Some(1449), routine: Some("parserOpenTable") }
+file:///vercel/path0/scripts/vercel-build.mjs:25
+    throw new Error(
+          ^
+Error: npx prisma migrate deploy failed with exit code 1
+    at run (file:///vercel/path0/scripts/vercel-build.mjs:25:11)
+    at file:///vercel/path0/scripts/vercel-build.mjs:10:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+Node.js v24.15.0
+Error: Command "npm run vercel-build" exited with 1
+```
+
+---
+
+during deployment to vercel we got errors
+```
+A migration failed to apply. New migrations cannot be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve
+Migration name: 20260519120000_add_project_account_roles
+Database error code: 42P01
+Database error:
+ERROR: relation "projects" does not exist
+Position:
+ 14 );
+ 15
+ 16 -- Backfill existing project owners
+ 17 INSERT INTO "project_account_roles" ("project_id", "user_id", "role", "created_at", "updated_at")
+ 18 SELECT "projects"."id", "projects"."owner_user_id", "users"."role", "projects"."created_at", CURRENT_TIMESTAMP
+ 19 FROM "projects"
+DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E42P01), message: "relation \"projects\" does not exist", detail: None, hint: None, position: Some(Original(253)), where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("parse_relation.c"), line: Some(1449), routine: Some("parserOpenTable") }
+file:///vercel/path0/scripts/vercel-build.mjs:25
+    throw new Error(
+          ^
+Error: npx prisma migrate deploy failed with exit code 1
+    at run (file:///vercel/path0/scripts/vercel-build.mjs:25:11)
+    at file:///vercel/path0/scripts/vercel-build.mjs:10:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+Node.js v24.15.0
+Error: Command "npm run vercel-build" exited with 1
+```
+
+---
+
+i think we do not even need this as there were no project in the database , or they were all stale test data
+
+---
+
+commit and push when done
+
+---
+
+there is no production deployment, nothing to recover, no production data
