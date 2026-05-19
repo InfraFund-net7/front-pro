@@ -1,8 +1,8 @@
 -- AlterEnum
-ALTER TYPE "user_role" ADD VALUE 'auditor';
+ALTER TYPE "user_role" ADD VALUE IF NOT EXISTS 'auditor';
 
 -- CreateTable
-CREATE TABLE "project_account_roles" (
+CREATE TABLE IF NOT EXISTS "project_account_roles" (
     "id" UUID NOT NULL DEFAULT uuidv7(),
     "project_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
@@ -13,27 +13,32 @@ CREATE TABLE "project_account_roles" (
     CONSTRAINT "project_account_roles_pkey" PRIMARY KEY ("id")
 );
 
--- Backfill existing project owners
-INSERT INTO "project_account_roles" ("project_id", "user_id", "role", "created_at", "updated_at")
-SELECT "projects"."id", "projects"."owner_user_id", "users"."role", "projects"."created_at", CURRENT_TIMESTAMP
-FROM "projects"
-JOIN "users" ON "users"."id" = "projects"."owner_user_id"
-ON CONFLICT DO NOTHING;
+-- CreateIndex
+CREATE UNIQUE INDEX IF NOT EXISTS "uniq_project_account_roles_project_user_role" ON "project_account_roles"("project_id", "user_id", "role");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "uniq_project_account_roles_project_user_role" ON "project_account_roles"("project_id", "user_id", "role");
+CREATE INDEX IF NOT EXISTS "idx_project_account_roles_user_role" ON "project_account_roles"("user_id", "role");
 
 -- CreateIndex
-CREATE INDEX "idx_project_account_roles_user_role" ON "project_account_roles"("user_id", "role");
+CREATE INDEX IF NOT EXISTS "idx_project_account_roles_project_id" ON "project_account_roles"("project_id");
 
 -- CreateIndex
-CREATE INDEX "idx_project_account_roles_project_id" ON "project_account_roles"("project_id");
+CREATE INDEX IF NOT EXISTS "idx_project_account_roles_created_at" ON "project_account_roles"("created_at");
 
--- CreateIndex
-CREATE INDEX "idx_project_account_roles_created_at" ON "project_account_roles"("created_at");
+-- AddForeignKey when base tables exist.
+DO $$
+BEGIN
+  IF to_regclass('public.projects') IS NOT NULL
+     AND NOT EXISTS (
+       SELECT 1 FROM pg_constraint WHERE conname = 'project_account_roles_project_id_fkey'
+     ) THEN
+    ALTER TABLE "project_account_roles" ADD CONSTRAINT "project_account_roles_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
 
--- AddForeignKey
-ALTER TABLE "project_account_roles" ADD CONSTRAINT "project_account_roles_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "project_account_roles" ADD CONSTRAINT "project_account_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  IF to_regclass('public.users') IS NOT NULL
+     AND NOT EXISTS (
+       SELECT 1 FROM pg_constraint WHERE conname = 'project_account_roles_user_id_fkey'
+     ) THEN
+    ALTER TABLE "project_account_roles" ADD CONSTRAINT "project_account_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
