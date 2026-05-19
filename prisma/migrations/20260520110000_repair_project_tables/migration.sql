@@ -1,5 +1,47 @@
 -- Repair project tables for databases where the init migration was recorded before project DDL existed.
 
+DO $$
+BEGIN
+  CREATE TYPE "project_draft_step" AS ENUM ('crowdfunding_model', 'asset_symbol', 'contact_information', 'project_information', 'project_milestones', 'campaign_details', 'review', 'submitted');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  CREATE TYPE "project_status" AS ENUM ('planning', 'in_development', 'ready_to_launch', 'on_hold', 'completed');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  CREATE TYPE "project_type" AS ENUM ('renewable_energy');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  CREATE TYPE "project_infrastructure_type" AS ENUM ('wind_energy', 'solar_power', 'hydroelectric', 'geothermal', 'nuclear', 'other');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  CREATE TYPE "project_crowdfunding_model" AS ENUM ('pre_sale');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  CREATE TYPE "project_submission_status" AS ENUM ('draft', 'submitted');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "projects" (
     "id" UUID NOT NULL DEFAULT uuidv7(),
