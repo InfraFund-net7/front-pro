@@ -1,0 +1,51 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "dca07c5e6847",
+  "session_id": "0060042a-1ade-4172-8079-f7fcb2f15c12",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-19T15:46:24.121097813Z",
+  "branch": "develop",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-dev/release-notes/v1.3.0-project-workflows-and-neon-repair.md"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "4618600b3b56",
+  "checkpoint_transcript_start": 687,
+  "transcript_lines_at_start": 687,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 16
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-19T15:46:24.084593739Z",
+    "agent_lines": 38,
+    "agent_removed": 0,
+    "human_added": 3,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 41,
+    "total_lines_changed": 44,
+    "agent_percentage": 86.36363636363636,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 1,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".gitignore": 1
+      }
+    }
+  ]
+}
