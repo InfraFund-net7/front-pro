@@ -110,7 +110,10 @@ function buildUserRecord(
     lastName: emptyToNull(input.lastName) ?? sessionName.lastName,
     phoneNumber:
       emptyToNull(input.phoneNumber) ?? emptyToNull(session.user.phoneNumber),
-    companyName: emptyToNull(input.organizationName),
+    companyName:
+      input.type === 'individual'
+        ? 'INDIVIDUAL'
+        : emptyToNull(input.organizationName),
     type: normalizeUserType(input.type),
     role: normalizeUserRole(input.role),
   };
