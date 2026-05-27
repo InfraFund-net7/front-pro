@@ -1,38 +1,13 @@
-name: Deploy to Production Environment
+name: Legacy Docker deploy to Production Environment
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  build:
-    name: Build docker image
-    runs-on: prod-runner
+  disabled:
+    name: Legacy Docker deploy disabled
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Build Docker image
+      - name: Explain disabled status
         run: |
-                  docker build \
-                    -f ./deployment/Dockerfile \
-                    --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.PROD_API_BASE_URL }} \
-                    --build-arg NEXT_PUBLIC_PROJECT_ID=${{ secrets.PARTICLE_PROJECT_ID }} \
-                    --build-arg NEXT_PUBLIC_CLIENT_KEY=${{ secrets.PARTICLE_CLIENT_KEY }} \
-                    --build-arg NEXT_PUBLIC_APP_ID=${{ secrets.PARTICLE_APP_ID }} \
-                    -t infra-dashboard:prod .
-
-  deploy:
-    name: Deploy to Production Server
-    runs-on: prod-runner
-    needs: build
-    steps:
-      - name: Deploy with Docker Compose
-        run: docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }} up -d dashboard --force-recreate
-      - name: Wait for container readiness
-        run: |
-          echo "Waiting for container to be ready..."
-          sleep 5
-          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }} ps
-
-      - name: Verify deployment
-        run: |
-          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }} logs --tail=20 dashboard
+          echo "Legacy Docker deployment workflow is disabled."
+          echo "InfraFund now deploys via Vercel, so this workflow only remains for manual fallback reference."

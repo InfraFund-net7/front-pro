@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios from 'axios';
 
 const backend = axios.create({
   baseURL: process.env.SERVER_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 

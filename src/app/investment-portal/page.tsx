@@ -1,6 +1,5 @@
-import InvestmentPortal from "@/components/investmentportal/investmentportal";
-import React from "react";
+import InvestmentPortal from '@/components/investmentportal/investmentportal';
 
-export default function page() {
+export default function Page() {
   return <InvestmentPortal />;
 }

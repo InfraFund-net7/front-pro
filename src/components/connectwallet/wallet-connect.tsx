@@ -1,37 +1,37 @@
-import React from "react";
-import CardView from "../ui/card-view";
-import Image from "next/image";
-import MagicLink from "@/../public/assets/svg/magic-link.svg";
-import walletC from "@/../public/assets/svg/wallet-connect.svg";
-import metamask from "@/../public/assets/svg/meta-mask.svg";
-import aurox from "@/../public/assets/svg/aurox.svg";
+import React from 'react';
+import CardView from '../ui/card-view';
+import Image from 'next/image';
+import MagicLink from '@/../public/assets/svg/magic-link.svg';
+import walletC from '@/../public/assets/svg/wallet-connect.svg';
+import metamask from '@/../public/assets/svg/meta-mask.svg';
+import aurox from '@/../public/assets/svg/aurox.svg';
 export default function WalletConnect() {
   const wallets = [
     {
-      ConnectWallet: "",
-      title: "Magic Link",
+      ConnectWallet: '',
+      title: 'Magic Link',
       icon: MagicLink,
       description:
-        "Access the power of Web3 without installing a wallet. Magic Link is a secure, virtual wallet that allows you to interact with Web3 applications.",
+        'Access the power of Web3 without installing a wallet. Magic Link is a secure, virtual wallet that allows you to interact with Web3 applications.',
     },
     {
-      ConnectWallet: "",
-      title: "WalletConnect",
+      ConnectWallet: '',
+      title: 'WalletConnect',
       icon: walletC,
       description:
-        "Before selecting WalletConnect. please ensure you’ve chosen BINANCE SMART CHAIN (BSC) network in your wallet.",
+        'Before selecting WalletConnect. please ensure you’ve chosen BINANCE SMART CHAIN (BSC) network in your wallet.',
     },
     {
-      ConnectWallet: "",
-      title: "Metamask",
+      ConnectWallet: '',
+      title: 'Metamask',
       icon: metamask,
-      description: "",
+      description: '',
     },
     {
-      ConnectWallet: "",
-      title: "Aurox Wallet",
+      ConnectWallet: '',
+      title: 'Aurox Wallet',
       icon: aurox,
-      description: "",
+      description: '',
     },
   ];
   return (
@@ -50,8 +50,10 @@ export default function WalletConnect() {
               {item.title}
             </span>
           </div>
-          {item.description === "" ? null : (
-            <p className="text-sm font-medium text-[#8087A3]">{item.description}</p>
+          {item.description === '' ? null : (
+            <p className="text-sm font-medium text-[#8087A3]">
+              {item.description}
+            </p>
           )}
         </CardView>
       ))}

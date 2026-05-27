@@ -1,16 +1,16 @@
-"use client";
-import { ColorPicker } from "@/components/ui/colorpicker/color-picker";
-import React, { useState } from "react";
+'use client';
+import { ColorPicker } from '@/components/ui/colorpicker/color-picker';
+import React, { useState } from 'react';
 
 export default function Colors() {
   const [colors, setColors] = useState({
-    backgroundColor: "#E1E7FF",
-    primaryMainColor: "#B9927B",
-    informationBonesColor: "#E6EBFC",
-    buttonTextColor: "#FFFFFF",
-    textPrimaryColor: "#000000",
-    textSecondaryColor: "#868795",
-    iconColor: "#FFFFFF",
+    backgroundColor: '#E1E7FF',
+    primaryMainColor: '#B9927B',
+    informationBonesColor: '#E6EBFC',
+    buttonTextColor: '#FFFFFF',
+    textPrimaryColor: '#000000',
+    textSecondaryColor: '#868795',
+    iconColor: '#FFFFFF',
   });
 
   const handleColorChange = (key: string, color: string) => {
@@ -30,45 +30,45 @@ export default function Colors() {
         <ColorPicker
           label="Background Color"
           value={colors.backgroundColor}
-          onChange={(color) => handleColorChange("backgroundColor", color)}
+          onChange={(color) => handleColorChange('backgroundColor', color)}
         />
 
         <ColorPicker
           label="Primary Main Color"
           value={colors.primaryMainColor}
-          onChange={(color) => handleColorChange("primaryMainColor", color)}
+          onChange={(color) => handleColorChange('primaryMainColor', color)}
         />
 
         <ColorPicker
           label="Color Of Information Bones"
           value={colors.informationBonesColor}
           onChange={(color) =>
-            handleColorChange("informationBonesColor", color)
+            handleColorChange('informationBonesColor', color)
           }
         />
 
         <ColorPicker
           label="Button Text Color"
           value={colors.buttonTextColor}
-          onChange={(color) => handleColorChange("buttonTextColor", color)}
+          onChange={(color) => handleColorChange('buttonTextColor', color)}
         />
 
         <ColorPicker
           label="Text Primary Color"
           value={colors.textPrimaryColor}
-          onChange={(color) => handleColorChange("textPrimaryColor", color)}
+          onChange={(color) => handleColorChange('textPrimaryColor', color)}
         />
 
         <ColorPicker
           label="Text Secondary Color"
           value={colors.textSecondaryColor}
-          onChange={(color) => handleColorChange("textSecondaryColor", color)}
+          onChange={(color) => handleColorChange('textSecondaryColor', color)}
         />
 
         <ColorPicker
           label="Color Of Icon"
           value={colors.iconColor}
-          onChange={(color) => handleColorChange("iconColor", color)}
+          onChange={(color) => handleColorChange('iconColor', color)}
           className="md:col-span-2"
         />
       </div>

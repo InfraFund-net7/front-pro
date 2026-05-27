@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "log_level": "DEBUG",
+  "telemetry": true
+}

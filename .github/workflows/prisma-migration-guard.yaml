@@ -1,0 +1,30 @@
+name: Prisma Migration Guard
+
+on:
+  pull_request:
+    branches: ['develop', 'main']
+  push:
+    branches: ['develop', 'main']
+
+jobs:
+  check-prisma-migrations:
+    name: Check Prisma migrations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Prisma migrations committed
+        run: npm run check:prisma-migrations

@@ -1,53 +1,105 @@
-"use client";
+'use client';
 
-import { Bell, Headset, Wallet } from "lucide-react";
-import React, { useState } from "react";
-import { usePathname } from "next/navigation";
-import { CustomButton } from "./ui/custom-button";
-import { ConnectWallet } from "./connectwallet/connect-wallet-modal";
+import { Bell, Headset, Menu } from 'lucide-react';
+import { OpenfortButton } from '@openfort/react';
+import { usePathname } from 'next/navigation';
+import { AppPageHeader } from '@/components/layout/app-page-header';
+import { getDigitalTwinProject } from '@/lib/digital-twin-projects';
+import { useAuthSession } from '@/components/auth/auth-session-provider';
+import { AvatarMenu } from './header/avatar-menu';
 
 const routeTitles: Record<string, string> = {
-  "/": "Dashboard",
-  "/kyc": "KYC",
-  "/explore-projects": "Explore Projects",
-  "/projects": "Projects",
-  "/settings": "Settings",
+  '/': 'Dashboard',
+  '/home': 'Dashboard',
+  '/explore-projects': 'Explore Projects',
+  '/my-projects': 'My Projects',
+  '/create-project': 'Create Project',
+  '/tokenization': 'Tokenization',
+  '/investment-portal': 'Investment Portal',
+  '/digital-assets': 'Digital Assets',
+  '/investor-management': 'Investor Management',
+  '/investment-requests': 'Investment Requests',
+  '/asset-management': 'Asset Management',
+  '/claim-proposal': 'Claim Proposal',
+  '/vote': 'Vote',
+  '/ai-competition': 'AI Competition',
+  '/proposal-approval': 'Proposal Approval',
+  '/create-approval': 'Create Approval',
+  '/plan-approval': 'Plan Approval',
+  '/swap': 'Swap',
+  '/kyc': 'KYC',
+  '/account': 'Account Settings',
 };
 
-export default function Header() {
+function formatRole(role: string | null | undefined) {
+  if (!role) {
+    return null;
+  }
+
+  if (role === 'project_owner') {
+    return 'Client';
+  }
+
+  if (role === 'governance') {
+    return 'DAO';
+  }
+
+  return role
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getPageTitle(pathname: string) {
+  const digitalTwinMatch = pathname.match(
+    /^\/projects\/([^/]+)\/digital-twin$/
+  );
+
+  if (digitalTwinMatch) {
+    return getDigitalTwinProject(digitalTwinMatch[1])?.title ?? 'Digital Twin';
+  }
+
+  return routeTitles[pathname] || 'Page';
+}
+
+type HeaderProps = {
+  onMenuClick?: () => void;
+};
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const pageTitle = routeTitles[pathname] || "Page";
+  const pageTitle = getPageTitle(pathname);
+  const { backendUser } = useAuthSession();
+  const role = formatRole(backendUser?.role);
 
   return (
-    <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-normal text-white leading-2">
-          Hi sherv
-          <span className="text-[#8087A3] text-base font-normal"> - Guest</span>
-        </span>
-        <span className="text-[40px] font-bold text-white">{pageTitle}</span>
-      </div>
-
-      <div className="flex justify-center items-center gap-4">
-        <Headset size={24} className="text-white cursor-pointer" />
-        <Bell size={24} className="text-white cursor-pointer" />
-        <CustomButton
-          variant="outlined"
-          className="w-fit h-[40px] flex justify-center items-center gap-2 text-primary"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Wallet size={24} />
-          <span className="text-sm font-semibold">Connect Wallet</span>
-        </CustomButton>
-        <div className="w-12 h-12 rounded-full bg-[#263247] flex justify-center items-center text-white">
-          S
-        </div>
-      </div>
-      <ConnectWallet
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-    </div>
+    <AppPageHeader
+      title={pageTitle}
+      titleMeta={
+        role ? (
+          <span className="chakra-petch rounded-full border border-primary/35 bg-primary/10 px-3 py-1 text-sm font-medium tracking-[0.08em] text-primary">
+            {role}
+          </span>
+        ) : null
+      }
+      actions={
+        <>
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            onClick={onMenuClick}
+            className="rounded-full border border-white/15 p-2 text-white transition hover:border-primary/50 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="flex items-center gap-3">
+            <Headset size={24} className="cursor-pointer text-white" />
+            <Bell size={24} className="cursor-pointer text-white" />
+            <OpenfortButton label="Wallet" showAvatar />
+            <AvatarMenu />
+          </span>
+        </>
+      }
+    />
   );
 }

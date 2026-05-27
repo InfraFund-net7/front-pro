@@ -1,69 +1,69 @@
-import React from "react";
-import CardView from "../ui/card-view";
-import Image from "next/image";
-import ProjectImage from "@/../public/assets/image/explore-data.jpg";
-import CurrencyProgressBar from "../ui/currency-progress-bar";
-import { CustomButton } from "../ui/custom-button";
+import React from 'react';
+import CardView from '../ui/card-view';
+import Image from 'next/image';
+import ProjectImage from '@/../public/assets/image/explore-data.jpg';
+import CurrencyProgressBar from '../ui/currency-progress-bar';
+import { CustomButton } from '../ui/custom-button';
 
 export default function ExploreProjects() {
   const projects = [
     {
       image: ProjectImage,
-      title: "GeoThermal Energy",
-      RoundName: "Public",
+      title: 'GeoThermal Energy',
+      RoundName: 'Public',
       Participants: 100,
-      ProjectStart: "TBA",
-      CampaignEndsIn: "30D",
+      ProjectStart: 'TBA',
+      CampaignEndsIn: '30D',
       RaisedAmount: 30000,
       totalAmount: 3000000,
     },
     {
       image: ProjectImage,
-      title: "Solar Panel",
-      RoundName: "Public",
+      title: 'Solar Panel',
+      RoundName: 'Public',
       Participants: 200,
-      ProjectStart: "TBA",
-      CampaignEndsIn: "50D",
+      ProjectStart: 'TBA',
+      CampaignEndsIn: '50D',
       RaisedAmount: 1000000,
       totalAmount: 2000000,
     },
     {
       image: ProjectImage,
-      title: "Wave Power",
-      RoundName: "Public",
+      title: 'Wave Power',
+      RoundName: 'Public',
       Participants: 100,
-      ProjectStart: "TBA",
-      CampaignEndsIn: "30D",
+      ProjectStart: 'TBA',
+      CampaignEndsIn: '30D',
       RaisedAmount: 30000,
       totalAmount: 1000000,
     },
     {
       image: ProjectImage,
-      title: "GeoThermal Energy",
-      RoundName: "Public",
+      title: 'GeoThermal Energy',
+      RoundName: 'Public',
       Participants: 100,
-      ProjectStart: "TBA",
-      CampaignEndsIn: "30D",
+      ProjectStart: 'TBA',
+      CampaignEndsIn: '30D',
       RaisedAmount: 70000,
       totalAmount: 300000,
     },
     {
       image: ProjectImage,
-      title: "Solar Panel",
-      RoundName: "Public",
+      title: 'Solar Panel',
+      RoundName: 'Public',
       Participants: 200,
-      ProjectStart: "TBA",
-      CampaignEndsIn: "50D",
+      ProjectStart: 'TBA',
+      CampaignEndsIn: '50D',
       RaisedAmount: 1000000,
       totalAmount: 2000000,
     },
     {
       image: ProjectImage,
-      title: "Wave Power",
-      RoundName: "Public",
+      title: 'Wave Power',
+      RoundName: 'Public',
       Participants: 100,
-      ProjectStart: "TBA",
-      CampaignEndsIn: "30D",
+      ProjectStart: 'TBA',
+      CampaignEndsIn: '30D',
       RaisedAmount: 1000000,
       totalAmount: 1050000,
     },
@@ -95,10 +95,10 @@ export default function ExploreProjects() {
 
                 <div className="flex flex-col gap-4 w-[292px] ">
                   {[
-                    { label: "Round Name", value: item.RoundName },
-                    { label: "Participants", value: item.Participants },
-                    { label: "Project Start", value: item.ProjectStart },
-                    { label: "Campaign Ends In", value: item.CampaignEndsIn },
+                    { label: 'Round Name', value: item.RoundName },
+                    { label: 'Participants', value: item.Participants },
+                    { label: 'Project Start', value: item.ProjectStart },
+                    { label: 'Campaign Ends In', value: item.CampaignEndsIn },
                   ].map((field, idx) => (
                     <div
                       key={idx}
