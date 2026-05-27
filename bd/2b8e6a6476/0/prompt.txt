@@ -1,0 +1,115 @@
+create a mermaid diagram into a mardown file from @docs-dev/HM-Land-Registry/process-flow.png , no need to maintain any color, design unless in contains any valuable information to keep. 
+
+COntext :
+# HM Land Registry Business Gateway Developer Pack
+Overview
+Use this service to verify property ownership data against HM Land Registry property titles in real time.
+
+Get information on:
+
+historical name matching (from 2005 onwards)
+partial matching to increase the chances of a match
+the option to highlight if there are other legal owners on the title
+the option to search by title number to make sure a registered address is available
+If you’re a software developer
+Use this document to integrate data into your system.
+
+Process flow
+Validation
+Online Owner Verification service validation diagram details the validation that the request goes through.
+
+write into `online-owner-verification-process.md`
+
+---
+
+create a mermaid diagram into a mardown file from @docs-dev/HM-Land-Registry/process-flow.png , no need to maintain any color, design unless in contains any valuable information to keep. 
+
+COntext :
+# HM Land Registry Business Gateway Developer Pack
+Overview
+Use this service to verify property ownership data against HM Land Registry property titles in real time.
+
+Get information on:
+
+historical name matching (from 2005 onwards)
+partial matching to increase the chances of a match
+the option to highlight if there are other legal owners on the title
+the option to search by title number to make sure a registered address is available
+If you’re a software developer
+Use this document to integrate data into your system.
+
+Process flow
+Validation
+Online Owner Verification service validation diagram details the validation that the request goes through.
+
+write into `online-owner-verification-process.md`
+
+---
+
+read `https://landregistry.github.io/bgtechdoc/services/online_owner_verification/`
+and cervert it into a markdown file , header and source link already in `docs-dev/HM-Land-Registry/README.md`
+- the process flow diagram we have already converted to markdown so that you can just reference to it 
+- I have already downloaded the schemas
+- extract the validation diagram tables
+- the "Interface specification" is a link to a pretty comprehensove website, keep it as link for now, as well as "Vendor testing"
+
+---
+
+read `https://landregistry.github.io/bgtechdoc/services/online_owner_verification/`
+and cervert it into a markdown file , header and source link already in `docs-dev/HM-Land-Registry/README.md`
+- the process flow diagram we have already converted to markdown so that you can just reference to it 
+- I have already downloaded the schemas
+- extract the validation diagram tables
+- the "Interface specification" is a link to a pretty comprehensove website, keep it as link for now, as well as "Vendor testing"
+
+---
+
+if you want to use the `headroom` MCP , you have to use `headroom-azure` to access the right proxy instance ... now continue
+
+---
+
+if you want to use the `headroom` MCP , you have to use `headroom-azure` to access the right proxy instance ... now continue
+
+---
+
+can you fix the cspell
+```
+> cspell lint --quiet
+
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:7:75 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:15:79 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:15:97 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:30:66 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:34:71 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/README.md:32:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:33:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:34:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:35:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:36:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:43:180 - Unknown word (toomanyproperties)
+docs-dev/HM-Land-Registry/README.md:45:116 - Unknown word (novalidtitlefound)
+docs-dev/HM-Land-Registry/README.md:46:151 - Unknown word (invalidaddresscriteria)
+docs-dev/HM-Land-Registry/README.md:47:211 - Unknown word (nopropertyfound)
+```
+
+---
+
+can you fix the cspell
+```
+> cspell lint --quiet
+
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:7:75 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:15:79 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:15:97 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:30:66 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/online-owner-verification-process.md:34:71 - Unknown word (DRSBG)
+docs-dev/HM-Land-Registry/README.md:32:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:33:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:34:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:35:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:36:7 - Unknown word (ISBG)
+docs-dev/HM-Land-Registry/README.md:43:180 - Unknown word (toomanyproperties)
+docs-dev/HM-Land-Registry/README.md:45:116 - Unknown word (novalidtitlefound)
+docs-dev/HM-Land-Registry/README.md:46:151 - Unknown word (invalidaddresscriteria)
+docs-dev/HM-Land-Registry/README.md:47:211 - Unknown word (nopropertyfound)
+```

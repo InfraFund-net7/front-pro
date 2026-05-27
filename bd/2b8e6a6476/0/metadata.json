@@ -1,0 +1,93 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "bd2b8e6a6476",
+  "session_id": "e3538861-d18d-43e1-82f5-8e97d7552bab",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-27T10:02:03.370263864Z",
+  "branch": "develop",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "docs-dev/HM-Land-Registry/PollRequest.xsd",
+    "docs-dev/HM-Land-Registry/README.md",
+    "docs-dev/HM-Land-Registry/RequestOnlineOwnershipVerificationV1_0.xsd",
+    "docs-dev/HM-Land-Registry/ResponseOnlineOwnershipVerificationV1_0.xsd",
+    "docs-dev/HM-Land-Registry/online-owner-verification-process.md",
+    "docs-dev/HM-Land-Registry/online-owner-verification-process.png"
+  ],
+  "agent": "Factory AI Droid",
+  "model": "gpt-5.5-(Headroom-Azure)-0",
+  "turn_id": "8935c5c3d326",
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-27T10:02:03.350565417Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 1637,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1637,
+    "total_lines_changed": 1637,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 142,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".gitignore": 1,
+        "docs-dev/HM-Land-Registry/process-flow-style.md": 75,
+        "docs-dev/HM-Land-Registry/process-flow.md": 66
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 522,
+      "user_lines_removed": 0,
+      "agent_lines_added": 43,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "docs-dev/HM-Land-Registry/PollRequest.xsd": 38,
+        "docs-dev/HM-Land-Registry/RequestOnlineOwnershipVerificationV1_0.xsd": 203,
+        "docs-dev/HM-Land-Registry/ResponseOnlineOwnershipVerificationV1_0.xsd": 281
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 522,
+      "user_lines_removed": 0,
+      "agent_lines_added": 43,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "docs-dev/HM-Land-Registry/PollRequest.xsd": 38,
+        "docs-dev/HM-Land-Registry/RequestOnlineOwnershipVerificationV1_0.xsd": 203,
+        "docs-dev/HM-Land-Registry/ResponseOnlineOwnershipVerificationV1_0.xsd": 281
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 593,
+      "user_lines_removed": 0,
+      "agent_lines_added": 43,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "docs-dev/HM-Land-Registry/PollRequest.xsd": 38,
+        "docs-dev/HM-Land-Registry/README.md": 71,
+        "docs-dev/HM-Land-Registry/RequestOnlineOwnershipVerificationV1_0.xsd": 203,
+        "docs-dev/HM-Land-Registry/ResponseOnlineOwnershipVerificationV1_0.xsd": 281
+      }
+    }
+  ]
+}
