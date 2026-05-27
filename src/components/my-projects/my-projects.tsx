@@ -52,6 +52,7 @@ function roleLabel(role: string) {
 function ProjectCard({ project }: { project: ProjectResponse }) {
   const title = project.name ?? 'Untitled Project';
   const isDraft = project.submission_status === 'draft';
+  const canManageProject = project.account_roles.includes('project_owner');
   const detailHref = `/create-project?projectId=${project.id}`;
 
   return (
@@ -95,12 +96,22 @@ function ProjectCard({ project }: { project: ProjectResponse }) {
         ) : null}
 
         <div className="flex justify-end">
-          <Link
-            href={detailHref}
-            className="chakra-petch rounded-lg bg-primary px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-black transition hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            View Project
-          </Link>
+          {canManageProject ? (
+            <Link
+              href={detailHref}
+              className="chakra-petch rounded-lg bg-primary px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-black transition hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              View Project
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="chakra-petch cursor-not-allowed rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-gray-400 opacity-70"
+            >
+              Read-only access soon
+            </button>
+          )}
         </div>
       </div>
     </article>
