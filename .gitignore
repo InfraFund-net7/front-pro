@@ -50,6 +50,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# neon database
+.neon
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
