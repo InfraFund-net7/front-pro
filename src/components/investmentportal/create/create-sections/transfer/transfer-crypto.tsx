@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Dropdown } from "@/components/ui/dropdown";
-import { FormInput } from "@/components/ui/form-input";
-import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { Dropdown } from '@/components/ui/dropdown';
+import { FormInput } from '@/components/ui/form-input';
+import { Plus, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface CryptoTransferData {
   id: string;
@@ -15,10 +15,10 @@ interface CryptoTransferData {
 export default function CryptoTransferForm() {
   const [transfers, setTransfers] = useState<CryptoTransferData[]>([
     {
-      id: "1",
-      blockChainName: "",
-      currency: "",
-      walletAddress: "",
+      id: '1',
+      blockChainName: '',
+      currency: '',
+      walletAddress: '',
     },
   ]);
 
@@ -27,9 +27,9 @@ export default function CryptoTransferForm() {
   const addTransfer = () => {
     const newTransfer: CryptoTransferData = {
       id: Date.now().toString(),
-      blockChainName: "",
-      currency: "",
-      walletAddress: "",
+      blockChainName: '',
+      currency: '',
+      walletAddress: '',
     };
     setTransfers([...transfers, newTransfer]);
   };
@@ -60,7 +60,7 @@ export default function CryptoTransferForm() {
         <div
           key={transfer.id}
           className={`w-full rounded-2xl border border-border-card p-6 transform transition-all duration-300 ease-in-out 
-          ${removingId === transfer.id ? "animate-fadeOut" : "animate-fadeIn"}`}
+          ${removingId === transfer.id ? 'animate-fadeOut' : 'animate-fadeIn'}`}
           style={{
             animationDelay: `${index * 0.05}s`,
           }}
@@ -143,18 +143,18 @@ function TransferFormSection({ transfer, onUpdate }: TransferFormSectionProps) {
         value={transfer.blockChainName}
         placeholder="Blockchain’s name"
         onChange={(e) =>
-          onUpdate(transfer.id, "blockChainName", e.target.value)
+          onUpdate(transfer.id, 'blockChainName', e.target.value)
         }
       />
 
       <Dropdown
         label="Cryptocurrency"
         value={transfer.currency}
-        onChange={(value) => onUpdate(transfer.id, "currency", value)}
+        onChange={(value) => onUpdate(transfer.id, 'currency', value)}
         options={[
-          { value: "", label: "Cryptocurrency", key: "" },
-          { value: "BTC", label: "BTC", key: "BTC" },
-          { value: "IRR", label: "IRR", key: "IRR" },
+          { value: '', label: 'Cryptocurrency', key: '' },
+          { value: 'BTC', label: 'BTC', key: 'BTC' },
+          { value: 'IRR', label: 'IRR', key: 'IRR' },
         ]}
       />
 
@@ -163,7 +163,7 @@ function TransferFormSection({ transfer, onUpdate }: TransferFormSectionProps) {
         className="w-full"
         value={transfer.walletAddress}
         placeholder="Wallet address"
-        onChange={(e) => onUpdate(transfer.id, "walletAddress", e.target.value)}
+        onChange={(e) => onUpdate(transfer.id, 'walletAddress', e.target.value)}
       />
     </div>
   );

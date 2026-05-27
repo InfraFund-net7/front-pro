@@ -1,39 +1,39 @@
-"use client";
-import { CustomButton } from "@/components/ui/custom-button";
-import { TabSelect } from "@/components/ui/tab-select";
-import { Eye, Play } from "lucide-react";
-import React, { useState } from "react";
-import Sections from "./create-sections/sections";
-import Team from "./create-sections/team";
-import Colors from "./create-sections/colors";
-import Contact from "./create-sections/contact";
-import Reports from "./create-sections/reports";
-import Seo from "./create-sections/seo";
-import Transfer from "./create-sections/transfer";
-import Faq from "./create-sections/faq";
-import Highlights from "./create-sections/highlights";
-import CardView from "@/components/ui/card-view";
-import PressSection from "./create-sections/press-section";
-import Technologies from "./create-sections/technology";
-import MediaSection from "./create-sections/media-section";
+'use client';
+import { CustomButton } from '@/components/ui/custom-button';
+import { TabSelect } from '@/components/ui/tab-select';
+import { Eye, Play } from 'lucide-react';
+import React, { useState } from 'react';
+import Sections from './create-sections/sections';
+import Team from './create-sections/team';
+import Colors from './create-sections/colors';
+import Contact from './create-sections/contact';
+import Reports from './create-sections/reports';
+import Seo from './create-sections/seo';
+import Transfer from './create-sections/transfer';
+import Faq from './create-sections/faq';
+import Highlights from './create-sections/highlights';
+import CardView from '@/components/ui/card-view';
+import PressSection from './create-sections/press-section';
+import Technologies from './create-sections/technology';
+import MediaSection from './create-sections/media-section';
 
 export default function MainCreate() {
   const createsection = [
-    { title: "Media", component: MediaSection },
-    { title: "Sections", component: Sections },
-    { title: "Team", component: Team },
-    { title: "Colors", component: Colors },
-    { title: "Contact", component: Contact },
-    { title: "Reports", component: Reports },
-    { title: "Seo", component: Seo },
-    { title: "Transfer", component: Transfer },
-    { title: "FAQs", component: Faq },
-    { title: "Highlights", component: Highlights },
-    { title: "Press Section", component: PressSection },
-    { title: "Technology", component: Technologies },
+    { title: 'Media', component: MediaSection },
+    { title: 'Sections', component: Sections },
+    { title: 'Team', component: Team },
+    { title: 'Colors', component: Colors },
+    { title: 'Contact', component: Contact },
+    { title: 'Reports', component: Reports },
+    { title: 'Seo', component: Seo },
+    { title: 'Transfer', component: Transfer },
+    { title: 'FAQs', component: Faq },
+    { title: 'Highlights', component: Highlights },
+    { title: 'Press Section', component: PressSection },
+    { title: 'Technology', component: Technologies },
   ];
 
-  const [selected, setSelected] = useState("Media");
+  const [selected, setSelected] = useState('Media');
 
   const activeSection = createsection.find(
     (section) => section.title === selected
@@ -69,7 +69,7 @@ export default function MainCreate() {
           />
         </div>
         <CardView padding="p-12 border border-[#2B313A]">
-          {activeSection ? <activeSection.component /> : "No section found"}
+          {activeSection ? <activeSection.component /> : 'No section found'}
         </CardView>
       </div>
     </div>

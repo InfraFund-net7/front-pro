@@ -1,7 +1,5 @@
-import React from 'react'
+import DeveloperHome from '@/components/developer/developer-home';
 
-export default function page() {
-  return (
-    <div>page</div>
-  )
+export default function Page() {
+  return <DeveloperHome />;
 }
