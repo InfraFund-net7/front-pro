@@ -1,0 +1,35 @@
+I have 2 remotes which are slightly diverted
+> https://github.com/SvenMeyer/front-pro
+- @kilo-code-bot has added a commit and created a PR, both i want to remove, i think it is only commit 787adb6 which was added.
+- actually we want to get it in sync what we have locally which should also be in sync with the remote `https://github.com/InfraFund-net7/front-pro`
+
+when done: 
+- make https://github.com/SvenMeyer/front-pro the default for remote
+- in this remote CodeQL analysis failed, I think we need to install it
+  ```
+  Warning: Code Security must be enabled for this repository to use code scanning. - https://docs.github.com/rest
+  Error: Please verify that the necessary features are enabled: Code Security must be enabled for this repository to use code scanning. - https://docs.github.com/rest
+  ```
+
+- i think there are some valuable comments and issues detected in the PR https://github.com/SvenMeyer/front-pro/pull/1
+- extract them from the PR, fix them , but we actually do not want to keep the PR itself 
+- of course we want to keep all commits referenced by that commit except the one (ones ?) made by @kilo-code-bot
+
+---
+
+I have 2 remotes which are slightly diverted
+> https://github.com/SvenMeyer/front-pro
+- @kilo-code-bot has added a commit and created a PR, both i want to remove, i think it is only commit 787adb6 which was added.
+- actually we want to get it in sync what we have locally which should also be in sync with the remote `https://github.com/InfraFund-net7/front-pro`
+
+when done: 
+- make https://github.com/SvenMeyer/front-pro the default for remote
+- in this remote CodeQL analysis failed, I think we need to install it
+  ```
+  Warning: Code Security must be enabled for this repository to use code scanning. - https://docs.github.com/rest
+  Error: Please verify that the necessary features are enabled: Code Security must be enabled for this repository to use code scanning. - https://docs.github.com/rest
+  ```
+
+- i think there are some valuable comments and issues detected in the PR https://github.com/SvenMeyer/front-pro/pull/1
+- extract them from the PR, fix them , but we actually do not want to keep the PR itself 
+- of course we want to keep all commits referenced by that commit except the one (ones ?) made by @kilo-code-bot
