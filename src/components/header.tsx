@@ -3,7 +3,7 @@
 import { Bell, Headset, Wallet } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { useAccount, useParticleAuth } from '@particle-network/connectkit';
+import { useUser } from '@openfort/react';
 import { CustomButton } from './ui/custom-button';
 import { ConnectWallet } from './connectwallet/connect-wallet-modal';
 
@@ -43,15 +43,11 @@ export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userName, setUserName] = useState<string>('Guest');
   const [selectedRole, setSelectedRole] = useState<string>('');
-  const account = useAccount();
-  const { getUserInfo } = useParticleAuth();
+  const { user, isAuthenticated } = useUser();
   const pageTitle = routeTitles[pathname] || 'Page';
   const roleLabel = useMemo(
-    () =>
-      account.status === 'connected'
-        ? formatRoleLabel(selectedRole)
-        : 'Guest',
-    [account.status, selectedRole]
+    () => (isAuthenticated ? formatRoleLabel(selectedRole) : 'Guest'),
+    [isAuthenticated, selectedRole]
   );
   const avatarLabel = useMemo(
     () => userName.trim().charAt(0).toUpperCase() || 'G',
@@ -75,47 +71,17 @@ export default function Header() {
   useEffect(() => {
     const storedRole = localStorage.getItem(USER_ROLE_STORAGE_KEY) ?? '';
     setSelectedRole(storedRole);
-  }, [account.status, pathname]);
+  }, [isAuthenticated, pathname]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    const readUserName = async () => {
-      if (account.status !== 'connected') {
-        setUserName('Guest');
-        return;
-      }
-
-      // Prefer a friendly name from Particle user profile when available.
-      try {
-        const info = (await Promise.resolve(getUserInfo())) as unknown as
-          | Record<string, unknown>
-          | undefined;
-        const profileName =
-          (typeof info?.name === 'string' && info.name.trim()) ||
-          (typeof info?.nickname === 'string' && info.nickname.trim()) ||
-          (typeof info?.email === 'string' && info.email.trim().split('@')[0]) ||
-          '';
-        if (!cancelled && profileName) {
-          setUserName(profileName);
-          return;
-        }
-      } catch {
-        // Fall back to wallet address label below.
-      }
-
-      const fallbackAddress =
-        account.status === 'connected' ? account.address : undefined;
-      if (!cancelled && fallbackAddress) {
-        setUserName(`${fallbackAddress.slice(0, 6)}...${fallbackAddress.slice(-4)}`);
-      }
-    };
-
-    void readUserName();
-    return () => {
-      cancelled = true;
-    };
-  }, [account, getUserInfo]);
+    if (!isAuthenticated || !user) {
+      setUserName('Guest');
+      return;
+    }
+    const profileName =
+      user.name?.trim() || user.email?.trim().split('@')[0] || 'Member';
+    setUserName(profileName);
+  }, [isAuthenticated, user]);
 
   return (
     <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">

@@ -1,31 +1,13 @@
 'use client';
 
-import AutoWalletRegister from '@/components/AutoWalletRegister';
-import { useParticleAccountVerified } from '@/hooks/use-particle-account-verified';
-import { useParticleSessionGate } from '@/hooks/use-particle-session-gate';
-import {
-  isRecentParticleAuthOk,
-  PARTICLE_RECENT_AUTH_DISCONNECT_HOLD_MS,
-} from '@/lib/particle-session-memory';
-import { useAccount } from '@particle-network/connectkit';
+import OpenfortAuthForm, {
+  type SurveyData,
+} from '@/components/auth/openfort-auth-form';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CardView from '../ui/card-view';
 import infrafund from '@public/assets/svg/infrafund.svg';
-import Image from 'next/image';
-
-interface SurveyData {
-  role: string;
-  type: string;
-  confirm_tos: boolean;
-  first_name?: string;
-  last_name?: string;
-  phone_number: string;
-  email: string;
-  contact_fullname?: string;
-  company_name?: string;
-  captcha_token?: string;
-}
 
 const USER_ROLE_STORAGE_KEY = 'infrafund_user_role';
 const USER_ROLE_UPDATED_EVENT = 'infrafund:user-role-updated';
@@ -42,7 +24,7 @@ const getDomainCookie = (name: string): SurveyData | null => {
       const decoded = decodeURIComponent(raw);
       return JSON.parse(decoded) as SurveyData;
     } catch (e) {
-      console.warn(`⚠️ Failed to parse cookie "${name}"`, e);
+      console.warn(`Failed to parse cookie "${name}"`, e);
     }
   }
 
@@ -50,57 +32,17 @@ const getDomainCookie = (name: string): SurveyData | null => {
 };
 
 const clearDomainCookie = (name: string) => {
-  document.cookie = `${name}=; Path=/; Domain=.infrafund.test; Max-Age=0; SameSite=Lax`;
+  const domainAttr = process.env.NEXT_PUBLIC_SURVEY_COOKIE_DOMAIN
+    ? `; Domain=${process.env.NEXT_PUBLIC_SURVEY_COOKIE_DOMAIN}`
+    : '';
+  document.cookie = `${name}=; Path=/${domainAttr}; Max-Age=0; SameSite=Lax`;
 };
 
 export default function Login() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const account = useAccount();
-  const { verifyState, isFullyVerified } = useParticleAccountVerified();
-  const { waitingForReconnectOrHydration } = useParticleSessionGate();
-  const [, setSurveyData] = useState<SurveyData | null>(null);
+  const [surveyPayload, setSurveyPayload] = useState<SurveyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [recentAuthDisconnectHold, setRecentAuthDisconnectHold] =
-    useState(false);
-
-  useEffect(() => {
-    if (!isRecentParticleAuthOk()) {
-      setRecentAuthDisconnectHold(false);
-      return;
-    }
-    if (account.status !== 'disconnected') {
-      setRecentAuthDisconnectHold(false);
-      return;
-    }
-    setRecentAuthDisconnectHold(true);
-    const id = window.setTimeout(
-      () => setRecentAuthDisconnectHold(false),
-      PARTICLE_RECENT_AUTH_DISCONNECT_HOLD_MS
-    );
-    return () => window.clearTimeout(id);
-  }, [account.status]);
-
-  const { restoringSession, waitingOnParticleVerify } = useMemo(() => {
-    const status = account.status;
-    const restoring = status === 'reconnecting' || status === 'connecting';
-    const connectorType =
-      status === 'connected'
-        ? account.connector.walletConnectorType
-        : undefined;
-    const address = status === 'connected' ? account.address : undefined;
-    const particleConnected =
-      status === 'connected' &&
-      connectorType === 'particleAuth' &&
-      Boolean(address);
-    const waitingVerify =
-      particleConnected &&
-      (verifyState === 'idle' || verifyState === 'pending');
-    return {
-      restoringSession: restoring,
-      waitingOnParticleVerify: waitingVerify,
-    };
-  }, [account, verifyState]);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const rawData = getDomainCookie('survey_data');
@@ -126,116 +68,50 @@ export default function Login() {
             : undefined,
       };
 
-      setSurveyData(payload);
+      setSurveyPayload(payload);
       if (payload.role.trim()) {
         localStorage.setItem(USER_ROLE_STORAGE_KEY, payload.role.trim());
         window.dispatchEvent(new Event(USER_ROLE_UPDATED_EVENT));
       }
       clearDomainCookie('survey_data');
-    } else {
-      console.log('❌ No survey_data found in cookies.');
+    } else if (pathname?.startsWith('/register')) {
+      router.replace('/login');
+      return;
     }
 
     setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    if (isLoading || !isFullyVerified) {
-      return;
-    }
-    router.replace('/explore-projects');
-    const fallback = window.setTimeout(() => {
-      if (pathname?.includes('/login')) {
-        window.location.assign('/explore-projects');
-      }
-    }, 2500);
-    return () => window.clearTimeout(fallback);
-  }, [isFullyVerified, isLoading, pathname, router]);
+  }, [pathname, router]);
 
   if (isLoading) {
     return (
-      <div className="w-full flex justify-center items-center">
+      <div className="flex w-full justify-center items-center">
         <CardView
           width="547px"
           height="500px"
           className="flex flex-col items-center justify-center"
         >
-          <div className="w-full h-fit flex justify-center items-center">
-            <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
+          <div className="flex h-fit w-full justify-center items-center">
+            <div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
-          <p className="text-gray-600">load survey datas</p>
-        </CardView>
-      </div>
-    );
-  }
-
-  if (
-    waitingForReconnectOrHydration ||
-    restoringSession ||
-    waitingOnParticleVerify ||
-    isFullyVerified ||
-    recentAuthDisconnectHold
-  ) {
-    const statusLabel =
-      restoringSession ||
-      waitingForReconnectOrHydration ||
-      recentAuthDisconnectHold
-        ? 'Restoring your session…'
-        : 'Opening dashboard…';
-    return (
-      <div className="w-full flex justify-center items-center">
-        <CardView
-          width="547px"
-          height="500px"
-          className="flex flex-col items-center justify-center"
-        >
-          <div className="w-full h-fit flex justify-center items-center">
-            <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-4" />
-          </div>
-          <p className="text-gray-600">{statusLabel}</p>
+          <p className="text-gray-600">Loading…</p>
         </CardView>
       </div>
     );
   }
 
   return (
-    <div className="w-full flex justify-center items-center">
+    <div className="flex w-full justify-center items-center">
       <CardView
         width="547px"
         height="500px"
-        className="p-6 text-white flex flex-col justify-center items-center md:p-8"
+        className="flex flex-col justify-center items-center p-6 text-white md:p-8"
       >
-        <div className="w-full h-full flex justify-center items-center">
+        <div className="flex h-full w-full justify-center items-center">
           <Image src={infrafund} alt="InfraFund" />
         </div>
 
-        <main className="w-full max-w-3xl mx-auto space-y-10 overflow-y-auto">
-          {/* {surveyData ? ( */}
-          <AutoWalletRegister verifyState={verifyState} />
-          {/* ) : ( */}
-          {/* <div className="text-white rounded-xl p-6 text-center">
-              <h2 className="ibm-plex-mono text-xl font-semibold mb-3">
-                Access Denied — Survey Required
-              </h2>
-              <p className="chakra-petch mb-4 leading-relaxed">
-                To personalize your experience and grant secure access to the InfraFund dashboard, ...
-              </p>
-              <p className="chakra-petch font-medium mb-6">
-                You must complete the survey <strong>and log in</strong> to unlock full dashboard access.
-              </p>
-              <a
-                href="http://infrafund.test:3000"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-lg chakra-petch shadow-md hover:shadow-lg transition"
-              >
-                Go to Survey & Sign In
-              </a>
-              <p className="mt-4 text-xs chakra-petch">
-                After submission, you’ll be moved back here automatically.
-              </p>
-            </div> */}
-          {/* )} */}
+        <main className="mx-auto mt-6 w-full max-w-3xl space-y-8 overflow-y-auto">
+          <OpenfortAuthForm surveyPayload={surveyPayload} />
         </main>
       </CardView>
     </div>

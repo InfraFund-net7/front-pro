@@ -1,7 +1,6 @@
 'use client';
 
-import { clearParticleAuthOk } from '@/lib/particle-session-memory';
-import { useDisconnect, useModal } from '@particle-network/connectkit';
+import { useSignOut } from '@openfort/react';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useState } from 'react';
 
@@ -10,59 +9,40 @@ const USER_ROLE_UPDATED_EVENT = 'infrafund:user-role-updated';
 
 export default function SignOutPage() {
   const router = useRouter();
-  const { disconnectAsync } = useDisconnect();
-  const { setOpen } = useModal();
+  const { signOut } = useSignOut();
   const [busy, setBusy] = useState(false);
 
   const handleSignOut = useCallback(async () => {
     setBusy(true);
     try {
-      clearParticleAuthOk();
+      localStorage.removeItem('access_token');
       localStorage.removeItem(USER_ROLE_STORAGE_KEY);
       window.dispatchEvent(new Event(USER_ROLE_UPDATED_EVENT));
-      setOpen(false);
-      /**
-       * Disconnect can leave ConnectKit in `reconnecting` for a long time; the
-       * dashboard guard then shows “Checking your Particle session…” forever.
-       * Race with a cap, then hard-navigate so the guarded layout unmounts.
-       */
-      await Promise.race([
-        disconnectAsync(),
-        new Promise<void>((resolve) => {
-          window.setTimeout(resolve, 8_000);
-        }),
-      ]);
+      await signOut();
     } catch {
-      /* Still leave the app shell — soft disconnect errors are non-fatal here. */
+      /* non-fatal */
     }
     window.location.assign('/login');
-  }, [disconnectAsync, setOpen]);
+  }, [signOut]);
 
   return (
-    <div className="max-w-lg chakra-petch text-white space-y-8 py-2">
+    <div className="max-w-lg chakra-petch space-y-8 py-2 text-white">
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold ibm-plex-mono tracking-tight">
+        <h1 className="ibm-plex-mono text-2xl font-bold tracking-tight">
           Sign out
         </h1>
-        <p className="text-gray-400 text-sm leading-relaxed">
-          Disconnect your Particle wallet from InfraFund. You will need to sign
-          in again to open the dashboard.
+        <p className="text-sm leading-relaxed text-gray-400">
+          End your InfraFund dashboard session and OpenFort session in this
+          browser.
         </p>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-[#141820]/80 p-5 space-y-3">
-        <p className="text-gray-300 text-sm">
-          This clears your wallet connection in this browser. Your on-chain
-          assets are not affected.
-        </p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
           disabled={busy}
           onClick={() => void handleSignOut()}
-          className="px-6 py-3 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none text-white font-medium text-sm"
+          className="rounded-lg bg-red-600 px-6 py-3 text-sm font-medium text-white hover:bg-red-700 disabled:pointer-events-none disabled:opacity-50"
         >
           {busy ? 'Signing out…' : 'Sign out'}
         </button>
@@ -70,7 +50,7 @@ export default function SignOutPage() {
           type="button"
           disabled={busy}
           onClick={() => router.back()}
-          className="px-6 py-3 rounded-lg border border-white/20 text-gray-300 hover:bg-white/5 font-medium text-sm"
+          className="rounded-lg border border-white/20 px-6 py-3 text-sm font-medium text-gray-300 hover:bg-white/5"
         >
           Cancel
         </button>

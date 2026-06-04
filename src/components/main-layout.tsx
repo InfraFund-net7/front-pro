@@ -2,7 +2,7 @@
 import type React from 'react';
 import AppSidebar from './sidebar';
 import Header from './header';
-import { ParticleDashboardGuard } from './particle-dashboard-guard';
+import { DashboardOpenfortGuard } from './dashboard-openfort-guard';
 import { usePathname } from 'next/navigation';
 
 interface MainLayoutProps {
@@ -11,7 +11,8 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
-  const isAuthPage = pathname?.startsWith('/login');
+  const isAuthPage =
+    pathname?.startsWith('/login') || pathname?.startsWith('/register');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">
@@ -27,7 +28,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           {children}
         </div>
       ) : (
-        <ParticleDashboardGuard>
+        <DashboardOpenfortGuard>
           <div className="relative z-[999] flex p-4 md:p-8 lg:p-12 gap-4 md:gap-8 lg:gap-12 min-h-screen">
             <div className="h-full -mt-3.5">
               <AppSidebar />
@@ -41,7 +42,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               </div>
             </div>
           </div>
-        </ParticleDashboardGuard>
+        </DashboardOpenfortGuard>
       )}
     </div>
   );

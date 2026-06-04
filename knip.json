@@ -1,0 +1,47 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": [
+    "src/atoms/kyc/**",
+    "src/components/developer/developer-home.tsx",
+    "src/components/investmentportal/create/create-sections/media.tsx",
+    "src/components/investmentportal/empty/emptyinvestment.tsx",
+    "src/components/openfort/infra-powered-by-footer.tsx",
+    "src/components/ui/custom-checkbox.tsx",
+    "src/components/ui/date-picker.tsx",
+    "src/components/ui/horizontal-progress-bar.tsx",
+    "src/components/ui/kyc-card.tsx",
+    "src/components/ui/pagination-dots.tsx",
+    "src/components/ui/toggle-switch.tsx",
+    "src/services/api.service.ts",
+    "src/utils/axios.utils.ts",
+    "src/utils/get-access-token.util.ts",
+    "src/utils/interceptors.utils.ts",
+    "src/utils/is-development.util.ts",
+    "src/utils/is-production.util.ts"
+  ],
+  "ignoreDependencies": [
+    "@next/font",
+    "@tanstack/react-query",
+    "ethers",
+    "jotai",
+    "@types/react-responsive",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "autoprefixer",
+    "eslint-config-next",
+    "zod",
+    "clsx",
+    "openfort-internal-connect-modal"
+  ],
+  "ignoreIssues": {
+    "src/components/investmentportal/create/create-sections/faq.tsx": [
+      "exports"
+    ],
+    "src/components/investmentportal/create/create-sections/highlights.tsx": [
+      "exports"
+    ],
+    "src/components/investmentportal/create/create-sections/technology.tsx": [
+      "exports"
+    ]
+  }
+}
