@@ -37,14 +37,25 @@ jobs:
     runs-on: [self-hosted, dev]
     needs: build
     env:
-      SHIELD_SECRET: ${{ secrets.DEV_OPENFORT_SHIELD_SECRET_KEY }}
-      SHIELD_SHARE: ${{ secrets.DEV_OPENFORT_SHIELD_ENCRYPTION_SHARE }}
       COMPOSE_FILE: ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}
     steps:
       - name: Write runtime secrets to env file
+        env:
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+          OPENFORT_SECRET_KEY: ${{ secrets.DEV_OPENFORT_SECRET_KEY }}
+          OPENFORT_PUBLISHABLE_KEY: ${{ secrets.DEV_OPENFORT_PUBLISHABLE_KEY }}
+          APP_JWT_SECRET: ${{ secrets.DEV_APP_JWT_SECRET }}
+          OPENFORT_SHIELD_SECRET_KEY: ${{ secrets.DEV_OPENFORT_SHIELD_SECRET_KEY }}
+          OPENFORT_SHIELD_ENCRYPTION_SHARE: ${{ secrets.DEV_OPENFORT_SHIELD_ENCRYPTION_SHARE }}
         run: |
-          printf 'OPENFORT_SHIELD_SECRET_KEY=%s\nOPENFORT_SHIELD_ENCRYPTION_SHARE=%s\n' \
-            "$SHIELD_SECRET" "$SHIELD_SHARE" > /tmp/dashboard-dev.env
+          printf 'DATABASE_URL=%s\nOPENFORT_SECRET_KEY=%s\nOPENFORT_PUBLISHABLE_KEY=%s\nAPP_JWT_SECRET=%s\nOPENFORT_SHIELD_SECRET_KEY=%s\nOPENFORT_SHIELD_ENCRYPTION_SHARE=%s\n' \
+            "$DATABASE_URL" \
+            "$OPENFORT_SECRET_KEY" \
+            "$OPENFORT_PUBLISHABLE_KEY" \
+            "$APP_JWT_SECRET" \
+            "$OPENFORT_SHIELD_SECRET_KEY" \
+            "$OPENFORT_SHIELD_ENCRYPTION_SHARE" \
+            > /tmp/dashboard-dev.env
 
       - name: Deploy with Docker Compose
         run: |
