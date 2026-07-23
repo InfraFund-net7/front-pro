@@ -19,6 +19,8 @@ services:
       # Shield: env var names must match what server/env.ts reads (no OPENFORT_ prefix)
       - SHIELD_SECRET_KEY=${OPENFORT_SHIELD_SECRET_KEY}
       - SHIELD_ENCRYPTION_SHARE=${OPENFORT_SHIELD_ENCRYPTION_SHARE}
+      # Shield publishable key — also needed server-side for encryption session creation
+      - NEXT_PUBLIC_SHIELD_API_KEY=${OPENFORT_SHIELD_PUBLISHABLE_KEY}
     networks:
       - default
       # Join the shared internal network so this container can reach the
