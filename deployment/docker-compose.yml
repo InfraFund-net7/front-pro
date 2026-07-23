@@ -1,23 +1,19 @@
-version: '3.8'
-
 services:
-  nextjs:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: production
-    image: infrafund-dashboard:latest
-    container_name: nextjs-app
+  dashboard:
+    image: infrafund.azurecr.io/infra-dashboard:prod
+    container_name: infra-dashboard-prod
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      # Bind to localhost only — nginx handles external traffic on 80/443
+      # Port 3000 is occupied by landing-app on this VM; dashboard uses 3001
+      - '127.0.0.1:3001:3000'
     environment:
-      - NODE_ENV=${ENVIRONMENT}
+      - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
-    env_file:
-      - .env.production
+      # Server-side secrets — injected at deploy time via --env-file, never baked into the image
+      - OPENFORT_SHIELD_SECRET_KEY=${OPENFORT_SHIELD_SECRET_KEY}
+      - OPENFORT_SHIELD_ENCRYPTION_SHARE=${OPENFORT_SHIELD_ENCRYPTION_SHARE}
     deploy:
       resources:
         limits:
@@ -27,7 +23,7 @@ services:
           cpus: '0.5'
           memory: 256M
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
