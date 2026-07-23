@@ -11,8 +11,18 @@ services:
       - PORT=3000
       - HOSTNAME=0.0.0.0
       # Server-side secrets — injected at deploy time via --env-file, never baked into the image
-      - OPENFORT_SHIELD_SECRET_KEY=${OPENFORT_SHIELD_SECRET_KEY}
-      - OPENFORT_SHIELD_ENCRYPTION_SHARE=${OPENFORT_SHIELD_ENCRYPTION_SHARE}
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENFORT_SECRET_KEY=${OPENFORT_SECRET_KEY}
+      - OPENFORT_PUBLISHABLE_KEY=${OPENFORT_PUBLISHABLE_KEY}
+      - APP_JWT_SECRET=${APP_JWT_SECRET}
+      # Shield: env var names must match what server/env.ts reads (no OPENFORT_ prefix)
+      - SHIELD_SECRET_KEY=${OPENFORT_SHIELD_SECRET_KEY}
+      - SHIELD_ENCRYPTION_SHARE=${OPENFORT_SHIELD_ENCRYPTION_SHARE}
+    networks:
+      - default
+      # Join the shared internal network so this container can reach the
+      # infra-postgres container via its 'postgres' hostname alias
+      - internal
     deploy:
       resources:
         limits:
@@ -26,3 +36,7 @@ services:
       options:
         max-size: '10m'
         max-file: '3'
+
+networks:
+  internal:
+    external: true
