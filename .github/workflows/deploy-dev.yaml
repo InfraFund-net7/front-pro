@@ -21,11 +21,11 @@ jobs:
           SHA=$(git rev-parse --short HEAD)
           docker build \
             -f ./deployment/Dockerfile \
-            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.DEV_API_BASE_URL }} \
-            --build-arg NEXT_PUBLIC_OPENFORT_PUBLISHABLE_KEY=${{ secrets.DEV_OPENFORT_PUBLISHABLE_KEY }} \
-            --build-arg NEXT_PUBLIC_OPENFORT_SHIELD_PUBLISHABLE_KEY=${{ secrets.DEV_OPENFORT_SHIELD_PUBLISHABLE_KEY }} \
-            --build-arg NEXT_PUBLIC_OPENFORT_EMBEDDED_CHAIN_ID=${{ secrets.DEV_OPENFORT_EMBEDDED_CHAIN_ID }} \
-            --build-arg NEXT_PUBLIC_LANDING_URL=${{ secrets.DEV_LANDING_URL }} \
+            --build-arg NEXT_PUBLIC_OPENFORT_PUBLIC_KEY=${{ secrets.DEV_OPENFORT_PUBLISHABLE_KEY }} \
+            --build-arg NEXT_PUBLIC_SHIELD_API_KEY=${{ secrets.DEV_OPENFORT_SHIELD_PUBLISHABLE_KEY }} \
+            --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.DEV_RECAPTCHA_SITE_KEY }} \
+            --build-arg NEXT_PUBLIC_POLICY_ID=${{ secrets.DEV_POLICY_ID }} \
+            --build-arg NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.DEV_WALLET_CONNECT_PROJECT_ID }} \
             --build-arg NEXT_PUBLIC_ENVIRONMENT=development \
             -t "$ACR_REGISTRY/infra-dashboard:dev" \
             -t "$ACR_REGISTRY/infra-dashboard:dev-$SHA" .
