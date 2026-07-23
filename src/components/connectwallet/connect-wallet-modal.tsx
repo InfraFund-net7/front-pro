@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Wallet, PlusCircle, KeySquare } from "lucide-react";
-import { Modal } from "../ui/modal";
-import CardView from "../ui/card-view";
-import AddWallet from "@/../public/assets/svg/add-wallet.svg";
-import Image from "next/image";
-import { CustomButton } from "../ui/custom-button";
-import { useState } from "react";
-import WalletConnect from "./wallet-connect";
-import NewWallet from "./new-wallet";
+import { Wallet, PlusCircle, KeySquare } from 'lucide-react';
+import { Modal } from '../ui/modal';
+import CardView from '../ui/card-view';
+import AddWallet from '@/../public/assets/svg/add-wallet.svg';
+import Image from 'next/image';
+import { CustomButton } from '../ui/custom-button';
+import { useState } from 'react';
+import WalletConnect from './wallet-connect';
+import NewWallet from './new-wallet';
 interface ConnectWalletProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,7 +26,7 @@ export function ConnectWallet({ isOpen, onClose }: ConnectWalletProps) {
       ModalTitle="Connect Wallet"
     >
       <p className="text-sm text-gray-400 mb-6">
-        By connecting your wallet you agree to our{" "}
+        By connecting your wallet you agree to our{' '}
         <a href="#" className="text-primary hover:underline">
           Terms and Conditions
         </a>
@@ -103,7 +103,7 @@ export function ConnectWallet({ isOpen, onClose }: ConnectWalletProps) {
         </>
       )}
       <p className="text-sm text-[#C7CAD5] text-center mt-4">
-        New to crypto? Get all the information you need{" "}
+        New to crypto? Get all the information you need{' '}
         <a href="#" className="text-primary hover:underline">
           here
         </a>

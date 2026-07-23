@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import type React from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 interface ColorWheelProps {
   value: string;
@@ -62,15 +62,15 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
     else if (h < 180) [r, g, b] = [0, c, x];
     else if (h < 240) [r, g, b] = [0, x, c];
     else if (h < 300) [r, g, b] = [x, 0, c];
-    else[r, g, b] = [c, 0, x];
+    else [r, g, b] = [c, 0, x];
 
     r = Math.round((r + m) * 255);
     g = Math.round((g + m) * 255);
     b = Math.round((b + m) * 255);
 
-    return `#${r.toString(16).padStart(2, "0")}${g
+    return `#${r.toString(16).padStart(2, '0')}${g
       .toString(16)
-      .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+      .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   }
 
   // Draw the color wheel
@@ -78,7 +78,7 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const centerX = size / 2;
@@ -138,13 +138,13 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
 
     ctx.beginPath();
     ctx.arc(selectorX, selectorY, 8, 0, Math.PI * 2);
-    ctx.strokeStyle = "#ffffff";
+    ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 3;
     ctx.stroke();
 
     ctx.beginPath();
     ctx.arc(selectorX, selectorY, 8, 0, Math.PI * 2);
-    ctx.strokeStyle = "#000000";
+    ctx.strokeStyle = '#000000';
     ctx.lineWidth = 1;
     ctx.stroke();
   }, [hsv, size]);
@@ -215,12 +215,12 @@ export function ColorWheel({ value, onChange, size = 200 }: ColorWheelProps) {
   useEffect(() => {
     if (!isDragging) return;
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 

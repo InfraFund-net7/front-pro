@@ -1,0 +1,28 @@
+services:
+  dashboard:
+    image: infrafund.azurecr.io/infra-dashboard:dev
+    container_name: infra-dashboard-dev
+    restart: unless-stopped
+    ports:
+      # Bind to localhost only — nginx handles external traffic on 80/443
+      - '127.0.0.1:3001:3000'
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Server-side secrets — injected at deploy time via --env-file, never baked into the image
+      - OPENFORT_SHIELD_SECRET_KEY=${OPENFORT_SHIELD_SECRET_KEY}
+      - OPENFORT_SHIELD_ENCRYPTION_SHARE=${OPENFORT_SHIELD_ENCRYPTION_SHARE}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'

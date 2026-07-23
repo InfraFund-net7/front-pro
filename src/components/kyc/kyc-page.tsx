@@ -1,6 +1,6 @@
-"use client";
-import React, { useState } from "react";
-import CardView from "../ui/card-view";
+'use client';
+import React, { useState } from 'react';
+import CardView from '../ui/card-view';
 import {
   Check,
   SquarePen,
@@ -10,44 +10,45 @@ import {
   ScanFace,
   MapPinHouse,
   History,
-} from "lucide-react";
-import { CustomButton } from "../ui/custom-button";
-import BasicSection from "./basic-section-kyc";
-import AdvanceSection from "./advance-section-kyc";
+  type LucideIcon,
+} from 'lucide-react';
+import { CustomButton } from '../ui/custom-button';
+import BasicSection from './basic-section-kyc';
+import AdvanceSection from './advance-section-kyc';
 
 const features = [
-  { label: "Create Project", basic: false, advanced: true },
-  { label: "Tokenization", basic: false, advanced: true },
-  { label: "Investment Portal", basic: false, advanced: true },
-  { label: "Digital Asset Offering", basic: false, advanced: true },
+  { label: 'Create Project', basic: false, advanced: true },
+  { label: 'Tokenization', basic: false, advanced: true },
+  { label: 'Investment Portal', basic: false, advanced: true },
+  { label: 'Digital Asset Offering', basic: false, advanced: true },
   { label: "Investor's Management", basic: false, advanced: true },
-  { label: "Investment Requests", basic: false, advanced: true },
-  { label: "Asset Management", basic: true, advanced: true },
-  { label: "Swap", basic: true, advanced: true },
+  { label: 'Investment Requests', basic: false, advanced: true },
+  { label: 'Asset Management', basic: true, advanced: true },
+  { label: 'Swap', basic: true, advanced: true },
 ];
 
 const basicDetails = [
-  { text: "Personal Information", icon: SquarePen },
-  { text: "Review time: 1 day", icon: History },
+  { text: 'Personal Information', icon: SquarePen },
+  { text: 'Review time: 1 day', icon: History },
 ];
 
 const advancedDetails = [
-  { text: "All basic requirement", icon: Grid2X2Check },
-  { text: "Government ID", icon: IdCard },
-  { text: "Facial verification", icon: ScanFace },
-  { text: "Proof of address", icon: MapPinHouse },
-  { text: "Review time: 10 days", icon: History },
+  { text: 'All basic requirement', icon: Grid2X2Check },
+  { text: 'Government ID', icon: IdCard },
+  { text: 'Facial verification', icon: ScanFace },
+  { text: 'Proof of address', icon: MapPinHouse },
+  { text: 'Review time: 10 days', icon: History },
 ];
 
 type DetailItem = {
   text: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
 };
 
 type KycCardProps = {
   title: string;
   details: DetailItem[];
-  accessLevel: "basic" | "advanced";
+  accessLevel: 'basic' | 'advanced';
   buttonClassName?: string;
   onButtonClick?: () => void;
   isVerified?: boolean;
@@ -88,13 +89,13 @@ const KycCard: React.FC<KycCardProps> = ({
           );
         })}
       </div>
-      {accessLevel === "advanced" ? (
+      {accessLevel === 'advanced' ? (
         isVerified ? (
           <CustomButton
             variant="filled"
             type="submit"
             onClick={onButtonClick}
-            className={`w-full text-xl font-semibold ${buttonClassName || ""}`}
+            className={`w-full text-xl font-semibold ${buttonClassName || ''}`}
           >
             Verify Now
           </CustomButton>
@@ -109,16 +110,16 @@ const KycCard: React.FC<KycCardProps> = ({
           type="submit"
           disabled={isVerified}
           onClick={onButtonClick}
-          className={`w-full text-xl font-semibold ${buttonClassName || ""}`}
+          className={`w-full text-xl font-semibold ${buttonClassName || ''}`}
         >
-          {isVerified ? "Verified" : "Verify Now"}
+          {isVerified ? 'Verified' : 'Verify Now'}
         </CustomButton>
       )}
 
       <div className="flex flex-col gap-4 mt-6">
         {features.map((item) => {
           const hasAccess =
-            accessLevel === "basic" ? item.basic : item.advanced;
+            accessLevel === 'basic' ? item.basic : item.advanced;
           return (
             <div key={item.label} className="flex items-center gap-2">
               {hasAccess ? (

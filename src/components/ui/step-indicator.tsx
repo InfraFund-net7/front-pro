@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface StepIndicatorProps {
   steps: string[];
@@ -12,7 +12,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
         <div key={index} className="flex items-center">
           <div
             className={`w-[32px] h-1 transition-colors duration-200 rounded-[30px] ${
-              index === currentStep - 1 ? "bg-primary" : "bg-gray-400"
+              index === currentStep - 1 ? 'bg-primary' : 'bg-gray-400'
             }`}
           />
           {index < steps.length - 1 && <div className="w-4" />}

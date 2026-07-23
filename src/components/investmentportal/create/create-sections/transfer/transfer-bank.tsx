@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Dropdown } from "@/components/ui/dropdown";
-import { FormInput } from "@/components/ui/form-input";
-import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { Dropdown } from '@/components/ui/dropdown';
+import { FormInput } from '@/components/ui/form-input';
+import { Plus, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface BankTransferData {
   id: string;
@@ -17,12 +17,12 @@ interface BankTransferData {
 export default function BankTransferForm() {
   const [transfers, setTransfers] = useState<BankTransferData[]>([
     {
-      id: "1",
-      bankAccount: "",
-      bankName: "",
-      bicSwift: "",
-      currency: "",
-      ownerName: "",
+      id: '1',
+      bankAccount: '',
+      bankName: '',
+      bicSwift: '',
+      currency: '',
+      ownerName: '',
     },
   ]);
 
@@ -31,11 +31,11 @@ export default function BankTransferForm() {
   const addTransfer = () => {
     const newTransfer: BankTransferData = {
       id: Date.now().toString(),
-      bankAccount: "",
-      bankName: "",
-      bicSwift: "",
-      currency: "",
-      ownerName: "",
+      bankAccount: '',
+      bankName: '',
+      bicSwift: '',
+      currency: '',
+      ownerName: '',
     };
     setTransfers([...transfers, newTransfer]);
   };
@@ -66,7 +66,7 @@ export default function BankTransferForm() {
         <div
           key={transfer.id}
           className={`w-full rounded-2xl border border-border-card p-6 transform transition-all duration-300 ease-in-out 
-          ${removingId === transfer.id ? "animate-fadeOut" : "animate-fadeIn"}`}
+          ${removingId === transfer.id ? 'animate-fadeOut' : 'animate-fadeIn'}`}
           style={{
             animationDelay: `${index * 0.05}s`,
           }}
@@ -145,21 +145,21 @@ function TransferFormSection({ transfer, onUpdate }: TransferFormSectionProps) {
           label="Bank account"
           value={transfer.bankAccount}
           placeholder="Bank account"
-          onChange={(e) => onUpdate(transfer.id, "bankAccount", e.target.value)}
+          onChange={(e) => onUpdate(transfer.id, 'bankAccount', e.target.value)}
         />
 
         <FormInput
           label="Back's name"
           value={transfer.bankName}
           placeholder="Back's name"
-          onChange={(e) => onUpdate(transfer.id, "bankName", e.target.value)}
+          onChange={(e) => onUpdate(transfer.id, 'bankName', e.target.value)}
         />
 
         <FormInput
           label="BIC/SWIFT"
           value={transfer.bicSwift}
           placeholder="BIC/SWIFT"
-          onChange={(e) => onUpdate(transfer.id, "bicSwift", e.target.value)}
+          onChange={(e) => onUpdate(transfer.id, 'bicSwift', e.target.value)}
         />
       </div>
 
@@ -167,11 +167,11 @@ function TransferFormSection({ transfer, onUpdate }: TransferFormSectionProps) {
         <Dropdown
           label="Currency"
           value={transfer.currency}
-          onChange={(value) => onUpdate(transfer.id, "currency", value)}
+          onChange={(value) => onUpdate(transfer.id, 'currency', value)}
           options={[
-            { value: "", label: "Currency", key: "" },
-            { value: "USD", label: "USD", key: "USD" },
-            { value: "IRR", label: "IRR", key: "IRR" },
+            { value: '', label: 'Currency', key: '' },
+            { value: 'USD', label: 'USD', key: 'USD' },
+            { value: 'IRR', label: 'IRR', key: 'IRR' },
           ]}
         />
 
@@ -179,7 +179,7 @@ function TransferFormSection({ transfer, onUpdate }: TransferFormSectionProps) {
           label="Owner's name"
           value={transfer.ownerName}
           placeholder="Owner's name"
-          onChange={(e) => onUpdate(transfer.id, "ownerName", e.target.value)}
+          onChange={(e) => onUpdate(transfer.id, 'ownerName', e.target.value)}
         />
       </div>
     </div>

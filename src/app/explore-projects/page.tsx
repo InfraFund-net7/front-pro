@@ -1,8 +1,5 @@
-import ExploreProjects from '@/components/explorproject/explore-projects'
-import React from 'react'
+import ExploreProjects from '@/components/explorproject/explore-projects';
 
-export default function page() {
-  return (
-    <ExploreProjects />
-  )
+export default function Page() {
+  return <ExploreProjects />;
 }
