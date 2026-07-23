@@ -19,10 +19,23 @@
 
 # production
 /build
+/public/cesium
 
 # misc
 .DS_Store
 *.pem
+.claude/
+.cursor/
+.entire/
+!.entire/
+.entire/*
+!.entire/settings.json
+.factory/
+.gemini/
+.github/hooks/
+.opencode/
+.agents/
+skills-lock.json
 
 # debug
 npm-debug.log*
@@ -30,11 +43,15 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# neon database
+.neon
 
 # typescript
 *.tsbuildinfo

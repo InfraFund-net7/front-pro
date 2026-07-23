@@ -1,0 +1,604 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "InfraFund component naming pass for per-component visibility/color"
+  },
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5123,
+      "count": 3417,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 581,
+      "type": "VEC3",
+      "max": [1.4407000541687012, 32.44070053100586, 4.65910005569458],
+      "min": [-1.4407000541687012, 29.55929946899414, -5.898099899291992]
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 6972,
+      "componentType": 5123,
+      "count": 6240,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 1047,
+      "type": "VEC3",
+      "max": [1.4948999881744385, 31.0, 1.5],
+      "min": [-1.4948999881744385, -0.0, -1.5]
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 12564,
+      "componentType": 5123,
+      "count": 36,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 8,
+      "type": "VEC3",
+      "max": [0.75, 7.03249979019165, 1.666700005531311],
+      "min": [-0.75, 1.3658000230789185, 1.3344000577926636]
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 96,
+      "componentType": 5123,
+      "count": 13167,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 2265,
+      "type": "VEC3",
+      "max": [21.0, 32.42210006713867, 2.4400999546051025],
+      "min": [0.0, 30.0310001373291, 1.1819000244140625]
+    },
+    {
+      "bufferView": 4,
+      "byteOffset": 27180,
+      "componentType": 5123,
+      "count": 13167,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 2268,
+      "type": "VEC3",
+      "max": [0.3788999915122986, 49.207401275634766, 2.023400068283081],
+      "min": [-10.536100387573242, 30.781299591064453, 0.7652999758720398]
+    },
+    {
+      "bufferView": 5,
+      "byteOffset": 27216,
+      "componentType": 5123,
+      "count": 13167,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5126,
+      "count": 2268,
+      "type": "VEC3",
+      "max": [0.3788999915122986, 31.218700408935547, 2.901400089263916],
+      "min": [-10.536100387573242, 12.79259967803955, 1.6433000564575195]
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 6834,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 6836,
+      "byteLength": 19452,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 26288,
+      "byteLength": 12636,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 38924,
+      "byteLength": 26430,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 65356,
+      "byteLength": 53514,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 118872,
+      "byteLength": 53550,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 172424,
+      "byteLength": 27216,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 199640,
+      "uri": "Wind_Turbine_3.bin"
+    }
+  ],
+  "cameras": [
+    {
+      "perspective": {
+        "znear": 10.0,
+        "yfov": 0.5,
+        "zfar": 0.10000000149011612,
+        "aspectRatio": 1.2000000476837158
+      },
+      "type": "perspective",
+      "name": "Default"
+    },
+    {
+      "perspective": {
+        "znear": 10.0,
+        "yfov": 0.5,
+        "zfar": 0.10000000149011612,
+        "aspectRatio": 1.2000000476837158
+      },
+      "type": "perspective",
+      "name": "Export"
+    }
+  ],
+  "materials": [
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.9764705896377563, 0.9764705896377563, 0.9764705896377563, 1.0
+        ],
+        "metallicFactor": 0.20000000298023224,
+        "roughnessFactor": 0.4000000059604645
+      },
+      "name": "wind_turbine_T01_nacelle_hub_material",
+      "extras": {
+        "sourceMaterialIndex": 0,
+        "trackableExternalId": "wind_turbine_T01_nacelle_hub"
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.9764705896377563, 0.9764705896377563, 0.9764705896377563, 1.0
+        ],
+        "metallicFactor": 0.20000000298023224,
+        "roughnessFactor": 0.4000000059604645
+      },
+      "name": "wind_turbine_T01_tower_material",
+      "extras": {
+        "sourceMaterialIndex": 1,
+        "trackableExternalId": "wind_turbine_T01_tower"
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.9764705896377563, 0.9764705896377563, 0.9764705896377563, 1.0
+        ],
+        "metallicFactor": 0.20000000298023224,
+        "roughnessFactor": 0.4000000059604645
+      },
+      "name": "wind_turbine_T01_access_platform_material",
+      "extras": {
+        "sourceMaterialIndex": 1,
+        "trackableExternalId": "wind_turbine_T01_access_platform"
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.0, 0.0, 0.0, 1.0],
+        "metallicFactor": 0.20000000298023224,
+        "roughnessFactor": 0.4000000059604645
+      },
+      "name": "wind_turbine_T01_blade_01_material",
+      "extras": {
+        "sourceMaterialIndex": 2,
+        "trackableExternalId": "wind_turbine_T01_blade_01"
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.0, 0.0, 0.0, 1.0],
+        "metallicFactor": 0.20000000298023224,
+        "roughnessFactor": 0.4000000059604645
+      },
+      "name": "wind_turbine_T01_blade_02_material",
+      "extras": {
+        "sourceMaterialIndex": 2,
+        "trackableExternalId": "wind_turbine_T01_blade_02"
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.0, 0.0, 0.0, 1.0],
+        "metallicFactor": 0.20000000298023224,
+        "roughnessFactor": 0.4000000059604645
+      },
+      "name": "wind_turbine_T01_blade_03_material",
+      "extras": {
+        "sourceMaterialIndex": 2,
+        "trackableExternalId": "wind_turbine_T01_blade_03"
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 1
+          },
+          "indices": 0,
+          "material": 0,
+          "extras": {
+            "externalId": "wind_turbine_T01_nacelle_hub"
+          }
+        }
+      ],
+      "name": "wind_turbine_T01_nacelle_hub_mesh",
+      "extras": {
+        "externalId": "wind_turbine_T01_nacelle_hub",
+        "trackable": true
+      }
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 3
+          },
+          "indices": 2,
+          "material": 1,
+          "extras": {
+            "externalId": "wind_turbine_T01_tower"
+          }
+        }
+      ],
+      "name": "wind_turbine_T01_tower_mesh",
+      "extras": {
+        "externalId": "wind_turbine_T01_tower",
+        "trackable": true
+      }
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 5
+          },
+          "indices": 4,
+          "material": 2,
+          "extras": {
+            "externalId": "wind_turbine_T01_access_platform"
+          }
+        }
+      ],
+      "name": "wind_turbine_T01_access_platform_mesh",
+      "extras": {
+        "externalId": "wind_turbine_T01_access_platform",
+        "trackable": true
+      }
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 7
+          },
+          "indices": 6,
+          "material": 3,
+          "extras": {
+            "externalId": "wind_turbine_T01_blade_01"
+          }
+        }
+      ],
+      "name": "wind_turbine_T01_blade_01_mesh",
+      "extras": {
+        "externalId": "wind_turbine_T01_blade_01",
+        "trackable": true
+      }
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 9
+          },
+          "indices": 8,
+          "material": 4,
+          "extras": {
+            "externalId": "wind_turbine_T01_blade_02"
+          }
+        }
+      ],
+      "name": "wind_turbine_T01_blade_02_mesh",
+      "extras": {
+        "externalId": "wind_turbine_T01_blade_02",
+        "trackable": true
+      }
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 11
+          },
+          "indices": 10,
+          "material": 5,
+          "extras": {
+            "externalId": "wind_turbine_T01_blade_03"
+          }
+        }
+      ],
+      "name": "wind_turbine_T01_blade_03_mesh",
+      "extras": {
+        "externalId": "wind_turbine_T01_blade_03",
+        "trackable": true
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "wind_turbine_T01_nacelle_hub",
+      "extras": {
+        "externalId": "wind_turbine_T01_nacelle_hub",
+        "displayName": "Turbine 01 Nacelle and Hub",
+        "category": "nacelle",
+        "modelNodeName": "wind_turbine_T01_nacelle_hub",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-NACELLE",
+        "defaultStatus": "not_started"
+      }
+    },
+    {
+      "mesh": 1,
+      "name": "wind_turbine_T01_tower",
+      "extras": {
+        "externalId": "wind_turbine_T01_tower",
+        "displayName": "Turbine 01 Tower",
+        "category": "tower",
+        "modelNodeName": "wind_turbine_T01_tower",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "structural",
+        "constructionPackage": "STRUCT-TOWER",
+        "defaultStatus": "not_started"
+      }
+    },
+    {
+      "mesh": 2,
+      "name": "wind_turbine_T01_access_platform",
+      "extras": {
+        "externalId": "wind_turbine_T01_access_platform",
+        "displayName": "Turbine 01 Access Platform",
+        "category": "platform",
+        "modelNodeName": "wind_turbine_T01_access_platform",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "structural",
+        "constructionPackage": "STRUCT-PLATFORM",
+        "defaultStatus": "not_started"
+      }
+    },
+    {
+      "mesh": 3,
+      "name": "wind_turbine_T01_blade_01",
+      "extras": {
+        "externalId": "wind_turbine_T01_blade_01",
+        "displayName": "Turbine 01 Blade 01",
+        "category": "blade",
+        "modelNodeName": "wind_turbine_T01_blade_01",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-ROTOR",
+        "defaultStatus": "not_started"
+      }
+    },
+    {
+      "mesh": 4,
+      "name": "wind_turbine_T01_blade_02",
+      "extras": {
+        "externalId": "wind_turbine_T01_blade_02",
+        "displayName": "Turbine 01 Blade 02",
+        "category": "blade",
+        "modelNodeName": "wind_turbine_T01_blade_02",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-ROTOR",
+        "defaultStatus": "not_started"
+      }
+    },
+    {
+      "mesh": 5,
+      "name": "wind_turbine_T01_blade_03",
+      "extras": {
+        "externalId": "wind_turbine_T01_blade_03",
+        "displayName": "Turbine 01 Blade 03",
+        "category": "blade",
+        "modelNodeName": "wind_turbine_T01_blade_03",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-ROTOR",
+        "defaultStatus": "not_started"
+      }
+    },
+    {
+      "translation": [11.00635051727295, 6.493649005889893, 1.0063508749008179],
+      "camera": 0,
+      "name": "Default"
+    },
+    {
+      "translation": [
+        108.10101318359375, -102.24955749511719, 127.47276306152344
+      ],
+      "camera": 1,
+      "name": "Export"
+    },
+    {
+      "name": "wind_turbine_T01",
+      "children": [0, 1, 2, 9],
+      "extras": {
+        "externalId": "wind_turbine_T01",
+        "displayName": "Turbine 01",
+        "category": "turbine",
+        "modelNodeName": "wind_turbine_T01",
+        "trackable": false,
+        "zone": "wind-field",
+        "system": "assembly"
+      }
+    },
+    {
+      "name": "wind_turbine_T01_rotor",
+      "children": [3, 4, 5],
+      "extras": {
+        "externalId": "wind_turbine_T01_rotor",
+        "displayName": "Turbine 01 Rotor Assembly",
+        "category": "rotor",
+        "modelNodeName": "wind_turbine_T01_rotor",
+        "trackable": false,
+        "parentExternalId": "wind_turbine_T01",
+        "zone": "wind-field",
+        "system": "mechanical"
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "nodes": [8, 6, 7]
+    }
+  ],
+  "scene": 0,
+  "extras": {
+    "model": {
+      "projectName": "Example Wind Turbine Digital Twin",
+      "modelVersion": "2026-05-13-v3-componentized",
+      "sourceModel": "Wind_Turbine_2.gltf",
+      "unit": "model units from source asset",
+      "upAxis": "Y",
+      "exportedAt": "2026-05-13T00:00:00Z"
+    },
+    "elements": [
+      {
+        "externalId": "wind_turbine_T01_nacelle_hub",
+        "displayName": "Turbine 01 Nacelle and Hub",
+        "category": "nacelle",
+        "modelNodeName": "wind_turbine_T01_nacelle_hub",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-NACELLE",
+        "defaultStatus": "not_started"
+      },
+      {
+        "externalId": "wind_turbine_T01_tower",
+        "displayName": "Turbine 01 Tower",
+        "category": "tower",
+        "modelNodeName": "wind_turbine_T01_tower",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "structural",
+        "constructionPackage": "STRUCT-TOWER",
+        "defaultStatus": "not_started"
+      },
+      {
+        "externalId": "wind_turbine_T01_access_platform",
+        "displayName": "Turbine 01 Access Platform",
+        "category": "platform",
+        "modelNodeName": "wind_turbine_T01_access_platform",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "structural",
+        "constructionPackage": "STRUCT-PLATFORM",
+        "defaultStatus": "not_started"
+      },
+      {
+        "externalId": "wind_turbine_T01_blade_01",
+        "displayName": "Turbine 01 Blade 01",
+        "category": "blade",
+        "modelNodeName": "wind_turbine_T01_blade_01",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-ROTOR",
+        "defaultStatus": "not_started"
+      },
+      {
+        "externalId": "wind_turbine_T01_blade_02",
+        "displayName": "Turbine 01 Blade 02",
+        "category": "blade",
+        "modelNodeName": "wind_turbine_T01_blade_02",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-ROTOR",
+        "defaultStatus": "not_started"
+      },
+      {
+        "externalId": "wind_turbine_T01_blade_03",
+        "displayName": "Turbine 01 Blade 03",
+        "category": "blade",
+        "modelNodeName": "wind_turbine_T01_blade_03",
+        "trackable": true,
+        "parentExternalId": "wind_turbine_T01",
+        "level": "site",
+        "zone": "wind-field",
+        "system": "mechanical",
+        "constructionPackage": "MECH-ROTOR",
+        "defaultStatus": "not_started"
+      }
+    ]
+  }
+}

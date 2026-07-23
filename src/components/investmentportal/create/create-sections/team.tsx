@@ -1,7 +1,7 @@
-"use client";
-import { FormInput } from "@/components/ui/form-input";
-import { Plus, X } from "lucide-react";
-import React, { useState } from "react";
+'use client';
+import { FormInput } from '@/components/ui/form-input';
+import { Plus, X } from 'lucide-react';
+import React, { useState } from 'react';
 interface TeamMember {
   id: string;
   name: string;
@@ -14,27 +14,27 @@ interface TeamMember {
 export default function Team() {
   const [members, setMembers] = useState<TeamMember[]>([
     {
-      id: "1",
-      name: "John Hoffman",
-      position: "Ceo & Co-Founder",
-      socialUrl: "Social Url",
-      imagePreview: "/placeholder.svg?height=60&width=60",
+      id: '1',
+      name: 'John Hoffman',
+      position: 'Ceo & Co-Founder',
+      socialUrl: 'Social Url',
+      imagePreview: '/placeholder.svg?height=60&width=60',
     },
     {
-      id: "2",
-      name: "Jack Zareian",
-      position: "Product Designer",
-      socialUrl: "Social Url",
-      imagePreview: "/placeholder.svg?height=60&width=60",
+      id: '2',
+      name: 'Jack Zareian',
+      position: 'Product Designer',
+      socialUrl: 'Social Url',
+      imagePreview: '/placeholder.svg?height=60&width=60',
     },
   ]);
 
   const addMember = () => {
     const newMember: TeamMember = {
       id: Date.now().toString(),
-      name: "",
-      position: "",
-      socialUrl: "",
+      name: '',
+      position: '',
+      socialUrl: '',
       image: null,
     };
     setMembers([...members, newMember]);
@@ -77,7 +77,7 @@ export default function Team() {
               <FormInput
                 placeholder="Enter name"
                 onChange={(e) =>
-                  updateMember(member.id, "name", e.target.value)
+                  updateMember(member.id, 'name', e.target.value)
                 }
                 value={member.name}
                 label="Name"
@@ -86,7 +86,7 @@ export default function Team() {
               <FormInput
                 placeholder="Enter position"
                 onChange={(e) =>
-                  updateMember(member.id, "position", e.target.value)
+                  updateMember(member.id, 'position', e.target.value)
                 }
                 value={member.position}
                 label="Position"
@@ -94,7 +94,7 @@ export default function Team() {
               <FormInput
                 placeholder="Enter social URL"
                 onChange={(e) =>
-                  updateMember(member.id, "socialUrl", e.target.value)
+                  updateMember(member.id, 'socialUrl', e.target.value)
                 }
                 value={member.socialUrl}
                 label="Social Url"
