@@ -40,6 +40,11 @@ jobs:
       # vars long after this app moved to Privy), so the container never
       # actually received NEXT_PUBLIC_PRIVY_APP_ID/PRIVY_APP_SECRET.
       COMPOSE_FILE: ./deployment/docker-compose.dev.yml
+      # Compose derives its project name from the compose file's directory by
+      # default; pin it explicitly so it stays stable (and keeps recognizing
+      # the already-running container across --force-recreate) regardless of
+      # which path/directory invokes it.
+      COMPOSE_PROJECT_NAME: dashboard
     steps:
       - name: Checkout
         uses: actions/checkout@v4
