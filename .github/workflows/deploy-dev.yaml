@@ -85,6 +85,10 @@ jobs:
           docker compose -f "$COMPOSE_FILE" logs --tail=50 dashboard
           exit 1
 
+      - name: Show recent app logs
+        if: always()
+        run: docker compose -f "$COMPOSE_FILE" logs --tail=200 dashboard
+
       - name: Cleanup temp env file
         if: always()
         run: rm -f /tmp/dashboard-dev.env
