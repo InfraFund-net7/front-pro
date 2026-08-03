@@ -43,7 +43,7 @@ export async function getCurrentUser(accessToken: string) {
 
   return {
     user_id: user.id,
-    privy_user_id: user.openfortUserId, // DB column rename deferred to future migration
+    privy_user_id: user.privyUserId,
     email: user.email,
     first_name: user.firstName,
     last_name: user.lastName,
@@ -62,7 +62,7 @@ export async function getAccountStatus(accessToken: string) {
 
   return {
     user_id: user.id,
-    privy_user_id: user.openfortUserId, // DB column rename deferred to future migration
+    privy_user_id: user.privyUserId,
     type: user.type,
     role: user.role,
     status: user.status,
