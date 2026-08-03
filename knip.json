@@ -17,8 +17,8 @@
     "src/server/services/auth.ts": ["exports"]
   },
   "ignoreDependencies": [
-    "@openfort/shield-js",
     "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/parser"
+    "@typescript-eslint/parser",
+    "@privy-io/node"
   ]
 }

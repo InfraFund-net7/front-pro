@@ -3,10 +3,9 @@ import 'server-only';
 type ServerEnvFeature =
   | 'database'
   | 'auth'
-  | 'openfort'
+  | 'privy'
   | 'captcha'
   | 'email'
-  | 'shield'
   | 'cron';
 
 interface ServerEnv {
@@ -22,10 +21,9 @@ interface ServerEnv {
     jwtIssuer?: string;
     jwtAudience: string;
   };
-  openfort: {
-    secretKey?: string;
-    publishableKey?: string;
-    baseUrl: string;
+  privy: {
+    appId?: string;
+    appSecret?: string;
   };
   captcha: {
     googleSecret?: string;
@@ -39,12 +37,6 @@ interface ServerEnv {
     smtpSender?: string;
     receiver?: string;
   };
-  shield: {
-    url: string;
-    publishableKey?: string;
-    secretKey?: string;
-    encryptionShare?: string;
-  };
   cron: {
     secret?: string;
   };
@@ -53,7 +45,7 @@ interface ServerEnv {
 const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
   database: ['DATABASE_URL'],
   auth: ['APP_JWT_SECRET'],
-  openfort: ['OPENFORT_SECRET_KEY', 'OPENFORT_PUBLISHABLE_KEY'],
+  privy: ['NEXT_PUBLIC_PRIVY_APP_ID', 'PRIVY_APP_SECRET'],
   captcha: ['RECAPTCHA_SECRET_KEY'],
   email: [
     'SMTP_HOST',
@@ -61,11 +53,6 @@ const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
     'SMTP_PASSWORD',
     'SMTP_SENDER',
     'CONTACT_FORM_RECEIVER',
-  ],
-  shield: [
-    'NEXT_PUBLIC_SHIELD_API_KEY',
-    'SHIELD_SECRET_KEY',
-    'SHIELD_ENCRYPTION_SHARE',
   ],
   cron: ['CRON_SECRET'],
 };
@@ -104,11 +91,9 @@ export function getServerEnv() {
       jwtIssuer: readOptionalString('APP_JWT_ISSUER'),
       jwtAudience: readOptionalString('APP_JWT_AUDIENCE') ?? 'infrafund',
     },
-    openfort: {
-      secretKey: readOptionalString('OPENFORT_SECRET_KEY'),
-      publishableKey: readOptionalString('OPENFORT_PUBLISHABLE_KEY'),
-      baseUrl:
-        readOptionalString('OPENFORT_BASE_URL') ?? 'https://api.openfort.io',
+    privy: {
+      appId: readOptionalString('NEXT_PUBLIC_PRIVY_APP_ID'),
+      appSecret: readOptionalString('PRIVY_APP_SECRET'),
     },
     captcha: {
       googleSecret: readOptionalString('RECAPTCHA_SECRET_KEY'),
@@ -121,12 +106,6 @@ export function getServerEnv() {
       smtpPassword: readOptionalString('SMTP_PASSWORD'),
       smtpSender: readOptionalString('SMTP_SENDER'),
       receiver: readOptionalString('CONTACT_FORM_RECEIVER'),
-    },
-    shield: {
-      url: readOptionalString('SHIELD_URL') ?? 'https://shield.openfort.io',
-      publishableKey: readOptionalString('NEXT_PUBLIC_SHIELD_API_KEY'),
-      secretKey: readOptionalString('SHIELD_SECRET_KEY'),
-      encryptionShare: readOptionalString('SHIELD_ENCRYPTION_SHARE'),
     },
     cron: {
       secret: readOptionalString('CRON_SECRET'),
@@ -144,12 +123,10 @@ function findMissingServerEnv(features: ServerEnvFeature[]) {
       return env.auth.jwtSecret ? [] : requiredEnvByFeature.auth;
     }
 
-    if (feature === 'openfort') {
+    if (feature === 'privy') {
       return [
-        ...(env.openfort.secretKey ? [] : [requiredEnvByFeature.openfort[0]]),
-        ...(env.openfort.publishableKey
-          ? []
-          : [requiredEnvByFeature.openfort[1]]),
+        ...(env.privy.appId ? [] : [requiredEnvByFeature.privy[0]]),
+        ...(env.privy.appSecret ? [] : [requiredEnvByFeature.privy[1]]),
       ];
     }
 

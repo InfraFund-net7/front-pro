@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/nextjs';
 type Severity = 'fatal' | 'error' | 'warning' | 'info';
 
 interface ReportOptions {
-  area: 'auth' | 'wallet' | 'openfort' | 'telemetry' | 'unknown';
+  area: 'auth' | 'wallet' | 'telemetry' | 'unknown';
   severity?: Severity;
   tags?: Record<string, string>;
   extra?: Record<string, unknown>;

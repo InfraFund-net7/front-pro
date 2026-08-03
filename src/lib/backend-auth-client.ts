@@ -36,7 +36,7 @@ export interface CountryOption {
   phoneCode?: number;
 }
 
-interface OpenfortExchangePayload {
+interface PrivyExchangePayload {
   first_name?: string;
   last_name?: string;
   organization_name?: string;
@@ -188,7 +188,7 @@ export interface ProjectCampaignPayload {
 
 export interface BackendMeResponse {
   user_id: string;
-  openfort_user_id: string;
+  privy_user_id: string;
   email: string | null;
   first_name: string | null;
   last_name: string | null;
@@ -320,20 +320,20 @@ function normalizeCountry(country: BackendCountryRecord): CountryOption {
   };
 }
 
-export async function checkOpenfortUser(openfortAccessToken: string) {
-  return request<BackendCheckResponse>('auth/openfort/check', {
+export async function checkPrivyUser(privyAccessToken: string) {
+  return request<BackendCheckResponse>('auth/privy/check', {
     method: 'GET',
-    accessToken: openfortAccessToken,
+    accessToken: privyAccessToken,
   });
 }
 
-export async function exchangeOpenfortSession(
-  openfortAccessToken: string,
-  body: OpenfortExchangePayload = {}
+export async function exchangePrivySession(
+  privyAccessToken: string,
+  body: PrivyExchangePayload = {}
 ) {
-  return request<BackendLoginResponse>('auth/openfort/exchange', {
+  return request<BackendLoginResponse>('auth/privy/exchange', {
     method: 'POST',
-    accessToken: openfortAccessToken,
+    accessToken: privyAccessToken,
     body: JSON.stringify(body),
   });
 }

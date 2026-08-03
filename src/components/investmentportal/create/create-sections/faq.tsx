@@ -9,7 +9,7 @@ interface Question {
   answer: string;
 }
 
-export function FAQForm() {
+function FAQForm() {
   const [faqs, setFaqs] = useState<Question[]>([
     {
       id: '1',
