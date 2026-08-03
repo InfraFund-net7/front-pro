@@ -50,7 +50,7 @@ jobs:
             -v "$PWD/prisma.config.ts:/app/prisma.config.ts" \
             -w /app \
             node:22-alpine \
-            sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy || (apk add --no-cache postgresql-client >/dev/null 2>&1 && echo '=== DIAGNOSTIC: schemas ===' && psql \"\$DATABASE_URL\" -c \"SELECT schema_name FROM information_schema.schemata ORDER BY schema_name;\" && echo '=== DIAGNOSTIC: users tables by schema ===' && psql \"\$DATABASE_URL\" -c \"SELECT table_schema, table_name FROM information_schema.tables WHERE table_name='users';\" && echo '=== DIAGNOSTIC: users columns by schema ===' && psql \"\$DATABASE_URL\" -c \"SELECT table_schema, column_name, data_type FROM information_schema.columns WHERE table_name='users' ORDER BY table_schema, column_name;\" && echo '=== DIAGNOSTIC: row counts ===' && psql \"\$DATABASE_URL\" -c \"SELECT (SELECT count(*) FROM public.users) AS public_users_count;\" ; exit 1)"
+            sh -c "npm install prisma@7.8.0 --no-save --silent && (npx prisma migrate deploy || (npx prisma migrate resolve --applied 20260513143000_init && npx prisma migrate resolve --applied 20260519120000_add_project_account_roles && npx prisma migrate resolve --applied 20260520110000_repair_project_tables && npx prisma migrate deploy))"
 
       - name: Write runtime secrets to env file
         env:
