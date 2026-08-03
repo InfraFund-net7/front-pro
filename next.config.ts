@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     resolveAlias: {
       '@solana/kit': './src/lib/solana-kit-unavailable.ts',
+      '@solana-program/system': './src/lib/solana-kit-unavailable.ts',
     },
   },
   webpack: (config, { webpack }) => {
@@ -35,6 +36,10 @@ const nextConfig: NextConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
       '@solana/kit': path.join(
+        projectRoot,
+        'src/lib/solana-kit-unavailable.ts'
+      ),
+      '@solana-program/system': path.join(
         projectRoot,
         'src/lib/solana-kit-unavailable.ts'
       ),
