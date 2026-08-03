@@ -129,7 +129,7 @@ async function findLinkedUserByEmail(session: VerifiedPrivySession) {
   return findUserByEmail(email);
 }
 
-async function linkExistingUserToOpenfort(
+async function linkExistingUserToPrivy(
   userId: string,
   session: VerifiedPrivySession
 ) {
@@ -161,7 +161,7 @@ async function resolveExistingUser(session: VerifiedPrivySession) {
     return null;
   }
 
-  return linkExistingUserToOpenfort(emailMatchedUser.id, session);
+  return linkExistingUserToPrivy(emailMatchedUser.id, session);
 }
 
 async function findOrCreateUser(
@@ -267,8 +267,8 @@ export async function checkPrivyUser(accessToken: string) {
 }
 
 export async function exchangePrivySession(input: PrivyExchangeInput) {
-  const openfortSession = await verifyPrivyAccessToken(input.accessToken);
-  const { user, created } = await findOrCreateUser(input, openfortSession);
+  const privySession = await verifyPrivyAccessToken(input.accessToken);
+  const { user, created } = await findOrCreateUser(input, privySession);
 
   if (!created) {
     await assertUserNotLocked(user.id);
