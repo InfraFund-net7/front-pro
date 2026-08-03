@@ -659,9 +659,7 @@ git commit -m "refactor: update server code for the privyUserId column rename"
 - Consumes: `defaultChain` from `@/lib/app-providers` (Task 3); a Privy `ConnectedWallet` (from `@privy-io/react-auth`, already a dependency).
 - Produces: `getSmartAccountAddress(wallet: ConnectedWallet): Promise<Address>` and `smartAccountChain` (re-exported chain constant) — Task 8's hook imports both.
 
-**Context:** `knip.json`'s `ignoreDependencies` list has had a temporary `@biconomy/abstractjs` entry since Task 2 (added because the package existed but had no real usage yet). This task is what finally uses it — remove that entry as part of this task, since leaving it would mask a real future regression if the import were ever accidentally deleted.
-
-Task 3 also added `"src/lib/app-providers.tsx": ["exports"]` to `knip.json`'s `ignoreIssues`, since exporting `defaultChain` with nothing importing it yet would otherwise trip knip's unused-export check. This task is what finally imports it (line above: `import { defaultChain } from '@/lib/app-providers';`) — remove that `ignoreIssues` entry too, in the same commit, for the same reason as the `ignoreDependencies` cleanup.
+**Context:** This module imports both `@biconomy/abstractjs` and `defaultChain` (from `app-providers.tsx`, exported by Task 3) — but knip's reachability analysis only credits an import as "usage" if something else actually imports *this* new file, which doesn't happen until Task 8 wires it into a hook. Until then, creating this file paradoxically makes knip flag it as an "unused file" outright — and because knip doesn't analyze an ignored file's own imports, that in turn resurrects the `@biconomy/abstractjs` unused-dependency warning and the `defaultChain` unused-export warning that Task 2/3 already dealt with once. This is expected, not a sign something is wrong: add one more temporary suppression (the file itself, in `ignoreFiles`) and restore the two that were removed too early. Task 8 removes all three once it actually imports this module.
 
 - [ ] **Step 1: Write the module**
 
@@ -727,11 +725,23 @@ Expected: `no errors`
 
 If TypeScript complains that the Privy `EIP1193Provider` doesn't structurally satisfy Biconomy's expected signer type, cast defensively at the call site: `signer: provider as unknown as Parameters<typeof toNexusAccount>[0]['signer']`. Only add this cast if the type-check step actually reports the mismatch — don't add it preemptively.
 
-- [ ] **Step 3: Remove the now-obsolete knip ignore entries**
+- [ ] **Step 3: Add/restore the temporary knip suppressions this file needs**
 
-In `knip.json`, change:
+Check `knip.json`'s actual current contents with `cat knip.json` first (Task 3's cleanup already removed the `app-providers.tsx`/`@biconomy/abstractjs` entries — this step puts them back, plus adds one new one for this file). Target shape:
 
 ```json
+  "ignoreFiles": [
+    "src/components/investmentportal/empty/emptyinvestment.tsx",
+    "src/components/ui/date-picker.tsx",
+    "src/components/ui/horizontal-progress-bar.tsx",
+    "src/components/ui/pagination-dots.tsx",
+    "src/components/ui/toggle-switch.tsx",
+    "src/lib/solana-kit-unavailable.ts",
+    "src/utils/is-development.util.ts",
+    "src/utils/is-production.util.ts",
+    "scripts/setup-neon-db.mjs",
+    "src/lib/biconomy-smart-account.ts"
+  ],
   "ignoreIssues": {
     "src/server/db/**/*.ts": ["files", "exports"],
     "src/server/http/**/*.ts": ["exports", "types"],
@@ -746,25 +756,10 @@ In `knip.json`, change:
   ]
 ```
 
-to:
-
-```json
-  "ignoreIssues": {
-    "src/server/db/**/*.ts": ["files", "exports"],
-    "src/server/http/**/*.ts": ["exports", "types"],
-    "src/server/services/auth.ts": ["exports"]
-  },
-  "ignoreDependencies": [
-    "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/parser",
-    "@privy-io/node"
-  ]
-```
-
-(Removes both the `app-providers.tsx` exports ignore — added in Task 3 because nothing imported `defaultChain` yet — and the `@biconomy/abstractjs` dependency ignore, since this task's import satisfies both at once. Check `knip.json`'s actual current contents with `cat knip.json` before editing, in case it differs slightly from above.)
+(Adds `"src/lib/biconomy-smart-account.ts"` to `ignoreFiles` — new, since this file has no importer yet — and restores the `"src/lib/app-providers.tsx": ["exports"]` `ignoreIssues` entry and the `"@biconomy/abstractjs"` `ignoreDependencies` entry, both of which Task 3/this task's earlier plan draft removed on the mistaken assumption that creating this file alone would make them reachable. It doesn't — only Task 8's import of this module does.)
 
 Run: `npm run format:knip`
-Expected: no unused-dependency warning for `@biconomy/abstractjs`, and no unused-export warning for `defaultChain` (both are now actually used by this file).
+Expected: no errors (the file, dependency, and export are all consistently suppressed as "not yet wired in").
 
 - [ ] **Step 4: Commit**
 
@@ -779,10 +774,13 @@ git commit -m "feat(wallet): derive Biconomy Nexus smart-account address from Pr
 
 **Files:**
 - Create: `src/lib/use-smart-account-address.ts`
+- Modify: `knip.json`
 
 **Interfaces:**
 - Consumes: `getSmartAccountAddress`, `smartAccountChain` from `@/lib/biconomy-smart-account` (Task 7); `useWallets` from `@privy-io/react-auth`.
 - Produces: `useSmartAccountAddress(): { address: Address | null; chainId: number; status: 'idle' | 'loading' | 'ready' | 'error' }` — Tasks 9 and 10 consume this.
+
+**Context:** Task 7 created `src/lib/biconomy-smart-account.ts`, but nothing imported it yet, so knip flagged it as an unused file — and, because an ignored file's own imports aren't credited as "usage," that resurrected the `@biconomy/abstractjs` unused-dependency warning and the `defaultChain` unused-export warning too. Task 7 added three temporary suppressions to unblock its own commit: `"src/lib/biconomy-smart-account.ts"` in `ignoreFiles`, `"@biconomy/abstractjs"` back in `ignoreDependencies`, and `"src/lib/app-providers.tsx": ["exports"]` back in `ignoreIssues`. This task's import of `biconomy-smart-account.ts` makes the whole chain reachable again — remove all three in this same commit.
 
 - [ ] **Step 1: Write the hook**
 
@@ -841,10 +839,22 @@ export function useSmartAccountAddress() {
 Run: `npx tsc --noEmit -p tsconfig.json 2>&1 | grep -i "use-smart-account-address" || echo "no errors"`
 Expected: `no errors`
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 3: Remove the temporary knip suppressions from Task 7**
+
+Check `knip.json`'s actual current contents with `cat knip.json` first — Task 7 added three temporary entries. Remove all three:
+- `"src/lib/biconomy-smart-account.ts"` from `ignoreFiles`
+- `"@biconomy/abstractjs"` from `ignoreDependencies`
+- `"src/lib/app-providers.tsx": ["exports"]` from `ignoreIssues`
+
+Leaving `ignoreFiles`, `ignoreIssues`, and `ignoreDependencies` matching the state from before Task 7 (i.e. the same shape Task 3's cleanup step already targets — this task and that step converge on the same end state).
+
+Run: `npm run format:knip`
+Expected: no unused-file warning for `biconomy-smart-account.ts`, no unused-dependency warning for `@biconomy/abstractjs`, no unused-export warning for `defaultChain` — all three are now genuinely reachable via this hook's import chain.
+
+- [ ] **Step 4: Commit**
 
 ```bash
-git add src/lib/use-smart-account-address.ts
+git add src/lib/use-smart-account-address.ts knip.json
 git commit -m "feat(wallet): add useSmartAccountAddress hook"
 ```
 
