@@ -21,7 +21,7 @@
 //                                     ↘ no cookie → check backend (exists: true)
 //                                       → backend exchange → createWalletIfNeeded
 
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useCreateWallet, usePrivy, useWallets } from '@privy-io/react-auth';
 import {
   checkPrivyUser,
   deleteBackendAccount,
@@ -187,6 +187,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     getAccessToken,
   } = usePrivy();
   const { wallets } = useWallets();
+  const { createWallet } = useCreateWallet();
   const privyUserId = user?.id ?? null;
   const logoutInProgressRef = useRef(false);
   const [status, setStatus] = useState<AppSessionStatus>('idle');
@@ -357,16 +358,17 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       startStep(walletStepId);
 
       try {
-        // If the user has no embedded wallet yet, Privy creates one.
-        // For returning users the wallet already exists in their Privy account.
+        // createOnLogin is 'off' (see app-providers.tsx), so Privy never
+        // auto-creates a wallet — we have to call createWallet() ourselves,
+        // exactly once, at this point past the qualification gate. Returning
+        // users already have one; createWallet() would throw for them since
+        // createAdditional defaults to false, so only call it when missing.
         const hasEmbeddedWallet = wallets.some(
           (w) => w.walletClientType === 'privy'
         );
 
         if (!hasEmbeddedWallet) {
-          // Privy will create an embedded wallet on the next login cycle since
-          // createOnLogin is 'off'. For now we finalize the session and let the
-          // wallet be created on the next auth cycle.
+          await createWallet();
         }
 
         completeStep(walletStepId);
@@ -390,6 +392,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       baseReportExtras,
       commitUserFacingError,
       completeStep,
+      createWallet,
       failStep,
       finalizeAuthenticatedSession,
       startStep,
