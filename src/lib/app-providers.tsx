@@ -9,7 +9,7 @@ import { AuthSessionProvider } from '@/components/auth/auth-session-provider';
 const queryClient = new QueryClient();
 const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
 
-const defaultChain =
+export const defaultChain =
   process.env.NEXT_PUBLIC_ENVIRONMENT === 'production' ? base : baseSepolia;
 
 function PrivyNotConfigured() {
