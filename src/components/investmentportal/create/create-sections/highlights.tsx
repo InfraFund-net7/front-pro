@@ -10,7 +10,7 @@ interface HighlightData {
   itemDescription: string;
 }
 
-export function HighlightForm() {
+function HighlightForm() {
   const [highlights, setHighlights] = useState<HighlightData[]>([
     {
       id: '1',

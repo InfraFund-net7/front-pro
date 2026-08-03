@@ -1,4 +1,4 @@
-<!-- cspell:words Solana solana OFSDK myapp SIWE Supabase signup -->
+<!-- cspell:words Solana solana SIWE Supabase signup -->
 
 # Openfort Embedded Wallet Setup
 
@@ -11,16 +11,10 @@ Openfort provides embedded wallet SDKs for multiple platforms:
 | Platform | Package | Best for |
 |----------|---------|----------|
 | **React / Next.js** | `@openfort/react` | Web apps with pre-built UI modal |
-| **React Native / Expo** | `@openfort/react-native` | Mobile apps (iOS + Android) |
-| **iOS / Swift** | `OpenfortSwift` | Native iOS apps |
-| **Unity / C#** | `openfort-csharp-unity` | Games (Windows, macOS, Android, iOS, WebGL) |
 | **Vanilla JS / TS** | `@openfort/openfort-js` | Custom UIs, any JS framework, bare-metal access |
 
 > **Which SDK should I use?**
 > - If you're building a **React or Next.js** web app → use `@openfort/react` (includes pre-built auth modal + wallet UI)
-> - If you're building a **React Native / Expo** mobile app → use `@openfort/react-native`
-> - If you're building a **native iOS** app → use `OpenfortSwift`
-> - If you're building a **Unity game** → use `openfort-csharp-unity`
 > - If you're building with **Svelte, Vue, Angular, vanilla JS**, or need **custom login flows** → use `@openfort/openfort-js`
 
 ---
@@ -232,176 +226,6 @@ uiConfig={{
 
 ---
 
-## React Native / Expo — `@openfort/react-native`
-
-Native mobile SDK. Supports Ethereum and Solana embedded wallets.
-
-### Installation
-
-```bash
-npx --yes expo install expo-apple-authentication expo-application expo-crypto expo-secure-store expo-constants
-npm install react-native-get-random-values @openfort/react-native
-
-# Optional:
-npm install react-native-passkeys          # For passkey recovery
-npx expo install expo-web-browser expo-linking  # For OAuth
-```
-
-### Entry Point
-
-`react-native-get-random-values` **must** be imported first:
-
-```ts
-// entrypoint.ts
-import "react-native-get-random-values";
-import "expo-router/entry";
-```
-
-Update `package.json`: `{ "main": "entrypoint.ts" }`
-
-### Provider Setup
-
-```tsx
-import { OpenfortProvider, RecoveryMethod } from "@openfort/react-native";
-import Constants from "expo-constants";
-
-export default function RootLayout() {
-  return (
-    <OpenfortProvider
-      publishableKey={Constants.expoConfig?.extra?.openfortPublishableKey}
-      walletConfig={{
-        shieldPublishableKey: Constants.expoConfig?.extra?.openfortShieldPublishableKey,
-        recoveryMethod: RecoveryMethod.AUTOMATIC,
-        ethereumProviderPolicyId: Constants.expoConfig?.extra?.openfortPolicyId,
-        createEncryptedSessionEndpoint: Constants.expoConfig?.extra?.openfortShieldRecoveryEndpoint,
-      }}
-      supportedChains={[{
-        id: 84532,
-        name: 'Base Sepolia',
-        nativeCurrency: { name: 'Base Sepolia Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: ['https://sepolia.base.org'] } },
-      }]}
-      verbose={__DEV__}
-    >
-      {/* Your app */}
-    </OpenfortProvider>
-  );
-}
-```
-
-No wagmi, no bridge, no QueryClientProvider, no manual WebView — just `OpenfortProvider`.
-
-### Key Hooks (React Native)
-
-```ts
-import { useEmbeddedEthereumWallet } from '@openfort/react-native'  // EVM
-import { useEmbeddedSolanaWallet } from '@openfort/react-native'    // Solana
-import { AuthBoundary } from '@openfort/react-native'                // Auth state boundary
-import { useUser, useEmailAuth, useEmailAuthOtp, useOAuth, useGuestAuth, useSignOut } from '@openfort/react-native'
-```
-
-### AuthBoundary
-
-```tsx
-<AuthBoundary
-  loading={<LoadingScreen />}
-  unauthenticated={<LoginScreen />}
-  error={(error) => <ErrorScreen error={error} />}
->
-  <MainApp />
-</AuthBoundary>
-```
-
----
-
-## iOS / Swift — `OpenfortSwift`
-
-Native Swift SDK for iOS apps. Ethereum-only (EVM).
-
-### Installation
-
-Add via Swift Package Manager: `https://github.com/openfort-xyz/swift-sdk.git`
-
-### Configuration
-
-Add `OFConfig.plist` to your Xcode project:
-- `openfortPublishableKey` (required)
-- `shieldPublishableKey` (required)
-- `shieldEncryptionKey` or `shieldEncryptionEndpoint` (for recovery)
-
-### Initialize
-
-```swift
-import OpenfortSwift
-
-// In AppDelegate or App init:
-try OFSDK.initialize()
-
-// With third-party auth:
-try OFSDK.initialize(thirdPartyAuth: .init(
-    provider: .firebase,
-    getAccessToken: { try await Auth.auth().currentUser?.getIDToken() ?? "" }
-))
-```
-
-### Wallet & Auth
-
-```swift
-let sdk = OFSDK.shared
-
-// Authenticate
-try await sdk.logInWithEmailPassword(email: "user@example.com", password: "pass")
-try await sdk.initOAuth(provider: .google, redirectTo: "myapp://callback")
-
-// Configure embedded wallet (auto create or recover)
-let account = try await sdk.configureEmbeddedWallet(
-    chainId: 80002,
-    recoveryMethod: .automatic(encryptionSession: session)
-)
-
-// Get EIP-1193 provider
-let provider = try sdk.getEthereumProvider(policy: "pol_...")
-
-// Send transaction
-let txHash = try await provider.request(method: "eth_sendTransaction", params: [...])
-```
-
----
-
-## Unity / C# — `openfort-csharp-unity`
-
-Game SDK supporting Windows, macOS, Android, iOS, and WebGL.
-
-### Installation
-
-Via UPM git URL: `https://github.com/openfort-xyz/openfort-csharp-unity.git?path=/src/Packages/OpenfortSDK`
-
-Requires [UniTask](https://github.com/Cysharp/UniTask) v2.3.3.
-
-### Initialize & Auth
-
-```csharp
-using Openfort;
-
-var sdk = await OpenfortSDK.Init("pk_test_...", "shield_pk_...");
-
-// Authenticate
-await sdk.LogInWithEmailPassword("user@example.com", "pass");
-
-// Configure embedded wallet
-var account = await sdk.ConfigureEmbeddedWallet(
-    chainId: 80002,
-    recoveryMethod: RecoveryMethod.Automatic,
-    encryptionSession: session
-);
-
-// Get provider and send transaction
-var provider = sdk.GetEthereumProvider(policy: "pol_...");
-var txHash = await provider.Request("eth_sendTransaction", new object[] { txParams });
-```
-
----
-
 ## Vanilla JavaScript / TypeScript — `@openfort/openfort-js`
 
 Low-level SDK for custom login flows and bare-metal API access. Works with any framework (Svelte, Vue, Angular, etc.) or no framework at all.
@@ -428,11 +252,20 @@ await openfort.waitForInitialization()
 ### Auth & Wallet
 
 ```typescript
+import { OAuthProvider, RecoveryMethod } from '@openfort/openfort-js'
+
 // Authenticate
 await openfort.auth.logInWithEmailPassword({ email: 'user@example.com', password: 'pass' })
 
 // Or OAuth
-const url = await openfort.auth.initOAuth({ provider: OAuthProvider.GOOGLE, redirectTo: '...' })
+const url = await openfort.auth.initOAuth({
+  provider: OAuthProvider.GOOGLE,
+  redirectTo: 'https://your-app.com/callback',
+  options: {
+    scopes: 'email profile',
+  },
+})
+window.location.href = url
 
 // Configure embedded wallet (auto create or recover)
 const account = await openfort.embeddedWallet.configure({
@@ -444,7 +277,9 @@ const account = await openfort.embeddedWallet.configure({
 })
 
 // Get EIP-1193 provider
-const provider = await openfort.embeddedWallet.getEthereumProvider({ policy: 'pol_...' })
+const provider = await openfort.embeddedWallet.getEthereumProvider({
+  feeSponsorship: 'pol_...',
+})
 
 // Send transaction
 const txHash = await provider.request({
@@ -502,9 +337,6 @@ Openfort embedded wallets support **any EVM chain** and **Solana**. Configure ch
 
 - **Full docs**: https://www.openfort.io/docs/products/embedded-wallet
 - **React quickstart**: https://www.openfort.io/docs/products/embedded-wallet/react
-- **React Native quickstart**: https://www.openfort.io/docs/products/embedded-wallet/react-native
-- **Swift quickstart**: https://www.openfort.io/docs/products/embedded-wallet/swift
-- **Unity quickstart**: https://www.openfort.io/docs/products/embedded-wallet/unity/quickstart
 - **JS quickstart**: https://www.openfort.io/docs/products/embedded-wallet/javascript/quickstart
 - **Dashboard**: https://dashboard.openfort.io
 - **GitHub examples**: https://github.com/openfort-xyz

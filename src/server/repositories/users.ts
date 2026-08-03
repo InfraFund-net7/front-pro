@@ -5,7 +5,7 @@ import { Prisma, type UserRole, type UserType } from '@prisma/client';
 import { getDb } from '@/server/db';
 
 export interface CreateUserRecord {
-  openfortUserId: string;
+  privyUserId: string;
   email?: string | null;
   firstName?: string | null;
   lastName?: string | null;
@@ -26,10 +26,10 @@ export function findActiveUserById(userId: string) {
   });
 }
 
-export function findUserByOpenfortId(openfortUserId: string) {
+export function findUserByPrivyId(privyUserId: string) {
   return getDb().user.findFirst({
     where: {
-      openfortUserId,
+      privyUserId,
       deletedAt: null,
     },
   });
@@ -44,10 +44,10 @@ export function findUserByEmail(email: string) {
   });
 }
 
-export function attachOpenfortUserId(userId: string, openfortUserId: string) {
+export function attachPrivyUserId(userId: string, privyUserId: string) {
   return getDb().user.update({
     where: { id: userId },
-    data: { openfortUserId },
+    data: { privyUserId },
   });
 }
 
@@ -55,7 +55,7 @@ export async function createUser(record: CreateUserRecord) {
   return getDb().$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
-        openfortUserId: record.openfortUserId,
+        privyUserId: record.privyUserId,
         email: record.email,
         firstName: record.firstName,
         lastName: record.lastName,
@@ -105,7 +105,7 @@ export async function softDeleteUserAccount(userId: string) {
       data: {
         email: null,
         phoneNumber: null,
-        openfortUserId: `deleted:${userId}`,
+        privyUserId: `deleted:${userId}`,
         dataDeletionRequestedAt: user.dataDeletionRequestedAt ?? now,
         deletedAt: now,
         updatedAt: now,

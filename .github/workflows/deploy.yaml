@@ -21,11 +21,8 @@ jobs:
           SHA=$(git rev-parse --short HEAD)
           docker build \
             -f ./deployment/Dockerfile \
-            --build-arg NEXT_PUBLIC_OPENFORT_PUBLIC_KEY=${{ secrets.OPENFORT_PUBLISHABLE_KEY }} \
-            --build-arg NEXT_PUBLIC_SHIELD_API_KEY=${{ secrets.OPENFORT_SHIELD_PUBLISHABLE_KEY }} \
+            --build-arg NEXT_PUBLIC_PRIVY_APP_ID=${{ secrets.PRIVY_APP_ID }} \
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }} \
-            --build-arg NEXT_PUBLIC_POLICY_ID=${{ secrets.POLICY_ID }} \
-            --build-arg NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }} \
             --build-arg NEXT_PUBLIC_ENVIRONMENT=production \
             -t "$ACR_REGISTRY/infra-dashboard:prod" \
             -t "$ACR_REGISTRY/infra-dashboard:prod-$SHA" .
@@ -42,21 +39,15 @@ jobs:
       - name: Write runtime secrets to env file
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          OPENFORT_SECRET_KEY: ${{ secrets.OPENFORT_SECRET_KEY }}
-          OPENFORT_PUBLISHABLE_KEY: ${{ secrets.OPENFORT_PUBLISHABLE_KEY }}
           APP_JWT_SECRET: ${{ secrets.APP_JWT_SECRET }}
-          OPENFORT_SHIELD_SECRET_KEY: ${{ secrets.OPENFORT_SHIELD_SECRET_KEY }}
-          OPENFORT_SHIELD_ENCRYPTION_SHARE: ${{ secrets.OPENFORT_SHIELD_ENCRYPTION_SHARE }}
-          OPENFORT_SHIELD_PUBLISHABLE_KEY: ${{ secrets.OPENFORT_SHIELD_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
         run: |
-          printf 'DATABASE_URL=%s\nOPENFORT_SECRET_KEY=%s\nOPENFORT_PUBLISHABLE_KEY=%s\nAPP_JWT_SECRET=%s\nOPENFORT_SHIELD_SECRET_KEY=%s\nOPENFORT_SHIELD_ENCRYPTION_SHARE=%s\nOPENFORT_SHIELD_PUBLISHABLE_KEY=%s\n' \
+          printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\n' \
             "$DATABASE_URL" \
-            "$OPENFORT_SECRET_KEY" \
-            "$OPENFORT_PUBLISHABLE_KEY" \
             "$APP_JWT_SECRET" \
-            "$OPENFORT_SHIELD_SECRET_KEY" \
-            "$OPENFORT_SHIELD_ENCRYPTION_SHARE" \
-            "$OPENFORT_SHIELD_PUBLISHABLE_KEY" \
+            "$NEXT_PUBLIC_PRIVY_APP_ID" \
+            "$PRIVY_APP_SECRET" \
             > /tmp/dashboard-prod.env
 
       - name: Deploy with Docker Compose

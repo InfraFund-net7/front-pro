@@ -1,11 +1,11 @@
 'use client';
 
-import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
 import { Check, Copy, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import { useCopyToClipboard } from '@/lib/use-copy-to-clipboard';
+import { useSmartAccountAddress } from '@/lib/use-smart-account-address';
 
 function shortenAddress(address: string) {
   if (address.length <= 10) return address;
@@ -14,29 +14,29 @@ function shortenAddress(address: string) {
 
 export function AvatarMenu() {
   const router = useRouter();
-  const { backendUser, openfortUser, logout } = useAuthSession();
-  const wallet = useEthereumEmbeddedWallet();
-  const isWalletConnected = wallet.status === 'connected';
-  const address = isWalletConnected ? wallet.address : undefined;
+  const { backendUser, privyUser, logout } = useAuthSession();
+  const { address: smartAccountAddress, status: smartAccountStatus } =
+    useSmartAccountAddress();
+  const address = smartAccountAddress ?? undefined;
+  const isWalletConnected = smartAccountStatus === 'ready' && Boolean(address);
 
   const [isOpen, setIsOpen] = useState(false);
   const { justCopied, copy } = useCopyToClipboard();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const privyEmail = privyUser?.linkedAccounts?.find(
+    (a) => a.type === 'email'
+  ) as { address?: string } | undefined;
 
   const displayName = useMemo(() => {
     const fullName = [backendUser?.first_name, backendUser?.last_name]
       .filter(Boolean)
       .join(' ')
       .trim();
-    return fullName || openfortUser?.name || openfortUser?.email || 'User';
-  }, [
-    backendUser?.first_name,
-    backendUser?.last_name,
-    openfortUser?.email,
-    openfortUser?.name,
-  ]);
+    return fullName || privyEmail?.address || 'User';
+  }, [backendUser?.first_name, backendUser?.last_name, privyEmail?.address]);
 
-  const email = openfortUser?.email ?? backendUser?.email ?? null;
+  const email = privyEmail?.address ?? backendUser?.email ?? null;
   const avatarLabel = displayName.charAt(0).toUpperCase();
   const tooltip = isWalletConnected ? 'Connected' : 'Not connected';
 
@@ -66,12 +66,10 @@ export function AvatarMenu() {
   const handleCopy = () => {
     void copy(address);
   };
-
   const handleAccount = () => {
     setIsOpen(false);
     router.push('/account');
   };
-
   const handleLogout = () => {
     setIsOpen(false);
     void logout();

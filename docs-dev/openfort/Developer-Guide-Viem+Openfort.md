@@ -1,3 +1,5 @@
+<!-- cspell:words Gasmaster -->
+
 This manual details the architecture for building a **sovereign, non-custodial** application in 2026 using **Openfort** and **Viem**. This stack is ideal for developers who prioritize **infrastructure ownership** (no vendor lock-in), **social onboarding**, and **strict TypeScript safety**.
 
 ## **Developers Manual: The Sovereign Stack (Viem + Openfort)**
@@ -83,6 +85,7 @@ const RetirementApp = () => {
     const contract = await getTypedContract("pol_v2_12345"); 
 
     try {
+      // cspell:disable-next-line
       // ❌ IDE Error: Property 'ritir' does not exist... (Typo protection)
       // ❌ IDE Error: Argument type 'number' not assignable to 'bigint'
       const hash = await contract.write.retire([amountInWei]); 
@@ -119,9 +122,10 @@ Openfort is the only major provider that solves the "Lock-in" problem in two way
     This allows a user to "eject" from your app and import their wallet into MetaMask or any other EVM wallet at any time.
 
 ### **Summary of Benefits**
+<!-- cspell:disable-next-line -->
 * **Strict Typing:** Zero chance of `ritir` typos thanks to Viem's `as const` ABI inference.
 * **Developer Choice:** You aren't forced into a proprietary SDK; you use standard Viem patterns.
 * **User Freedom:** Social logins provide the "Web2" feel, but the "Export" feature ensures they own their assets.
 
-## Foolow-up Questions
+## Follow-up Questions
 

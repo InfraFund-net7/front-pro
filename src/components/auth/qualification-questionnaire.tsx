@@ -1,6 +1,6 @@
 'use client';
 
-import type { User } from '@openfort/openfort-js';
+import type { User } from '@privy-io/react-auth';
 import { Modal } from '@/components/ui/modal';
 import { CustomButton } from '@/components/ui/custom-button';
 import { CustomCheckbox } from '@/components/ui/custom-checkbox';
@@ -21,7 +21,7 @@ export interface QualificationSubmission {
 
 interface QualificationQuestionnaireProps {
   isOpen: boolean;
-  openfortUser: User | null;
+  privyUser: User | null;
   submitError: string | null;
   isSubmitting: boolean;
   onClose: () => void;
@@ -125,7 +125,7 @@ function clearDraft() {
 
 export function QualificationQuestionnaire({
   isOpen,
-  openfortUser,
+  privyUser,
   submitError,
   isSubmitting,
   onClose,
@@ -269,7 +269,16 @@ export function QualificationQuestionnaire({
       {draft.step === 'non_resident' && draft.type ? (
         <NonResidentForm
           type={draft.type}
-          openfortUser={openfortUser}
+          privyUser={
+            privyUser
+              ? {
+                  name: privyUser.google?.name ?? null,
+                  email:
+                    privyUser.linkedAccounts?.find((a) => a.type === 'email')
+                      ?.address ?? null,
+                }
+              : null
+          }
           onBack={() => updateDraft({ step: 3 })}
           onSuccess={handleDisqualifiedSuccess}
         />

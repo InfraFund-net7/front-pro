@@ -1,11 +1,11 @@
 'use client';
 
-import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import { getAddressExplorerUrl, getChainName } from '@/lib/block-explorer';
 import { useCopyToClipboard } from '@/lib/use-copy-to-clipboard';
+import { useSmartAccountAddress } from '@/lib/use-smart-account-address';
 import { Modal } from '@/components/ui/modal';
 import { CustomButton } from '@/components/ui/custom-button';
 
@@ -81,12 +81,10 @@ function WalletAddressRow({
 }
 
 export default function AccountPage() {
-  const { backendUser, openfortUser, deleteAccount } = useAuthSession();
-  const wallet = useEthereumEmbeddedWallet();
-  const walletAddress =
-    wallet.status === 'connected' ? wallet.address : undefined;
-  const walletChainId =
-    wallet.status === 'connected' ? wallet.chainId : undefined;
+  const { backendUser, privyUser, deleteAccount } = useAuthSession();
+  const { address: smartAccountAddress, chainId: walletChainId } =
+    useSmartAccountAddress();
+  const walletAddress = smartAccountAddress ?? undefined;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -105,11 +103,12 @@ export default function AccountPage() {
     .filter(Boolean)
     .join(' ')
     .trim();
-  const nameOrFallback =
-    displayName || openfortUser?.name || openfortUser?.email || 'User';
+  const nameOrFallback = displayName || privyUser?.id || 'User';
   const avatarLabel = nameOrFallback.charAt(0).toUpperCase();
-  const email =
-    backendUser?.email ?? openfortUser?.email ?? openfortUser?.id ?? '—';
+  const privyEmail = privyUser?.linkedAccounts?.find(
+    (a) => a.type === 'email'
+  ) as { address?: string } | undefined;
+  const email = backendUser?.email ?? privyEmail?.address ?? '—';
 
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
@@ -185,8 +184,7 @@ export default function AccountPage() {
         </h2>
         <p className="text-sm text-[#8087A3] mb-6">
           Permanently deletes your account, your embedded wallet, and all
-          associated data from InfraFund and Openfort. This action cannot be
-          undone.
+          associated data from InfraFund. This action cannot be undone.
         </p>
         <CustomButton variant="danger" onClick={() => setConfirmOpen(true)}>
           Delete My Account
@@ -218,7 +216,7 @@ export default function AccountPage() {
               className="mt-0.5 h-4 w-4 flex-shrink-0 accent-red-600 cursor-pointer"
             />
             <span className="text-sm text-[#C7CAD5]">
-              My embedded Openfort wallet will be{' '}
+              My embedded wallet will be{' '}
               <span className="text-red-400 font-medium">
                 permanently deleted
               </span>

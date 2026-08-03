@@ -7,7 +7,8 @@ import {
   softDeleteUserAccount,
   type UserWithOrganization,
 } from '@/server/repositories/users';
-import { deleteOpenfortUser } from '@/server/openfort/session';
+// Privy user deletion is handled client-side via Privy's dashboard/API.
+// The deleteOpenfortUser call has been removed as part of the Privy migration.
 import { logger } from '@/server/logger';
 
 async function getAuthenticatedUser(accessToken: string) {
@@ -42,7 +43,7 @@ export async function getCurrentUser(accessToken: string) {
 
   return {
     user_id: user.id,
-    openfort_user_id: user.openfortUserId,
+    privy_user_id: user.privyUserId,
     email: user.email,
     first_name: user.firstName,
     last_name: user.lastName,
@@ -61,7 +62,7 @@ export async function getAccountStatus(accessToken: string) {
 
   return {
     user_id: user.id,
-    openfort_user_id: user.openfortUserId,
+    privy_user_id: user.privyUserId,
     type: user.type,
     role: user.role,
     status: user.status,
@@ -90,16 +91,5 @@ export async function getKycStatus(accessToken: string) {
 
 export async function deleteCurrentAccount(accessToken: string) {
   const user = await getAuthenticatedUser(accessToken);
-  const openfortUserId = user.openfortUserId;
-
   await softDeleteUserAccount(user.id);
-
-  try {
-    await deleteOpenfortUser(openfortUserId);
-  } catch (error) {
-    logger.warn(
-      { err: error, userId: user.id, openfortUserId },
-      'Failed to delete Openfort user after local account deletion'
-    );
-  }
 }
