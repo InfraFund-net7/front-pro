@@ -1066,42 +1066,92 @@ git commit -m "feat(wallet): show Biconomy smart-account address on the account 
 
 ### Task 11: End-to-end verification of account creation
 
-**Files:** none (verification only — no code changes).
+**Files:** none committed to the repo — a scratchpad script only, discarded after use.
 
 **Interfaces:** none.
 
-This task exists because "the code compiles" is not the same as "the smart account actually gets created correctly." Each step below directly answers a question the design's Known Risk / Verification Plan sections raised.
+**Context (read before starting):** the original design for this task assumed full browser-based verification (register a new user through the real Privy login flow, check the avatar menu). That's currently not possible: `/login` and `/explore-projects` both 500 in `npm run dev` due to a pre-existing, unrelated bug — `src/lib/solana-kit-unavailable.ts` (a deliberate stub replacing `@solana/kit` for bundle-size reasons) is missing ~90 exports that a transitive Solana dependency chain (pulled in via `@privy-io/react-auth`) now expects. This was confirmed via `git stash` to fully predate this plan — nothing in Tasks 1-10 caused it. Per user decision, it's left unfixed; this task verifies the actual account-creation logic directly instead of through the broken UI.
+
+This task exists because "the code compiles" is not the same as "the smart account actually gets created correctly." It directly exercises `toNexusAccount` with the exact same chain configuration `src/lib/biconomy-smart-account.ts` uses, via a temporary script — not the app's UI.
 
 - [ ] **Step 1: Full build**
 
 Run: `npm run build`
-Expected: succeeds with no new errors (pre-existing warnings noted in `main-layout.tsx`/`account.ts` are not this plan's concern).
+Expected: succeeds with no new errors (pre-existing warnings noted in `main-layout.tsx`/`account.ts` are not this plan's concern; the `/login`/`/explore-projects` runtime 500 is a dev-server/bundling issue, not a build-time failure — confirm `npm run build` itself doesn't fail before proceeding, but don't chase the runtime 500 further here).
 
-- [ ] **Step 2: Live derivation — new user path**
+- [ ] **Step 2: Write and run the verification script**
 
-`npm run dev`. Register a brand-new user through the full qualification-questionnaire flow. After `createWalletIfNeeded` completes, confirm the avatar menu and `/account` page both show a real, non-empty `0x...` address — not "Not connected".
+Write this to a scratchpad location (not committed to the repo — e.g. your session's scratchpad directory, NOT `scripts/` in the repo):
 
-- [ ] **Step 3: Live derivation — existing user path**
+```ts
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+import { http } from 'viem';
+import {
+  DEFAULT_MEE_VERSION,
+  getMEEVersion,
+  toNexusAccount,
+} from '@biconomy/abstractjs';
+import { smartAccountChain } from './src/lib/biconomy-smart-account';
 
-Log out, log back in with the same account. Confirm the address shown is identical to Step 2's. This is the core correctness property of a counterfactual smart account: same signer + same chain config must always yield the same address. If it differs, the signer or chain configuration passed to `toNexusAccount` is not stable across sessions — stop and investigate before proceeding, don't paper over it.
+async function deriveFor(signer: ReturnType<typeof privateKeyToAccount>) {
+  const account = await toNexusAccount({
+    signer,
+    chainConfiguration: {
+      chain: smartAccountChain,
+      transport: http(),
+      version: getMEEVersion(DEFAULT_MEE_VERSION),
+    },
+  });
+  return account.address;
+}
 
-- [ ] **Step 4: Distinctness check**
+async function main() {
+  const testKey = generatePrivateKey();
+  const signer = privateKeyToAccount(testKey);
+  console.log('Test signer (EOA) address:', signer.address);
 
-While still logged in from Step 3, open the browser console and temporarily run:
+  const addr1 = await deriveFor(signer);
+  const addr2 = await deriveFor(signer);
 
-```js
-// paste in devtools console while on any authenticated page
-window.__privy_wallets__ // (if not exposed, instead compare visually:)
+  console.log('Derived smart-account address (run 1):', addr1);
+  console.log('Derived smart-account address (run 2):', addr2);
+  console.log('Deterministic (run1 === run2):', addr1 === addr2);
+  console.log(
+    'Distinct from signer (smart account !== EOA):',
+    addr1.toLowerCase() !== signer.address.toLowerCase()
+  );
+
+  if (addr1 !== addr2) {
+    throw new Error(
+      'FAIL: smart-account address is not deterministic across repeated derivations with the same signer.'
+    );
+  }
+  if (addr1.toLowerCase() === signer.address.toLowerCase()) {
+    throw new Error(
+      'FAIL: smart-account address is identical to the signer EOA address — Nexus wrapping is not happening.'
+    );
+  }
+  console.log('PASS: smart-account derivation is deterministic and distinct from the signer.');
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
 ```
 
-Simpler and more reliable: temporarily add `console.log('EOA:', embeddedWallet?.address, 'Smart account:', address)` inside `AvatarMenu` (right after computing `address` in Task 9), reload, compare the two logged values in devtools, then remove the temporary log before committing anything further. Confirm the two addresses are different — this proves the Nexus account is actually wrapping the EOA rather than accidentally passing it straight through.
+(This imports `toNexusAccount`, `getMEEVersion`, `DEFAULT_MEE_VERSION` directly — the same top-level exports `biconomy-smart-account.ts` uses — and `smartAccountChain` from the real module, so the chain/version config under test is exactly what the app uses. It uses a viem `LocalAccount` as signer instead of a Privy `EIP1193Provider` — `toNexusAccount`'s signer parameter accepts both per its type union, and this substitution only skips testing the one-line `wallet.getEthereumProvider()` bridge, not the account-derivation logic itself, which is what actually needs proving. `generatePrivateKey()` creates a throwaway test key that exists only for this script's process lifetime — never reuse it for anything real.)
 
-- [ ] **Step 5: Failure-path check**
+Run from the repo root: `npx tsx <path-to-script>`
 
-Temporarily force `embeddedWallet` to `undefined` in `use-smart-account-address.ts` (e.g. `const embeddedWallet = undefined;` above the real lookup, commented out) and reload a logged-in session. Confirm: no crash, `status` stays `'idle'`, UI shows "Not connected" cleanly. Then revert the temporary change — do not commit it.
+Expected output ends with `PASS: smart-account derivation is deterministic and distinct from the signer.` If either `FAIL` case throws, or the script errors before reaching that point (e.g. a network/RPC error from `http()` trying to reach a real chain endpoint, or a module resolution error), stop and report exactly what happened — do not mark this task complete on a partial or errored run.
 
-- [ ] **Step 6: Record the outcome**
+- [ ] **Step 3: Failure-path check (code review, not runtime — the hook can't be exercised outside React)**
 
-If all of Steps 2-5 pass: the account-creation path is verified working end-to-end. If any step fails, stop and report exactly which step failed and what was observed (e.g. "address changed between sessions" or "TypeScript required a cast on the signer param") rather than proceeding to mark this plan complete — those are the two risks flagged in the design doc's Known Open Risk section, and either one failing means the assumption about Privy's `EIP1193Provider` being directly usable as Biconomy's `signer` needs revisiting.
+Read `src/lib/use-smart-account-address.ts` and confirm by inspection: when `embeddedWallet` is falsy, the effect sets `status` to `'idle'` and `address` to `null` and returns early, without calling `getSmartAccountAddress` at all. This is the behavior Tasks 9/10 depend on when no wallet is present yet — confirm it's actually there in the committed code (it was written in Task 8 and reviewed then, but re-confirm here as part of this task's own verification, don't just cite the earlier review).
+
+- [ ] **Step 4: Record the outcome**
+
+Delete the scratchpad script (it was never meant to be committed). If Steps 1-3 all passed: the account-creation path is verified working — the actual Biconomy Nexus account derivation is deterministic and correctly wraps the signer, confirmed by direct execution against the real installed SDK, not just type-checking. Note explicitly in your report that full browser/UI verification (the original Steps 2-5 of this task) was not possible due to the pre-existing `/login` 500, and that this is a known gap, not a silent skip. If any step fails, stop and report exactly what failed rather than proceeding to mark this plan complete.
 
 No commit for this task — it's verification only. If Step 4 or 5's temporary debug code is accidentally left in a tracked file, `git status` and `git diff` before any other task's commit to confirm it isn't included.
