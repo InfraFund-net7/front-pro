@@ -780,7 +780,7 @@ git commit -m "feat(wallet): derive Biconomy Nexus smart-account address from Pr
 - Consumes: `getSmartAccountAddress`, `smartAccountChain` from `@/lib/biconomy-smart-account` (Task 7); `useWallets` from `@privy-io/react-auth`.
 - Produces: `useSmartAccountAddress(): { address: Address | null; chainId: number; status: 'idle' | 'loading' | 'ready' | 'error' }` — Tasks 9 and 10 consume this.
 
-**Context:** Task 7 created `src/lib/biconomy-smart-account.ts`, but nothing imported it yet, so knip flagged it as an unused file — and, because an ignored file's own imports aren't credited as "usage," that resurrected the `@biconomy/abstractjs` unused-dependency warning and the `defaultChain` unused-export warning too. Task 7 added three temporary suppressions to unblock its own commit: `"src/lib/biconomy-smart-account.ts"` in `ignoreFiles`, `"@biconomy/abstractjs"` back in `ignoreDependencies`, and `"src/lib/app-providers.tsx": ["exports"]` back in `ignoreIssues`. This task's import of `biconomy-smart-account.ts` makes the whole chain reachable again — remove all three in this same commit.
+**Context:** Task 7 left three temporary knip suppressions in place (`"src/lib/biconomy-smart-account.ts"` in `ignoreFiles`, `"@biconomy/abstractjs"` in `ignoreDependencies`, `"src/lib/app-providers.tsx": ["exports"]` in `ignoreIssues`), because nothing imported that module yet. This task's hook imports it — but that alone still doesn't make the chain "reachable" in knip's sense, because nothing imports *this* hook yet either (Task 9 is what wires it into `AvatarMenu`, which is actually rendered in the app). Importing a file doesn't establish reachability unless the importer is itself reachable from an entry point. So this task keeps Task 7's three entries as-is and adds one more: `"src/lib/use-smart-account-address.ts"` in `ignoreFiles`. Task 9 removes all four at once, since that's the task that finally closes the loop to a rendered component.
 
 - [ ] **Step 1: Write the hook**
 
@@ -839,17 +839,40 @@ export function useSmartAccountAddress() {
 Run: `npx tsc --noEmit -p tsconfig.json 2>&1 | grep -i "use-smart-account-address" || echo "no errors"`
 Expected: `no errors`
 
-- [ ] **Step 3: Remove the temporary knip suppressions from Task 7**
+- [ ] **Step 3: Add one more temporary knip suppression, keep Task 7's three as-is**
 
-Check `knip.json`'s actual current contents with `cat knip.json` first — Task 7 added three temporary entries. Remove all three:
-- `"src/lib/biconomy-smart-account.ts"` from `ignoreFiles`
-- `"@biconomy/abstractjs"` from `ignoreDependencies`
-- `"src/lib/app-providers.tsx": ["exports"]` from `ignoreIssues`
+Check `knip.json`'s actual current contents with `cat knip.json` first. Add `"src/lib/use-smart-account-address.ts"` to `ignoreFiles`. Do not remove anything Task 7 added — the module still has no reachable importer yet. Target shape:
 
-Leaving `ignoreFiles`, `ignoreIssues`, and `ignoreDependencies` matching the state from before Task 7 (i.e. the same shape Task 3's cleanup step already targets — this task and that step converge on the same end state).
+```json
+  "ignoreFiles": [
+    "src/components/investmentportal/empty/emptyinvestment.tsx",
+    "src/components/ui/date-picker.tsx",
+    "src/components/ui/horizontal-progress-bar.tsx",
+    "src/components/ui/pagination-dots.tsx",
+    "src/components/ui/toggle-switch.tsx",
+    "src/lib/solana-kit-unavailable.ts",
+    "src/utils/is-development.util.ts",
+    "src/utils/is-production.util.ts",
+    "scripts/setup-neon-db.mjs",
+    "src/lib/biconomy-smart-account.ts",
+    "src/lib/use-smart-account-address.ts"
+  ],
+  "ignoreIssues": {
+    "src/server/db/**/*.ts": ["files", "exports"],
+    "src/server/http/**/*.ts": ["exports", "types"],
+    "src/server/services/auth.ts": ["exports"],
+    "src/lib/app-providers.tsx": ["exports"]
+  },
+  "ignoreDependencies": [
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "@biconomy/abstractjs",
+    "@privy-io/node"
+  ]
+```
 
 Run: `npm run format:knip`
-Expected: no unused-file warning for `biconomy-smart-account.ts`, no unused-dependency warning for `@biconomy/abstractjs`, no unused-export warning for `defaultChain` — all three are now genuinely reachable via this hook's import chain.
+Expected: no errors — everything in this chain is consistently marked "not yet wired into a rendered component."
 
 - [ ] **Step 4: Commit**
 
@@ -864,9 +887,12 @@ git commit -m "feat(wallet): add useSmartAccountAddress hook"
 
 **Files:**
 - Modify: `src/components/header/avatar-menu.tsx:1-21`
+- Modify: `knip.json`
 
 **Interfaces:**
 - Consumes: `useSmartAccountAddress` from `@/lib/use-smart-account-address` (Task 8).
+
+**Context:** Tasks 7 and 8 left four temporary knip suppressions in place (`ignoreFiles`: `biconomy-smart-account.ts`, `use-smart-account-address.ts`; `ignoreIssues`: `app-providers.tsx` exports; `ignoreDependencies`: `@biconomy/abstractjs`) — none of that chain was reachable from a rendered component yet. `AvatarMenu` is rendered in `header.tsx`, which is part of the actual app shell, so this task's import is what finally makes the whole chain reachable. Remove all four temporary entries in this same commit.
 
 - [ ] **Step 1: Replace the EOA address with the smart-account address**
 
@@ -927,14 +953,26 @@ Everything below this (the `shortenAddress`, `handleCopy`, and JSX rendering `ad
 Run: `npx tsc --noEmit -p tsconfig.json 2>&1 | grep -i "avatar-menu" || echo "no errors"`
 Expected: `no errors`
 
-- [ ] **Step 3: Manual check**
+- [ ] **Step 3: Remove all four temporary knip suppressions**
+
+Check `knip.json`'s actual current contents with `cat knip.json` first. Remove:
+- `"src/lib/biconomy-smart-account.ts"` and `"src/lib/use-smart-account-address.ts"` from `ignoreFiles`
+- `"src/lib/app-providers.tsx": ["exports"]` from `ignoreIssues`
+- `"@biconomy/abstractjs"` from `ignoreDependencies`
+
+Leaving `ignoreFiles`, `ignoreIssues`, and `ignoreDependencies` matching their pre-Task-7 state (the same shape Task 3's original cleanup targeted).
+
+Run: `npm run format:knip`
+Expected: no errors — the whole chain (`biconomy-smart-account.ts` -> `use-smart-account-address.ts` -> `AvatarMenu` -> `header.tsx`, and separately `@biconomy/abstractjs` + `defaultChain`) is now genuinely reachable from a rendered component.
+
+- [ ] **Step 4: Manual check**
 
 `npm run dev`, log in, open the avatar menu, confirm the "Wallet" row shows an address and the green "connected" dot lights up once derivation completes (there will be a brief moment showing "Not connected" while `status === 'loading'` — that's expected, not a bug).
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/components/header/avatar-menu.tsx
+git add src/components/header/avatar-menu.tsx knip.json
 git commit -m "feat(wallet): show Biconomy smart-account address in AvatarMenu"
 ```
 
