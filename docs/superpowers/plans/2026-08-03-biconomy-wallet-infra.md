@@ -69,13 +69,13 @@ git commit -m "fix(header): remove dead OpenfortButton (no Openfort provider exi
 ### Task 2: Fix the Biconomy dependency and remove Openfort packages
 
 **Files:**
-- Modify: `package.json:38-42`
+- Modify: `package.json:38-42,66`
 - Modify: `knip.json`
 
 **Interfaces:**
 - Produces: a working `@biconomy/abstractjs` install (real npm package, not the broken local-tarball stub) that later tasks import from.
 
-**Context:** `knip.json`'s `ignoreDependencies` list currently contains temporary entries — `@biconomy/abstractjs`, `@openfort/openfort-js`, `@openfort/openfort-node`, `@openfort/shield-js`, `@privy-io/node` — added to unblock a pre-existing-state commit before this plan started. This task removes the three that stop being real dependencies in this same task. `@biconomy/abstractjs` stays ignored until Task 7 actually imports it. `@privy-io/node` is unrelated to this plan (a separate pre-existing unused dependency) and stays ignored — not this task's concern.
+**Context:** `knip.json`'s `ignoreDependencies` list currently contains temporary entries — `@biconomy/abstractjs`, `@openfort/openfort-js`, `@openfort/openfort-node`, `@openfort/react`, `@openfort/shield-js`, `@privy-io/node`, `wagmi` — added while unblocking pre-existing/in-flight state before and during this plan. This task removes the four that stop being real dependencies in this same task (`@openfort/openfort-js`, `@openfort/openfort-node`, `@openfort/react`, `@openfort/shield-js`), plus `wagmi` — Task 1 discovered `wagmi` has no direct import anywhere in `src/`; it was only ever needed as `@openfort/react`'s peer dependency (confirmed via `grep -rn "from 'wagmi'" src/` returning nothing), so it's orphaned the moment `@openfort/react` is gone. `@biconomy/abstractjs` stays ignored until Task 7 actually imports it. `@privy-io/node` is unrelated to this plan (a separate pre-existing unused dependency) and stays ignored — not this task's concern.
 
 - [ ] **Step 1: Edit the dependency block**
 
@@ -95,7 +95,24 @@ Replace with:
     "@biconomy/abstractjs": "^1.2.5",
 ```
 
-(The four `@openfort/*` lines are deleted outright — nothing else in the dependency list changes.)
+(The four `@openfort/*` lines are deleted outright — nothing else in this part of the dependency list changes.)
+
+Separately in the same file, `wagmi` is the last entry in `dependencies` (verified via `grep -n -B1 -A1 '"wagmi"' package.json` before this plan was written):
+
+```json
+    "viem": "^2.48.4",
+    "wagmi": "^2.19.5"
+  },
+```
+
+Replace with:
+
+```json
+    "viem": "^2.48.4"
+  },
+```
+
+(Removes the trailing comma along with the `wagmi` line — `viem` becomes the last entry.)
 
 - [ ] **Step 2: Reinstall and verify the real package is present**
 
@@ -108,9 +125,12 @@ Expected: `REAL PACKAGE OK`
 
 (Before this fix, `node_modules/@biconomy/abstractjs` had no `dist/` directory at all — only `LICENSE`/`README.md`/`package.json`, ~5KB total vs. the real package's ~4.7MB unpacked.)
 
-- [ ] **Step 3: Confirm Openfort packages are gone**
+- [ ] **Step 3: Confirm Openfort packages and wagmi are gone**
 
 Run: `grep -c "@openfort" package.json`
+Expected: `0`
+
+Run: `grep -c '"wagmi"' package.json`
 Expected: `0`
 
 Run: `ls node_modules/@openfort 2>&1`
@@ -118,21 +138,23 @@ Expected: `No such file or directory` (npm install should have removed them; if 
 
 - [ ] **Step 4: Clean up the temporary knip ignores for the packages just removed**
 
-In `knip.json`, the `ignoreDependencies` array currently has this shape:
+By this point in the plan, `knip.json`'s `ignoreDependencies` array has this shape (`@openfort/react` and `wagmi` were added as temporary entries during Task 1's review/fix cycle — check the array's actual current contents with `cat knip.json` before editing, in case it differs slightly from below):
 
 ```json
   "ignoreDependencies": [
+    "@openfort/react",
     "@openfort/shield-js",
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",
     "@biconomy/abstractjs",
     "@openfort/openfort-js",
     "@openfort/openfort-node",
-    "@privy-io/node"
+    "@privy-io/node",
+    "wagmi"
   ]
 ```
 
-Change it to (removing the three entries for packages that no longer exist in `package.json`; keeping `@biconomy/abstractjs` ignored since it's still unused until Task 7, and `@privy-io/node` ignored since it's out of this plan's scope):
+Change it to (removing the five entries for packages that no longer exist in `package.json`: `@openfort/react`, `@openfort/shield-js`, `@openfort/openfort-js`, `@openfort/openfort-node`, `wagmi`; keeping `@biconomy/abstractjs` ignored since it's still unused until Task 7, and `@privy-io/node` ignored since it's out of this plan's scope):
 
 ```json
   "ignoreDependencies": [
@@ -152,7 +174,7 @@ Expected: no unused-dependency warnings.
 
 ```bash
 git add package.json package-lock.json knip.json
-git commit -m "fix(deps): switch @biconomy/abstractjs to published npm package, drop @openfort/*"
+git commit -m "fix(deps): switch @biconomy/abstractjs to published npm package, drop @openfort/* and orphaned wagmi peer dep"
 ```
 
 ---
