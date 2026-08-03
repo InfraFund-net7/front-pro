@@ -188,8 +188,7 @@ export default function AccountPage() {
         </h2>
         <p className="text-sm text-[#8087A3] mb-6">
           Permanently deletes your account, your embedded wallet, and all
-          associated data from InfraFund and Openfort. This action cannot be
-          undone.
+          associated data from InfraFund. This action cannot be undone.
         </p>
         <CustomButton variant="danger" onClick={() => setConfirmOpen(true)}>
           Delete My Account
@@ -221,7 +220,7 @@ export default function AccountPage() {
               className="mt-0.5 h-4 w-4 flex-shrink-0 accent-red-600 cursor-pointer"
             />
             <span className="text-sm text-[#C7CAD5]">
-              My embedded Openfort wallet will be{' '}
+              My embedded wallet will be{' '}
               <span className="text-red-400 font-medium">
                 permanently deleted
               </span>
