@@ -661,6 +661,8 @@ git commit -m "refactor: update server code for the privyUserId column rename"
 
 **Context:** `knip.json`'s `ignoreDependencies` list has had a temporary `@biconomy/abstractjs` entry since Task 2 (added because the package existed but had no real usage yet). This task is what finally uses it — remove that entry as part of this task, since leaving it would mask a real future regression if the import were ever accidentally deleted.
 
+Task 3 also added `"src/lib/app-providers.tsx": ["exports"]` to `knip.json`'s `ignoreIssues`, since exporting `defaultChain` with nothing importing it yet would otherwise trip knip's unused-export check. This task is what finally imports it (line above: `import { defaultChain } from '@/lib/app-providers';`) — remove that `ignoreIssues` entry too, in the same commit, for the same reason as the `ignoreDependencies` cleanup.
+
 - [ ] **Step 1: Write the module**
 
 ```ts
@@ -725,11 +727,17 @@ Expected: `no errors`
 
 If TypeScript complains that the Privy `EIP1193Provider` doesn't structurally satisfy Biconomy's expected signer type, cast defensively at the call site: `signer: provider as unknown as Parameters<typeof toNexusAccount>[0]['signer']`. Only add this cast if the type-check step actually reports the mismatch — don't add it preemptively.
 
-- [ ] **Step 3: Remove the now-obsolete knip ignore entry**
+- [ ] **Step 3: Remove the now-obsolete knip ignore entries**
 
 In `knip.json`, change:
 
 ```json
+  "ignoreIssues": {
+    "src/server/db/**/*.ts": ["files", "exports"],
+    "src/server/http/**/*.ts": ["exports", "types"],
+    "src/server/services/auth.ts": ["exports"],
+    "src/lib/app-providers.tsx": ["exports"]
+  },
   "ignoreDependencies": [
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",
@@ -741,6 +749,11 @@ In `knip.json`, change:
 to:
 
 ```json
+  "ignoreIssues": {
+    "src/server/db/**/*.ts": ["files", "exports"],
+    "src/server/http/**/*.ts": ["exports", "types"],
+    "src/server/services/auth.ts": ["exports"]
+  },
   "ignoreDependencies": [
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",
@@ -748,8 +761,10 @@ to:
   ]
 ```
 
+(Removes both the `app-providers.tsx` exports ignore — added in Task 3 because nothing imported `defaultChain` yet — and the `@biconomy/abstractjs` dependency ignore, since this task's import satisfies both at once. Check `knip.json`'s actual current contents with `cat knip.json` before editing, in case it differs slightly from above.)
+
 Run: `npm run format:knip`
-Expected: no unused-dependency warning for `@biconomy/abstractjs` (it's now actually imported by this file).
+Expected: no unused-dependency warning for `@biconomy/abstractjs`, and no unused-export warning for `defaultChain` (both are now actually used by this file).
 
 - [ ] **Step 4: Commit**
 
