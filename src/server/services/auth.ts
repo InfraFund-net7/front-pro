@@ -14,19 +14,19 @@ import {
   updateSessionActivity,
 } from '@/server/repositories/sessions';
 import {
-  attachOpenfortUserId,
+  attachPrivyUserId,
   createUser,
   findUserByEmail,
-  findUserByOpenfortId,
+  findUserByPrivyId,
   isUserUniqueConstraintError,
   type CreateUserRecord,
 } from '@/server/repositories/users';
 import {
-  verifyOpenfortAccessToken,
-  type VerifiedOpenfortSession,
-} from '@/server/openfort/session';
+  verifyPrivyAccessToken,
+  type VerifiedPrivySession,
+} from '@/server/privy/session';
 
-interface OpenfortExchangeInput {
+interface PrivyExchangeInput {
   accessToken: string;
   firstName?: string;
   lastName?: string;
@@ -83,7 +83,7 @@ function normalizeUserRole(role: string | undefined): CreateUserRecord['role'] {
   }
 }
 
-function assertNewUserPayload(input: OpenfortExchangeInput) {
+function assertNewUserPayload(input: PrivyExchangeInput) {
   if (!input.type) {
     throw new ApiError('BAD_REQUEST', 'User type is required for new users.');
   }
@@ -98,13 +98,13 @@ function assertNewUserPayload(input: OpenfortExchangeInput) {
 }
 
 function buildUserRecord(
-  input: OpenfortExchangeInput,
-  session: VerifiedOpenfortSession
+  input: PrivyExchangeInput,
+  session: VerifiedPrivySession
 ): CreateUserRecord {
   const sessionName = splitName(session.user.name);
 
   return {
-    openfortUserId: session.user.id,
+    privyUserId: session.user.id,
     email: emptyToNull(input.email) ?? emptyToNull(session.user.email),
     firstName: emptyToNull(input.firstName) ?? sessionName.firstName,
     lastName: emptyToNull(input.lastName) ?? sessionName.lastName,
@@ -119,7 +119,7 @@ function buildUserRecord(
   };
 }
 
-async function findLinkedUserByEmail(session: VerifiedOpenfortSession) {
+async function findLinkedUserByEmail(session: VerifiedPrivySession) {
   const email = emptyToNull(session.user.email);
 
   if (!email) {
@@ -129,15 +129,15 @@ async function findLinkedUserByEmail(session: VerifiedOpenfortSession) {
   return findUserByEmail(email);
 }
 
-async function linkExistingUserToOpenfort(
+async function linkExistingUserToPrivy(
   userId: string,
-  session: VerifiedOpenfortSession
+  session: VerifiedPrivySession
 ) {
   try {
-    return await attachOpenfortUserId(userId, session.user.id);
+    return await attachPrivyUserId(userId, session.user.id);
   } catch (error) {
     if (isUserUniqueConstraintError(error)) {
-      const existingUser = await findUserByOpenfortId(session.user.id);
+      const existingUser = await findUserByPrivyId(session.user.id);
 
       if (existingUser) {
         return existingUser;
@@ -148,8 +148,8 @@ async function linkExistingUserToOpenfort(
   }
 }
 
-async function resolveExistingUser(session: VerifiedOpenfortSession) {
-  const existingUser = await findUserByOpenfortId(session.user.id);
+async function resolveExistingUser(session: VerifiedPrivySession) {
+  const existingUser = await findUserByPrivyId(session.user.id);
 
   if (existingUser) {
     return existingUser;
@@ -161,12 +161,12 @@ async function resolveExistingUser(session: VerifiedOpenfortSession) {
     return null;
   }
 
-  return linkExistingUserToOpenfort(emailMatchedUser.id, session);
+  return linkExistingUserToPrivy(emailMatchedUser.id, session);
 }
 
 async function findOrCreateUser(
-  input: OpenfortExchangeInput,
-  session: VerifiedOpenfortSession
+  input: PrivyExchangeInput,
+  session: VerifiedPrivySession
 ) {
   const existingUser = await resolveExistingUser(session);
 
@@ -257,8 +257,8 @@ async function createAccessTokenForSession(session: ActiveSession) {
   };
 }
 
-export async function checkOpenfortUser(accessToken: string) {
-  const session = await verifyOpenfortAccessToken(accessToken);
+export async function checkPrivyUser(accessToken: string) {
+  const session = await verifyPrivyAccessToken(accessToken);
   const existingUser = await resolveExistingUser(session);
 
   return {
@@ -266,9 +266,9 @@ export async function checkOpenfortUser(accessToken: string) {
   };
 }
 
-export async function exchangeOpenfortSession(input: OpenfortExchangeInput) {
-  const openfortSession = await verifyOpenfortAccessToken(input.accessToken);
-  const { user, created } = await findOrCreateUser(input, openfortSession);
+export async function exchangePrivySession(input: PrivyExchangeInput) {
+  const privySession = await verifyPrivyAccessToken(input.accessToken);
+  const { user, created } = await findOrCreateUser(input, privySession);
 
   if (!created) {
     await assertUserNotLocked(user.id);

@@ -1,11 +1,11 @@
 'use client';
 
-// AuthSessionProvider bridges Openfort identity with our app session.
+// AuthSessionProvider bridges Privy identity with our app session.
 //
-// Design: Openfort owns auth (Google/Email OTP) and wallets. We own the app
+// Design: Privy owns auth (Google/Email) and embedded wallets. We own the app
 // session (JWT + httpOnly refresh cookie), user profile, and the qualification
-// gate. connectOnLogin: false means Openfort never auto-connects the wallet —
-// we call create() explicitly at the right moment.
+// gate. embeddedWallets.createOnLogin: 'off' means Privy never auto-creates a
+// wallet — we trigger it explicitly after the qualification gate.
 //
 // Status machine:
 //   idle → loading → needs_onboarding → loading → creating_wallet → authenticated
@@ -13,32 +13,19 @@
 //                 ↘ error                             (any failure)
 //
 // New-user path (registration):
-//   Openfort auth → check backend (exists: false) → qualification questionnaire
+//   Privy auth → check backend (exists: false) → qualification questionnaire
 //   → backend exchange with role/type → createWalletIfNeeded → authenticated
 //
 // Existing-user path (login):
-//   Openfort auth → refresh cookie valid? → getBackendMe → createWalletIfNeeded
-//                                        ↘ no cookie → check backend (exists: true)
-//                                          → backend exchange → createWalletIfNeeded
-//
-// createWalletIfNeeded always calls Openfort's create() to load the iframe and
-// establish the embedded-wallet connection. For new users create() provisions
-// the wallet; for returning users it reconnects to the existing one. Skipping
-// this step for returning users leaves the wallet in [Not connected] state
-// because the embedded-wallet iframe is never loaded (connectOnLogin: false).
+//   Privy auth → refresh cookie valid? → getBackendMe → createWalletIfNeeded
+//                                     ↘ no cookie → check backend (exists: true)
+//                                       → backend exchange → createWalletIfNeeded
 
-import type { User } from '@openfort/openfort-js';
+import { useCreateWallet, usePrivy, useWallets } from '@privy-io/react-auth';
 import {
-  RecoveryMethod,
-  useOpenfortCore,
-  useUI,
-  useUser,
-} from '@openfort/react';
-import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
-import {
-  checkOpenfortUser,
+  checkPrivyUser,
   deleteBackendAccount,
-  exchangeOpenfortSession,
+  exchangePrivySession,
   getBackendMe,
   logoutBackendSession,
   refreshBackendSession,
@@ -61,37 +48,8 @@ import {
 import { usePathname } from 'next/navigation';
 import { reportError } from '@/lib/error-reporting';
 
-const OPENFORT_CALLBACK_PARAMS = [
-  'openfortAuthProviderUI',
-  'access_token',
-  'user_id',
-  'error',
-] as const;
-
-function stripOpenfortCallbackParams() {
-  if (typeof window === 'undefined') return;
-  const url = new URL(window.location.href);
-  let mutated = false;
-  for (const key of OPENFORT_CALLBACK_PARAMS) {
-    if (url.searchParams.has(key)) {
-      url.searchParams.delete(key);
-      mutated = true;
-    }
-  }
-  if (mutated) {
-    window.history.replaceState({}, document.title, url.toString());
-  }
-}
-
-// Hard-navigate to the public landing page. Using window.location.assign
-// (instead of router.replace) forces a full document reload, which is the
-// canonical Openfort disconnect pattern (see docs: useSignOut + onSignOutSuccess
-// → window.location.href = "/"). Soft navigation leaves OpenfortProvider and
-// ConnectModal mounted, so any leftover OAuth callback params or in-memory
-// SDK state can re-arm the auth flow before the next mount.
 function hardNavigateToRoot() {
   if (typeof window === 'undefined') return;
-  stripOpenfortCallbackParams();
   if (window.location.pathname === '/') {
     window.location.reload();
   } else {
@@ -134,7 +92,7 @@ interface AuthProgress {
 }
 
 const STEP_LABELS: Record<AuthStepId, string> = {
-  signing_in: 'Authenticating with Openfort',
+  signing_in: 'Authenticating',
   checking_account: 'Checking your account',
   restoring_session: 'Restoring your session',
   creating_account: 'Creating your account',
@@ -147,9 +105,9 @@ interface AuthSessionContextValue {
   status: AppSessionStatus;
   backendAccessToken: string | null;
   backendUser: BackendMeResponse | null;
-  openfortUser: User | null;
-  isOpenfortLoading: boolean;
-  isOpenfortAuthenticated: boolean;
+  privyUser: ReturnType<typeof usePrivy>['user'];
+  isPrivyReady: boolean;
+  isPrivyAuthenticated: boolean;
   error: string | null;
   errorCategory: ErrorCategory | null;
   retry: () => void;
@@ -165,14 +123,8 @@ const AuthSessionContext = createContext<AuthSessionContextValue | null>(null);
 const ONBOARDING_STORAGE_KEY = 'infrafund:onboarding-draft';
 
 function getErrorMessage(error: unknown) {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  if (typeof error === 'string' && error) {
-    return error;
-  }
-
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error) return error;
   if (error && typeof error === 'object') {
     if (
       'message' in error &&
@@ -181,36 +133,20 @@ function getErrorMessage(error: unknown) {
     ) {
       return error.message;
     }
-
     try {
       return JSON.stringify(error);
     } catch {}
   }
-
   return 'Failed to initialize your session.';
 }
 
 function getUserFacingErrorMessage(message: string) {
-  if (/failed to establish iFrame connection/i.test(message)) {
-    return "We couldn't connect to the wallet service. Please check your connection and try again.";
+  if (/failed to fetch|networkerror/i.test(message)) {
+    return 'We hit a network issue. Please try again.';
   }
-
-  if (
-    /openfort shield rejected the wallet setup request|failed to create account or device|a_invalid|invalid token/i.test(
-      message
-    )
-  ) {
-    return 'Wallet setup is currently misconfigured on the server. Request Admin to check SHIELD env var settings; retrying will not fix it.';
+  if (/internal server error/i.test(message)) {
+    return 'Our service is temporarily unavailable. Please try again in a moment.';
   }
-
-  if (
-    /next_public_shield_api_key|shield_secret_key|shield_encryption_share/i.test(
-      message
-    )
-  ) {
-    return 'Wallet setup is unavailable because a required Openfort Shield configuration value is missing or invalid. Request Admin to check SHIELD env var settings.';
-  }
-
   if (
     /user type is required|user role is required|organization name is required/i.test(
       message
@@ -218,41 +154,21 @@ function getUserFacingErrorMessage(message: string) {
   ) {
     return `Account setup is missing required onboarding data. ${message}`;
   }
-
-  if (/openfort access token is unavailable/i.test(message)) {
-    return 'Your Openfort sign-in session is missing or expired. Please sign in again.';
-  }
-
-  if (
-    /not logged in|session expired|invalid openfort access token/i.test(message)
-  ) {
+  if (/not logged in|session expired|invalid.*access token/i.test(message)) {
     return 'Your session expired. Please sign in again.';
   }
-
-  if (/failed to fetch|networkerror/i.test(message)) {
-    return 'We hit a network issue. Please try again.';
-  }
-
-  if (/internal server error/i.test(message)) {
-    return 'Our service is temporarily unavailable. Please try again in a moment.';
-  }
-
   if (message && message !== 'Failed to initialize your session.') {
     return message;
   }
-
   return 'Something went wrong. Please try again.';
 }
 
 function classifyError(message: string): ErrorCategory {
   if (
-    /failed to fetch|networkerror|failed to establish iframe|timeout|temporarily|try again/i.test(
-      message
-    )
+    /failed to fetch|networkerror|timeout|temporarily|try again/i.test(message)
   ) {
     return 'recoverable';
   }
-
   return 'fatal';
 }
 
@@ -263,22 +179,16 @@ function clearOnboardingDraft() {
 }
 
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
-  const { user, isLoading, isAuthenticated, getAccessToken } = useUser();
-  // We call logout() from useOpenfortCore (not useSignOut) because the latter
-  // dispatches logout() without awaiting it (see SDK source for useSignOut),
-  // so its returned promise resolves before openfort.auth.logout() actually
-  // clears the SDK's storage. We need to fully await the clear before doing
-  // the hard reload, otherwise OpenfortProvider re-mounts from still-populated
-  // storage and the user gets bounced straight back through the auth flow.
-  const { logout: openfortLogout } = useOpenfortCore();
-  const { close: closeOpenfortModal } = useUI();
-  const { create, wallets } = useEthereumEmbeddedWallet();
-  const openfortUserId = user?.id ?? null;
-  // Set when any disconnect path starts so the secondary "signedOut" useEffect
-  // does not double-fire its own backend revocation + navigation. Both
-  // entry points (avatar-menu logout, Openfort built-in modal disconnect)
-  // ultimately drop isAuthenticated, but only the entry point that ran
-  // first should drive the cleanup + hard reload.
+  const {
+    user,
+    ready,
+    authenticated,
+    logout: privyLogout,
+    getAccessToken,
+  } = usePrivy();
+  const { wallets } = useWallets();
+  const { createWallet } = useCreateWallet();
+  const privyUserId = user?.id ?? null;
   const logoutInProgressRef = useRef(false);
   const [status, setStatus] = useState<AppSessionStatus>('idle');
   const [backendAccessToken, setBackendAccessToken] = useState<string | null>(
@@ -301,9 +211,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     walletStepId: 'connecting_wallet' | 'setting_up_wallet';
   } | null>(null);
   const previousAuthState = useRef(false);
-  // Deduplication key: we only run one bootstrap per (userId, retryCount) pair.
-  // This prevents the useEffect from re-triggering bootstrap when callbacks are
-  // recreated due to dependency changes mid-flow.
   const bootstrapAttemptKeyRef = useRef<string | null>(null);
   const [authProgress, setAuthProgress] = useState<AuthProgress | null>(null);
 
@@ -332,16 +239,14 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   );
 
   const startStep = useCallback(
-    (id: AuthStepId) => {
-      updateStep(id, { status: 'active', errorMessage: undefined });
-    },
+    (id: AuthStepId) =>
+      updateStep(id, { status: 'active', errorMessage: undefined }),
     [updateStep]
   );
 
   const completeStep = useCallback(
-    (id: AuthStepId) => {
-      updateStep(id, { status: 'done', errorMessage: undefined });
-    },
+    (id: AuthStepId) =>
+      updateStep(id, { status: 'done', errorMessage: undefined }),
     [updateStep]
   );
 
@@ -360,9 +265,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const failStep = useCallback(
-    (id: AuthStepId, errorMessage: string) => {
-      updateStep(id, { status: 'error', errorMessage });
-    },
+    (id: AuthStepId, errorMessage: string) =>
+      updateStep(id, { status: 'error', errorMessage }),
     [updateStep]
   );
 
@@ -378,13 +282,9 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const clearProgress = useCallback(() => {
-    setAuthProgress(null);
-  }, []);
+  const clearProgress = useCallback(() => setAuthProgress(null), []);
 
-  const dismissProgress = useCallback(() => {
-    setAuthProgress(null);
-  }, []);
+  const dismissProgress = useCallback(() => setAuthProgress(null), []);
 
   const clearSession = useCallback(() => {
     setBackendAccessToken(null);
@@ -404,12 +304,10 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     logoutInProgressRef.current = true;
     clearSession();
     setStatus('loading');
-
     await logoutBackendSession().catch(() => undefined);
-    await openfortLogout().catch(() => undefined);
-
+    await privyLogout().catch(() => undefined);
     hardNavigateToRoot();
-  }, [clearSession, openfortLogout]);
+  }, [clearSession, privyLogout]);
 
   const commitUserFacingError = useCallback((raw: string) => {
     const userMessage = getUserFacingErrorMessage(raw);
@@ -422,17 +320,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     () => ({
       route: pathname ?? null,
       retryCount,
-      openfortUserId: openfortUserId ? openfortUserId.slice(-6) : null,
+      privyUserId: privyUserId ? privyUserId.slice(-6) : null,
     }),
-    [openfortUserId, pathname, retryCount]
+    [privyUserId, pathname, retryCount]
   );
 
-  // Terminal success state: app session is fully established and the wallet
-  // iframe is connected. Closes any Openfort modal still visible and resets
-  // all transient state accumulated during the auth/onboarding flow.
   const finalizeAuthenticatedSession = useCallback(
     (accessToken: string, currentUser: BackendMeResponse) => {
-      closeOpenfortModal();
       setBackendAccessToken(accessToken);
       setBackendUser(currentUser);
       setPendingOnboardingAccessToken(null);
@@ -442,47 +336,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       clearOnboardingDraft();
       setStatus('authenticated');
     },
-    [closeOpenfortModal]
+    []
   );
 
-  // Loads the Openfort embedded-wallet iframe and connects/creates the wallet,
-  // then transitions to authenticated.
-  //
-  // Context when called: the backend session is already established (accessToken
-  // and currentUser are valid). The Openfort SDK is authenticated. The only
-  // remaining step is to load the hidden iframe so the wallet is usable.
-  //
-  // Why always call create(): connectOnLogin: false means the SDK never loads
-  // the iframe automatically. create() is the correct call for both paths:
-  //   - New user:      provisions the wallet and connects it via the iframe.
-  //   - Existing user: reconnects to the existing wallet via the iframe.
-  //                    The SDK's wallets[] array may already contain the wallet
-  //                    (fetched from the Openfort API), but that does not mean
-  //                    the iframe is loaded — without it the wallet is [Not
-  //                    connected] and cannot sign transactions. Skipping create()
-  //                    when wallets.length > 0 was the original bug causing
-  //                    returning users to see [Not connected] on every login.
-  const connectWallet = useCallback(async () => {
-    await create({
-      recoveryMethod: RecoveryMethod.AUTOMATIC,
-    });
-  }, [create]);
-
-  const reconnectWalletInBackground = useCallback(async () => {
-    try {
-      await connectWallet();
-    } catch (walletError) {
-      reportError(walletError, {
-        area: 'wallet',
-        tags: { stage: 'restore-background' },
-        extra: {
-          ...baseReportExtras(),
-          hasExistingWallet: wallets.length > 0,
-        },
-      });
-    }
-  }, [baseReportExtras, connectWallet, wallets.length]);
-
+  // Creates the Privy embedded wallet for the user if they don't already have
+  // one. With Biconomy, this EOA becomes the signer for the smart account.
   const createWalletIfNeeded = useCallback(
     async (
       accessToken: string,
@@ -497,15 +355,22 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         walletStepId,
       });
       setStatus('creating_wallet');
-      // walletStepId is decided by the caller: 'connecting_wallet' for
-      // returning users, 'setting_up_wallet' for new users post-questionnaire.
-      // We can't decide here from wallets.length because the SDK's wallets[]
-      // is populated asynchronously and may still be empty at this point even
-      // for returning users.
       startStep(walletStepId);
 
       try {
-        await connectWallet();
+        // createOnLogin is 'off' (see app-providers.tsx), so Privy never
+        // auto-creates a wallet — we have to call createWallet() ourselves,
+        // exactly once, at this point past the qualification gate. Returning
+        // users already have one; createWallet() would throw for them since
+        // createAdditional defaults to false, so only call it when missing.
+        const hasEmbeddedWallet = wallets.some(
+          (w) => w.walletClientType === 'privy'
+        );
+
+        if (!hasEmbeddedWallet) {
+          await createWallet();
+        }
+
         completeStep(walletStepId);
         finalizeAuthenticatedSession(accessToken, currentUser);
       } catch (walletError) {
@@ -527,26 +392,16 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       baseReportExtras,
       commitUserFacingError,
       completeStep,
-      connectWallet,
+      createWallet,
       failStep,
       finalizeAuthenticatedSession,
       startStep,
-      wallets.length,
+      wallets,
     ]
   );
 
-  // Runs once per Openfort user identity (keyed on openfortUserId + retryCount).
-  // Determines which path the user takes and drives them to createWalletIfNeeded.
-  //
-  // Priority order:
-  //   1. Valid refresh cookie → restore the app session directly, skip Openfort
-  //      token exchange (faster; avoids an extra round-trip to Openfort API).
-  //   2. No refresh cookie, existing backend user → exchange Openfort token for
-  //      app session.
-  //   3. No backend user → show qualification questionnaire; wallet creation is
-  //      deferred until completeOnboarding() succeeds.
   const bootstrapSession = useCallback(async () => {
-    if (!openfortUserId) {
+    if (!privyUserId) {
       clearSession();
       setStatus('unauthenticated');
       return;
@@ -556,27 +411,20 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      // Path 1: try to restore an existing app session via the refresh cookie.
-      // This is the fast path for page reloads and returning sessions. Keep it
-      // silent: a normal browser refresh should not look like a fresh login.
+      // Path 1: restore via refresh cookie (fast path for page reloads).
       const refreshedSession = await refreshBackendSession().catch(() => null);
 
       if (refreshedSession) {
         try {
           const me = await getBackendMe(refreshedSession.access_token);
           finalizeAuthenticatedSession(refreshedSession.access_token, me);
-          void reconnectWalletInBackground();
           return;
         } catch {
-          // Refresh token was valid but user is inaccessible (e.g. soft-deleted).
-          // Clear the stale cookie and fall through to Openfort re-auth.
           await logoutBackendSession().catch(() => undefined);
         }
       }
 
-      // Paths 2 & 3: no valid refresh cookie; re-authenticate via Openfort token.
-      // Only this path represents an interactive login/bootstrap, so this is
-      // where the visible 5-step progress modal starts.
+      // Paths 2 & 3: interactive login via Privy token.
       setStepPlan([
         'signing_in',
         'checking_account',
@@ -586,29 +434,27 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       ]);
       completeStep('signing_in');
       startStep('checking_account');
-      const openfortAccessToken = await getAccessToken();
 
-      if (!openfortAccessToken) {
-        throw new Error('Openfort access token is unavailable.');
+      const privyAccessToken = await getAccessToken();
+
+      if (!privyAccessToken) {
+        throw new Error('Privy access token is unavailable.');
       }
 
-      const checkResponse = await checkOpenfortUser(openfortAccessToken);
+      const checkResponse = await checkPrivyUser(privyAccessToken);
       completeStep('checking_account');
 
       if (!checkResponse.exists) {
-        // Path 3: new user — hold the Openfort token and show the qualification
-        // questionnaire. Wallet creation is deferred to completeOnboarding().
-        // Hide the progress modal so the questionnaire is the only surface.
-        closeOpenfortModal();
-        setPendingOnboardingAccessToken(openfortAccessToken);
+        // Path 3: new user — show qualification questionnaire.
+        setPendingOnboardingAccessToken(privyAccessToken);
         hideProgress();
         setStatus('needs_onboarding');
         return;
       }
 
-      // Path 2: existing user — exchange the Openfort token for an app session.
+      // Path 2: existing user — exchange token for app session.
       startStep('restoring_session');
-      const loginResponse = await exchangeOpenfortSession(openfortAccessToken);
+      const loginResponse = await exchangePrivySession(privyAccessToken);
       completeStep('restoring_session');
 
       startStep('loading_profile');
@@ -631,8 +477,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setPendingOnboardingAccessToken(null);
       setPendingWalletCreation(null);
       const userMessage = commitUserFacingError(getErrorMessage(sessionError));
-      // Mark the currently-active step as failed so the modal points at the
-      // step that broke. If nothing is active (shouldn't happen), this no-ops.
       setAuthProgress((current) => {
         if (!current) return current;
         const activeStep = current.steps.find((s) => s.status === 'active');
@@ -653,26 +497,21 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, [
     baseReportExtras,
     clearSession,
-    closeOpenfortModal,
     commitUserFacingError,
     completeStep,
     createWalletIfNeeded,
     finalizeAuthenticatedSession,
     getAccessToken,
     hideProgress,
-    openfortUserId,
-    reconnectWalletInBackground,
+    privyUserId,
     setStepPlan,
     startStep,
   ]);
 
-  // Called when the user submits the qualification questionnaire.
-  // Context: status === 'needs_onboarding', pendingOnboardingAccessToken is set.
-  // The Openfort token is still valid; no app session exists yet.
   const completeOnboarding = useCallback(
     async ({ role, type, organizationName }: QualificationSubmission) => {
       if (!pendingOnboardingAccessToken) {
-        setError('Openfort access token is unavailable.');
+        setError('Privy access token is unavailable.');
         setStatus('error');
         return;
       }
@@ -680,9 +519,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setStatus('loading');
       setError(null);
 
-      // New-user post-questionnaire plan. signing_in and checking_account were
-      // already completed during bootstrapSession; mark them done up front and
-      // bring the progress modal back into view.
       setStepPlan([
         'signing_in',
         'checking_account',
@@ -695,7 +531,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
       try {
         startStep('creating_account');
-        const loginResponse = await exchangeOpenfortSession(
+        const loginResponse = await exchangePrivySession(
           pendingOnboardingAccessToken,
           {
             role,
@@ -759,32 +595,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     await cancelAuthFlow();
   }, [cancelAuthFlow]);
 
-  // Disconnect convergence point: both the avatar-menu Disconnect button and
-  // the Openfort built-in modal Disconnect end up here (the latter via the
-  // secondary "signedOut" useEffect below). We fully await the Openfort
-  // logout so the SDK clears its storage before hard-navigating; otherwise
-  // OpenfortProvider re-mounts from still-populated storage on reload and
-  // auto-restores the auth state, which kicks off the bootstrap flow.
-  //
-  // We do NOT touch React state (clearSession / setStatus) before awaiting,
-  // because state changes trigger re-renders and the bootstrap useEffect can
-  // re-fire mid-await (isAuthenticated is still true until openfortLogout
-  // synchronously resets the SDK store), seeding the 5-step modal which
-  // would flash for ~100ms before hardNavigateToRoot reloads. The
-  // logoutInProgressRef guard on the bootstrap useEffect already covers
-  // that race, but keeping React state untouched here is the cleanest
-  // belt-and-suspenders.
   const logout = useCallback(async () => {
     if (logoutInProgressRef.current) return;
     logoutInProgressRef.current = true;
-
-    closeOpenfortModal();
-
     await logoutBackendSession().catch(() => undefined);
-    await openfortLogout().catch(() => undefined);
-
+    await privyLogout().catch(() => undefined);
     hardNavigateToRoot();
-  }, [closeOpenfortModal, openfortLogout]);
+  }, [privyLogout]);
 
   const deleteAccount = useCallback(async () => {
     setStatus('loading');
@@ -809,17 +626,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     logoutInProgressRef.current = true;
     clearSession();
     setStatus('unauthenticated');
-
     await logoutBackendSession().catch(() => undefined);
-    await openfortLogout().catch(() => undefined);
-
+    await privyLogout().catch(() => undefined);
     hardNavigateToRoot();
   }, [
     backendAccessToken,
     baseReportExtras,
     clearSession,
     commitUserFacingError,
-    openfortLogout,
+    privyLogout,
   ]);
 
   const retry = useCallback(() => {
@@ -831,7 +646,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       );
       return;
     }
-
     setRetryCount((count) => count + 1);
   }, [createWalletIfNeeded, pendingWalletCreation]);
 
@@ -856,100 +670,42 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [baseReportExtras]);
 
-  // OAuth callback pre-emptive cover: when Openfort's redirect-based OAuth
-  // returns the user to our app at `/?openfortAuthProviderUI=…`, the SDK's
-  // ConnectModal auto-detects those params and reopens itself to run
-  // ConnectWithOAuth (which calls storeCredentials). That UI flashes for a
-  // few hundred ms before our bootstrap useEffect can run and close the
-  // Openfort modal. Seeding authProgress here makes the task-103 modal
-  // (z-[10001]) appear immediately on page load and cover the Openfort
-  // ConnectWithOAuth page underneath. The signing_in step gets re-marked
-  // done when bootstrapSession runs and overwrites the plan.
+  // Primary driver: react to Privy auth state changes.
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!window.location.search.includes('openfortAuthProviderUI')) return;
-
-    setStepPlan([
-      'signing_in',
-      'checking_account',
-      'restoring_session',
-      'loading_profile',
-      'connecting_wallet',
-    ]);
-    startStep('signing_in');
-    closeOpenfortModal();
-    // Mount-only.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Primary driver: react to Openfort auth state changes.
-  // bootstrapAttemptKey deduplicate calls so we run bootstrap exactly once
-  // per (user, retryCount) pair, even when the effect re-fires because a
-  // callback was recreated due to dependency changes mid-flow.
-  useEffect(() => {
-    // Don't run any bootstrap work while a disconnect is in flight. logout()
-    // calls clearSession() (which resets bootstrapAttemptKeyRef) and
-    // setStatus('unauthenticated') BEFORE awaiting openfortLogout, so for the
-    // brief window where openfortLogout's async storage clear is still pending,
-    // isAuthenticated is still true and the deduplication key is null — without
-    // this guard the bootstrap useEffect would re-fire and seed the 5-step
-    // modal, which then flashes for ~100ms before the hard reload.
     if (logoutInProgressRef.current) return;
-
-    if (isLoading) {
-      setStatus((currentStatus) =>
-        currentStatus === 'authenticated' ||
-        currentStatus === 'needs_onboarding'
-          ? currentStatus
+    if (!ready) {
+      setStatus((current) =>
+        current === 'authenticated' || current === 'needs_onboarding'
+          ? current
           : 'loading'
       );
       return;
     }
 
-    if (!isAuthenticated || !openfortUserId) {
+    if (!authenticated || !privyUserId) {
       clearSession();
       setStatus('unauthenticated');
       return;
     }
 
-    const bootstrapAttemptKey = `${openfortUserId}:${retryCount}`;
-
-    if (bootstrapAttemptKeyRef.current === bootstrapAttemptKey) {
-      return;
-    }
-
+    const bootstrapAttemptKey = `${privyUserId}:${retryCount}`;
+    if (bootstrapAttemptKeyRef.current === bootstrapAttemptKey) return;
     bootstrapAttemptKeyRef.current = bootstrapAttemptKey;
-
-    // Close the Openfort built-in modal immediately. Without this, the SDK's
-    // CONNECTED page (the "Connected — Manage wallets" popup) stays visible
-    // until finalizeAuthenticatedSession runs at the end of the bootstrap.
-    closeOpenfortModal();
 
     void bootstrapSession();
   }, [
     bootstrapSession,
     clearSession,
-    closeOpenfortModal,
-    isAuthenticated,
-    isLoading,
-    openfortUserId,
+    authenticated,
+    ready,
+    privyUserId,
     retryCount,
   ]);
 
-  // Secondary driver: catch the Openfort built-in modal Disconnect path so it
-  // converges on the same exit state as the avatar-menu logout(). Openfort's
-  // own sign-out does not call our backend logout endpoint and does not strip
-  // OAuth callback params from the URL, so we own that cleanup here. We also
-  // re-await openfortLogout() (idempotent) to make sure storage is fully
-  // cleared before we hard-navigate; otherwise the SDK can re-hydrate from
-  // storage on the next mount and bounce the user back through bootstrap.
-  // The logoutInProgress ref prevents double-firing when the avatar-menu
-  // logout() ran first (it already does its own cleanup + navigation).
+  // Secondary driver: catch Privy sign-out so we converge on the same exit state.
   useEffect(() => {
-    const signedOut =
-      previousAuthState.current && !isLoading && !isAuthenticated;
-
-    previousAuthState.current = isAuthenticated;
+    const signedOut = previousAuthState.current && ready && !authenticated;
+    previousAuthState.current = authenticated;
 
     if (!signedOut) return;
     if (logoutInProgressRef.current) return;
@@ -959,19 +715,19 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setStatus('unauthenticated');
     void (async () => {
       await logoutBackendSession().catch(() => undefined);
-      await openfortLogout().catch(() => undefined);
+      await privyLogout().catch(() => undefined);
       hardNavigateToRoot();
     })();
-  }, [clearSession, isAuthenticated, isLoading, openfortLogout]);
+  }, [clearSession, authenticated, ready, privyLogout]);
 
   const value = useMemo<AuthSessionContextValue>(
     () => ({
       status,
       backendAccessToken,
       backendUser,
-      openfortUser: user,
-      isOpenfortLoading: isLoading,
-      isOpenfortAuthenticated: isAuthenticated,
+      privyUser: user,
+      isPrivyReady: ready,
+      isPrivyAuthenticated: authenticated,
       error,
       errorCategory,
       retry,
@@ -987,8 +743,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       backendAccessToken,
       backendUser,
       user,
-      isLoading,
-      isAuthenticated,
+      ready,
+      authenticated,
       error,
       errorCategory,
       retry,
@@ -1006,7 +762,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       {children}
       <QualificationQuestionnaire
         isOpen={status === 'needs_onboarding'}
-        openfortUser={user}
+        privyUser={user}
         submitError={error}
         isSubmitting={status === 'loading'}
         onClose={() => {

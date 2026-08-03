@@ -187,7 +187,17 @@
     "lokijs",
     "solana",
     "turbopack",
-    "Tileset"
+    "Tileset",
+    "Biconomy",
+    "biconomy",
+    "abstractjs",
+    "Multichain",
+    "multichain",
+    "Referer",
+    "Gltf",
+    "initialised",
+    "devnet",
+    "Blockhash"
   ],
   "ignorePaths": ["node_modules", "build", ".next"],
   "files": ["**/*.{js,jsx,ts,tsx,md}"]

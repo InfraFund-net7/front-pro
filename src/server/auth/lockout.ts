@@ -29,7 +29,7 @@ export async function assertUserNotLocked(userId: string) {
         remainingLockSeconds: remaining,
         lockedReason: lockout.lockedReason,
       },
-      'Openfort exchange attempt blocked by account lockout'
+      'Privy exchange attempt blocked by account lockout'
     );
 
     throw new ApiError(

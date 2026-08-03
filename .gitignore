@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# superpowers subagent-driven-development scratch state
+/.superpowers
+
 # next.js
 /.next/
 /out/

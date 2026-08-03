@@ -109,7 +109,7 @@ enum ProjectSubmissionStatus {
 
 model User {
   id                      String            @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  openfortUserId          String            @unique @map("openfort_user_id") @db.VarChar(255)
+  privyUserId             String            @unique @map("privy_user_id") @db.VarChar(255)
   email                   String?           @unique @db.VarChar(255)
   firstName               String?           @map("first_name") @db.VarChar(100)
   lastName                String?           @map("last_name") @db.VarChar(100)
