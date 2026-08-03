@@ -39,6 +39,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Show outgoing container logs (pre-deploy, before restart)
+        run: docker compose -f "$COMPOSE_FILE" logs --tail=500 dashboard || true
+
       - name: Run Prisma migrations
         env:
           DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
