@@ -1,6 +1,6 @@
 'use client';
 
-import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum';
+import { useWallets } from '@privy-io/react-auth';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
@@ -81,12 +81,14 @@ function WalletAddressRow({
 }
 
 export default function AccountPage() {
-  const { backendUser, openfortUser, deleteAccount } = useAuthSession();
-  const wallet = useEthereumEmbeddedWallet();
-  const walletAddress =
-    wallet.status === 'connected' ? wallet.address : undefined;
-  const walletChainId =
-    wallet.status === 'connected' ? wallet.chainId : undefined;
+  const { backendUser, privyUser, deleteAccount } = useAuthSession();
+  const { wallets } = useWallets();
+  const embeddedWallet = wallets.find((w) => w.walletClientType === 'privy');
+  const walletAddress = embeddedWallet?.address;
+  // Privy chainId is a string like "eip155:8453"; parse to number for display.
+  const walletChainId = embeddedWallet?.chainId
+    ? Number(embeddedWallet.chainId.split(':')[1] ?? embeddedWallet.chainId)
+    : undefined;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -105,11 +107,12 @@ export default function AccountPage() {
     .filter(Boolean)
     .join(' ')
     .trim();
-  const nameOrFallback =
-    displayName || openfortUser?.name || openfortUser?.email || 'User';
+  const nameOrFallback = displayName || privyUser?.id || 'User';
   const avatarLabel = nameOrFallback.charAt(0).toUpperCase();
-  const email =
-    backendUser?.email ?? openfortUser?.email ?? openfortUser?.id ?? '—';
+  const privyEmail = privyUser?.linkedAccounts?.find(
+    (a) => a.type === 'email'
+  ) as { address?: string } | undefined;
+  const email = backendUser?.email ?? privyEmail?.address ?? '—';
 
   const handleConfirmDelete = async () => {
     setIsDeleting(true);

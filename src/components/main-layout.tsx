@@ -18,11 +18,11 @@ export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isPublicRoute = pathname === '/' || pathname === '/login';
-  const { status, isOpenfortLoading } = useAuthSession();
+  const { status, isPrivyReady, isPrivyAuthenticated } = useAuthSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (isOpenfortLoading || !pathname) {
+    if (!isPrivyReady || !pathname) {
       return;
     }
 
@@ -37,7 +37,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     if (status === 'unauthenticated') {
       router.replace('/');
     }
-  }, [isOpenfortLoading, isPublicRoute, pathname, router, status]);
+  }, [isPrivyReady, isPublicRoute, pathname, router, status]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -62,23 +62,15 @@ export function MainLayout({ children }: MainLayoutProps) {
   const isAwaitingOnboarding = status === 'needs_onboarding';
   // Pre-click SDK init only. Everything else (loading, creating_wallet, error)
   // is now owned by AuthProgressModal so the user sees one consistent surface.
-  const showInitialSdkLoading = isOpenfortLoading;
-  // Hide route content while bootstrap is in flight or has failed. The
-  // progress modal sits on top, but the underlying page would otherwise
-  // flash through (especially the dashboard on private routes, since
-  // router.replace('/') is async).
+  // Show initial loading until Privy SDK has initialised (ready === true).
+  const showInitialSdkLoading = !isPrivyReady;
   const isBootstrapping =
     status === 'idle' ||
     status === 'loading' ||
     status === 'creating_wallet' ||
     status === 'error';
-  // Cover the brief window between page mount on `/?openfortAuthProviderUI=…`
-  // and the AuthSessionProvider bootstrap useEffect running. Without this the
-  // public landing flashes for a few hundred ms after Google redirects back.
-  // Read the URL synchronously to avoid the flash on first render.
-  const isHandlingOAuthCallback =
-    typeof window !== 'undefined' &&
-    window.location.search.includes('openfortAuthProviderUI');
+  // Privy uses a modal for OAuth callbacks — no URL param detection needed.
+  const isHandlingOAuthCallback = false;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0C0C0D]">

@@ -12,14 +12,14 @@ import { FormInput } from '@/components/ui/form-input';
 import { getRecaptchaToken } from '@/utils/recaptcha';
 import { useEffect, useMemo, useState } from 'react';
 
-interface OpenfortUserDetails {
+interface PrivyUserDetails {
   email?: string | null;
   name?: string | null;
 }
 
 interface NonResidentFormProps {
   type: 'individual' | 'organization';
-  openfortUser?: OpenfortUserDetails | null;
+  privyUser?: PrivyUserDetails | null;
   onBack: () => void;
   onSuccess: () => void | Promise<void>;
 }
@@ -43,24 +43,19 @@ function splitName(fullName?: string | null) {
 
 export function NonResidentForm({
   type,
-  openfortUser,
+  privyUser,
   onBack,
   onSuccess,
 }: NonResidentFormProps) {
-  const defaultName = useMemo(
-    () => splitName(openfortUser?.name),
-    [openfortUser]
-  );
+  const defaultName = useMemo(() => splitName(privyUser?.name), [privyUser]);
   const [countries, setCountries] = useState<CountryOption[]>([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
   const [countryError, setCountryError] = useState<string | null>(null);
   const [countryId, setCountryId] = useState('');
-  const [email, setEmail] = useState(openfortUser?.email || '');
+  const [email, setEmail] = useState(privyUser?.email || '');
   const [firstName, setFirstName] = useState(defaultName.firstName);
   const [lastName, setLastName] = useState(defaultName.lastName);
-  const [contactFullName, setContactFullName] = useState(
-    openfortUser?.name || ''
-  );
+  const [contactFullName, setContactFullName] = useState(privyUser?.name || '');
   const [companyName, setCompanyName] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,11 +66,11 @@ export function NonResidentForm({
   );
 
   useEffect(() => {
-    setEmail(openfortUser?.email || '');
+    setEmail(privyUser?.email || '');
     setFirstName(defaultName.firstName);
     setLastName(defaultName.lastName);
-    setContactFullName(openfortUser?.name || '');
-  }, [defaultName.firstName, defaultName.lastName, openfortUser]);
+    setContactFullName(privyUser?.name || '');
+  }, [defaultName.firstName, defaultName.lastName, privyUser]);
 
   useEffect(() => {
     let isMounted = true;
