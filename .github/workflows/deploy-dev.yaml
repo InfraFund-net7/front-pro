@@ -34,13 +34,15 @@ jobs:
     runs-on: [self-hosted, dev]
     needs: build
     env:
-      COMPOSE_FILE: ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}
+      # Deploy the compose file straight from the checked-out repo instead of
+      # a manually-maintained VM-side copy (vars.DOCKER_COMPOSE_PATH_DEVELOP)
+      # -- that copy silently drifted from the repo (still had Openfort/Shield
+      # vars long after this app moved to Privy), so the container never
+      # actually received NEXT_PUBLIC_PRIVY_APP_ID/PRIVY_APP_SECRET.
+      COMPOSE_FILE: ./deployment/docker-compose.dev.yml
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Show outgoing container logs (pre-deploy, before restart)
-        run: docker compose -f "$COMPOSE_FILE" logs --tail=500 dashboard || true
 
       - name: Run Prisma migrations
         env:
