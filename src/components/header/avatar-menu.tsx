@@ -1,11 +1,11 @@
 'use client';
 
-import { useWallets } from '@privy-io/react-auth';
 import { Check, Copy, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import { useCopyToClipboard } from '@/lib/use-copy-to-clipboard';
+import { useSmartAccountAddress } from '@/lib/use-smart-account-address';
 
 function shortenAddress(address: string) {
   if (address.length <= 10) return address;
@@ -15,10 +15,10 @@ function shortenAddress(address: string) {
 export function AvatarMenu() {
   const router = useRouter();
   const { backendUser, privyUser, logout } = useAuthSession();
-  const { wallets } = useWallets();
-  const embeddedWallet = wallets.find((w) => w.walletClientType === 'privy');
-  const address = embeddedWallet?.address;
-  const isWalletConnected = Boolean(address);
+  const { address: smartAccountAddress, status: smartAccountStatus } =
+    useSmartAccountAddress();
+  const address = smartAccountAddress ?? undefined;
+  const isWalletConnected = smartAccountStatus === 'ready' && Boolean(address);
 
   const [isOpen, setIsOpen] = useState(false);
   const { justCopied, copy } = useCopyToClipboard();
