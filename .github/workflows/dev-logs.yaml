@@ -1,0 +1,14 @@
+name: Dump Dev Container Logs (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  logs:
+    name: Show current dashboard container logs
+    runs-on: [self-hosted, dev]
+    env:
+      COMPOSE_FILE: ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}
+    steps:
+      - name: Show recent app logs (no restart)
+        run: docker compose -f "$COMPOSE_FILE" logs --tail=500 dashboard
