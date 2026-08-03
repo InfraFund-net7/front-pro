@@ -9,16 +9,19 @@
     "src/lib/solana-kit-unavailable.ts",
     "src/utils/is-development.util.ts",
     "src/utils/is-production.util.ts",
-    "scripts/setup-neon-db.mjs"
+    "scripts/setup-neon-db.mjs",
+    "src/lib/biconomy-smart-account.ts"
   ],
   "ignoreIssues": {
     "src/server/db/**/*.ts": ["files", "exports"],
     "src/server/http/**/*.ts": ["exports", "types"],
-    "src/server/services/auth.ts": ["exports"]
+    "src/server/services/auth.ts": ["exports"],
+    "src/lib/app-providers.tsx": ["exports"]
   },
   "ignoreDependencies": [
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",
+    "@biconomy/abstractjs",
     "@privy-io/node"
   ]
 }
