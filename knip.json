@@ -10,7 +10,8 @@
     "src/utils/is-development.util.ts",
     "src/utils/is-production.util.ts",
     "scripts/setup-neon-db.mjs",
-    "src/lib/biconomy-smart-account.ts"
+    "src/lib/biconomy-smart-account.ts",
+    "src/lib/use-smart-account-address.ts"
   ],
   "ignoreIssues": {
     "src/server/db/**/*.ts": ["files", "exports"],
