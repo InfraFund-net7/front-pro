@@ -195,7 +195,9 @@
     "multichain",
     "Referer",
     "Gltf",
-    "initialised"
+    "initialised",
+    "devnet",
+    "Blockhash"
   ],
   "ignorePaths": ["node_modules", "build", ".next"],
   "files": ["**/*.{js,jsx,ts,tsx,md}"]
