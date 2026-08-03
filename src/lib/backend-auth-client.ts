@@ -188,7 +188,7 @@ export interface ProjectCampaignPayload {
 
 export interface BackendMeResponse {
   user_id: string;
-  privy_user_id: string; // was openfort_user_id — DB column rename deferred to future migration
+  privy_user_id: string;
   email: string | null;
   first_name: string | null;
   last_name: string | null;
