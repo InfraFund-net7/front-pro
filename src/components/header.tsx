@@ -1,7 +1,6 @@
 'use client';
 
 import { Bell, Headset, Menu } from 'lucide-react';
-import { OpenfortButton } from '@openfort/react';
 import { usePathname } from 'next/navigation';
 import { AppPageHeader } from '@/components/layout/app-page-header';
 import { getDigitalTwinProject } from '@/lib/digital-twin-projects';
@@ -95,7 +94,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <span className="flex items-center gap-3">
             <Headset size={24} className="cursor-pointer text-white" />
             <Bell size={24} className="cursor-pointer text-white" />
-            <OpenfortButton label="Wallet" showAvatar />
             <AvatarMenu />
           </span>
         </>
