@@ -50,7 +50,7 @@ jobs:
             -v "$PWD/prisma.config.ts:/app/prisma.config.ts" \
             -w /app \
             node:22-alpine \
-            sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
+            sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy || (echo '=== DIAGNOSTIC: _prisma_migrations ===' && npx prisma db execute --stdin <<< \"SELECT to_regclass('_prisma_migrations') AS migrations_table_exists;\" ; echo '=== DIAGNOSTIC: users columns ===' && npx prisma db execute --stdin <<< \"SELECT column_name FROM information_schema.columns WHERE table_name='users' ORDER BY column_name;\" ; exit 1)"
 
       - name: Write runtime secrets to env file
         env:
