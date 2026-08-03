@@ -1,11 +1,11 @@
 'use client';
 
-import { useWallets } from '@privy-io/react-auth';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import { getAddressExplorerUrl, getChainName } from '@/lib/block-explorer';
 import { useCopyToClipboard } from '@/lib/use-copy-to-clipboard';
+import { useSmartAccountAddress } from '@/lib/use-smart-account-address';
 import { Modal } from '@/components/ui/modal';
 import { CustomButton } from '@/components/ui/custom-button';
 
@@ -82,13 +82,9 @@ function WalletAddressRow({
 
 export default function AccountPage() {
   const { backendUser, privyUser, deleteAccount } = useAuthSession();
-  const { wallets } = useWallets();
-  const embeddedWallet = wallets.find((w) => w.walletClientType === 'privy');
-  const walletAddress = embeddedWallet?.address;
-  // Privy chainId is a string like "eip155:8453"; parse to number for display.
-  const walletChainId = embeddedWallet?.chainId
-    ? Number(embeddedWallet.chainId.split(':')[1] ?? embeddedWallet.chainId)
-    : undefined;
+  const { address: smartAccountAddress, chainId: walletChainId } =
+    useSmartAccountAddress();
+  const walletAddress = smartAccountAddress ?? undefined;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
