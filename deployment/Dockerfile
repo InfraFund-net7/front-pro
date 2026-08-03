@@ -4,7 +4,7 @@ WORKDIR /app
 # Add libc6-compat for sharp/image optimization
 RUN apk add --no-cache libc6-compat
 
-COPY package*.json package-lock.json* ./
+COPY package*.json package-lock.json* .npmrc ./
 RUN npm install --ignore-scripts
 
 COPY . .
