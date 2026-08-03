@@ -47,6 +47,7 @@ jobs:
             --network internal \
             -e DATABASE_URL="$DATABASE_URL" \
             -v "$PWD/prisma:/app/prisma" \
+            -v "$PWD/prisma.config.ts:/app/prisma.config.ts" \
             -w /app \
             node:22-alpine \
             sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
