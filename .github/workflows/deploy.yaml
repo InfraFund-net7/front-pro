@@ -34,8 +34,34 @@ jobs:
     runs-on: [self-hosted, prod]
     needs: build
     env:
-      COMPOSE_FILE: ${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }}
+      # Deploy the compose file straight from the checked-out repo instead of
+      # a manually-maintained VM-side copy (vars.DOCKER_COMPOSE_PATH_PRODUCTION)
+      # -- the dev equivalent of that copy silently drifted from the repo
+      # (still had Openfort/Shield vars long after this app moved to Privy),
+      # so verify this one is deleted/unused on the prod VM too.
+      COMPOSE_FILE: ./deployment/docker-compose.yml
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Prisma migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          docker run --rm \
+            --network internal \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -v "$PWD/prisma:/app/prisma" \
+            -v "$PWD/prisma.config.ts:/app/prisma.config.ts" \
+            -w /app \
+            node:22-alpine \
+            sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
+          # NOTE: unlike dev, this has no baseline/resolve fallback for a
+          # pre-existing schema with no _prisma_migrations history -- prod's
+          # actual DB state hasn't been inspected. If this fails with P3005,
+          # investigate prod's schema state before baselining (do not assume
+          # it matches dev's).
+
       - name: Write runtime secrets to env file
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
