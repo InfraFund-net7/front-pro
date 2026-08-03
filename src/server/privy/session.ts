@@ -34,8 +34,14 @@ function getPrivyClient() {
 export async function verifyPrivyAccessToken(
   accessToken: string
 ): Promise<VerifiedPrivySession> {
+  // getPrivyClient() throws a plain Error for missing/misconfigured env vars.
+  // Let that propagate as an unhandled error (-> 500) instead of being
+  // relabeled "Invalid Privy access token" below, so a server
+  // misconfiguration doesn't masquerade as an expired user session.
+  const client = getPrivyClient();
+
   try {
-    const claims = await getPrivyClient().verifyAuthToken(accessToken);
+    const claims = await client.verifyAuthToken(accessToken);
 
     return {
       user: {
