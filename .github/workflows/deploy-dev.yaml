@@ -21,7 +21,7 @@ jobs:
           SHA=$(git rev-parse --short HEAD)
           docker build \
             -f ./deployment/Dockerfile \
-            --build-arg NEXT_PUBLIC_PRIVY_APP_ID=${{ secrets.DEV_PRIVY_APP_ID }} \
+            --build-arg NEXT_PUBLIC_PRIVY_APP_ID=${{ secrets.PRIVY_APP_ID }} \
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.DEV_RECAPTCHA_SITE_KEY }} \
             --build-arg NEXT_PUBLIC_ENVIRONMENT=development \
             -t "$ACR_REGISTRY/infra-dashboard:dev" \
@@ -40,8 +40,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
           APP_JWT_SECRET: ${{ secrets.DEV_APP_JWT_SECRET }}
-          NEXT_PUBLIC_PRIVY_APP_ID: ${{ secrets.DEV_PRIVY_APP_ID }}
-          PRIVY_APP_SECRET: ${{ secrets.DEV_PRIVY_APP_SECRET }}
+          NEXT_PUBLIC_PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
         run: |
           printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\n' \
             "$DATABASE_URL" \
