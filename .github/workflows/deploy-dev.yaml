@@ -36,6 +36,21 @@ jobs:
     env:
       COMPOSE_FILE: ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Prisma migrations
+        env:
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+        run: |
+          docker run --rm \
+            --network internal \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -v "$PWD/prisma:/app/prisma" \
+            -w /app \
+            node:22-alpine \
+            sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
+
       - name: Write runtime secrets to env file
         env:
           DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
