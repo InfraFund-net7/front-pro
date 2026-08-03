@@ -1,104 +1,147 @@
-<!-- cspell:words Openfort InfraFund Infrafund backpro frontpro Prisma prisma httpOnly Jotai nodemailer pino reCAPTCHA waitlists waitlist Sumsub uuidv sslmode prebuild knip cspell commitlint husky Turbopack -->
-
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project overview
+## Project Overview
 
-InfraFund Front Pro is a single Next.js 16 (App Router) application that hosts both the InfraFund frontend and the migrated backend API routes. It replaced a previous Go backend (`../backpro`) — see `docs-dev/tasks/task-100-nextjs-migration-plan.md` for the migration plan and endpoint parity matrix. Authentication and wallet lifecycle are owned by Openfort; app sessions, user profile, authorization, and CRUD endpoints are owned by Next.js API routes.
+**InfraFund Dashboard** — a Next.js 15 App Router frontend for InfraFund, a real-world asset tokenization and investment platform. The app handles user authentication via Openfort (embedded wallets), KYC flows, project creation/exploration, investment management, and digital asset tracking.
 
 ## Commands
 
-```sh
-npm run dev              # Next.js dev server on :3000
-npm run dev:local        # Start local Postgres (docker), prisma db push, seed countries, then dev (logs → .next/dev-server.log)
-npm run db:local:setup   # Local Postgres + schema + seeds only
-npm run db:local:down    # Stop local Postgres
-npm run db:generate      # prisma generate
-npm run env:example      # Regenerate sanitized .env.example from .env.local
-npm run build            # prisma generate (prebuild) + next build
-npm run format           # eslint + prettier --check + cspell + knip
-npm run fix:lint         # eslint --fix
-npm run fix:prettier     # prettier --write
+```bash
+# Development
+npm run dev               # Start dev server (http://localhost:3000)
+npm run dev:clean         # Wipe .next cache then start dev server
+
+# Build & production
+npm run build             # Production build (standalone output)
+npm run build-start       # Build then start
+
+# Code quality (run all)
+npm run format            # lint + prettier check + cspell + knip
+
+# Fix issues
+npm run fix:lint          # Auto-fix ESLint errors
+npm run fix:prettier      # Auto-format with Prettier
 ```
 
-There is no test runner configured in `package.json`; do not invent test commands. CI/CD lints, builds, and dependency-checks are gating per `CONTRIBUTING.md`.
+There are no test scripts configured — CI relies on lint/build checks.
 
-## Local environment notes
+## Required Environment Variables
 
-- `npm run dev:local` is the canonical dev entrypoint. It auto-detects whether `DATABASE_URL` is reachable; if not, it boots `deployment/docker-compose.local.yml`.
-- Default local DB URL: `postgresql://postgres:postgres@localhost:5432/infra_dev?sslmode=disable`.
-- Dev server output is mirrored to `.next/dev-server.log` — tail this file rather than re-running the server.
-- Environment variable reference lives in `config-operation/environment-variables.md`. Never commit `.env.local`; regenerate `.env.example` via `npm run env:example`.
-- Openfort test credentials and manual smoke-test flow are documented in `docs-dev/test/local-testing-runbook.md`.
+Create `.env.local` for local development:
+
+```bash
+# Required — Openfort publishable key (same as InfraFund backend config)
+NEXT_PUBLIC_OPENFORT_PUBLISHABLE_KEY=
+
+# Required — backend API base URL (proxied through Next.js API routes)
+NEXT_PUBLIC_API_BASE_URL=
+
+# Optional — Openfort embedded wallet / Shield
+NEXT_PUBLIC_OPENFORT_SHIELD_PUBLISHABLE_KEY=
+NEXT_PUBLIC_OPENFORT_EMBEDDED_CHAIN_ID=84532   # Base Sepolia by default
+OPENFORT_SHIELD_SECRET_KEY=                    # Server-side only
+OPENFORT_SHIELD_ENCRYPTION_SHARE=             # Server-side only
+
+# Optional — used to construct ToS/Privacy URLs in Openfort modal
+NEXT_PUBLIC_LANDING_URL=
+
+# Optional — domain for survey_data cookie (cross-domain landing → app flow)
+NEXT_PUBLIC_SURVEY_COOKIE_DOMAIN=
+```
+
+If `NEXT_PUBLIC_OPENFORT_PUBLISHABLE_KEY` is missing the app renders an error screen instead of loading.
 
 ## Architecture
 
-### Boundary: client vs server
+### Path aliases
 
-- `src/app/**` — Next.js App Router. Pages under feature folders (`account`, `kyc`, `investment-portal`, `tokenization`, etc.) and API routes under `src/app/api/{auth,cron,v1}/**`.
-- `src/components/**`, `src/atoms/**` (Jotai), `src/lib/**` — client/shared code. `src/lib/openfort-config.tsx` wires the Openfort React provider; `src/lib/solana-kit-unavailable.ts` is aliased in for `@solana/kit` (see `next.config.ts`) to keep Solana out of the bundle.
-- `src/server/**` — server-only code. Top of `src/server/env.ts` imports `server-only` to enforce this. **Never import from `src/server` in client components.**
+```
+@/*    → src/*
+@public/* → public/*
+```
 
-### Server layering (`src/server`)
+### App Router structure
 
-Layered top-down, dependencies flow downward only:
+```
+src/app/
+├── layout.tsx                  # Root layout: OpenfortAppProvider → MainLayout
+├── page.tsx                    # Redirects to /explore-projects
+├── home/page.tsx               # Also redirects to /explore-projects
+├── login/page.tsx              # Auth page (no sidebar/guard)
+├── register/page.tsx           # Auth page (no sidebar/guard)
+├── explore-projects/page.tsx
+├── create-project/page.tsx
+├── investment-portal/page.tsx
+├── investment-requests/page.tsx
+├── investor-management/page.tsx
+├── asset-management/page.tsx
+├── digital-assets/page.tsx
+├── tokenization/page.tsx
+├── kyc/page.tsx
+├── swap/page.tsx
+└── api/                        # Next.js API routes (proxy to backend)
+    ├── auth/challenge/route.ts
+    ├── auth/register/route.ts
+    ├── login/route.ts
+    ├── register/route.ts
+    ├── balance/route.ts
+    ├── deposit/route.ts
+    └── openfort/encryption-session/route.ts
+```
 
-1. `auth/` — JWT (`jose`), httpOnly refresh cookies, lockout policy, token issuance.
-2. `http/` — API helpers: `api-error`, `response`, `captcha` (reCAPTCHA), `request-metadata`. Use these for consistent route responses and errors.
-3. `services/` — business logic: `auth`, `account`, `email` (nodemailer), `public-forms`, `cleanup` (cron).
-4. `repositories/` — Prisma data access: `users`, `sessions`, `lockouts`, `public-forms`.
-5. `db/` — Prisma client (uses `@prisma/adapter-pg`).
-6. `openfort/session.ts` — server-side Openfort verification.
-7. `validation/` — request schema validation.
-8. `env.ts` — typed accessor for server env, gated per feature (`database`, `auth`, `openfort`, `captcha`, `email`, `shield`, `cron`).
-9. `logger.ts` — pino.
+### Provider hierarchy
 
-### Auth model
+`OpenfortAppProvider` (Openfort SDK) wraps `MainLayout`, which splits routing into two modes:
+- **Auth pages** (`/login`, `/register`): rendered centered without sidebar/header.
+- **Dashboard pages**: wrapped in `DashboardOpenfortGuard` → renders sidebar + header + main content.
 
-Two-layer auth:
+### Authentication flow
 
-- **Openfort** issues identity (email/SMS OTP, social, etc.) and owns wallets. Server verifies the Openfort access token at `/api/v1/auth/openfort/exchange` and `/check`.
-- **App session** is issued by this app: short-lived JWT access token + httpOnly refresh cookie. `/refresh` rotates, `/logout` revokes the row in `sessions`. Lockouts and audit logs gate repeated failures.
+1. User lands on `/login` → `OpenfortAuthForm` renders an `<OpenfortButton />` (Openfort SDK).
+2. On successful Openfort auth, the form calls `/api/login` (or `/api/register` for new users) passing the Openfort `userId` + `token`.
+3. The API route proxies to the InfraFund backend, which returns an `access_token`.
+4. `access_token` is stored in `localStorage` under the key `access_token`.
+5. `DashboardOpenfortGuard` reads `localStorage.access_token`; if absent, it redirects to `/login`.
 
-The `User.openfortUserId` column is the join key. Wallet creation is deferred until KYC qualification per the migration plan.
+**Registration trigger**: The landing site sets a `survey_data` cookie containing role/type/contact info. The login page reads this cookie, clears it, and passes the payload to `OpenfortAuthForm` which routes to `/api/register` instead of `/api/login`.
 
-### Database
+### API proxy pattern
 
-PostgreSQL via Prisma 7 with the `pg` adapter. Schema lives in `prisma/schema.prisma`; `uuidv7()` is used for IDs (Postgres-side). `prisma generate` runs as `prebuild` so production builds always have a fresh client. Seed scripts are plain Node ESM under `scripts/` (not Prisma's seed runner).
+All client-side API calls go through `src/services/api.service.ts` → `src/utils/axios.utils.ts`. The axios instance has an interceptor that injects the `access_token` from localStorage as a Bearer token. The `reWriteUrl()` function in `api.service.ts` prefixes paths with `api/`, routing to the Next.js API routes above.
 
-### Cron / cleanup
+Server-side API routes use `src/utils/server-axios.ts` (plain axios, `baseURL = SERVER_URL`) or direct `axios` calls with `getServerUrl()` to reach the backend.
 
-`src/app/api/cron/cleanup` is invoked by an external cron (deployment-defined) to expire sessions/lockouts/audit logs via `services/cleanup.ts`.
+### State management
 
-### Sentry / instrumentation
+- **Jotai atoms** (`src/atoms/`) for lightweight client state (e.g., KYC wizard step and form data).
+- **TanStack Query** available for server-state caching (import from `@tanstack/react-query`).
+- No Redux or Zustand.
 
-`instrumentation.ts`, `instrumentation-client.ts`, `sentry.edge.config.ts`, `sentry.server.config.ts` are wired through `withSentryConfig` in `next.config.ts`. Don't rename these without updating `next.config.ts`.
+### Webpack aliases (next.config.ts)
 
-## Conventions
+Three custom aliases are configured to allow customizing/preloading Openfort internals:
+- `openfort-internal-connect-modal` → Openfort's ConnectModal chunk (preloaded to avoid ChunkLoadError)
+- `openfort-ui-provider-context` → Openfort's useOpenfort hook
+- `infrafund-landing-legal-urls` → `src/lib/landing-legal-urls.ts`
 
-- Path alias: `@/*` → `src/*` (set in `tsconfig.json`).
-- Output: `standalone` (used by the Railway/Docker deployment in `deployment/`).
-- Commits follow Conventional Commits (commitlint + husky enforce this on commit).
-- Knip is part of `npm run format` — unused exports/files will be flagged.
-- cspell runs in `npm run format`; many docs include inline `<!-- cspell:words ... -->` directives — extend the dictionary inline rather than disabling cspell.
+A `NormalModuleReplacementPlugin` swaps Openfort's `PoweredByFooter` with `src/components/openfort/infra-powered-by-footer.tsx`.
 
-## Definition of Done (per CONTRIBUTING.md)
+### Styling
 
-PRs require: green CI (lint/build/deps), tests for new logic, no coverage regression, SAST clean, self-review, peer review, then Tech Lead (Homayoun) approval before merge. Sven is auto-notified post-merge. The default branch for PRs is `develop`.
+- Tailwind CSS v4 (PostCSS plugin, `@tailwindcss/postcss`).
+- Global styles in `src/app/globals.css`.
+- Dark background `#0C0C0D` is the base; blurred radial gradients (`#1A2A4AAD`) are fixed-position decorative elements in `MainLayout`.
 
-## Resources
+## Deployment
 
-### Sitemap (from figma)
+- Build output: `standalone` (configured in `next.config.ts`).
+- Docker: `deployment/Dockerfile` + `deployment/docker-compose.yml`, image name `infrafund-dashboard`.
+- CI/CD: GitHub Actions (`.github/workflows/`). `develop` branch auto-deploys to dev; `main` deploys to production. `NEXT_PUBLIC_*` env vars are baked into the Docker image at build time as `--build-arg`.
 
-directory : `docs-dev/resources/sitemap`
+## Contribution Guidelines
 
-### Design
-
-Design guidelines can be found here :
-
-- `DESIGN.md`
-- `.claude/skills/design/SKILL.md`
-
-figma project : "Infrafund-local"
+- Commits must follow **Conventional Commits** (enforced by commitlint + husky).
+- PRs require: passing CI, peer review, then Tech Lead (code owner: `@ImanAlibeigi`) approval before merge.
+- Use the PR template at `.github/pull_request_template.md`.

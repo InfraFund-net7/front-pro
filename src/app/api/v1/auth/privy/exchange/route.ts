@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { setRefreshTokenCookie } from '@/server/auth/cookies';
 import { requireBearerToken } from '@/server/auth/http';
 import { getRequestMetadata, handleApiError, jsonOk } from '@/server/http';
-import { exchangeOpenfortSession } from '@/server/services/auth';
+import { exchangePrivySession } from '@/server/services/auth';
 import { readJsonObject } from '@/server/validation/public-forms';
 
 function optionalString(body: Record<string, unknown>, field: string) {
@@ -14,7 +14,7 @@ function optionalString(body: Record<string, unknown>, field: string) {
 export async function POST(request: NextRequest) {
   try {
     const body = await readJsonObject(request);
-    const login = await exchangeOpenfortSession({
+    const login = await exchangePrivySession({
       accessToken: requireBearerToken(request),
       firstName: optionalString(body, 'first_name'),
       lastName: optionalString(body, 'last_name'),

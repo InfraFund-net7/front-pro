@@ -19,6 +19,10 @@
   "ignoreDependencies": [
     "@openfort/shield-js",
     "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/parser"
+    "@typescript-eslint/parser",
+    "@biconomy/abstractjs",
+    "@openfort/openfort-js",
+    "@openfort/openfort-node",
+    "@privy-io/node"
   ]
 }
