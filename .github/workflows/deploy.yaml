@@ -24,6 +24,7 @@ jobs:
             --build-arg NEXT_PUBLIC_PRIVY_APP_ID=${{ secrets.PRIVY_APP_ID }} \
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }} \
             --build-arg NEXT_PUBLIC_ENVIRONMENT=production \
+            --build-arg NEXT_PUBLIC_GIT_SHA="$SHA" \
             -t "$ACR_REGISTRY/infra-dashboard:prod" \
             -t "$ACR_REGISTRY/infra-dashboard:prod-$SHA" .
           docker push "$ACR_REGISTRY/infra-dashboard:prod"
@@ -61,11 +62,12 @@ jobs:
             -w /app \
             node:22-alpine \
             sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
-          # NOTE: unlike dev, this has no baseline/resolve fallback for a
-          # pre-existing schema with no _prisma_migrations history -- prod's
-          # actual DB state hasn't been inspected. If this fails with P3005,
-          # investigate prod's schema state before baselining (do not assume
-          # it matches dev's).
+          # If this fails, investigate the target DB's actual state before
+          # baselining/resolving anything by hand -- do not add a blind
+          # `migrate resolve --applied` fallback here. That pattern silently
+          # bookkeeping-marks migrations as applied without running their SQL,
+          # which is exactly what corrupted the dev DB's migration history
+          # (see docs/deployment-azure.md troubleshooting checklist).
 
       - name: Write runtime secrets to env file
         env:
@@ -73,12 +75,16 @@ jobs:
           APP_JWT_SECRET: ${{ secrets.APP_JWT_SECRET }}
           NEXT_PUBLIC_PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
           PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZURE_STORAGE_CONTAINER_NAME: ${{ secrets.AZURE_STORAGE_CONTAINER_NAME }}
         run: |
-          printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\n' \
+          printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\nAZURE_STORAGE_CONNECTION_STRING=%s\nAZURE_STORAGE_CONTAINER_NAME=%s\n' \
             "$DATABASE_URL" \
             "$APP_JWT_SECRET" \
             "$NEXT_PUBLIC_PRIVY_APP_ID" \
             "$PRIVY_APP_SECRET" \
+            "$AZURE_STORAGE_CONNECTION_STRING" \
+            "$AZURE_STORAGE_CONTAINER_NAME" \
             > /tmp/dashboard-prod.env
 
       - name: Deploy with Docker Compose
