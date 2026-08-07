@@ -1,6 +1,10 @@
 import 'server-only';
 
-import type { ProjectInfrastructureType, ProjectStatus } from '@prisma/client';
+import type {
+  ProjectInfrastructureType,
+  ProjectStatus,
+  UserRole,
+} from '@prisma/client';
 
 import {
   addFieldError,
@@ -22,6 +26,15 @@ const infrastructureTypes = new Set<ProjectInfrastructureType>([
   'geothermal',
   'nuclear',
   'other',
+]);
+// Project-level roles a member can be invited into. project_owner is the
+// creator's role, not something invited; admin/moderator/support are
+// platform-staff roles unrelated to project membership.
+const invitableRoles = new Set<UserRole>([
+  'investor',
+  'contractor',
+  'governance',
+  'auditor',
 ]);
 const projectStatuses = new Set<ProjectStatus>([
   'planning',
@@ -68,6 +81,11 @@ interface CampaignMilestoneInput {
 
 export interface MilestonesInput {
   milestones: CampaignMilestoneInput[];
+}
+
+export interface InviteMemberInput {
+  email: string;
+  role: UserRole;
 }
 
 export interface CampaignInput {
@@ -384,4 +402,30 @@ function parseMilestones(body: JsonObject, fields: Record<string, string>) {
       componentExternalIds,
     };
   });
+}
+
+export async function parseInviteMemberRequest(request: Request) {
+  const body = await readJsonObject(request);
+  const fields: Record<string, string> = {};
+  const email = readString(body, fields, 'email', {
+    required: true,
+    maxLength: 255,
+    email: true,
+  });
+  const role = readString(body, fields, 'role', { required: true });
+
+  if (role && !invitableRoles.has(role as UserRole)) {
+    addFieldError(
+      fields,
+      'role',
+      `role must be one of ${Array.from(invitableRoles).join(', ')}`
+    );
+  }
+
+  throwIfFieldErrors(fields);
+
+  return {
+    email: email!,
+    role: role as UserRole,
+  } satisfies InviteMemberInput;
 }

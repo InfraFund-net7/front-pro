@@ -2,6 +2,21 @@
 
 import type { DigitalTwinView } from '@/types/digital-twin';
 
+// Mirrors Prisma's UserRole/UserType enums (prisma/schema.prisma) -- kept
+// as a hand-written literal union here rather than importing @prisma/client
+// directly into client components, matching how the rest of this file
+// defines its own DTO shapes decoupled from the Prisma schema.
+export type AccountRole =
+  | 'admin'
+  | 'moderator'
+  | 'support'
+  | 'project_owner'
+  | 'investor'
+  | 'contractor'
+  | 'governance'
+  | 'auditor';
+export type AccountType = 'individual' | 'organization';
+
 interface BackendLoginResponse {
   user_id: string;
   access_token: string;
@@ -88,6 +103,22 @@ interface ProjectDocumentPayload {
   storage_url?: string;
 }
 
+export type ProjectDraftStep =
+  | 'contact_information'
+  | 'project_information'
+  | 'project_milestones'
+  | 'campaign_details'
+  | 'review'
+  | 'submitted';
+
+export interface ProjectMemberPayload {
+  user_id: string;
+  role: AccountRole;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+}
+
 export interface ProjectResponse {
   id: string;
   owner_user_id: string;
@@ -98,7 +129,7 @@ export interface ProjectResponse {
   project_status: string | null;
   crowdfunding_model: string;
   submission_status: string;
-  current_step: string;
+  current_step: ProjectDraftStep;
   digital_asset_symbol: string | null;
   target_investment_amount: string | null;
   target_investment_currency: string;
@@ -109,6 +140,7 @@ export interface ProjectResponse {
   created_at: string;
   updated_at: string;
   account_roles: string[];
+  members: ProjectMemberPayload[];
   contact: {
     first_name: string;
     last_name: string;
@@ -173,6 +205,11 @@ interface ProjectMilestonesPayload {
   milestones: ProjectMilestonePayload[];
 }
 
+export interface InviteMemberPayload {
+  email: string;
+  role: string;
+}
+
 export interface ProjectCampaignPayload {
   token_name: string;
   digital_asset_supply: string;
@@ -196,8 +233,8 @@ export interface BackendMeResponse {
   last_name: string | null;
   company_name: string | null;
   phone_number: string | null;
-  type: string;
-  role: string;
+  type: AccountType;
+  role: AccountRole;
   status: string;
   kyc_verified: boolean;
   kyb_verified: boolean;
@@ -480,6 +517,29 @@ export async function submitProjectDraft(
 ) {
   return request<ProjectResponse>(`projects/${projectId}/submit`, {
     method: 'POST',
+    accessToken,
+  });
+}
+
+export async function inviteProjectMember(
+  accessToken: string,
+  projectId: string,
+  payload: InviteMemberPayload
+) {
+  return request<ProjectResponse>(`projects/${projectId}/members`, {
+    method: 'POST',
+    accessToken,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function removeProjectMember(
+  accessToken: string,
+  projectId: string,
+  userId: string
+) {
+  return request<ProjectResponse>(`projects/${projectId}/members/${userId}`, {
+    method: 'DELETE',
     accessToken,
   });
 }

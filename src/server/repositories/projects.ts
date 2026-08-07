@@ -15,7 +15,18 @@ const projectInclude = {
   campaign: true,
   contact: true,
   documents: true,
-  accountRoles: true,
+  accountRoles: {
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  },
   digitalTwinModels: {
     where: {
       isActive: true,
@@ -309,6 +320,39 @@ export function submitProject(projectId: string) {
       submittedAt: now,
       updatedAt: now,
     },
+    include: projectInclude,
+  });
+}
+
+export async function addProjectMember(
+  projectId: string,
+  userId: string,
+  role: UserRole
+) {
+  await getDb().projectAccountRole.create({
+    data: {
+      projectId,
+      userId,
+      role,
+    },
+  });
+
+  return getDb().project.findUniqueOrThrow({
+    where: { id: projectId },
+    include: projectInclude,
+  });
+}
+
+export async function removeProjectMember(projectId: string, userId: string) {
+  await getDb().projectAccountRole.deleteMany({
+    where: {
+      projectId,
+      userId,
+    },
+  });
+
+  return getDb().project.findUniqueOrThrow({
+    where: { id: projectId },
     include: projectInclude,
   });
 }

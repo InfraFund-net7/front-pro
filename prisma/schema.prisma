@@ -54,9 +54,11 @@ enum NonResidentWaitlistType {
   @@map("non_resident_waitlist_type")
 }
 
+// crowdfunding_model and asset_symbol were removed -- createProjectDraft
+// always sets currentStep straight to contact_information; a "funding
+// model" pre-selection step exists only in the frontend wizard's local
+// UI state before any draft is created, so it has no server-side value.
 enum ProjectDraftStep {
-  crowdfunding_model
-  asset_symbol
   contact_information
   project_information
   project_milestones
@@ -298,7 +300,7 @@ model Project {
   projectStatus            ProjectStatus?               @map("project_status")
   crowdfundingModel        ProjectCrowdfundingModel     @default(pre_sale) @map("crowdfunding_model")
   submissionStatus         ProjectSubmissionStatus      @default(draft) @map("submission_status")
-  currentStep              ProjectDraftStep             @default(crowdfunding_model) @map("current_step")
+  currentStep              ProjectDraftStep             @default(contact_information) @map("current_step")
   digitalAssetSymbol       String?                      @map("digital_asset_symbol") @db.VarChar(12)
   targetInvestmentAmount   Decimal?                     @map("target_investment_amount") @db.Decimal(18, 2)
   targetInvestmentCurrency String                       @default("GBP") @map("target_investment_currency") @db.VarChar(3)
