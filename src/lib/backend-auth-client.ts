@@ -1,5 +1,7 @@
 'use client';
 
+import type { DigitalTwinView } from '@/types/digital-twin';
+
 interface BackendLoginResponse {
   user_id: string;
   access_token: string;
@@ -480,6 +482,22 @@ export async function submitProjectDraft(
     method: 'POST',
     accessToken,
   });
+}
+
+export async function completeDigitalTwinMilestone(
+  accessToken: string,
+  projectId: string,
+  milestoneId: string,
+  completed: boolean
+) {
+  return request<DigitalTwinView>(
+    `digital-twin/projects/${projectId}/milestones/${milestoneId}/complete`,
+    {
+      method: 'PATCH',
+      accessToken,
+      body: JSON.stringify({ completed }),
+    }
+  );
 }
 
 export async function logoutBackendSession() {

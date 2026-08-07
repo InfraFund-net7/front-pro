@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { DigitalTwinClientPage } from '@/components/digital-twin/client-page';
-import { getDigitalTwinProject } from '@/lib/digital-twin-projects';
+import { getDigitalTwinView } from '@/server/services/digital-twin';
+import { isApiError } from '@/server/http';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -8,35 +9,30 @@ type PageProps = {
 
 export default async function DigitalTwinPage({ params }: PageProps) {
   const { id } = await params;
-  const project = getDigitalTwinProject(id);
+  const view = await getDigitalTwinView(id).catch((error: unknown) => {
+    if (isApiError(error) && error.code === 'NOT_FOUND') {
+      return null;
+    }
 
-  if (!project) {
+    throw error;
+  });
+
+  if (!view) {
     notFound();
   }
-
-  const isOperational = project.statusLabel === 'Operational';
-  const projectStatusLabel = isOperational ? 'Operational' : 'Construction';
-  const projectStatusClassName = isOperational
-    ? 'border-primary/40 bg-primary-selected text-primary'
-    : 'border-info/40 bg-info/10 text-info';
 
   return (
     <div className="flex flex-col gap-6 text-white">
       <div className="flex flex-wrap items-center gap-3">
         <span className="rounded-full border border-primary/40 bg-primary-selected px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-          Project ID {project.id}
-        </span>
-        <span
-          className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] ${projectStatusClassName}`}
-        >
-          {projectStatusLabel}
+          {view.projectName}
         </span>
         <span className="rounded-full border border-card-border bg-[#0C0C0D]/60 px-3 py-1 text-xs uppercase text-gray-300">
-          {project.modelFormat}
+          {view.model.format}
         </span>
       </div>
 
-      <DigitalTwinClientPage project={project} />
+      <DigitalTwinClientPage view={view} />
     </div>
   );
 }

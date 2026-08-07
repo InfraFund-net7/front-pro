@@ -2,9 +2,17 @@
 
 // cspell:words Cesium tileset
 import { useEffect, useRef, useState } from 'react';
+import { DigitalTwinViewerLayout } from '@/components/digital-twin/viewer-layout';
+import type { Cesium3DTileFeature } from '@/types/cesium-window';
+import type {
+  DigitalTwinComponentView,
+  SelectedComponentMetadata,
+} from '@/types/digital-twin';
+import { STATUS_LABELS } from '@/types/digital-twin';
 
 type CesiumIonViewerProps = {
   assetId: number;
+  components: DigitalTwinComponentView[];
 };
 
 type CesiumViewer =
@@ -12,6 +20,13 @@ type CesiumViewer =
     Viewer: new (...args: never[]) => infer Viewer;
   }
     ? Viewer
+    : never;
+
+type Cesium3DTileset =
+  NonNullable<typeof window.Cesium> extends {
+    Cesium3DTileset: { fromIonAssetId: (assetId: number) => Promise<infer T> };
+  }
+    ? T
     : never;
 
 type CesiumNamespace = NonNullable<typeof window.Cesium>;
@@ -36,6 +51,12 @@ const CESIUM_BASE_URL = `https://cesium.com/downloads/cesiumjs/releases/${CESIUM
 const CESIUM_SCRIPT_URL = `${CESIUM_BASE_URL}/Cesium.js`;
 const CESIUM_WIDGETS_CSS_URL = `${CESIUM_BASE_URL}/Widgets/widgets.css`;
 const CESIUM_ION_API_BASE_URL = 'https://api.cesium.com/v1';
+
+// The tileset's batch table / 3D Tiles metadata must expose an `externalId`
+// property matching ProjectDigitalTwinComponent.externalId for click-to-inspect
+// and status styling to cross-reference database components — the same stable
+// external ID requirement the glTF pipeline has (see task-120.0 provider guidance).
+const FEATURE_ID_PROPERTY = 'externalId';
 
 function getCesium() {
   return window.Cesium;
@@ -204,11 +225,94 @@ function getDefaultStateMessage(viewerState: ViewerState) {
   }
 }
 
-export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
+function buildTilesetStyle(
+  Cesium: CesiumNamespace,
+  components: DigitalTwinComponentView[]
+) {
+  if (components.length === 0) {
+    return undefined;
+  }
+
+  const colorConditions: Array<[string, string]> = components.map(
+    (component) => [
+      `\${${FEATURE_ID_PROPERTY}} === '${component.externalId}'`,
+      `color('${component.color}')`,
+    ]
+  );
+  const showConditions: Array<[string, string]> = components.map(
+    (component) => [
+      `\${${FEATURE_ID_PROPERTY}} === '${component.externalId}'`,
+      component.isVisible ? 'true' : 'false',
+    ]
+  );
+
+  colorConditions.push(['true', "color('#FFFFFF')"]);
+  showConditions.push(['true', 'true']);
+
+  return new Cesium.Cesium3DTileStyle({
+    color: { conditions: colorConditions },
+    show: { conditions: showConditions },
+  });
+}
+
+function collectFeatureMetadata(
+  feature: Cesium3DTileFeature,
+  components: DigitalTwinComponentView[]
+): SelectedComponentMetadata {
+  const propertyIds = feature.getPropertyIds();
+  const entries: Array<[string, string]> = propertyIds.map((propertyId) => [
+    propertyId,
+    String(feature.getProperty(propertyId)),
+  ]);
+  const externalId = feature.getProperty(FEATURE_ID_PROPERTY);
+  const component =
+    typeof externalId === 'string'
+      ? components.find((item) => item.externalId === externalId)
+      : undefined;
+
+  if (component) {
+    entries.push(
+      ['displayName', component.displayName],
+      ['category', component.category],
+      ['status', STATUS_LABELS[component.status]]
+    );
+
+    if (component.metadata) {
+      Object.entries(component.metadata).forEach(([key, value]) => {
+        entries.push([
+          key,
+          typeof value === 'string' ? value : JSON.stringify(value),
+        ]);
+      });
+    }
+  }
+
+  return {
+    title: component?.displayName ?? String(externalId ?? 'Component metadata'),
+    entries,
+  };
+}
+
+export function CesiumIonViewer({ assetId, components }: CesiumIonViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CesiumViewer | null>(null);
+  const tilesetRef = useRef<Cesium3DTileset | null>(null);
+  const componentsRef = useRef(components);
   const [viewerState, setViewerState] = useState<ViewerState>('checking-token');
   const [stateMessage, setStateMessage] = useState<string>();
+  const [selectedMetadata, setSelectedMetadata] =
+    useState<SelectedComponentMetadata>(null);
+
+  useEffect(() => {
+    componentsRef.current = components;
+
+    const Cesium = getCesium();
+    const tileset = tilesetRef.current;
+
+    if (Cesium && tileset) {
+      tileset.style = buildTilesetStyle(Cesium, components);
+    }
+  }, [components]);
 
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) {
@@ -276,9 +380,32 @@ export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
 
         viewerRef.current = viewer;
 
-        const tileset = viewer.scene.primitives.add(
-          await Cesium.Cesium3DTileset.fromIonAssetId(assetId)
-        );
+        const tileset = await Cesium.Cesium3DTileset.fromIonAssetId(assetId);
+
+        tileset.style = buildTilesetStyle(Cesium, componentsRef.current);
+        viewer.scene.primitives.add(tileset);
+        tilesetRef.current = tileset;
+
+        viewer.screenSpaceEventHandler.setInputAction((movement) => {
+          const picked = viewer.scene.pick(movement.position) as
+            | Partial<Cesium3DTileFeature>
+            | undefined;
+
+          if (
+            picked &&
+            typeof picked.getPropertyIds === 'function' &&
+            typeof picked.getProperty === 'function'
+          ) {
+            setSelectedMetadata(
+              collectFeatureMetadata(
+                picked as Cesium3DTileFeature,
+                componentsRef.current
+              )
+            );
+          } else {
+            setSelectedMetadata(null);
+          }
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
         if (isMounted) {
           setViewerState('ready');
@@ -302,27 +429,38 @@ export function CesiumIonViewer({ assetId }: CesiumIonViewerProps) {
       isMounted = false;
       viewerRef.current?.destroy();
       viewerRef.current = null;
+      tilesetRef.current = null;
     };
   }, [assetId]);
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-card-border bg-card-bg shadow-2xl backdrop-blur-xl">
-      <div className="relative h-[520px] bg-[#0C0C0D]">
-        <div ref={containerRef} className="h-full w-full" />
+    <DigitalTwinViewerLayout
+      metadata={selectedMetadata}
+      capabilities={{ groundPlane: false, keyLight: false }}
+      showGroundPlane={false}
+      setShowGroundPlane={() => {
+        // Ground plane toggle is not applicable to the Cesium renderer.
+      }}
+      showKeyLight={false}
+      setShowKeyLight={() => {
+        // Key light toggle is not applicable to the Cesium renderer.
+      }}
+      viewportClassName="bg-[#0C0C0D]"
+    >
+      <div ref={containerRef} className="h-full w-full" />
 
-        {viewerState === 'ready' ? null : (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#0C0C0D]/80 p-6 text-center backdrop-blur-sm">
-            <div className="max-w-md rounded-2xl border border-card-border bg-[#151E2F]/90 p-5 shadow-xl">
-              <p className="chakra-petch text-lg font-bold text-white">
-                {getStateTitle(viewerState)}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-gray-300">
-                {stateMessage ?? getDefaultStateMessage(viewerState)}
-              </p>
-            </div>
+      {viewerState === 'ready' ? null : (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#0C0C0D]/80 p-6 text-center backdrop-blur-sm">
+          <div className="max-w-md rounded-2xl border border-card-border bg-[#151E2F]/90 p-5 shadow-xl">
+            <p className="chakra-petch text-lg font-bold text-white">
+              {getStateTitle(viewerState)}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-gray-300">
+              {stateMessage ?? getDefaultStateMessage(viewerState)}
+            </p>
           </div>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </DigitalTwinViewerLayout>
   );
 }
