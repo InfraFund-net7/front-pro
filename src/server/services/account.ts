@@ -8,8 +8,6 @@ import {
   type UserWithOrganization,
 } from '@/server/repositories/users';
 // Privy user deletion is handled client-side via Privy's dashboard/API.
-// The deleteOpenfortUser call has been removed as part of the Privy migration.
-import { logger } from '@/server/logger';
 
 async function getAuthenticatedUser(accessToken: string) {
   const { user: sessionUser } = await authenticateAppRequest(accessToken);

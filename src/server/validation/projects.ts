@@ -2,11 +2,19 @@ import 'server-only';
 
 import type { ProjectInfrastructureType, ProjectStatus } from '@prisma/client';
 
-import { ApiError } from '@/server/http';
-import { readJsonObject } from '@/server/validation/public-forms';
+import {
+  addFieldError,
+  readBoolean,
+  readDate,
+  readDecimalString,
+  readJsonObject,
+  readOptionalUrl,
+  readString,
+  readStringArray,
+  throwIfFieldErrors,
+  type JsonObject,
+} from '@/server/validation/kernel';
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const urlPattern = /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}(?:[/?#:].*)?$/i;
 const infrastructureTypes = new Set<ProjectInfrastructureType>([
   'wind_energy',
   'solar_power',
@@ -75,207 +83,6 @@ export interface CampaignInput {
   endDate: Date;
   generalContractorWalletAddress?: string;
   pledgeAddress?: string;
-}
-
-type JsonObject = Record<string, unknown>;
-
-function addFieldError(
-  fields: Record<string, string>,
-  field: string,
-  message: string
-) {
-  fields[field] ??= message;
-}
-
-function throwIfFieldErrors(fields: Record<string, string>) {
-  if (Object.keys(fields).length > 0) {
-    throw new ApiError('VALIDATION_ERROR', 'Validation failed', { fields });
-  }
-}
-
-function readString(
-  body: JsonObject,
-  fields: Record<string, string>,
-  field: string,
-  options: { required?: boolean; maxLength?: number; email?: boolean } = {}
-) {
-  const value = body[field];
-
-  if (value === undefined || value === null) {
-    if (options.required) addFieldError(fields, field, `${field} is required`);
-    return undefined;
-  }
-
-  if (typeof value !== 'string') {
-    addFieldError(fields, field, `${field} must be a string`);
-    return undefined;
-  }
-
-  const trimmed = value.trim();
-
-  if (options.required && !trimmed) {
-    addFieldError(fields, field, `${field} is required`);
-  }
-
-  if (options.maxLength && trimmed.length > options.maxLength) {
-    addFieldError(
-      fields,
-      field,
-      `${field} must be at most ${options.maxLength} characters`
-    );
-  }
-
-  if (options.email && trimmed && !emailPattern.test(trimmed)) {
-    addFieldError(fields, field, `${field} must be a valid email address`);
-  }
-
-  return trimmed || undefined;
-}
-
-function readDecimalString(
-  body: JsonObject,
-  fields: Record<string, string>,
-  field: string,
-  options: { required?: boolean } = {}
-) {
-  const value = readString(body, fields, field, options);
-
-  if (!value) return undefined;
-
-  const normalized = value.replace(/,/g, '');
-
-  if (!/^\d+(\.\d+)?$/.test(normalized) || Number(normalized) <= 0) {
-    addFieldError(fields, field, `${field} must be a positive number`);
-  }
-
-  return normalized;
-}
-
-function readBoolean(
-  body: JsonObject,
-  fields: Record<string, string>,
-  field: string
-) {
-  const value = body[field];
-
-  if (typeof value !== 'boolean') {
-    addFieldError(fields, field, `${field} must be true or false`);
-    return false;
-  }
-
-  return value;
-}
-
-function readDate(
-  body: JsonObject,
-  fields: Record<string, string>,
-  field: string,
-  options: { required?: boolean } = {}
-) {
-  const value = readString(body, fields, field, options);
-
-  if (!value) return undefined;
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    addFieldError(fields, field, `${field} must be a valid date`);
-  }
-
-  return date;
-}
-
-function readOptionalUrl(
-  body: JsonObject,
-  fields: Record<string, string>,
-  field: string
-) {
-  const value = readString(body, fields, field, { maxLength: 2048 });
-
-  if (value && !urlPattern.test(value)) {
-    addFieldError(fields, field, `${field} must be a valid URL`);
-  }
-
-  if (value && !/^https?:\/\//i.test(value)) {
-    return `https://${value}`;
-  }
-
-  return value;
-}
-
-function readStringFromObject(
-  body: JsonObject,
-  fields: Record<string, string>,
-  field: string,
-  options: { maxLength?: number } = {}
-) {
-  return readString(body, fields, field, options);
-}
-
-function readStringArrayFromObject(
-  body: JsonObject,
-  fields: Record<string, string>,
-  field: string,
-  options: {
-    required?: boolean;
-    maxLength?: number;
-    itemMaxLength?: number;
-  } = {}
-) {
-  const value = body[field];
-
-  if (value === undefined || value === null) {
-    if (options.required) {
-      addFieldError(fields, field, `${field} is required`);
-    }
-    return [];
-  }
-
-  if (!Array.isArray(value)) {
-    addFieldError(fields, field, `${field} must be an array`);
-    return [];
-  }
-
-  if (options.maxLength !== undefined && value.length > options.maxLength) {
-    addFieldError(
-      fields,
-      field,
-      `${field} must contain at most ${options.maxLength} items`
-    );
-  }
-
-  return value.flatMap((item, index) => {
-    if (typeof item !== 'string') {
-      addFieldError(
-        fields,
-        `${field}.${index}`,
-        `${field}.${index} must be a string`
-      );
-      return [];
-    }
-
-    const trimmed = item.trim();
-
-    if (!trimmed) {
-      addFieldError(
-        fields,
-        `${field}.${index}`,
-        `${field}.${index} is required`
-      );
-      return [];
-    }
-
-    if (options.itemMaxLength && trimmed.length > options.itemMaxLength) {
-      addFieldError(
-        fields,
-        `${field}.${index}`,
-        `${field}.${index} must be at most ${options.itemMaxLength} characters`
-      );
-      return [];
-    }
-
-    return [trimmed];
-  });
 }
 
 export async function parseProjectContactRequest(request: Request) {
@@ -385,13 +192,13 @@ function parseProposalDocument(
   }
 
   const document = value as JsonObject;
-  const fileName = readStringFromObject(document, fields, 'file_name', {
+  const fileName = readString(document, fields, 'file_name', {
     maxLength: 255,
   });
-  const mimeType = readStringFromObject(document, fields, 'mime_type', {
+  const mimeType = readString(document, fields, 'mime_type', {
     maxLength: 100,
   });
-  const checksum = readStringFromObject(document, fields, 'checksum', {
+  const checksum = readString(document, fields, 'checksum', {
     maxLength: 128,
   });
   const storageUrl = readOptionalUrl(document, fields, 'storage_url');
@@ -539,7 +346,7 @@ function parseMilestones(body: JsonObject, fields: Record<string, string>) {
     });
     const cost = readDecimalString(milestone, fields, 'cost');
     const endDate = readDate(milestone, fields, 'end_date');
-    const componentExternalIds = readStringArrayFromObject(
+    const componentExternalIds = readStringArray(
       milestone,
       fields,
       'component_external_ids',

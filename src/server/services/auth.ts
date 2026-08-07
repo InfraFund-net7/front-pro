@@ -5,7 +5,7 @@ import { ApiError } from '@/server/http';
 import { getAuthConfig } from '@/server/auth/config';
 import { signAppAccessToken, verifyAppAccessToken } from '@/server/auth/jwt';
 import { createOpaqueToken, hashOpaqueToken } from '@/server/auth/tokens';
-import { assertUserNotLocked } from '@/server/auth/lockout';
+import { isUniqueConstraintError } from '@/server/repositories/shared';
 import {
   createSession,
   findSessionById,
@@ -18,13 +18,12 @@ import {
   createUser,
   findUserByEmail,
   findUserByPrivyId,
-  isUserUniqueConstraintError,
   type CreateUserRecord,
 } from '@/server/repositories/users';
 import {
   verifyPrivyAccessToken,
   type VerifiedPrivySession,
-} from '@/server/privy/session';
+} from '@/server/privy/client';
 
 interface PrivyExchangeInput {
   accessToken: string;
@@ -136,7 +135,7 @@ async function linkExistingUserToPrivy(
   try {
     return await attachPrivyUserId(userId, session.user.id);
   } catch (error) {
-    if (isUserUniqueConstraintError(error)) {
+    if (isUniqueConstraintError(error)) {
       const existingUser = await findUserByPrivyId(session.user.id);
 
       if (existingUser) {
@@ -182,7 +181,7 @@ async function findOrCreateUser(
       created: true,
     };
   } catch (error) {
-    if (isUserUniqueConstraintError(error)) {
+    if (isUniqueConstraintError(error)) {
       const recoveredUser = await resolveExistingUser(session);
 
       if (recoveredUser) {
@@ -268,11 +267,7 @@ export async function checkPrivyUser(accessToken: string) {
 
 export async function exchangePrivySession(input: PrivyExchangeInput) {
   const privySession = await verifyPrivyAccessToken(input.accessToken);
-  const { user, created } = await findOrCreateUser(input, privySession);
-
-  if (!created) {
-    await assertUserNotLocked(user.id);
-  }
+  const { user } = await findOrCreateUser(input, privySession);
 
   const refreshToken = createOpaqueToken();
   const authConfig = getAuthConfig();
@@ -322,6 +317,20 @@ export async function refreshBackendSession(refreshToken: string) {
   );
 
   return refreshedToken;
+}
+
+// Read-only counterpart to refreshBackendSession: resolves the active
+// session for a refresh token without minting a new access token or
+// bumping activityTimeoutAt. Used where a request only has the httpOnly
+// refresh cookie available (e.g. an RSC render), not a bearer token.
+export async function resolveActiveSessionByRefreshToken(refreshToken: string) {
+  const session = await findSessionByRefreshTokenHash(
+    hashOpaqueToken(refreshToken)
+  );
+
+  assertActiveSession(session);
+
+  return { user: session.user, session };
 }
 
 export async function logoutBackendSession(refreshToken: string) {

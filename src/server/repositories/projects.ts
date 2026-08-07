@@ -316,59 +316,61 @@ export function submitProject(projectId: string) {
 async function ensureProjectDigitalTwinModel(projectId: string) {
   const now = new Date();
 
-  await getDb().projectDigitalTwinModel.upsert({
-    where: {
-      projectId,
-    },
-    update: {
-      name: HARDWIRED_PROJECT_MODEL.name,
-      assetUrl: HARDWIRED_PROJECT_MODEL.assetUrl,
-      format: HARDWIRED_PROJECT_MODEL.format,
-      source: HARDWIRED_PROJECT_MODEL.source,
-      isActive: true,
-      updatedAt: now,
-      components: {
-        deleteMany: {},
-        create: HARDWIRED_PROJECT_MODEL.components.map((component) => ({
-          externalId: component.externalId,
-          displayName: component.displayName,
-          nodeName: component.nodeName,
-          category: component.category,
-          sortOrder: component.sortOrder,
-          isVisible: component.isVisible,
-          createdAt: now,
-          updatedAt: now,
-        })),
+  return getDb().$transaction(async (tx) => {
+    await tx.projectDigitalTwinModel.upsert({
+      where: {
+        projectId,
       },
-    },
-    create: {
-      projectId,
-      name: HARDWIRED_PROJECT_MODEL.name,
-      assetUrl: HARDWIRED_PROJECT_MODEL.assetUrl,
-      format: HARDWIRED_PROJECT_MODEL.format,
-      source: HARDWIRED_PROJECT_MODEL.source,
-      isActive: true,
-      createdAt: now,
-      updatedAt: now,
-      components: {
-        create: HARDWIRED_PROJECT_MODEL.components.map((component) => ({
-          externalId: component.externalId,
-          displayName: component.displayName,
-          nodeName: component.nodeName,
-          category: component.category,
-          sortOrder: component.sortOrder,
-          isVisible: component.isVisible,
-          createdAt: now,
-          updatedAt: now,
-        })),
+      update: {
+        name: HARDWIRED_PROJECT_MODEL.name,
+        assetUrl: HARDWIRED_PROJECT_MODEL.assetUrl,
+        format: HARDWIRED_PROJECT_MODEL.format,
+        source: HARDWIRED_PROJECT_MODEL.source,
+        isActive: true,
+        updatedAt: now,
+        components: {
+          deleteMany: {},
+          create: HARDWIRED_PROJECT_MODEL.components.map((component) => ({
+            externalId: component.externalId,
+            displayName: component.displayName,
+            nodeName: component.nodeName,
+            category: component.category,
+            sortOrder: component.sortOrder,
+            isVisible: component.isVisible,
+            createdAt: now,
+            updatedAt: now,
+          })),
+        },
       },
-    },
-  });
+      create: {
+        projectId,
+        name: HARDWIRED_PROJECT_MODEL.name,
+        assetUrl: HARDWIRED_PROJECT_MODEL.assetUrl,
+        format: HARDWIRED_PROJECT_MODEL.format,
+        source: HARDWIRED_PROJECT_MODEL.source,
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+        components: {
+          create: HARDWIRED_PROJECT_MODEL.components.map((component) => ({
+            externalId: component.externalId,
+            displayName: component.displayName,
+            nodeName: component.nodeName,
+            category: component.category,
+            sortOrder: component.sortOrder,
+            isVisible: component.isVisible,
+            createdAt: now,
+            updatedAt: now,
+          })),
+        },
+      },
+    });
 
-  return getDb().project.findUniqueOrThrow({
-    where: {
-      id: projectId,
-    },
-    include: projectInclude,
+    return tx.project.findUniqueOrThrow({
+      where: {
+        id: projectId,
+      },
+      include: projectInclude,
+    });
   });
 }

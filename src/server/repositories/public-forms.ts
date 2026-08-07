@@ -1,8 +1,8 @@
 import 'server-only';
 
-import { Prisma } from '@prisma/client';
-
 import { getDb } from '@/server/db';
+
+export { isUniqueConstraintError } from '@/server/repositories/shared';
 
 export interface ContactFormRecord {
   firstName: string;
@@ -21,15 +21,6 @@ export interface NonResidentWaitlistRecord {
   email: string;
   countryId: number;
   type: 'individual' | 'company';
-}
-
-export function isUniqueConstraintError(error: unknown, field: string) {
-  return (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === 'P2002' &&
-    Array.isArray(error.meta?.target) &&
-    error.meta.target.includes(field)
-  );
 }
 
 export async function waitlistEmailExists(email: string) {

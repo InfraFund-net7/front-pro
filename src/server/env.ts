@@ -6,7 +6,8 @@ type ServerEnvFeature =
   | 'privy'
   | 'captcha'
   | 'email'
-  | 'cron';
+  | 'cron'
+  | 'storage';
 
 interface ServerEnv {
   app: {
@@ -40,6 +41,10 @@ interface ServerEnv {
   cron: {
     secret?: string;
   };
+  storage: {
+    connectionString?: string;
+    containerName?: string;
+  };
 }
 
 const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
@@ -55,6 +60,7 @@ const requiredEnvByFeature: Record<ServerEnvFeature, string[]> = {
     'CONTACT_FORM_RECEIVER',
   ],
   cron: ['CRON_SECRET'],
+  storage: ['AZURE_STORAGE_CONNECTION_STRING', 'AZURE_STORAGE_CONTAINER_NAME'],
 };
 
 let cachedEnv: ServerEnv | undefined;
@@ -109,6 +115,10 @@ export function getServerEnv() {
     },
     cron: {
       secret: readOptionalString('CRON_SECRET'),
+    },
+    storage: {
+      connectionString: readOptionalString('AZURE_STORAGE_CONNECTION_STRING'),
+      containerName: readOptionalString('AZURE_STORAGE_CONTAINER_NAME'),
     },
   };
 
