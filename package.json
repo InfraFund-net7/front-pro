@@ -16,6 +16,7 @@
     "db:remote:migrate": "prisma migrate deploy",
     "db:remote:setup": "node scripts/setup-remote-db.mjs",
     "db:backfill:digital-twin-status": "node scripts/backfill-digital-twin-status.mjs",
+    "db:seed:demo-digital-twin": "node scripts/seed-demo-digital-twin-project.mjs",
     "dev:local": "npm run db:local:setup && npm run dev:log",
     "dev:log": "next dev -p 3000 2>&1 | tee .next/dev-server.log",
     "env:example": "node scripts/generate-env-example.mjs",
