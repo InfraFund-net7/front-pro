@@ -1,52 +1,36 @@
 import 'server-only';
 
-import { ApiError } from '@/server/http';
-import { readJsonObject } from '@/server/validation/kernel';
+import { z } from 'zod';
+
+import { parseRequestBody } from '@/server/validation/http';
 import type { DigitalTwinComponentStatus } from '@/types/digital-twin';
 
-const statuses: DigitalTwinComponentStatus[] = [
+const statuses = [
   'not_started',
   'in_progress',
   'installed',
   'delayed',
   'blocked',
-];
+] as const satisfies readonly DigitalTwinComponentStatus[];
 
-function isDigitalTwinComponentStatus(
-  value: unknown
-): value is DigitalTwinComponentStatus {
-  return (
-    typeof value === 'string' &&
-    statuses.includes(value as DigitalTwinComponentStatus)
-  );
-}
+const componentStatusSchema = z.object({
+  status: z.enum(statuses, `status must be one of ${statuses.join(', ')}`),
+});
 
 export async function parseComponentStatusRequest(request: Request) {
-  const body = await readJsonObject(request);
-  const status = body.status;
-
-  if (!isDigitalTwinComponentStatus(status)) {
-    throw new ApiError('VALIDATION_ERROR', 'Validation failed', {
-      fields: { status: `status must be one of ${statuses.join(', ')}` },
-    });
-  }
-
-  return { status };
+  return parseRequestBody(request, componentStatusSchema);
 }
 
+const milestoneCompleteSchema = z
+  .object({
+    completed: z.boolean(),
+  })
+  .transform(({ completed }) => ({
+    status: (completed
+      ? 'installed'
+      : 'not_started') as DigitalTwinComponentStatus,
+  }));
+
 export async function parseMilestoneCompleteRequest(request: Request) {
-  const body = await readJsonObject(request);
-  const completed = body.completed;
-
-  if (typeof completed !== 'boolean') {
-    throw new ApiError('VALIDATION_ERROR', 'Validation failed', {
-      fields: { completed: 'completed must be true or false' },
-    });
-  }
-
-  const status: DigitalTwinComponentStatus = completed
-    ? 'installed'
-    : 'not_started';
-
-  return { status };
+  return parseRequestBody(request, milestoneCompleteSchema);
 }

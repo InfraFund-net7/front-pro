@@ -57,6 +57,8 @@ waits for the container health check → cleans up the temp env file.
 | `DEV_APP_JWT_SECRET` | `deploy-dev.yaml` |
 | `AZURE_STORAGE_CONNECTION_STRING` / `AZURE_STORAGE_CONTAINER_NAME` | `deploy.yaml` — prod proposal-document storage |
 | `DEV_AZURE_STORAGE_CONNECTION_STRING` / `DEV_AZURE_STORAGE_CONTAINER_NAME` | `deploy-dev.yaml` — dev proposal-document storage |
+| `SENTRY_DSN` (optional) | `deploy.yaml` — Sentry is fully wired but stays inert (`enabled: Boolean(dsn)`) until this is set |
+| `DEV_SENTRY_DSN` (optional) | `deploy-dev.yaml` — same, for dev. Can reuse the same DSN as prod, or a separate Sentry project |
 
 `DATABASE_URL`/`DEV_DATABASE_URL` should point at the `infra-postgres`
 container already running on each VM (reachable over the `internal` Docker

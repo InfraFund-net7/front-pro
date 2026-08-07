@@ -8,7 +8,8 @@
     "src/components/ui/toggle-switch.tsx",
     "src/lib/solana-kit-unavailable.ts",
     "src/utils/is-development.util.ts",
-    "src/utils/is-production.util.ts"
+    "src/utils/is-production.util.ts",
+    "test/server-only-stub.ts"
   ],
   "ignoreIssues": {
     "src/server/db/**/*.ts": ["files", "exports"],
