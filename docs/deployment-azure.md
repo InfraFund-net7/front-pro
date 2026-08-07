@@ -95,3 +95,12 @@ is unaffected by anything above.
 5. If `prisma migrate deploy` fails with `P3005` (schema exists, no migration
    history), do not blindly reset — inspect the target database's actual
    state before baselining or wiping it, especially in prod.
+6. Never add an automatic `prisma migrate resolve --applied` fallback to a
+   deploy workflow. It marks a migration as applied without running its SQL,
+   so it "succeeds" even when the real cause of failure is a missing table —
+   the next migration then breaks against a database that doesn't actually
+   match what `_prisma_migrations` claims. This exact pattern in
+   `deploy-dev.yaml` silently skipped 8 of `20260513143000_init`'s tables
+   (the whole `projects`/`project_*` domain) for months; both workflows now
+   run a plain `prisma migrate deploy` with no fallback, and any failure
+   should be root-caused by hand, not auto-resolved.

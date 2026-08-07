@@ -62,11 +62,12 @@ jobs:
             -w /app \
             node:22-alpine \
             sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
-          # NOTE: unlike dev, this has no baseline/resolve fallback for a
-          # pre-existing schema with no _prisma_migrations history -- prod's
-          # actual DB state hasn't been inspected. If this fails with P3005,
-          # investigate prod's schema state before baselining (do not assume
-          # it matches dev's).
+          # If this fails, investigate the target DB's actual state before
+          # baselining/resolving anything by hand -- do not add a blind
+          # `migrate resolve --applied` fallback here. That pattern silently
+          # bookkeeping-marks migrations as applied without running their SQL,
+          # which is exactly what corrupted the dev DB's migration history
+          # (see docs/deployment-azure.md troubleshooting checklist).
 
       - name: Write runtime secrets to env file
         env:
