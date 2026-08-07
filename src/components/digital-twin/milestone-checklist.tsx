@@ -1,28 +1,98 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import type { ConstructionMilestone } from '@/lib/digital-twin-projects';
+import { useMemo, useState } from 'react';
+import { useAuthSession } from '@/components/auth/auth-session-provider';
+import {
+  ApiClientError,
+  completeDigitalTwinMilestone,
+} from '@/lib/backend-auth-client';
+import type {
+  DigitalTwinComponentView,
+  DigitalTwinMilestoneView,
+  DigitalTwinView,
+} from '@/types/digital-twin';
 
 type MilestoneChecklistProps = {
-  milestones: ConstructionMilestone[];
-  onChange?: (milestones: ConstructionMilestone[]) => void;
+  projectId: string;
+  milestones: DigitalTwinMilestoneView[];
+  components: DigitalTwinComponentView[];
+  onUpdate: (view: DigitalTwinView) => void;
 };
 
-export function MilestoneChecklist({
-  milestones,
-  onChange,
-}: MilestoneChecklistProps) {
-  const [items, setItems] = useState(milestones);
+function isMilestoneComplete(
+  milestone: DigitalTwinMilestoneView,
+  componentsById: Map<string, DigitalTwinComponentView>
+) {
+  if (milestone.componentIds.length === 0) {
+    return false;
+  }
 
-  useEffect(() => {
-    setItems(milestones);
-  }, [milestones]);
-
-  const completedCount = useMemo(
-    () => items.filter((item) => item.completed).length,
-    [items]
+  return milestone.componentIds.every(
+    (componentId) => componentsById.get(componentId)?.status === 'installed'
   );
-  const progress = Math.round((completedCount / items.length) * 100);
+}
+
+export function MilestoneChecklist({
+  projectId,
+  milestones,
+  components,
+  onUpdate,
+}: MilestoneChecklistProps) {
+  const { backendAccessToken, refreshSession } = useAuthSession();
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const componentsById = useMemo(
+    () => new Map(components.map((component) => [component.id, component])),
+    [components]
+  );
+  const items = useMemo(
+    () =>
+      milestones.map((milestone) => ({
+        ...milestone,
+        completed: isMilestoneComplete(milestone, componentsById),
+      })),
+    [milestones, componentsById]
+  );
+  const completedCount = items.filter((item) => item.completed).length;
+  const progress =
+    items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
+
+  const handleToggle = async (milestoneId: string, completed: boolean) => {
+    setError(null);
+    setPendingId(milestoneId);
+
+    try {
+      let accessToken = backendAccessToken;
+
+      if (!accessToken) {
+        accessToken = await refreshSession();
+      }
+
+      if (!accessToken) {
+        setError('Please sign in again to update milestone status.');
+        return;
+      }
+
+      const view = await completeDigitalTwinMilestone(
+        accessToken,
+        projectId,
+        milestoneId,
+        completed
+      );
+
+      onUpdate(view);
+    } catch (caughtError) {
+      const message =
+        caughtError instanceof ApiClientError
+          ? caughtError.message
+          : 'Failed to update milestone status.';
+
+      setError(message);
+    } finally {
+      setPendingId(null);
+    }
+  };
 
   return (
     <section className="rounded-[24px] border border-card-border bg-card-bg p-4 backdrop-blur-xl">
@@ -43,6 +113,7 @@ export function MilestoneChecklist({
           <p className="text-xs text-gray-300">
             {completedCount} of {items.length} complete
           </p>
+          {error ? <p className="text-xs text-red-400">{error}</p> : null}
         </div>
 
         <ul className="flex flex-wrap gap-2">
@@ -53,25 +124,19 @@ export function MilestoneChecklist({
                   item.completed
                     ? 'border-primary/50 bg-primary/10 text-gray-100'
                     : 'border-card-border bg-[#0C0C0D]/45 text-gray-400 hover:text-gray-200'
-                }`}
+                } ${pendingId === item.id ? 'opacity-60' : ''}`}
               >
                 <input
                   type="checkbox"
                   checked={item.completed}
-                  aria-label={`Mark ${item.label} complete`}
+                  disabled={pendingId !== null}
+                  aria-label={`Mark ${item.name} complete`}
                   className="h-4 w-4 accent-primary"
                   onChange={(event) => {
-                    const completed = event.target.checked;
-                    const nextItems = items.map((currentItem) =>
-                      currentItem.id === item.id
-                        ? { ...currentItem, completed }
-                        : currentItem
-                    );
-                    setItems(nextItems);
-                    onChange?.(nextItems);
+                    void handleToggle(item.id, event.target.checked);
                   }}
                 />
-                <span>{item.label}</span>
+                <span>{item.name}</span>
               </label>
             </li>
           ))}

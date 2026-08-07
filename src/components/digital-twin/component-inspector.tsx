@@ -1,40 +1,17 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type {
-  MetadataRecord,
-  MetadataValue,
-} from '@/lib/digital-twin-projects';
+  DigitalTwinCapabilities,
+  SelectedComponentMetadata,
+} from '@/types/digital-twin';
 
 type ComponentInspectorProps = {
-  metadata: MetadataRecord | null;
+  metadata: SelectedComponentMetadata;
   showGroundPlane: boolean;
   setShowGroundPlane: Dispatch<SetStateAction<boolean>>;
   showKeyLight: boolean;
   setShowKeyLight: Dispatch<SetStateAction<boolean>>;
+  capabilities: DigitalTwinCapabilities;
 };
-
-function formatMetadataValue(value: MetadataValue) {
-  if (value === null) {
-    return 'null';
-  }
-
-  if (typeof value === 'object') {
-    return JSON.stringify(value);
-  }
-
-  return String(value);
-}
-
-function getTitle(metadata: MetadataRecord | null) {
-  if (!metadata) {
-    return 'Component metadata';
-  }
-
-  const title = metadata.displayName ?? metadata.name ?? metadata.externalId;
-
-  return typeof title === 'string' && title.length > 0
-    ? title
-    : 'Component metadata';
-}
 
 export function ComponentInspector({
   metadata,
@@ -42,40 +19,48 @@ export function ComponentInspector({
   setShowGroundPlane,
   showKeyLight,
   setShowKeyLight,
+  capabilities,
 }: ComponentInspectorProps) {
-  const entries = metadata ? Object.entries(metadata) : [];
+  const entries = metadata?.entries ?? [];
+  const hasViewControls = capabilities.groundPlane || capabilities.keyLight;
 
   return (
     <aside className="flex max-h-[520px] min-h-[260px] flex-col gap-3 border-t border-card-border bg-[#0C0C0D]/70 p-3 backdrop-blur-xl xl:min-h-[520px] xl:border-l xl:border-t-0">
-      <div className="rounded-2xl border border-white/15 bg-[#151E2F80] p-3">
-        <p className="chakra-petch text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">
-          View controls
-        </p>
-        <div className="mt-3 flex flex-col gap-2 text-sm text-gray-200">
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={showGroundPlane}
-              onChange={(event) => setShowGroundPlane(event.target.checked)}
-              className="h-4 w-4 accent-primary"
-            />
-            <span>Ground</span>
-          </label>
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={showKeyLight}
-              onChange={(event) => setShowKeyLight(event.target.checked)}
-              className="h-4 w-4 accent-primary"
-            />
-            <span>Light</span>
-          </label>
+      {hasViewControls ? (
+        <div className="rounded-2xl border border-white/15 bg-[#151E2F80] p-3">
+          <p className="chakra-petch text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">
+            View controls
+          </p>
+          <div className="mt-3 flex flex-col gap-2 text-sm text-gray-200">
+            {capabilities.groundPlane ? (
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={showGroundPlane}
+                  onChange={(event) => setShowGroundPlane(event.target.checked)}
+                  className="h-4 w-4 accent-primary"
+                />
+                <span>Ground</span>
+              </label>
+            ) : null}
+            {capabilities.keyLight ? (
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={showKeyLight}
+                  onChange={(event) => setShowKeyLight(event.target.checked)}
+                  className="h-4 w-4 accent-primary"
+                />
+                <span>Light</span>
+              </label>
+            ) : null}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-white/15 bg-[#151E2F80] p-3">
         <p className="chakra-petch text-base font-semibold text-white">
-          {getTitle(metadata)}
+          {metadata?.title ?? 'Component metadata'}
         </p>
 
         {entries.length > 0 ? (
@@ -90,9 +75,9 @@ export function ComponentInspector({
                 </dt>
                 <dd
                   className="truncate font-mono text-xs leading-4 text-gray-200"
-                  title={formatMetadataValue(value)}
+                  title={value}
                 >
-                  {formatMetadataValue(value)}
+                  {value}
                 </dd>
               </div>
             ))}
