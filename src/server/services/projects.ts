@@ -12,6 +12,7 @@ import {
   upsertProjectContact,
   type ProjectWithDetails,
 } from '@/server/repositories/projects';
+import { serializeDate, serializeDecimal } from '@/server/serialization';
 import { authenticateAppRequest } from '@/server/services/auth';
 import type {
   CampaignInput,
@@ -45,16 +46,6 @@ async function assertProjectOwner(projectId: string, accessToken: string) {
   }
 
   return project;
-}
-
-function serializeDecimal(
-  value: { toString: () => string } | null | undefined
-) {
-  return value?.toString() ?? null;
-}
-
-function serializeDate(value: Date | null | undefined) {
-  return value?.toISOString() ?? null;
 }
 
 function serializeProject(

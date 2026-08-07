@@ -7,7 +7,8 @@ import {
   generateBlobSASQueryParameters,
 } from '@azure/storage-blob';
 
-import { requireBearerToken } from '@/server/auth/http';
+import { requireBearerToken } from '@/server/auth/bearer';
+import { getServerEnv } from '@/server/env';
 import { authenticateAppRequest } from '@/server/services/auth';
 import { ApiError, handleApiError, jsonOk } from '@/server/http';
 
@@ -22,8 +23,7 @@ export async function POST(request: NextRequest) {
   try {
     await authenticateAppRequest(requireBearerToken(request));
 
-    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-    const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME;
+    const { connectionString, containerName } = getServerEnv().storage;
 
     if (!connectionString || !containerName) {
       throw new ApiError(

@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 
-import { requireBearerToken } from '@/server/auth/http';
+import { requireBearerToken } from '@/server/auth/bearer';
 import { completeMilestone } from '@/server/services/digital-twin';
 import { handleApiError, jsonOk } from '@/server/http';
 import { parseMilestoneCompleteRequest } from '@/server/validation/digital-twin';

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 
 import { clearRefreshTokenCookie } from '@/server/auth/cookies';
-import { requireBearerToken } from '@/server/auth/http';
+import { requireBearerToken } from '@/server/auth/bearer';
 import { handleApiError, jsonNoContent, jsonOk } from '@/server/http';
 import {
   deleteCurrentAccount,

@@ -1,21 +1,30 @@
 import { notFound } from 'next/navigation';
 import { DigitalTwinClientPage } from '@/components/digital-twin/client-page';
 import { getDigitalTwinView } from '@/server/services/digital-twin';
+import { requireDigitalTwinAccessFromCookies } from '@/server/services/digital-twin-access';
 import { isApiError } from '@/server/http';
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
+// NOT_FOUND, FORBIDDEN, and UNAUTHORIZED all render as notFound() -- a
+// non-owner (or unauthenticated visitor) sees the same "not found" page a
+// genuinely-missing project would show, rather than confirming the project
+// exists but access is denied.
+const notFoundCodes = new Set(['NOT_FOUND', 'FORBIDDEN', 'UNAUTHORIZED']);
+
 export default async function DigitalTwinPage({ params }: PageProps) {
   const { id } = await params;
-  const view = await getDigitalTwinView(id).catch((error: unknown) => {
-    if (isApiError(error) && error.code === 'NOT_FOUND') {
-      return null;
-    }
+  const view = await requireDigitalTwinAccessFromCookies(id)
+    .then(() => getDigitalTwinView(id))
+    .catch((error: unknown) => {
+      if (isApiError(error) && notFoundCodes.has(error.code)) {
+        return null;
+      }
 
-    throw error;
-  });
+      throw error;
+    });
 
   if (!view) {
     notFound();

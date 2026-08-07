@@ -10,23 +10,14 @@ import {
   updateComponentStatus,
 } from '@/server/repositories/digital-twin';
 import { ApiError } from '@/server/http';
-import { authenticateAppRequest } from '@/server/services/auth';
+import { serializeDate, serializeDecimal } from '@/server/serialization';
+import { requireDigitalTwinAccessFromBearer } from '@/server/services/digital-twin-access';
 import {
   resolveRenderer,
   STATUS_COLORS,
   type DigitalTwinComponentStatus,
   type DigitalTwinView,
 } from '@/types/digital-twin';
-
-function serializeDecimal(
-  value: { toString: () => string } | null | undefined
-) {
-  return value?.toString() ?? null;
-}
-
-function serializeDate(value: Date | null | undefined) {
-  return value?.toISOString() ?? null;
-}
 
 function asMetadataRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -149,7 +140,7 @@ export async function setComponentStatus(
   componentId: string,
   status: DigitalTwinComponentStatus
 ): Promise<DigitalTwinView> {
-  await authenticateAppRequest(accessToken);
+  await requireDigitalTwinAccessFromBearer(accessToken, projectId);
 
   const component = await findComponentWithProjectId(componentId);
 
@@ -168,7 +159,7 @@ export async function completeMilestone(
   milestoneId: string,
   status: DigitalTwinComponentStatus
 ): Promise<DigitalTwinView> {
-  await authenticateAppRequest(accessToken);
+  await requireDigitalTwinAccessFromBearer(accessToken, projectId);
 
   const milestone = await findMilestoneWithProjectId(milestoneId);
 

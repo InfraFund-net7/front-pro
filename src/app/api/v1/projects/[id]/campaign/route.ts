@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 
-import { requireBearerToken } from '@/server/auth/http';
+import { requireBearerToken } from '@/server/auth/bearer';
 import { handleApiError, jsonOk } from '@/server/http';
 import { saveProjectCampaign } from '@/server/services/projects';
 import { parseCampaignRequest } from '@/server/validation/projects';

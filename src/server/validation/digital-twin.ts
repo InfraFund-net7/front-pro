@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { ApiError } from '@/server/http';
-import { readJsonObject } from '@/server/validation/public-forms';
+import { readJsonObject } from '@/server/validation/kernel';
 import type { DigitalTwinComponentStatus } from '@/types/digital-twin';
 
 const statuses: DigitalTwinComponentStatus[] = [

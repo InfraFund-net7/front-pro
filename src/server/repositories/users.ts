@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { Prisma, type UserRole, type UserType } from '@prisma/client';
+import type { Prisma, UserRole, UserType } from '@prisma/client';
 
 import { getDb } from '@/server/db';
 
@@ -112,11 +112,4 @@ export async function softDeleteUserAccount(userId: string) {
       },
     });
   });
-}
-
-export function isUserUniqueConstraintError(error: unknown) {
-  return (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === 'P2002'
-  );
 }

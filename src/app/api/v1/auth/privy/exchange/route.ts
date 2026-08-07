@@ -1,10 +1,10 @@
 import type { NextRequest } from 'next/server';
 
 import { setRefreshTokenCookie } from '@/server/auth/cookies';
-import { requireBearerToken } from '@/server/auth/http';
+import { requireBearerToken } from '@/server/auth/bearer';
 import { getRequestMetadata, handleApiError, jsonOk } from '@/server/http';
 import { exchangePrivySession } from '@/server/services/auth';
-import { readJsonObject } from '@/server/validation/public-forms';
+import { readJsonObject } from '@/server/validation/kernel';
 
 function optionalString(body: Record<string, unknown>, field: string) {
   const value = body[field];
