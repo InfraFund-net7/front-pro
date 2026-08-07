@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { Prisma, UserRole, UserType } from '@prisma/client';
+import type { UserRole, UserType } from '@prisma/client';
 
 import { getDb } from '@/server/db';
 
@@ -14,10 +14,6 @@ export interface CreateUserRecord {
   type: UserType;
   role: UserRole;
 }
-
-export type UserWithOrganization = Prisma.UserGetPayload<{
-  include: { organization: true };
-}>;
 
 export function findActiveUserById(userId: string) {
   return getDb().user.findFirst({

@@ -115,8 +115,9 @@ export default function AccountPage() {
     setDeleteError(null);
 
     try {
+      // deleteAccount() itself hard-navigates to '/' on success -- no
+      // redirect needed here.
       await deleteAccount();
-      window.location.replace('/');
     } catch {
       setDeleteError('Failed to delete account. Please try again.');
       setIsDeleting(false);
