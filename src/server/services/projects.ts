@@ -1,10 +1,13 @@
 import 'server-only';
 
+import { isUniqueConstraintError } from '@/server/repositories/shared';
 import { ApiError } from '@/server/http';
 import {
+  addProjectMember,
   createProjectDraft,
   findProjectForOwner,
   findProjectsForAccount,
+  removeProjectMember,
   replaceProjectMilestones,
   submitProject,
   updateProjectInformation,
@@ -12,11 +15,13 @@ import {
   upsertProjectContact,
   type ProjectWithDetails,
 } from '@/server/repositories/projects';
+import { findUserByEmail } from '@/server/repositories/users';
 import { serializeDate, serializeDecimal } from '@/server/serialization';
 import { authenticateAppRequest } from '@/server/services/auth';
 import type {
   CampaignInput,
   ContactInput,
+  InviteMemberInput,
   MilestonesInput,
   ProjectInformationInput,
 } from '@/server/validation/projects';
@@ -79,6 +84,13 @@ function serializeProject(
     created_at: project.createdAt.toISOString(),
     updated_at: project.updatedAt.toISOString(),
     account_roles: accountRoles,
+    members: project.accountRoles.map((accountRole) => ({
+      user_id: accountRole.userId,
+      role: accountRole.role,
+      email: accountRole.user.email,
+      first_name: accountRole.user.firstName,
+      last_name: accountRole.user.lastName,
+    })),
     contact: project.contact
       ? {
           first_name: project.contact.firstName,
@@ -229,7 +241,16 @@ export async function submitProjectDraft(
 ) {
   const existing = await assertProjectOwner(projectId, accessToken);
 
-  if (!existing.contact || !existing.campaign || !existing.name) {
+  if (existing.submissionStatus === 'submitted') {
+    throw new ApiError('CONFLICT', 'Project has already been submitted.');
+  }
+
+  if (
+    !existing.contact ||
+    !existing.campaign ||
+    !existing.name ||
+    existing.milestones.length === 0
+  ) {
     throw new ApiError(
       'VALIDATION_ERROR',
       'Project draft is incomplete before submission.'
@@ -237,6 +258,57 @@ export async function submitProjectDraft(
   }
 
   const project = await submitProject(projectId);
+
+  return serializeProject(project);
+}
+
+export async function inviteProjectMember(
+  accessToken: string,
+  projectId: string,
+  input: InviteMemberInput
+) {
+  await assertProjectOwner(projectId, accessToken);
+
+  const invitee = await findUserByEmail(input.email);
+
+  if (!invitee) {
+    throw new ApiError(
+      'NOT_FOUND',
+      'No InfraFund account found for that email.'
+    );
+  }
+
+  try {
+    const project = await addProjectMember(projectId, invitee.id, input.role);
+
+    return serializeProject(project);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new ApiError(
+        'CONFLICT',
+        'This person already has that role on the project.'
+      );
+    }
+
+    throw error;
+  }
+}
+
+export async function removeMemberFromProject(
+  accessToken: string,
+  projectId: string,
+  memberUserId: string
+) {
+  const existing = await assertProjectOwner(projectId, accessToken);
+
+  if (memberUserId === existing.ownerUserId) {
+    throw new ApiError(
+      'BAD_REQUEST',
+      'The project owner cannot be removed as a member.'
+    );
+  }
+
+  const project = await removeProjectMember(projectId, memberUserId);
 
   return serializeProject(project);
 }

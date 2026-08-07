@@ -17,6 +17,8 @@ import { useAuthSession } from '@/components/auth/auth-session-provider';
 import {
   createProjectDraft,
   getProject,
+  inviteProjectMember,
+  removeProjectMember,
   saveProjectCampaign,
   saveProjectContact,
   saveProjectInformation,
@@ -24,6 +26,7 @@ import {
   submitProjectDraft,
   uploadProjectDocument,
   ApiClientError,
+  type AccountRole,
   type ProjectCampaignPayload,
   type ProjectContactPayload,
   type ProjectInformationPayload,
@@ -128,12 +131,17 @@ const emptyMilestone = (): MilestoneDraft => ({
   component_external_ids: [],
 });
 
+// Exhaustive over ProjectDraftStep -- no default branch, so a future
+// server-side enum change that isn't mirrored here fails to compile
+// instead of silently falling through to 'contact'.
 function stepFromProject(project: ProjectResponse): Step {
   if (project.submission_status === 'submitted') {
     return 'review';
   }
 
   switch (project.current_step) {
+    case 'contact_information':
+      return 'contact';
     case 'project_information':
       return 'project';
     case 'project_milestones':
@@ -144,9 +152,6 @@ function stepFromProject(project: ProjectResponse): Step {
       return 'review';
     case 'submitted':
       return 'submitted';
-    case 'contact_information':
-    default:
-      return 'contact';
   }
 }
 
@@ -272,6 +277,10 @@ export default function CreateProject() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingProject, setIsLoadingProject] = useState(Boolean(projectId));
   const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<AccountRole>('investor');
+  const [isInviting, setIsInviting] = useState(false);
+  const [memberError, setMemberError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!backendUser || projectId) {
@@ -423,6 +432,69 @@ export default function CreateProject() {
       );
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleInviteMember() {
+    if (!project) return;
+
+    let accessToken = backendAccessToken;
+
+    if (!accessToken) {
+      accessToken = await refreshSession();
+    }
+
+    if (!accessToken) {
+      setMemberError('Please sign in again before inviting a member.');
+      return;
+    }
+
+    setIsInviting(true);
+    setMemberError(null);
+
+    try {
+      const updated = await inviteProjectMember(accessToken, project.id, {
+        email: inviteEmail,
+        role: inviteRole,
+      });
+      setProject(updated);
+      setInviteEmail('');
+    } catch (caughtError) {
+      setMemberError(
+        caughtError instanceof Error ? caughtError.message : 'Request failed'
+      );
+    } finally {
+      setIsInviting(false);
+    }
+  }
+
+  async function handleRemoveMember(userId: string) {
+    if (!project) return;
+
+    let accessToken = backendAccessToken;
+
+    if (!accessToken) {
+      accessToken = await refreshSession();
+    }
+
+    if (!accessToken) {
+      setMemberError('Please sign in again before removing a member.');
+      return;
+    }
+
+    setMemberError(null);
+
+    try {
+      const updated = await removeProjectMember(
+        accessToken,
+        project.id,
+        userId
+      );
+      setProject(updated);
+    } catch (caughtError) {
+      setMemberError(
+        caughtError instanceof Error ? caughtError.message : 'Request failed'
+      );
     }
   }
 
@@ -1245,6 +1317,88 @@ export default function CreateProject() {
             <FieldValue label="Email" value={project.contact?.email} />
             <FieldValue label="Phone" value={project.contact?.phone_number} />
             <FieldValue label="Title" value={project.contact?.title} />
+          </div>
+          <div className="rounded-[20px] border border-card-border bg-[#101827]/60 p-5">
+            <h3 className="chakra-petch text-xl text-white">Project Team</h3>
+            <p className="mt-1 font-mono text-xs text-gray-400">
+              Add a contractor, investor, DAO, or auditor account onto this
+              project. They must already have an InfraFund account.
+            </p>
+
+            <div className="mt-4 flex flex-col gap-2">
+              {project.members.length === 0 ? (
+                <p className="font-mono text-sm text-gray-500">
+                  No team members yet.
+                </p>
+              ) : (
+                project.members.map((member) => (
+                  <div
+                    key={`${member.user_id}-${member.role}`}
+                    className="flex items-center justify-between rounded-xl border border-card-border bg-[#0C0C0D]/45 px-4 py-3"
+                  >
+                    <div>
+                      <p className="chakra-petch text-sm text-white">
+                        {[member.first_name, member.last_name]
+                          .filter(Boolean)
+                          .join(' ') ||
+                          member.email ||
+                          member.user_id}
+                      </p>
+                      <p className="font-mono text-xs text-gray-400">
+                        {formatRoleLabel(member.role)}
+                        {member.email ? ` · ${member.email}` : ''}
+                      </p>
+                    </div>
+                    {member.user_id !== project.owner_user_id ? (
+                      <CustomButton
+                        variant="outlined"
+                        className="px-3 py-1.5 text-xs"
+                        onClick={() => handleRemoveMember(member.user_id)}
+                      >
+                        Remove
+                      </CustomButton>
+                    ) : (
+                      <span className="font-mono text-xs text-gray-500">
+                        Owner
+                      </span>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 border-t border-card-border pt-5 sm:flex-row sm:items-end">
+              <FormInput
+                label="Invite by email"
+                type="email"
+                placeholder="teammate@example.com"
+                value={inviteEmail}
+                onChange={(event) => setInviteEmail(event.target.value)}
+                className="flex-1"
+              />
+              <SelectField
+                label="Role"
+                value={inviteRole}
+                onChange={(value) => setInviteRole(value as AccountRole)}
+              >
+                <option value="investor">Investor</option>
+                <option value="contractor">Contractor</option>
+                <option value="governance">DAO</option>
+                <option value="auditor">Auditor</option>
+              </SelectField>
+              <CustomButton
+                variant="outlined"
+                disabled={!inviteEmail || isInviting}
+                onClick={handleInviteMember}
+              >
+                {isInviting ? 'Adding…' : 'Add to project'}
+              </CustomButton>
+            </div>
+            {memberError ? (
+              <p className="mt-3 font-mono text-sm text-red-400">
+                {memberError}
+              </p>
+            ) : null}
           </div>
           <div className="rounded-[20px] border border-card-border bg-[#101827]/60 p-5">
             <h3 className="chakra-petch text-xl text-white">Milestones</h3>

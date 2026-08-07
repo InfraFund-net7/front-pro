@@ -13,7 +13,8 @@
   "ignoreIssues": {
     "src/server/db/**/*.ts": ["files", "exports"],
     "src/server/http/**/*.ts": ["exports", "types"],
-    "src/server/services/auth.ts": ["exports"]
+    "src/server/services/auth.ts": ["exports"],
+    "src/lib/backend-auth-client.ts": ["exports", "types"]
   },
   "ignoreDependencies": [
     "@typescript-eslint/eslint-plugin",

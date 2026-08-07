@@ -27,17 +27,7 @@ import {
 
 import infrafund from '@/../public/assets/svg/infrafund.svg';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
-
-type AccountRole =
-  | 'admin'
-  | 'moderator'
-  | 'support'
-  | 'project_owner'
-  | 'investor'
-  | 'contractor'
-  | 'governance'
-  | 'auditor';
-type AccountType = 'individual' | 'organization';
+import type { AccountRole, AccountType } from '@/lib/backend-auth-client';
 
 interface NavigationItem {
   id: string;
