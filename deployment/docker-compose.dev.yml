@@ -16,6 +16,8 @@ services:
       # Privy: NEXT_PUBLIC_PRIVY_APP_ID is also read server-side (see server/env.ts)
       - NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID}
       - PRIVY_APP_SECRET=${PRIVY_APP_SECRET}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - AZURE_STORAGE_CONTAINER_NAME=${AZURE_STORAGE_CONTAINER_NAME}
     networks:
       - default
       # Join the shared internal network so this container can reach the
