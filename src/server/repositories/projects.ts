@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { Prisma, type UserRole } from '@prisma/client';
+import { Prisma, type ProjectStatus, type UserRole } from '@prisma/client';
 
 import { HARDWIRED_PROJECT_MODEL } from '@/server/digital-twin/project-model';
 import { getDb } from '@/server/db';
@@ -357,10 +357,30 @@ export async function removeProjectMember(projectId: string, userId: string) {
   });
 }
 
+// Projects under construction start with an empty 3D model -- every
+// component hidden, regardless of the hardwired catalog's own isVisible
+// flags -- so investors watch the build progress component by component
+// as the owner checks off each milestone (see MilestoneChecklist /
+// updateComponentStatus, which flips isVisible back on with status).
+// Projects in any other lifecycle stage keep the catalog's defaults.
+const CONSTRUCTION_PROJECT_STATUS: ProjectStatus = 'in_development';
+
 async function ensureProjectDigitalTwinModel(projectId: string) {
   const now = new Date();
 
   return getDb().$transaction(async (tx) => {
+    const { projectStatus } = await tx.project.findUniqueOrThrow({
+      where: { id: projectId },
+      select: { projectStatus: true },
+    });
+    const isUnderConstruction = projectStatus === CONSTRUCTION_PROJECT_STATUS;
+    const componentSeed = HARDWIRED_PROJECT_MODEL.components.map(
+      (component) => ({
+        ...component,
+        isVisible: isUnderConstruction ? false : component.isVisible,
+      })
+    );
+
     await tx.projectDigitalTwinModel.upsert({
       where: {
         projectId,
@@ -374,7 +394,7 @@ async function ensureProjectDigitalTwinModel(projectId: string) {
         updatedAt: now,
         components: {
           deleteMany: {},
-          create: HARDWIRED_PROJECT_MODEL.components.map((component) => ({
+          create: componentSeed.map((component) => ({
             externalId: component.externalId,
             displayName: component.displayName,
             nodeName: component.nodeName,
@@ -396,7 +416,7 @@ async function ensureProjectDigitalTwinModel(projectId: string) {
         createdAt: now,
         updatedAt: now,
         components: {
-          create: HARDWIRED_PROJECT_MODEL.components.map((component) => ({
+          create: componentSeed.map((component) => ({
             externalId: component.externalId,
             displayName: component.displayName,
             nodeName: component.nodeName,
