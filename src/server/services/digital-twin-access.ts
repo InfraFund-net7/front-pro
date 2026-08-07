@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 
 import { refreshTokenCookieName } from '@/server/auth/config';
 import { ApiError } from '@/server/http';
+import { DEMO_DIGITAL_TWIN_PROJECT_ID } from '@/lib/digital-twin-demo';
 import { findProjectForOwner } from '@/server/repositories/projects';
 import {
   authenticateAppRequest,
@@ -42,6 +43,17 @@ export async function requireDigitalTwinAccessFromBearer(
 // bearer token available (the app JWT lives only in client React state) --
 // the httpOnly refresh cookie is the only credential an RSC render has.
 export async function requireDigitalTwinAccessFromCookies(projectId: string) {
+  // The seeded demo project (see scripts/seed-demo-digital-twin-project.mjs)
+  // is view-only public by design, so the developer-home demo-mode links
+  // (src/lib/digital-twin-demo.ts) work for any visitor regardless of who's
+  // logged in -- it's owned by a seed user nobody can actually sign in as,
+  // so nobody could pass the ownership check below anyway. Mutations still
+  // go through requireDigitalTwinAccessFromBearer, which is NOT exempted
+  // here.
+  if (projectId === DEMO_DIGITAL_TWIN_PROJECT_ID) {
+    return;
+  }
+
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get(refreshTokenCookieName)?.value;
 
