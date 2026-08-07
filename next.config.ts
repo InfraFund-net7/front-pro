@@ -8,7 +8,7 @@ const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const OPTIONAL_PEERS =
   /^(?:@react-native-async-storage\/async-storage|pino-pretty|encoding|lokijs)$/;
-const gitSha = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local';
+const gitSha = process.env.NEXT_PUBLIC_GIT_SHA?.slice(0, 7) ?? 'local';
 
 const nextConfig: NextConfig = {
   env: {
