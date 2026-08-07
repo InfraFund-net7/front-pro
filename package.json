@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start -p 3000",
     "build-start": "npm run build && npm run start",
+    "pretypecheck": "prisma generate && next typegen",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
