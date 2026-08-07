@@ -26,6 +26,8 @@ jobs:
             --build-arg NEXT_PUBLIC_ENVIRONMENT=development \
             --build-arg NEXT_PUBLIC_GIT_SHA="$SHA" \
             --build-arg NEXT_PUBLIC_DIGITAL_TWIN_DEMO_MODE=true \
+            --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ secrets.DEV_SENTRY_DSN }} \
+            --build-arg NEXT_PUBLIC_SENTRY_ENVIRONMENT=development \
             -t "$ACR_REGISTRY/infra-dashboard:dev" \
             -t "$ACR_REGISTRY/infra-dashboard:dev-$SHA" .
           docker push "$ACR_REGISTRY/infra-dashboard:dev"
@@ -72,14 +74,16 @@ jobs:
           PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
           AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.DEV_AZURE_STORAGE_CONNECTION_STRING }}
           AZURE_STORAGE_CONTAINER_NAME: ${{ secrets.DEV_AZURE_STORAGE_CONTAINER_NAME }}
+          SENTRY_DSN: ${{ secrets.DEV_SENTRY_DSN }}
         run: |
-          printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\nAZURE_STORAGE_CONNECTION_STRING=%s\nAZURE_STORAGE_CONTAINER_NAME=%s\n' \
+          printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\nAZURE_STORAGE_CONNECTION_STRING=%s\nAZURE_STORAGE_CONTAINER_NAME=%s\nSENTRY_DSN=%s\nSENTRY_ENVIRONMENT=development\n' \
             "$DATABASE_URL" \
             "$APP_JWT_SECRET" \
             "$NEXT_PUBLIC_PRIVY_APP_ID" \
             "$PRIVY_APP_SECRET" \
             "$AZURE_STORAGE_CONNECTION_STRING" \
             "$AZURE_STORAGE_CONTAINER_NAME" \
+            "$SENTRY_DSN" \
             > /tmp/dashboard-dev.env
 
       - name: Deploy with Docker Compose

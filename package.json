@@ -8,6 +8,9 @@
     "build": "next build",
     "start": "next start -p 3000",
     "build-start": "npm run build && npm run start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "prisma generate",
     "db:local:setup": "node scripts/setup-local-db.mjs",
     "db:local:seed": "node scripts/seed-countries.mjs",
@@ -29,6 +32,20 @@
     "fix:prettier": "prettier --write .",
     "fix:lint": "eslint --fix .",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write",
+      "cspell lint --quiet --no-must-find-files"
+    ],
+    "*.md": [
+      "prettier --write",
+      "cspell lint --quiet --no-must-find-files"
+    ],
+    "*.{json,css,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "commitlint": {
     "extends": [
@@ -64,7 +81,8 @@
     "react-dom": "^19.2.5",
     "server-only": "^0.0.1",
     "three": "^0.184.0",
-    "viem": "^2.48.4"
+    "viem": "^2.48.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.2",
@@ -76,15 +94,18 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.59.1",
     "@typescript-eslint/parser": "^8.59.1",
+    "@vitejs/plugin-react": "^6.0.5",
     "cspell": "^10.0.0",
     "eslint": "^10.2.1",
     "eslint-config-next": "^16.2.6",
     "husky": "^9.1.7",
     "knip": "^6.7.0",
+    "lint-staged": "^17.3.0",
     "postcss": "^8.5.12",
     "prettier": "^3.8.3",
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   }
 }

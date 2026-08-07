@@ -7,8 +7,9 @@ import { BuildInfo } from '@/components/build-info';
 import { useAuthSession, type AuthProgressStep } from './auth-session-provider';
 
 const DEFAULT_STEP_TIMER_SECONDS = 5;
-// Wallet steps round-trip through the Openfort iframe + Shield + on-chain
-// account fetches, so they consistently take longer than the API-only steps.
+// Wallet steps round-trip through the Privy embedded-wallet iframe plus the
+// Biconomy smart-account (CREATE2) address derivation, so they consistently
+// take longer than the API-only steps.
 const WALLET_STEP_TIMER_SECONDS = 10;
 const SUCCESS_DISMISS_MS = 800;
 
