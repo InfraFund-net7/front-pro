@@ -1,11 +1,60 @@
+'use client';
+
 import solar from '@/../public/assets/image/solar-default-1024w.webp';
 import solarProject2 from '@/../public/assets/image/solar-project-2-1024w.webp';
 import wind from '@/../public/assets/image/wind-default-2000w.webp';
 import windProject2 from '@/../public/assets/image/wind-project-2-1024w.webp';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useAuthSession } from '@/components/auth/auth-session-provider';
+import { listMyProjects } from '@/lib/backend-auth-client';
 
+// The cards below are static mock content (stats, copy, images); only the
+// "AI Digital Twin" links are wired to real project IDs here, since the
+// digital-twin viewer is now DB-backed and needs an actual project id.
 export default function DeveloperHome() {
+  const { backendAccessToken, refreshSession } = useAuthSession();
+  const [digitalTwinProjectIds, setDigitalTwinProjectIds] = useState<string[]>(
+    []
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProjects() {
+      let accessToken = backendAccessToken;
+
+      if (!accessToken) {
+        accessToken = await refreshSession();
+      }
+
+      if (!accessToken) {
+        return;
+      }
+
+      try {
+        const { items } = await listMyProjects(accessToken);
+
+        if (isMounted) {
+          setDigitalTwinProjectIds(items.map((project) => project.id));
+        }
+      } catch {
+        // Dashboard stats above stay as mock data regardless; the digital
+        // twin links below simply stay unavailable if this fails.
+      }
+    }
+
+    void loadProjects();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [backendAccessToken, refreshSession]);
+
+  const [firstProjectId, secondProjectId, thirdProjectId] =
+    digitalTwinProjectIds;
+
   return (
     <div className="min-h-screen flex flex-col gap-12 text-white">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -98,19 +147,35 @@ export default function DeveloperHome() {
                       </span>
                     </div>
 
-                    <Link
-                      href="/projects/1/digital-twin"
-                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                    {firstProjectId ? (
+                      <Link
+                        href={`/projects/${firstProjectId}/digital-twin`}
+                        className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
                       >
-                        <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
-                      </svg>
-                      <span className="text-sm">AI Digital Twin ↗</span>
-                    </Link>
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        <span className="text-sm">AI Digital Twin ↗</span>
+                      </Link>
+                    ) : (
+                      <span
+                        aria-disabled="true"
+                        className="flex items-center gap-2 text-gray-600"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        <span className="text-sm">AI Digital Twin ↗</span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -239,19 +304,35 @@ export default function DeveloperHome() {
                       </span>
                     </div>
 
-                    <Link
-                      href="/projects/2/digital-twin"
-                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                    {secondProjectId ? (
+                      <Link
+                        href={`/projects/${secondProjectId}/digital-twin`}
+                        className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
                       >
-                        <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
-                      </svg>
-                      <span className="text-sm">AI Digital Twin ↗</span>
-                    </Link>
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        <span className="text-sm">AI Digital Twin ↗</span>
+                      </Link>
+                    ) : (
+                      <span
+                        aria-disabled="true"
+                        className="flex items-center gap-2 text-gray-600"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        <span className="text-sm">AI Digital Twin ↗</span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -384,19 +465,35 @@ export default function DeveloperHome() {
                       </span>
                     </div>
 
-                    <Link
-                      href="/projects/3/digital-twin"
-                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                    {thirdProjectId ? (
+                      <Link
+                        href={`/projects/${thirdProjectId}/digital-twin`}
+                        className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
                       >
-                        <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
-                      </svg>
-                      <span className="text-sm">AI Digital Twin ↗</span>
-                    </Link>
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        <span className="text-sm">AI Digital Twin ↗</span>
+                      </Link>
+                    ) : (
+                      <span
+                        aria-disabled="true"
+                        className="flex items-center gap-2 text-gray-600"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        <span className="text-sm">AI Digital Twin ↗</span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
