@@ -6,41 +6,19 @@ import {
   verifyRequestCaptcha,
 } from '@/server/http';
 import { submitNonResidentWaitlist } from '@/server/services/public-forms';
-import {
-  readJsonObject,
-  requirePositiveIntegerField,
-  requireStringField,
-  throwIfFieldErrors,
-} from '@/server/validation/public-forms';
+import { parseNonResidentIndividualRequest } from '@/server/validation/public-forms';
 
 export async function POST(request: NextRequest) {
   try {
     await verifyRequestCaptcha(request);
 
-    const body = await readJsonObject(request);
-    const fields: Record<string, string> = {};
-    const firstName = requireStringField(body, fields, 'first_name', {
-      minLength: 1,
-      maxLength: 100,
-    });
-    const lastName = requireStringField(body, fields, 'last_name', {
-      minLength: 1,
-      maxLength: 100,
-    });
-    const email = requireStringField(body, fields, 'email', {
-      minLength: 5,
-      maxLength: 255,
-      email: true,
-    });
-    const countryId = requirePositiveIntegerField(body, fields, 'country_id');
-
-    throwIfFieldErrors(fields);
+    const body = await parseNonResidentIndividualRequest(request);
 
     await submitNonResidentWaitlist({
-      firstName,
-      lastName,
-      email,
-      countryId,
+      firstName: body.first_name,
+      lastName: body.last_name,
+      email: body.email,
+      countryId: body.country_id,
       type: 'individual',
     });
 
