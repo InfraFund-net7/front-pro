@@ -9,10 +9,15 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import { listMyProjects } from '@/lib/backend-auth-client';
+import {
+  DEMO_DIGITAL_TWIN_PROJECT_ID,
+  isDigitalTwinDemoModeEnabled,
+} from '@/lib/digital-twin-demo';
 
 // The cards below are static mock content (stats, copy, images); only the
 // "AI Digital Twin" links are wired to real project IDs here, since the
 // digital-twin viewer is now DB-backed and needs an actual project id.
+// See isDigitalTwinDemoModeEnabled() for the demo-mode fallback.
 export default function DeveloperHome() {
   const { backendAccessToken, refreshSession } = useAuthSession();
   const [digitalTwinProjectIds, setDigitalTwinProjectIds] = useState<string[]>(
@@ -52,8 +57,18 @@ export default function DeveloperHome() {
     };
   }, [backendAccessToken, refreshSession]);
 
-  const [firstProjectId, secondProjectId, thirdProjectId] =
+  // Off by default; when explicitly turned on (NEXT_PUBLIC_DIGITAL_TWIN_DEMO_MODE),
+  // any slot without a real owned project falls back to a fixed, always-seeded
+  // demo project instead of rendering as a disabled, non-clickable link.
+  const demoModeEnabled = isDigitalTwinDemoModeEnabled();
+  const [firstRealProjectId, secondRealProjectId, thirdRealProjectId] =
     digitalTwinProjectIds;
+  const demoFallback = demoModeEnabled
+    ? DEMO_DIGITAL_TWIN_PROJECT_ID
+    : undefined;
+  const firstProjectId = firstRealProjectId ?? demoFallback;
+  const secondProjectId = secondRealProjectId ?? demoFallback;
+  const thirdProjectId = thirdRealProjectId ?? demoFallback;
 
   return (
     <div className="min-h-screen flex flex-col gap-12 text-white">
