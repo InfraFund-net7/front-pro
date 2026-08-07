@@ -2,42 +2,41 @@
 
 import { useEffect, useState } from 'react';
 import { CesiumIonViewer } from '@/components/digital-twin/cesium-ion-viewer';
-import { DigitalTwinModelViewer } from '@/components/digital-twin/model-viewer';
 import { MilestoneChecklist } from '@/components/digital-twin/milestone-checklist';
-import type { ConstructionMilestone } from '@/lib/digital-twin-projects';
-import type { getDigitalTwinProject } from '@/lib/digital-twin-projects';
-
-type DigitalTwinProject = NonNullable<ReturnType<typeof getDigitalTwinProject>>;
+import { DigitalTwinModelViewer } from '@/components/digital-twin/model-viewer';
+import type { DigitalTwinView } from '@/types/digital-twin';
 
 type DigitalTwinClientPageProps = {
-  project: DigitalTwinProject;
+  view: DigitalTwinView;
 };
 
-export function DigitalTwinClientPage({ project }: DigitalTwinClientPageProps) {
-  const [milestones, setMilestones] = useState<ConstructionMilestone[]>(
-    project.milestones ?? []
-  );
+export function DigitalTwinClientPage({
+  view: initialView,
+}: DigitalTwinClientPageProps) {
+  const [view, setView] = useState(initialView);
 
   useEffect(() => {
-    setMilestones(project.milestones ?? []);
-  }, [project]);
+    setView(initialView);
+  }, [initialView]);
 
   return (
     <>
-      {project.cesiumIonAssetId ? (
-        <CesiumIonViewer assetId={project.cesiumIonAssetId} />
+      {view.model.renderer === 'cesium-3d-tiles' &&
+      view.model.cesiumIonAssetId ? (
+        <CesiumIonViewer
+          assetId={view.model.cesiumIonAssetId}
+          components={view.model.components}
+        />
       ) : (
         <DigitalTwinModelViewer
-          modelUrl={project.modelUrl}
-          statusLabel={project.statusLabel}
-          milestones={project.mode === 'construction' ? milestones : undefined}
-          components={project.components}
+          modelUrl={view.model.assetUrl}
+          components={view.model.components}
         />
       )}
 
-      {project.mode === 'operational' && project.energyMetrics ? (
+      {view.model.energyMetrics.length > 0 ? (
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {project.energyMetrics.map((metric) => (
+          {view.model.energyMetrics.map((metric) => (
             <article
               key={metric.label}
               className="rounded-[20px] border border-card-border bg-card-bg p-6 backdrop-blur-xl"
@@ -52,8 +51,13 @@ export function DigitalTwinClientPage({ project }: DigitalTwinClientPageProps) {
         </section>
       ) : null}
 
-      {project.mode === 'construction' && milestones.length > 0 ? (
-        <MilestoneChecklist milestones={milestones} onChange={setMilestones} />
+      {view.milestones.length > 0 ? (
+        <MilestoneChecklist
+          projectId={view.projectId}
+          milestones={view.milestones}
+          components={view.model.components}
+          onUpdate={setView}
+        />
       ) : null}
     </>
   );

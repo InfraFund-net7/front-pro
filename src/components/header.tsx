@@ -3,7 +3,6 @@
 import { Bell, Headset, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { AppPageHeader } from '@/components/layout/app-page-header';
-import { getDigitalTwinProject } from '@/lib/digital-twin-projects';
 import { useAuthSession } from '@/components/auth/auth-session-provider';
 import { AvatarMenu } from './header/avatar-menu';
 
@@ -50,12 +49,8 @@ function formatRole(role: string | null | undefined) {
 }
 
 function getPageTitle(pathname: string) {
-  const digitalTwinMatch = pathname.match(
-    /^\/projects\/([^/]+)\/digital-twin$/
-  );
-
-  if (digitalTwinMatch) {
-    return getDigitalTwinProject(digitalTwinMatch[1])?.title ?? 'Digital Twin';
+  if (/^\/projects\/([^/]+)\/digital-twin$/.test(pathname)) {
+    return 'Digital Twin';
   }
 
   return routeTitles[pathname] || 'Page';
