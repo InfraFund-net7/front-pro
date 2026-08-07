@@ -363,8 +363,19 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         // exactly once, at this point past the qualification gate. Returning
         // users already have one; createWallet() would throw for them since
         // createAdditional defaults to false, so only call it when missing.
-        const hasEmbeddedWallet = wallets.some(
-          (w) => w.walletClientType === 'privy'
+        //
+        // Check user.linkedAccounts, not the wallets array from
+        // useWallets() -- that list is hydrated by a separate async wallet
+        // SDK connection step and can still be empty right after a session
+        // restore even though the user already has an embedded wallet,
+        // which made createWallet() throw "User already has an embedded
+        // wallet." linkedAccounts is part of the already-loaded Privy user
+        // object, so it doesn't have that race.
+        const hasEmbeddedWallet = (user?.linkedAccounts ?? []).some(
+          (account) =>
+            account.type === 'wallet' &&
+            (account.walletClientType === 'privy' ||
+              account.walletClientType === 'privy-v2')
         );
 
         if (!hasEmbeddedWallet) {
@@ -396,6 +407,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       failStep,
       finalizeAuthenticatedSession,
       startStep,
+      user,
       wallets,
     ]
   );
