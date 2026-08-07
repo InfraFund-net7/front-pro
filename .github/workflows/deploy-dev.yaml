@@ -25,6 +25,7 @@ jobs:
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.DEV_RECAPTCHA_SITE_KEY }} \
             --build-arg NEXT_PUBLIC_ENVIRONMENT=development \
             --build-arg NEXT_PUBLIC_GIT_SHA="$SHA" \
+            --build-arg NEXT_PUBLIC_DIGITAL_TWIN_DEMO_MODE=true \
             -t "$ACR_REGISTRY/infra-dashboard:dev" \
             -t "$ACR_REGISTRY/infra-dashboard:dev-$SHA" .
           docker push "$ACR_REGISTRY/infra-dashboard:dev"
