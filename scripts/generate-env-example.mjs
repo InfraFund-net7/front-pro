@@ -144,6 +144,17 @@ const sections = [
     ],
   },
   {
+    title: 'Azure Storage Configuration',
+    rows: [
+      ['# Required for proposal document uploads'],
+      [
+        'AZURE_STORAGE_CONNECTION_STRING',
+        'DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net',
+      ],
+      ['AZURE_STORAGE_CONTAINER_NAME', 'project-proposals'],
+    ],
+  },
+  {
     title: 'Cleanup Cron Configuration',
     rows: [
       ['# Generate with: openssl rand -base64 32'],

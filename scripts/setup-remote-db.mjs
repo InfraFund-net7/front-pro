@@ -5,11 +5,9 @@ import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 
-run('npx', ['prisma', 'generate']);
-run('node', ['scripts/bootstrap-neon-db.mjs']);
+run('node', ['scripts/ensure-uuidv7.mjs']);
 run('npx', ['prisma', 'migrate', 'deploy']);
 run('node', ['scripts/seed-countries.mjs']);
-run('next', ['build']);
 
 function run(command, args) {
   const result = spawnSync(command, args, {
