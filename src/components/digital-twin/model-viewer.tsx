@@ -9,32 +9,35 @@ import {
   useGLTF,
 } from '@react-three/drei';
 import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-} from 'react';
-import { Box3, Vector3, type Mesh, type Object3D } from 'three';
-import { ComponentInspector } from '@/components/digital-twin/component-inspector';
-import type {
-  ConstructionMilestone,
-  DigitalTwinComponentConfig,
-  MetadataRecord,
-  MetadataValue,
-} from '@/lib/digital-twin-projects';
+  Box3,
+  Color,
+  Vector3,
+  type Material,
+  type Mesh,
+  type Object3D,
+} from 'three';
+import { DigitalTwinViewerLayout } from '@/components/digital-twin/viewer-layout';
+import {
+  STATUS_LABELS,
+  type DigitalTwinComponentView,
+  type SelectedComponentMetadata,
+} from '@/types/digital-twin';
 
 type DigitalTwinModelViewerProps = {
   modelUrl: string;
-  statusLabel: string;
-  milestones?: ConstructionMilestone[];
-  components?: DigitalTwinComponentConfig[];
+  components: DigitalTwinComponentView[];
 };
 
-type GltfCatalogElement = MetadataRecord & {
+type MetadataPrimitive = string | number | boolean | null;
+type MetadataValue =
+  | MetadataPrimitive
+  | MetadataValue[]
+  | { [key: string]: MetadataValue };
+type RawMetadataRecord = Record<string, MetadataValue>;
+
+type GltfCatalogElement = RawMetadataRecord & {
   externalId?: MetadataValue;
   id?: MetadataValue;
   name?: MetadataValue;
@@ -59,37 +62,7 @@ function isOrbitControlsLike(value: unknown): value is OrbitControlsLike {
   );
 }
 
-function buildEnabledNameSet(milestones: ConstructionMilestone[]) {
-  const names = new Set<string>();
-
-  milestones.forEach((milestone) => {
-    if (!milestone.completed) {
-      return;
-    }
-
-    milestone.components.forEach((component) => {
-      component.nodeNames.forEach((nodeName) => names.add(nodeName));
-    });
-  });
-
-  return names;
-}
-
-function hasEnabledName(object: Object3D, enabledNames: Set<string>) {
-  let current: Object3D | null = object;
-
-  while (current) {
-    if (enabledNames.has(current.name)) {
-      return true;
-    }
-
-    current = current.parent;
-  }
-
-  return false;
-}
-
-function isMetadataRecord(value: unknown): value is MetadataRecord {
+function isMetadataRecord(value: unknown): value is RawMetadataRecord {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
@@ -104,11 +77,9 @@ function asMetadataValue(value: unknown): MetadataValue | undefined {
   }
 
   if (Array.isArray(value)) {
-    const values = value
+    return value
       .map(asMetadataValue)
       .filter((item): item is MetadataValue => item !== undefined);
-
-    return values;
   }
 
   if (isMetadataRecord(value)) {
@@ -125,7 +96,7 @@ function asMetadataValue(value: unknown): MetadataValue | undefined {
   return undefined;
 }
 
-function normalizeRecord(record: Record<string, unknown>) {
+function normalizeRecord(record: Record<string, unknown>): RawMetadataRecord {
   return Object.fromEntries(
     Object.entries(record)
       .map(([key, value]) => [key, asMetadataValue(value)] as const)
@@ -136,7 +107,26 @@ function normalizeRecord(record: Record<string, unknown>) {
   );
 }
 
-function getStringValue(record: MetadataRecord, keys: string[]) {
+function formatMetadataValue(value: MetadataValue) {
+  if (value === null) {
+    return 'null';
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+}
+
+function toEntries(record: RawMetadataRecord): Array<[string, string]> {
+  return Object.entries(record).map(([key, value]) => [
+    key,
+    formatMetadataValue(value),
+  ]);
+}
+
+function getStringValue(record: RawMetadataRecord, keys: string[]) {
   for (const key of keys) {
     const value = record[key];
 
@@ -148,13 +138,17 @@ function getStringValue(record: MetadataRecord, keys: string[]) {
   return undefined;
 }
 
-function buildComponentRecord(component: DigitalTwinComponentConfig) {
-  return normalizeRecord({
+function buildComponentRecord(component: DigitalTwinComponentView) {
+  const base = normalizeRecord({
     externalId: component.externalId,
     displayName: component.displayName,
-    nodeNames: component.nodeNames,
-    defaultVisible: component.defaultVisible,
+    category: component.category,
+    nodeName: component.nodeName,
+    status: STATUS_LABELS[component.status],
   });
+  const extra = component.metadata ? normalizeRecord(component.metadata) : {};
+
+  return { ...base, ...extra };
 }
 
 function findCatalogMatch(
@@ -176,12 +170,24 @@ function findCatalogMatch(
   });
 }
 
+function findMatchingComponent(
+  components: DigitalTwinComponentView[],
+  identityValues: Set<string>
+) {
+  return components.find(
+    (component) =>
+      identityValues.has(component.externalId) ||
+      (component.nodeName ? identityValues.has(component.nodeName) : false) ||
+      identityValues.has(component.displayName)
+  );
+}
+
 function collectMetadata(
   object: Object3D,
-  components: DigitalTwinComponentConfig[],
+  components: DigitalTwinComponentView[],
   catalog: GltfCatalogElement[]
-) {
-  const metadata: MetadataRecord = {};
+): SelectedComponentMetadata {
+  const metadata: RawMetadataRecord = {};
   const identityValues = new Set<string>();
   let current: Object3D | null = object;
   let depth = 0;
@@ -214,49 +220,87 @@ function collectMetadata(
     depth += 1;
   }
 
-  const component = components.find(
-    (item) =>
-      identityValues.has(item.externalId) ||
-      identityValues.has(item.displayName) ||
-      item.nodeNames.some((nodeName) => identityValues.has(nodeName))
-  );
+  const component = findMatchingComponent(components, identityValues);
+  let title: string | undefined;
 
   if (component) {
     Object.assign(metadata, buildComponentRecord(component));
-    identityValues.add(component.externalId);
-    component.nodeNames.forEach((nodeName) => identityValues.add(nodeName));
+    title = component.displayName;
+  } else {
+    const catalogMatch = findCatalogMatch(catalog, identityValues);
+
+    if (catalogMatch) {
+      Object.assign(metadata, catalogMatch);
+      title = getStringValue(metadata, ['displayName', 'name', 'externalId']);
+    }
   }
 
-  const catalogMatch = findCatalogMatch(catalog, identityValues);
+  return {
+    title:
+      title ??
+      getStringValue(metadata, ['displayName', 'name', 'externalId']) ??
+      'Component metadata',
+    entries: toEntries(metadata),
+  };
+}
 
-  if (catalogMatch) {
-    Object.assign(metadata, catalogMatch);
+function buildNodeLookup(components: DigitalTwinComponentView[]) {
+  const lookup = new Map<string, DigitalTwinComponentView>();
+
+  components.forEach((component) => {
+    if (component.nodeName) {
+      lookup.set(component.nodeName, component);
+    }
+
+    lookup.set(component.externalId, component);
+  });
+
+  return lookup;
+}
+
+function findComponentForObject(
+  object: Object3D,
+  lookup: Map<string, DigitalTwinComponentView>
+) {
+  let current: Object3D | null = object;
+
+  while (current) {
+    const match = lookup.get(current.name);
+
+    if (match) {
+      return match;
+    }
+
+    current = current.parent;
   }
 
-  return metadata;
+  return undefined;
+}
+
+function applyMeshColor(material: Material | Material[], color: string) {
+  const materials = Array.isArray(material) ? material : [material];
+
+  materials.forEach((item) => {
+    if ('color' in item && item.color instanceof Color) {
+      item.color.set(color);
+    }
+  });
 }
 
 function Model({
   modelUrl,
-  statusLabel,
-  milestones = [],
-  components = [],
+  components,
   onSelectMetadata,
 }: {
   modelUrl: string;
-  statusLabel: string;
-  milestones?: ConstructionMilestone[];
-  components?: DigitalTwinComponentConfig[];
-  onSelectMetadata: (metadata: MetadataRecord) => void;
+  components: DigitalTwinComponentView[];
+  onSelectMetadata: (metadata: SelectedComponentMetadata) => void;
 }) {
   const gltf = useGLTF(modelUrl);
   const camera = useThree((state) => state.camera);
   const controls = useThree((state) => state.controls);
-  const isOperational = statusLabel === 'Operational';
-  const enabledNames = useMemo(
-    () => buildEnabledNameSet(milestones),
-    [milestones]
-  );
+  const clonedMaterials = useRef(new Map<string, Material | Material[]>());
+  const nodeLookup = useMemo(() => buildNodeLookup(components), [components]);
   const modelOffset = useMemo(() => {
     const box = new Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new Vector3());
@@ -280,11 +324,33 @@ function Model({
         return;
       }
 
-      object.visible = isOperational || hasEnabledName(object, enabledNames);
-      object.castShadow = object.visible;
-      object.receiveShadow = object.visible;
-    });
+      const matched = findComponentForObject(object, nodeLookup);
 
+      if (!matched) {
+        object.visible = true;
+        object.castShadow = true;
+        object.receiveShadow = true;
+        return;
+      }
+
+      object.visible = matched.isVisible;
+      object.castShadow = matched.isVisible;
+      object.receiveShadow = matched.isVisible;
+
+      if (!clonedMaterials.current.has(object.uuid)) {
+        const cloned = Array.isArray(object.material)
+          ? object.material.map((material) => material.clone())
+          : object.material.clone();
+
+        clonedMaterials.current.set(object.uuid, cloned);
+        object.material = cloned;
+      }
+
+      applyMeshColor(object.material, matched.color);
+    });
+  }, [gltf.scene, nodeLookup]);
+
+  useEffect(() => {
     const box = new Box3().setFromObject(gltf.scene);
     const size = box.getSize(new Vector3());
     const height = Math.max(size.y, 1);
@@ -301,7 +367,7 @@ function Model({
     }
 
     camera.updateProjectionMatrix();
-  }, [camera, controls, enabledNames, gltf.scene, isOperational]);
+  }, [camera, controls, gltf.scene]);
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -340,139 +406,77 @@ function LoadingModel() {
 
 export function DigitalTwinModelViewer({
   modelUrl,
-  statusLabel,
-  milestones,
   components,
 }: DigitalTwinModelViewerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [showGroundPlane, setShowGroundPlane] = useState(true);
   const [showKeyLight, setShowKeyLight] = useState(true);
   const [selectedMetadata, setSelectedMetadata] =
-    useState<MetadataRecord | null>(null);
-  const [inspectorWidth, setInspectorWidth] = useState(34);
-
-  const handleResizeStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const container = containerRef.current;
-
-    if (!container) {
-      return;
-    }
-
-    const startX = event.clientX;
-    const startWidth = inspectorWidth;
-    const containerWidth = container.getBoundingClientRect().width;
-
-    const handleResize = (pointerEvent: PointerEvent) => {
-      const deltaPercent =
-        ((startX - pointerEvent.clientX) / containerWidth) * 100;
-      const nextWidth = startWidth + deltaPercent;
-
-      setInspectorWidth(Math.min(50, Math.max(18, nextWidth)));
-    };
-
-    const handleResizeEnd = () => {
-      document.body.style.cursor = 'default';
-      window.removeEventListener('pointermove', handleResize);
-      window.removeEventListener('pointerup', handleResizeEnd);
-    };
-
-    document.body.style.cursor = 'col-resize';
-    window.addEventListener('pointermove', handleResize);
-    window.addEventListener('pointerup', handleResizeEnd);
-  };
+    useState<SelectedComponentMetadata>(null);
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-card-border bg-card-bg shadow-2xl backdrop-blur-xl">
-      <div
-        ref={containerRef}
-        className="grid grid-cols-1 xl:grid-cols-[minmax(0,var(--viewer-width))_0.5rem_minmax(0,var(--inspector-width))]"
-        style={
-          {
-            '--viewer-width': `${100 - inspectorWidth}%`,
-            '--inspector-width': `${inspectorWidth}%`,
-          } as CSSProperties
-        }
+    <DigitalTwinViewerLayout
+      metadata={selectedMetadata}
+      capabilities={{ groundPlane: true, keyLight: true }}
+      showGroundPlane={showGroundPlane}
+      setShowGroundPlane={setShowGroundPlane}
+      showKeyLight={showKeyLight}
+      setShowKeyLight={setShowKeyLight}
+      viewportClassName={showGroundPlane ? 'bg-[#6f6f6f]' : 'bg-[#808080]'}
+    >
+      <Canvas
+        camera={{ position: [10, 12, 10], fov: 45 }}
+        shadows
+        gl={{ antialias: true }}
       >
-        <div
-          className={`relative h-[520px] ${showGroundPlane ? 'bg-[#6f6f6f]' : 'bg-[#808080]'}`}
-        >
-          <Canvas
-            camera={{ position: [10, 12, 10], fov: 45 }}
-            shadows
-            gl={{ antialias: true }}
-          >
-            <color
-              attach="background"
-              args={[showGroundPlane ? '#6f6f6f' : '#808080']}
-            />
-            <ambientLight intensity={0.55} />
-            <hemisphereLight args={['#f7f7f7', '#2c2c2c', 0.85]} />
-            {showKeyLight ? (
-              <directionalLight
-                position={[45, 90, 45]}
-                intensity={4.8}
-                castShadow
-                shadow-mapSize={[4096, 4096]}
-                shadow-camera-near={1}
-                shadow-camera-far={180}
-                shadow-camera-left={-90}
-                shadow-camera-right={90}
-                shadow-camera-top={90}
-                shadow-camera-bottom={-90}
-                shadow-bias={-0.0002}
-                shadow-normalBias={0.08}
-              />
-            ) : null}
-            <Environment preset="city" environmentIntensity={0.35} />
-            <Suspense fallback={<LoadingModel />}>
-              <Bounds clip margin={1.35}>
-                <group>
-                  {showGroundPlane ? (
-                    <group position={[0, 0, 0]}>
-                      <gridHelper args={[76, 38, '#d8d8d8', '#a8a8a8']} />
-                      <mesh
-                        rotation={[-Math.PI / 2, 0, 0]}
-                        position={[0, -0.01, 0]}
-                        receiveShadow
-                      >
-                        <planeGeometry args={[76, 76]} />
-                        <meshStandardMaterial
-                          color="#505050"
-                          roughness={0.95}
-                        />
-                      </mesh>
-                    </group>
-                  ) : null}
-                  <Model
-                    modelUrl={modelUrl}
-                    statusLabel={statusLabel}
-                    milestones={milestones}
-                    components={components}
-                    onSelectMetadata={setSelectedMetadata}
-                  />
+        <color
+          attach="background"
+          args={[showGroundPlane ? '#6f6f6f' : '#808080']}
+        />
+        <ambientLight intensity={0.55} />
+        <hemisphereLight args={['#f7f7f7', '#2c2c2c', 0.85]} />
+        {showKeyLight ? (
+          <directionalLight
+            position={[45, 90, 45]}
+            intensity={4.8}
+            castShadow
+            shadow-mapSize={[4096, 4096]}
+            shadow-camera-near={1}
+            shadow-camera-far={180}
+            shadow-camera-left={-90}
+            shadow-camera-right={90}
+            shadow-camera-top={90}
+            shadow-camera-bottom={-90}
+            shadow-bias={-0.0002}
+            shadow-normalBias={0.08}
+          />
+        ) : null}
+        <Environment preset="city" environmentIntensity={0.35} />
+        <Suspense fallback={<LoadingModel />}>
+          <Bounds clip margin={1.35}>
+            <group>
+              {showGroundPlane ? (
+                <group position={[0, 0, 0]}>
+                  <gridHelper args={[76, 38, '#d8d8d8', '#a8a8a8']} />
+                  <mesh
+                    rotation={[-Math.PI / 2, 0, 0]}
+                    position={[0, -0.01, 0]}
+                    receiveShadow
+                  >
+                    <planeGeometry args={[76, 76]} />
+                    <meshStandardMaterial color="#505050" roughness={0.95} />
+                  </mesh>
                 </group>
-              </Bounds>
-            </Suspense>
-            <OrbitControls makeDefault enableDamping dampingFactor={0.08} />
-          </Canvas>
-        </div>
-
-        <button
-          type="button"
-          aria-label="Resize metadata panel"
-          onPointerDown={handleResizeStart}
-          className="hidden w-2 cursor-col-resize border-l border-r border-white/10 bg-[#0C0C0D]/60 transition hover:bg-primary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary xl:block"
-        />
-
-        <ComponentInspector
-          metadata={selectedMetadata}
-          showGroundPlane={showGroundPlane}
-          setShowGroundPlane={setShowGroundPlane}
-          showKeyLight={showKeyLight}
-          setShowKeyLight={setShowKeyLight}
-        />
-      </div>
-    </section>
+              ) : null}
+              <Model
+                modelUrl={modelUrl}
+                components={components}
+                onSelectMetadata={setSelectedMetadata}
+              />
+            </group>
+          </Bounds>
+        </Suspense>
+        <OrbitControls makeDefault enableDamping dampingFactor={0.08} />
+      </Canvas>
+    </DigitalTwinViewerLayout>
   );
 }
