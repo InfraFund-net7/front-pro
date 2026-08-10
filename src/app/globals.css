@@ -175,3 +175,7 @@ body {
 body {
   font-family: 'IBM Plex Mono', monospace;
 }
+
+.hide-feedback-widget .widget__actor {
+  display: none !important;
+}

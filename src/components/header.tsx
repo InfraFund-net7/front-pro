@@ -1,154 +1,98 @@
 'use client';
 
-import { Bell, Headset, Wallet } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Bell, Headset, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useAccount, useParticleAuth } from '@particle-network/connectkit';
-import { CustomButton } from './ui/custom-button';
-import { ConnectWallet } from './connectwallet/connect-wallet-modal';
-
-const USER_ROLE_STORAGE_KEY = 'infrafund_user_role';
-const USER_ROLE_UPDATED_EVENT = 'infrafund:user-role-updated';
+import { AppPageHeader } from '@/components/layout/app-page-header';
+import { useAuthSession } from '@/components/auth/auth-session-provider';
+import { AvatarMenu } from './header/avatar-menu';
 
 const routeTitles: Record<string, string> = {
   '/': 'Dashboard',
-  '/kyc': 'KYC',
+  '/home': 'Dashboard',
   '/explore-projects': 'Explore Projects',
-  '/projects': 'Projects',
-  '/settings': 'Settings',
-  '/sign-out': 'Sign out',
+  '/my-projects': 'My Projects',
+  '/create-project': 'Create Project',
+  '/tokenization': 'Tokenization',
+  '/investment-portal': 'Investment Portal',
+  '/digital-assets': 'Digital Assets',
+  '/investor-management': 'Investor Management',
+  '/investment-requests': 'Investment Requests',
+  '/asset-management': 'Asset Management',
+  '/claim-proposal': 'Claim Proposal',
+  '/vote': 'Vote',
+  '/ai-competition': 'AI Competition',
+  '/proposal-approval': 'Proposal Approval',
+  '/create-approval': 'Create Approval',
+  '/plan-approval': 'Plan Approval',
+  '/swap': 'Swap',
+  '/kyc': 'KYC',
+  '/account': 'Account Settings',
 };
 
-function formatRoleLabel(role: string): string {
-  const normalized = role.trim().toLowerCase();
-  if (!normalized) return 'Member';
-  const roleMap: Record<string, string> = {
-    investor: 'Investor',
-    contractor: 'Contractor',
-    client: 'Project Developer',
-    dao: 'Governance Member',
-  };
-  return (
-    roleMap[normalized] ??
-    normalized
-      .split(/[_\s-]+/)
-      .filter(Boolean)
-      .map((word) => word[0].toUpperCase() + word.slice(1))
-      .join(' ')
-  );
+function formatRole(role: string | null | undefined) {
+  if (!role) {
+    return null;
+  }
+
+  if (role === 'project_owner') {
+    return 'Client';
+  }
+
+  if (role === 'governance') {
+    return 'DAO';
+  }
+
+  return role
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
-export default function Header() {
+function getPageTitle(pathname: string) {
+  if (/^\/projects\/([^/]+)\/digital-twin$/.test(pathname)) {
+    return 'Digital Twin';
+  }
+
+  return routeTitles[pathname] || 'Page';
+}
+
+type HeaderProps = {
+  onMenuClick?: () => void;
+};
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userName, setUserName] = useState<string>('Guest');
-  const [selectedRole, setSelectedRole] = useState<string>('');
-  const account = useAccount();
-  const { getUserInfo } = useParticleAuth();
-  const pageTitle = routeTitles[pathname] || 'Page';
-  const roleLabel = useMemo(
-    () =>
-      account.status === 'connected'
-        ? formatRoleLabel(selectedRole)
-        : 'Guest',
-    [account.status, selectedRole]
-  );
-  const avatarLabel = useMemo(
-    () => userName.trim().charAt(0).toUpperCase() || 'G',
-    [userName]
-  );
-
-  useEffect(() => {
-    const syncRole = () => {
-      const storedRole = localStorage.getItem(USER_ROLE_STORAGE_KEY) ?? '';
-      setSelectedRole(storedRole);
-    };
-    syncRole();
-    window.addEventListener('storage', syncRole);
-    window.addEventListener(USER_ROLE_UPDATED_EVENT, syncRole);
-    return () => {
-      window.removeEventListener('storage', syncRole);
-      window.removeEventListener(USER_ROLE_UPDATED_EVENT, syncRole);
-    };
-  }, []);
-
-  useEffect(() => {
-    const storedRole = localStorage.getItem(USER_ROLE_STORAGE_KEY) ?? '';
-    setSelectedRole(storedRole);
-  }, [account.status, pathname]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const readUserName = async () => {
-      if (account.status !== 'connected') {
-        setUserName('Guest');
-        return;
-      }
-
-      // Prefer a friendly name from Particle user profile when available.
-      try {
-        const info = (await Promise.resolve(getUserInfo())) as unknown as
-          | Record<string, unknown>
-          | undefined;
-        const profileName =
-          (typeof info?.name === 'string' && info.name.trim()) ||
-          (typeof info?.nickname === 'string' && info.nickname.trim()) ||
-          (typeof info?.email === 'string' && info.email.trim().split('@')[0]) ||
-          '';
-        if (!cancelled && profileName) {
-          setUserName(profileName);
-          return;
-        }
-      } catch {
-        // Fall back to wallet address label below.
-      }
-
-      const fallbackAddress =
-        account.status === 'connected' ? account.address : undefined;
-      if (!cancelled && fallbackAddress) {
-        setUserName(`${fallbackAddress.slice(0, 6)}...${fallbackAddress.slice(-4)}`);
-      }
-    };
-
-    void readUserName();
-    return () => {
-      cancelled = true;
-    };
-  }, [account, getUserInfo]);
+  const pageTitle = getPageTitle(pathname);
+  const { backendUser } = useAuthSession();
+  const role = formatRole(backendUser?.role);
 
   return (
-    <div className="flex h-16 shrink-0 justify-between items-center sticky top-0 z-20 rounded-lg mb-4">
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-normal text-white leading-2">
-          Hi {userName}
-          <span className="text-[#8087A3] text-base font-normal">
-            {' '}
-            - {roleLabel}
+    <AppPageHeader
+      title={pageTitle}
+      titleMeta={
+        role ? (
+          <span className="chakra-petch rounded-full border border-primary/35 bg-primary/10 px-3 py-1 text-sm font-medium tracking-[0.08em] text-primary">
+            {role}
           </span>
-        </span>
-        <span className="text-[40px] font-bold text-white">{pageTitle}</span>
-      </div>
-
-      <div className="flex justify-center items-center gap-4">
-        <Headset size={24} className="text-white cursor-pointer" />
-        <Bell size={24} className="text-white cursor-pointer" />
-        <CustomButton
-          variant="outlined"
-          className="w-fit h-[40px] flex justify-center items-center gap-2 text-primary"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Wallet size={24} />
-          <span className="text-sm font-semibold">Connect Wallet</span>
-        </CustomButton>
-        <div className="w-12 h-12 rounded-full bg-[#263247] flex justify-center items-center text-white">
-          {avatarLabel}
-        </div>
-      </div>
-      <ConnectWallet
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-    </div>
+        ) : null
+      }
+      actions={
+        <>
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            onClick={onMenuClick}
+            className="rounded-full border border-white/15 p-2 text-white transition hover:border-primary/50 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="flex items-center gap-3">
+            <Headset size={24} className="cursor-pointer text-white" />
+            <Bell size={24} className="cursor-pointer text-white" />
+            <AvatarMenu />
+          </span>
+        </>
+      }
+    />
   );
 }

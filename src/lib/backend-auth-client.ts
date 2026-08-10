@@ -1,0 +1,574 @@
+'use client';
+
+import type { DigitalTwinView } from '@/types/digital-twin';
+
+// Mirrors Prisma's UserRole/UserType enums (prisma/schema.prisma) -- kept
+// as a hand-written literal union here rather than importing @prisma/client
+// directly into client components, matching how the rest of this file
+// defines its own DTO shapes decoupled from the Prisma schema.
+export type AccountRole =
+  | 'admin'
+  | 'moderator'
+  | 'support'
+  | 'project_owner'
+  | 'investor'
+  | 'contractor'
+  | 'governance'
+  | 'auditor';
+export type AccountType = 'individual' | 'organization';
+
+interface BackendLoginResponse {
+  user_id: string;
+  access_token: string;
+  expires_at: string;
+}
+
+interface BackendCheckResponse {
+  exists: boolean;
+}
+
+interface BackendCountriesResponse {
+  items: BackendCountryRecord[];
+}
+
+interface ProjectsResponse {
+  items: ProjectResponse[];
+}
+
+interface BackendCountryRecord {
+  ID: number;
+  Name: string;
+  Iso: string;
+  Iso3: string;
+  Code: number;
+  PhoneCode: number;
+}
+
+export interface CountryOption {
+  id: number;
+  name: string;
+  iso?: string;
+  iso3?: string;
+  code?: number;
+  phoneCode?: number;
+}
+
+interface PrivyExchangePayload {
+  first_name?: string;
+  last_name?: string;
+  organization_name?: string;
+  phone_number?: string;
+  email?: string;
+  type?: 'individual' | 'organization';
+  role?: string;
+}
+
+interface NonResidentIndividualPayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  country_id: number;
+}
+
+interface NonResidentCompanyPayload {
+  first_name: string;
+  last_name: string;
+  company_name: string;
+  email: string;
+  country_id: number;
+}
+
+interface ProjectMilestoneComponentPayload {
+  id: string;
+  external_id: string;
+  display_name: string;
+  node_name: string | null;
+  category: string;
+  sort_order: number;
+  is_visible: boolean;
+}
+
+interface ProjectMilestonePayload {
+  name: string;
+  cost?: string;
+  end_date?: string;
+  component_external_ids?: string[];
+}
+
+interface ProjectDocumentPayload {
+  file_name?: string;
+  mime_type?: string;
+  size_bytes?: number;
+  checksum?: string;
+  storage_url?: string;
+}
+
+export type ProjectDraftStep =
+  | 'contact_information'
+  | 'project_information'
+  | 'project_milestones'
+  | 'campaign_details'
+  | 'review'
+  | 'submitted';
+
+export interface ProjectMemberPayload {
+  user_id: string;
+  role: AccountRole;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+}
+
+export interface ProjectResponse {
+  id: string;
+  owner_user_id: string;
+  name: string | null;
+  description: string | null;
+  type: string;
+  infrastructure_type: string | null;
+  project_status: string | null;
+  crowdfunding_model: string;
+  submission_status: string;
+  current_step: ProjectDraftStep;
+  digital_asset_symbol: string | null;
+  target_investment_amount: string | null;
+  target_investment_currency: string;
+  raised_before: boolean | null;
+  website_url: string | null;
+  social_url: string | null;
+  submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  account_roles: string[];
+  members: ProjectMemberPayload[];
+  contact: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    title: string;
+    phone_number: string | null;
+  } | null;
+  campaign: {
+    token_name: string | null;
+    digital_asset_supply: string | null;
+    price: string | null;
+    currency: string;
+    min_raise: string | null;
+    max_raise: string | null;
+    min_contribution: string | null;
+    max_contribution: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    general_contractor_wallet_address: string | null;
+    pledge_address: string | null;
+  } | null;
+  documents: Array<ProjectDocumentPayload & { id: string; kind: string }>;
+  digital_twin_model: {
+    id: string;
+    name: string;
+    asset_url: string;
+    format: string;
+    source: string;
+    components: ProjectMilestoneComponentPayload[];
+  } | null;
+  milestones: Array<{
+    id: string;
+    name: string;
+    cost: string | null;
+    end_date: string | null;
+    sort_order: number;
+    components: ProjectMilestoneComponentPayload[];
+  }>;
+}
+
+export interface ProjectContactPayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  title: string;
+  phone_number?: string;
+}
+
+export interface ProjectInformationPayload {
+  name: string;
+  description: string;
+  target_investment_amount: string;
+  infrastructure_type: string;
+  project_status: string;
+  raised_before: boolean;
+  website_url?: string;
+  social_url?: string;
+  proposal_document?: ProjectDocumentPayload;
+}
+
+interface ProjectMilestonesPayload {
+  milestones: ProjectMilestonePayload[];
+}
+
+export interface InviteMemberPayload {
+  email: string;
+  role: string;
+}
+
+export interface ProjectCampaignPayload {
+  token_name: string;
+  digital_asset_supply: string;
+  price: string;
+  currency: string;
+  min_raise: string;
+  max_raise: string;
+  min_contribution: string;
+  max_contribution: string;
+  start_date: string;
+  end_date: string;
+  general_contractor_wallet_address?: string;
+  pledge_address?: string;
+}
+
+export interface BackendMeResponse {
+  user_id: string;
+  privy_user_id: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  company_name: string | null;
+  phone_number: string | null;
+  type: AccountType;
+  role: AccountRole;
+  status: string;
+  kyc_verified: boolean;
+  kyb_verified: boolean;
+}
+
+interface SuccessResponse<T> {
+  code: string;
+  data: T;
+}
+
+interface ErrorResponse {
+  code?: string;
+  message?: string;
+  detail?: string;
+  fields?: Record<string, unknown>;
+}
+
+export class ApiClientError extends Error {
+  readonly code?: string;
+  readonly detail?: string;
+  readonly fields?: Record<string, string>;
+
+  constructor(
+    message: string,
+    options: {
+      code?: string;
+      detail?: string;
+      fields?: Record<string, string>;
+    } = {}
+  ) {
+    super(message);
+    this.name = 'ApiClientError';
+    this.code = options.code;
+    this.detail = options.detail;
+    this.fields = options.fields;
+  }
+}
+
+function buildUrl(path: string) {
+  const normalizedPath = path.replace(/^\/+/, '');
+
+  return `/api/v1/${normalizedPath}`;
+}
+
+async function request<T>(
+  path: string,
+  init: RequestInit & { accessToken?: string } = {}
+) {
+  const headers = new Headers(init.headers);
+
+  if (
+    init.body &&
+    !(init.body instanceof FormData) &&
+    !headers.has('Content-Type')
+  ) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  if (init.accessToken) {
+    headers.set('Authorization', `Bearer ${init.accessToken}`);
+  }
+
+  const response = await fetch(buildUrl(path), {
+    ...init,
+    headers,
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    let message = 'Request failed';
+
+    try {
+      const errorBody = (await response.json()) as ErrorResponse;
+      const baseMessage = errorBody.message || errorBody.detail || message;
+      const fields = errorBody.fields
+        ? Object.fromEntries(
+            Object.entries(errorBody.fields).map(([key, value]) => [
+              key,
+              String(value),
+            ])
+          )
+        : undefined;
+      const fieldMessages = fields
+        ? Object.entries(fields)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(', ')
+        : '';
+      message = [baseMessage, errorBody.detail, fieldMessages]
+        .filter(Boolean)
+        .join(' — ');
+
+      throw new ApiClientError(message, {
+        code: errorBody.code,
+        detail: errorBody.detail,
+        fields,
+      });
+    } catch (parseError) {
+      if (parseError instanceof ApiClientError) {
+        throw parseError;
+      }
+    }
+
+    throw new Error(message);
+  }
+
+  if (response.status === 204) {
+    return null as T;
+  }
+
+  const body = (await response.json()) as SuccessResponse<T>;
+  return body.data;
+}
+
+function normalizeCountry(country: BackendCountryRecord): CountryOption {
+  return {
+    id: country.ID,
+    name: country.Name,
+    iso: country.Iso,
+    iso3: country.Iso3,
+    code: country.Code,
+    phoneCode: country.PhoneCode,
+  };
+}
+
+export async function checkPrivyUser(privyAccessToken: string) {
+  return request<BackendCheckResponse>('auth/privy/check', {
+    method: 'GET',
+    accessToken: privyAccessToken,
+  });
+}
+
+export async function exchangePrivySession(
+  privyAccessToken: string,
+  body: PrivyExchangePayload = {}
+) {
+  return request<BackendLoginResponse>('auth/privy/exchange', {
+    method: 'POST',
+    accessToken: privyAccessToken,
+    body: JSON.stringify(body),
+  });
+}
+
+export async function refreshBackendSession() {
+  return request<BackendLoginResponse>('auth/refresh', {
+    method: 'POST',
+  });
+}
+
+export async function getBackendMe(accessToken: string) {
+  return request<BackendMeResponse>('me', {
+    method: 'GET',
+    accessToken,
+  });
+}
+
+export async function getCountries() {
+  // The endpoint defaults to 10 results; ask for the full ISO country list in
+  // one shot so the dropdown isn't silently truncated.
+  const response = await request<BackendCountriesResponse>(
+    'locations/countries?limit=300',
+    {
+      method: 'GET',
+    }
+  );
+
+  return response.items
+    .map(normalizeCountry)
+    .filter((country) => country.id > 0 && country.name);
+}
+
+export async function submitNonResidentIndividual(
+  payload: NonResidentIndividualPayload,
+  captchaToken: string
+) {
+  await request<null>('non-resident-waitlist/individual', {
+    method: 'POST',
+    headers: {
+      'X-Captcha-Token': captchaToken,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function submitNonResidentCompany(
+  payload: NonResidentCompanyPayload,
+  captchaToken: string
+) {
+  await request<null>('non-resident-waitlist/company', {
+    method: 'POST',
+    headers: {
+      'X-Captcha-Token': captchaToken,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function uploadProjectDocument(accessToken: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return request<ProjectDocumentPayload>('uploads/project-documents', {
+    method: 'POST',
+    accessToken,
+    body: formData,
+  });
+}
+
+export async function listMyProjects(accessToken: string) {
+  return request<ProjectsResponse>('projects', {
+    method: 'GET',
+    accessToken,
+  });
+}
+
+export async function createProjectDraft(accessToken: string) {
+  return request<ProjectResponse>('projects', {
+    method: 'POST',
+    accessToken,
+  });
+}
+
+export async function getProject(accessToken: string, projectId: string) {
+  return request<ProjectResponse>(`projects/${projectId}`, {
+    method: 'GET',
+    accessToken,
+  });
+}
+
+export async function saveProjectContact(
+  accessToken: string,
+  projectId: string,
+  payload: ProjectContactPayload
+) {
+  return request<ProjectResponse>(`projects/${projectId}/contact`, {
+    method: 'PATCH',
+    accessToken,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function saveProjectInformation(
+  accessToken: string,
+  projectId: string,
+  payload: ProjectInformationPayload
+) {
+  return request<ProjectResponse>(`projects/${projectId}/information`, {
+    method: 'PATCH',
+    accessToken,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function saveProjectMilestones(
+  accessToken: string,
+  projectId: string,
+  payload: ProjectMilestonesPayload
+) {
+  return request<ProjectResponse>(`projects/${projectId}/milestones`, {
+    method: 'PATCH',
+    accessToken,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function saveProjectCampaign(
+  accessToken: string,
+  projectId: string,
+  payload: ProjectCampaignPayload
+) {
+  return request<ProjectResponse>(`projects/${projectId}/campaign`, {
+    method: 'PATCH',
+    accessToken,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function submitProjectDraft(
+  accessToken: string,
+  projectId: string
+) {
+  return request<ProjectResponse>(`projects/${projectId}/submit`, {
+    method: 'POST',
+    accessToken,
+  });
+}
+
+export async function inviteProjectMember(
+  accessToken: string,
+  projectId: string,
+  payload: InviteMemberPayload
+) {
+  return request<ProjectResponse>(`projects/${projectId}/members`, {
+    method: 'POST',
+    accessToken,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function removeProjectMember(
+  accessToken: string,
+  projectId: string,
+  userId: string
+) {
+  return request<ProjectResponse>(`projects/${projectId}/members/${userId}`, {
+    method: 'DELETE',
+    accessToken,
+  });
+}
+
+export async function completeDigitalTwinMilestone(
+  accessToken: string,
+  projectId: string,
+  milestoneId: string,
+  completed: boolean
+) {
+  return request<DigitalTwinView>(
+    `digital-twin/projects/${projectId}/milestones/${milestoneId}/complete`,
+    {
+      method: 'PATCH',
+      accessToken,
+      body: JSON.stringify({ completed }),
+    }
+  );
+}
+
+export async function logoutBackendSession() {
+  await request<null>('auth/logout', {
+    method: 'POST',
+  });
+}
+
+export async function deleteBackendAccount(accessToken: string) {
+  await request<null>('me', {
+    method: 'DELETE',
+    accessToken,
+  });
+}

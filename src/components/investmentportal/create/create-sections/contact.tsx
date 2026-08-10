@@ -1,11 +1,11 @@
 import React from 'react';
-import { Slack, Mail } from 'lucide-react';
-import discord from '@public/assets/svg/Discord.svg';
-import facebook from '@public/assets/svg/facebook.svg';
-import Telegram from '@public/assets/svg/Telegram.svg';
-import X from '@public/assets/svg/X.svg';
-import instagram from '@public/assets/svg/instagram.svg';
-import linkedin from '@public/assets/svg/linkedin.svg';
+import { Mail, MessagesSquare } from 'lucide-react';
+import discord from '@/../public/assets/svg/Discord.svg';
+import facebook from '@/../public/assets/svg/facebook.svg';
+import Telegram from '@/../public/assets/svg/Telegram.svg';
+import X from '@/../public/assets/svg/X.svg';
+import instagram from '@/../public/assets/svg/instagram.svg';
+import linkedin from '@/../public/assets/svg/linkedin.svg';
 import { FormInput } from '@/components/ui/form-input';
 import Image from 'next/image';
 
@@ -16,7 +16,7 @@ export default function Contact() {
     { icon: X, title: 'X(Twitter)', link: '', type: 'image' },
     { icon: instagram, title: 'Instagram', link: '', type: 'image' },
     { icon: facebook, title: 'Facebook', link: '', type: 'image' },
-    { icon: Slack, title: 'Slack', link: '', type: 'component' },
+    { icon: MessagesSquare, title: 'Slack', link: '', type: 'component' },
     { icon: linkedin, title: 'Linkedin', link: '', type: 'image' },
     { icon: Mail, title: 'Email', link: '', type: 'component' },
   ];

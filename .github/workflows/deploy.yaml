@@ -5,34 +5,111 @@ on:
 
 jobs:
   build:
-    name: Build docker image
-    runs-on: prod-runner
+    name: Build and push Docker image
+    runs-on: [self-hosted, prod]
+    env:
+      ACR_REGISTRY: infrafund.azurecr.io
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-      - name: Build Docker image
+        uses: actions/checkout@v4
+      - name: Login to ACR
+        run: echo "$ACR_PASSWORD" | docker login "$ACR_REGISTRY" --username "$ACR_USERNAME" --password-stdin
+      - name: Build and push Docker image
         run: |
+          SHA=$(git rev-parse --short HEAD)
           docker build \
             -f ./deployment/Dockerfile \
-            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.PROD_API_BASE_URL }} \
-            --build-arg NEXT_PUBLIC_PROJECT_ID=${{ secrets.PARTICLE_PROJECT_ID }} \
-            --build-arg NEXT_PUBLIC_CLIENT_KEY=${{ secrets.PARTICLE_CLIENT_KEY }} \
-            --build-arg NEXT_PUBLIC_APP_ID=${{ secrets.PARTICLE_APP_ID }} \
-            -t infra-dashboard:prod .
+            --build-arg NEXT_PUBLIC_PRIVY_APP_ID=${{ secrets.PRIVY_APP_ID }} \
+            --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }} \
+            --build-arg NEXT_PUBLIC_ENVIRONMENT=production \
+            --build-arg NEXT_PUBLIC_GIT_SHA="$SHA" \
+            --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
+            --build-arg NEXT_PUBLIC_SENTRY_ENVIRONMENT=production \
+            -t "$ACR_REGISTRY/infra-dashboard:prod" \
+            -t "$ACR_REGISTRY/infra-dashboard:prod-$SHA" .
+          docker push "$ACR_REGISTRY/infra-dashboard:prod"
+          docker push "$ACR_REGISTRY/infra-dashboard:prod-$SHA"
 
   deploy:
     name: Deploy to Production Server
-    runs-on: prod-runner
+    runs-on: [self-hosted, prod]
     needs: build
+    env:
+      # Deploy the compose file straight from the checked-out repo instead of
+      # a manually-maintained VM-side copy (vars.DOCKER_COMPOSE_PATH_PRODUCTION)
+      # -- the dev equivalent of that copy silently drifted from the repo
+      # (still had Openfort/Shield vars long after this app moved to Privy),
+      # so verify this one is deleted/unused on the prod VM too.
+      COMPOSE_FILE: ./deployment/docker-compose.yml
+      # Compose derives its project name from the compose file's directory by
+      # default; pin it explicitly so it stays stable (and keeps recognizing
+      # the already-running container across --force-recreate) regardless of
+      # which path/directory invokes it.
+      COMPOSE_PROJECT_NAME: dashboard
     steps:
-      - name: Deploy with Docker Compose
-        run: docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }} up -d dashboard --force-recreate
-      - name: Wait for container readiness
-        run: |
-          echo "Waiting for container to be ready..."
-          sleep 5
-          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }} ps
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Verify deployment
+      - name: Run Prisma migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_PRODUCTION }} logs --tail=20 dashboard
+          docker run --rm \
+            --network internal \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -v "$PWD/prisma:/app/prisma" \
+            -v "$PWD/prisma.config.ts:/app/prisma.config.ts" \
+            -w /app \
+            node:22-alpine \
+            sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
+          # If this fails, investigate the target DB's actual state before
+          # baselining/resolving anything by hand -- do not add a blind
+          # `migrate resolve --applied` fallback here. That pattern silently
+          # bookkeeping-marks migrations as applied without running their SQL,
+          # which is exactly what corrupted the dev DB's migration history
+          # (see docs/deployment-azure.md troubleshooting checklist).
+
+      - name: Write runtime secrets to env file
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          APP_JWT_SECRET: ${{ secrets.APP_JWT_SECRET }}
+          NEXT_PUBLIC_PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZURE_STORAGE_CONTAINER_NAME: ${{ secrets.AZURE_STORAGE_CONTAINER_NAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\nAZURE_STORAGE_CONNECTION_STRING=%s\nAZURE_STORAGE_CONTAINER_NAME=%s\nSENTRY_DSN=%s\nSENTRY_ENVIRONMENT=production\n' \
+            "$DATABASE_URL" \
+            "$APP_JWT_SECRET" \
+            "$NEXT_PUBLIC_PRIVY_APP_ID" \
+            "$PRIVY_APP_SECRET" \
+            "$AZURE_STORAGE_CONNECTION_STRING" \
+            "$AZURE_STORAGE_CONTAINER_NAME" \
+            "$SENTRY_DSN" \
+            > /tmp/dashboard-prod.env
+
+      - name: Deploy with Docker Compose
+        run: |
+          docker compose -f "$COMPOSE_FILE" \
+            --env-file /tmp/dashboard-prod.env \
+            up -d dashboard --force-recreate
+
+      - name: Wait for healthy state
+        run: |
+          echo "Waiting for container to become healthy..."
+          for i in $(seq 1 12); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' infra-dashboard-prod 2>/dev/null || echo "unknown")
+            echo "Attempt $i/12 — health: $STATUS"
+            [ "$STATUS" = "healthy" ] && exit 0
+            sleep 5
+          done
+          echo "Container did not become healthy within 60s"
+          docker compose -f "$COMPOSE_FILE" logs --tail=50 dashboard
+          exit 1
+
+      - name: Cleanup temp env file
+        if: always()
+        run: rm -f /tmp/dashboard-prod.env

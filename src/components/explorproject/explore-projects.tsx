@@ -1,7 +1,7 @@
 import React from 'react';
 import CardView from '../ui/card-view';
 import Image from 'next/image';
-import ProjectImage from '@public/assets/image/explore-data.jpg';
+import ProjectImage from '@/../public/assets/image/explore-data.jpg';
 import CurrencyProgressBar from '../ui/currency-progress-bar';
 import { CustomButton } from '../ui/custom-button';
 

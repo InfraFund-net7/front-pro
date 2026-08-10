@@ -1,5 +1,5 @@
 import React from 'react';
-import emptylogo from '@public/assets/svg/emptyinvestment.svg';
+import emptylogo from '@/../public/assets/svg/emptyinvestment.svg';
 import Image from 'next/image';
 import { CustomButton } from '@/components/ui/custom-button';
 import { PackagePlus } from 'lucide-react';

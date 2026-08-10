@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import DeveloperHome from '@/components/developer/developer-home';
 
-export default function HomePage() {
-  redirect('/explore-projects');
+export default function Page() {
+  return <DeveloperHome />;
 }

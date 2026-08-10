@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, FileText, ImageIcon } from 'lucide-react';
 import { FileUpload } from './file-upload';
 import Image from 'next/image';
@@ -19,13 +19,19 @@ export function FileUploadWithPreview({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  // Revoke the object URL when it changes or the component unmounts; otherwise
+  // every replaced preview leaks until page unload.
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
     onFileChange(file);
 
     if (type === 'image') {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
@@ -54,8 +60,11 @@ export function FileUploadWithPreview({
           <div className="flex items-start gap-4">
             {type === 'image' && previewUrl ? (
               <Image
-                src={previewUrl || '/placeholder.svg'}
+                src={previewUrl}
                 alt="Preview"
+                width={64}
+                height={64}
+                unoptimized
                 className="w-16 h-16 object-cover rounded-lg"
               />
             ) : (

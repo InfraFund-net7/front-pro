@@ -6,7 +6,7 @@ import { BookUser, Gem, IdCard } from 'lucide-react';
 import { CustomButton } from '../ui/custom-button';
 import BoxUpload from '../ui/box-upload';
 import Image from 'next/image';
-import finish from '@public/assets/svg/advance-section-finish.svg';
+import finish from '@/../public/assets/svg/advance-section-finish.svg';
 
 const portatialdata = [
   { name: 'Don’t use beauty photos' },

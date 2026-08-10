@@ -5,34 +5,110 @@ on:
 
 jobs:
   build:
-    name: Build docker image
-    runs-on: develop-runner
+    name: Build and push Docker image
+    runs-on: [self-hosted, dev]
+    env:
+      ACR_REGISTRY: infrafund.azurecr.io
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-      - name: Build Docker image
+        uses: actions/checkout@v4
+      - name: Login to ACR
+        run: echo "$ACR_PASSWORD" | docker login "$ACR_REGISTRY" --username "$ACR_USERNAME" --password-stdin
+      - name: Build and push Docker image
         run: |
+          SHA=$(git rev-parse --short HEAD)
           docker build \
             -f ./deployment/Dockerfile \
-            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.DEV_API_BASE_URL }} \
-            --build-arg NEXT_PUBLIC_PROJECT_ID=${{ secrets.DEV_PARTICLE_PROJECT_ID }} \
-            --build-arg NEXT_PUBLIC_CLIENT_KEY=${{ secrets.DEV_PARTICLE_CLIENT_KEY }} \
-            --build-arg NEXT_PUBLIC_APP_ID=${{ secrets.DEV_PARTICLE_APP_ID }} \
-            -t infra-dashboard:dev .
+            --build-arg NEXT_PUBLIC_PRIVY_APP_ID=${{ secrets.PRIVY_APP_ID }} \
+            --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.DEV_RECAPTCHA_SITE_KEY }} \
+            --build-arg NEXT_PUBLIC_ENVIRONMENT=development \
+            --build-arg NEXT_PUBLIC_GIT_SHA="$SHA" \
+            --build-arg NEXT_PUBLIC_DIGITAL_TWIN_DEMO_MODE=true \
+            --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ secrets.DEV_SENTRY_DSN }} \
+            --build-arg NEXT_PUBLIC_SENTRY_ENVIRONMENT=development \
+            -t "$ACR_REGISTRY/infra-dashboard:dev" \
+            -t "$ACR_REGISTRY/infra-dashboard:dev-$SHA" .
+          docker push "$ACR_REGISTRY/infra-dashboard:dev"
+          docker push "$ACR_REGISTRY/infra-dashboard:dev-$SHA"
 
   deploy:
     name: Deploy to Development Server
-    runs-on: develop-runner
+    runs-on: [self-hosted, dev]
     needs: build
+    env:
+      # Deploy the compose file straight from the checked-out repo instead of
+      # a manually-maintained VM-side copy (vars.DOCKER_COMPOSE_PATH_DEVELOP)
+      # -- that copy silently drifted from the repo (still had Openfort/Shield
+      # vars long after this app moved to Privy), so the container never
+      # actually received NEXT_PUBLIC_PRIVY_APP_ID/PRIVY_APP_SECRET.
+      COMPOSE_FILE: ./deployment/docker-compose.dev.yml
+      # Compose derives its project name from the compose file's directory by
+      # default; pin it explicitly so it stays stable (and keeps recognizing
+      # the already-running container across --force-recreate) regardless of
+      # which path/directory invokes it.
+      COMPOSE_PROJECT_NAME: dashboard
     steps:
-      - name: Deploy with Docker Compose
-        run: docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }} up -d dashboard --force-recreate
-      - name: Wait for container readiness
-        run: |
-          echo "Waiting for container to be ready..."
-          sleep 5
-          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }} ps
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Verify deployment
+      - name: Run Prisma migrations
+        env:
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
         run: |
-          docker compose -f ${{ vars.DOCKER_COMPOSE_PATH_DEVELOP }} logs --tail=20 dashboard
+          docker run --rm \
+            --network internal \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -v "$PWD/prisma:/app/prisma" \
+            -v "$PWD/prisma.config.ts:/app/prisma.config.ts" \
+            -w /app \
+            node:22-alpine \
+            sh -c "npm install prisma@7.8.0 --no-save --silent && npx prisma migrate deploy"
+
+      - name: Write runtime secrets to env file
+        env:
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+          APP_JWT_SECRET: ${{ secrets.DEV_APP_JWT_SECRET }}
+          NEXT_PUBLIC_PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.DEV_AZURE_STORAGE_CONNECTION_STRING }}
+          AZURE_STORAGE_CONTAINER_NAME: ${{ secrets.DEV_AZURE_STORAGE_CONTAINER_NAME }}
+          SENTRY_DSN: ${{ secrets.DEV_SENTRY_DSN }}
+        run: |
+          printf 'DATABASE_URL=%s\nAPP_JWT_SECRET=%s\nNEXT_PUBLIC_PRIVY_APP_ID=%s\nPRIVY_APP_SECRET=%s\nAZURE_STORAGE_CONNECTION_STRING=%s\nAZURE_STORAGE_CONTAINER_NAME=%s\nSENTRY_DSN=%s\nSENTRY_ENVIRONMENT=development\n' \
+            "$DATABASE_URL" \
+            "$APP_JWT_SECRET" \
+            "$NEXT_PUBLIC_PRIVY_APP_ID" \
+            "$PRIVY_APP_SECRET" \
+            "$AZURE_STORAGE_CONNECTION_STRING" \
+            "$AZURE_STORAGE_CONTAINER_NAME" \
+            "$SENTRY_DSN" \
+            > /tmp/dashboard-dev.env
+
+      - name: Deploy with Docker Compose
+        run: |
+          docker compose -f "$COMPOSE_FILE" \
+            --env-file /tmp/dashboard-dev.env \
+            up -d dashboard --force-recreate
+
+      - name: Wait for healthy state
+        run: |
+          echo "Waiting for container to become healthy..."
+          for i in $(seq 1 12); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' infra-dashboard-dev 2>/dev/null || echo "unknown")
+            echo "Attempt $i/12 — health: $STATUS"
+            [ "$STATUS" = "healthy" ] && exit 0
+            sleep 5
+          done
+          echo "Container did not become healthy within 60s"
+          docker compose -f "$COMPOSE_FILE" logs --tail=50 dashboard
+          exit 1
+
+      - name: Show recent app logs
+        if: always()
+        run: docker compose -f "$COMPOSE_FILE" logs --tail=200 dashboard
+
+      - name: Cleanup temp env file
+        if: always()
+        run: rm -f /tmp/dashboard-dev.env
