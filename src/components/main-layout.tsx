@@ -9,15 +9,26 @@ import { AuthLoadingState } from './auth/auth-state';
 import { useAuthSession } from './auth/auth-session-provider';
 import { AuthProgressModal } from './auth/auth-progress-modal';
 import { BuildInfo } from './build-info';
+import { DEMO_DIGITAL_TWIN_PROJECT_ID } from '@/lib/digital-twin-demo';
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
+// Matches the demo digital-twin route regardless of who's logged in -- kept
+// in sync with the server-side bypass in digital-twin-access.ts, which
+// already treats this project as view-only public for the same reason.
+// Only exempted from the unauthenticated redirect below, not from the
+// dashboard chrome -- a logged-in user clicking the demo link should still
+// see the normal sidebar/header, same as any other page.
+const DEMO_DIGITAL_TWIN_PATH = `/projects/${DEMO_DIGITAL_TWIN_PROJECT_ID}/digital-twin`;
+
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isPublicRoute = pathname === '/' || pathname === '/login';
+  const isUnauthenticatedAllowedRoute =
+    isPublicRoute || pathname === DEMO_DIGITAL_TWIN_PATH;
   const { status, isPrivyReady, isPrivyAuthenticated } = useAuthSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -34,10 +45,21 @@ export function MainLayout({ children }: MainLayoutProps) {
       return;
     }
 
+    if (isUnauthenticatedAllowedRoute) {
+      return;
+    }
+
     if (status === 'unauthenticated') {
       router.replace('/');
     }
-  }, [isPrivyReady, isPublicRoute, pathname, router, status]);
+  }, [
+    isPrivyReady,
+    isPublicRoute,
+    isUnauthenticatedAllowedRoute,
+    pathname,
+    router,
+    status,
+  ]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
