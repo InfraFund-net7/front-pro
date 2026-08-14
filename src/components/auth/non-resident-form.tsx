@@ -20,7 +20,6 @@ interface PrivyUserDetails {
 interface NonResidentFormProps {
   type: 'individual' | 'organization';
   privyUser?: PrivyUserDetails | null;
-  onBack: () => void;
   onSuccess: () => void | Promise<void>;
 }
 
@@ -44,7 +43,6 @@ function splitName(fullName?: string | null) {
 export function NonResidentForm({
   type,
   privyUser,
-  onBack,
   onSuccess,
 }: NonResidentFormProps) {
   const defaultName = useMemo(() => splitName(privyUser?.name), [privyUser]);
@@ -201,15 +199,14 @@ export function NonResidentForm({
   return (
     <div className="flex w-full flex-col gap-6 py-2 text-left text-white">
       <div className="space-y-2">
-        <h3 className="text-2xl font-semibold">Stay in touch</h3>
         <p className="text-sm text-[#C7CAD5]">{disclaimer}</p>
-        <p className="text-sm text-[#C7CAD5]">
-          If you&apos;d like to hear from us when eligibility expands, leave
-          your details below.
+        <p className="text-sm font-semibold text-[#C7CAD5]">
+          If you would like to be notified when we are able to accept
+          investments from your country, complete the form below.
         </p>
       </div>
 
-      <div className="grid w-full gap-4 md:grid-cols-2">
+      <div className="flex w-full flex-col gap-4">
         {type === 'individual' ? (
           <>
             <FormInput
@@ -235,7 +232,6 @@ export function NonResidentForm({
               value={contactFullName}
               onChange={(event) => setContactFullName(event.target.value)}
               invalid={!hasFullContactName}
-              className="md:col-span-2"
             />
             <FormInput
               label="Company Name"
@@ -243,19 +239,9 @@ export function NonResidentForm({
               value={companyName}
               onChange={(event) => setCompanyName(event.target.value)}
               invalid={!companyName.trim()}
-              className="md:col-span-2"
             />
           </>
         )}
-
-        <FormInput
-          label="Email"
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          className="md:col-span-2"
-        />
 
         <Dropdown
           label="Country"
@@ -269,7 +255,14 @@ export function NonResidentForm({
           placeholder={
             isLoadingCountries ? 'Loading countries...' : 'Select a country'
           }
-          className="md:col-span-2"
+        />
+
+        <FormInput
+          label={type === 'organization' ? 'Work Email' : 'Email'}
+          placeholder={type === 'organization' ? 'Work Email' : 'Email'}
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
         />
       </div>
 
@@ -285,23 +278,13 @@ export function NonResidentForm({
         </p>
       ) : null}
 
-      <div className="flex w-full flex-col gap-3 sm:flex-row">
-        <CustomButton
-          variant="outlined"
-          className="w-full px-6 py-3 text-base sm:w-1/2"
-          onClick={onBack}
-          disabled={isSubmitting}
-        >
-          Back
-        </CustomButton>
-        <CustomButton
-          className="w-full px-6 py-3 text-base sm:w-1/2"
-          onClick={handleSubmit}
-          disabled={!isValid || Boolean(countryError) || isLoadingCountries}
-        >
-          {isSubmitting ? 'Submitting...' : 'Notify me'}
-        </CustomButton>
-      </div>
+      <CustomButton
+        className="w-full px-6 py-3 text-base"
+        onClick={handleSubmit}
+        disabled={!isValid || Boolean(countryError) || isLoadingCountries}
+      >
+        {isSubmitting ? 'Submitting...' : 'Submit'}
+      </CustomButton>
     </div>
   );
 }

@@ -521,7 +521,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   ]);
 
   const completeOnboarding = useCallback(
-    async ({ role, type, organizationName }: QualificationSubmission) => {
+    async ({
+      role,
+      type,
+      organizationName,
+      firstName,
+      lastName,
+      phoneNumber,
+      email,
+    }: QualificationSubmission) => {
       if (!pendingOnboardingAccessToken) {
         setError('Privy access token is unavailable.');
         setStatus('error');
@@ -550,6 +558,10 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
             type,
             organization_name:
               type === 'organization' ? organizationName?.trim() : undefined,
+            first_name: firstName,
+            last_name: lastName,
+            phone_number: phoneNumber,
+            email,
           }
         );
         completeStep('creating_account');
